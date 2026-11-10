@@ -14,8 +14,7 @@ acceptance:
   - npm run verify
   - Từ bản đồ chạm Trang trại mở được game, chạm con bò nghe animal.cow rồi animal.cow-sound, nút 🏠 về lại bản đồ
   - Có ảnh app/test-results/shots/T-008-farm.png và T-008-tap.png
-attempts: 1
-last_error: npm run verify thất bại
+attempts: 0
 ---
 ## Mục tiêu
 Bé vào Trang trại: một bãi cỏ tròn như đĩa đất sét, 8 con vật 3D đứng thành hai hàng, khẽ lắc lư. Bé chạm con nào thì con đó nhảy lên co giãn, Đậu Đậu đọc tên ("Con bò") rồi "kêu" thay nó ("Ùm bò! Ùm bò!"). Không có đúng sai, chạm bao nhiêu cũng được. Nút 🏠 ở góc trên trái để về bản đồ.
