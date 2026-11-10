@@ -26,18 +26,31 @@ function Animal({ data, phaseOffset, onTap, isJumping, jumpProgress, onLoaded }:
   const { scene, animations } = useGLTF(import.meta.env.BASE_URL + 'models/' + data.model);
   const { actions } = useAnimations(animations, ref);
 
-  // Tính scale để chuẩn hóa chiều cao (dùng useMemo, không setState trong effect)
-  const scale = useMemo(() => {
-    const box = new Box3().setFromObject(scene);
+  // Clone và chuẩn hóa model
+  const { clonedScene, scale, yOffset } = useMemo(() => {
+    const cloned = scene.clone(true);
+    // Reset transform để đo chính xác
+    cloned.position.set(0, 0, 0);
+    cloned.rotation.set(0, 0, 0);
+    cloned.scale.set(1, 1, 1);
+    cloned.updateMatrixWorld(true);
+
+    const box = new Box3().setFromObject(cloned);
     const size = new Vector3();
     box.getSize(size);
+    // Scale theo CHIỀU CAO (y) để chuẩn hóa mọi con cùng chiều cao ~1.2
     const height = size.y;
-    return height > 0 ? TARGET_HEIGHT / height : 1;
+    const s = height > 0 ? TARGET_HEIGHT / height : 1;
+
+    // Tính offset Y để chân đặt trên mặt đất
+    const yOff = -box.min.y * s;
+
+    return { clonedScene: cloned, scale: s, yOffset: yOff };
   }, [scene]);
 
   // Áp vật liệu lì kiểu đất sét và chạy animation Idle
   useEffect(() => {
-    scene.traverse((child) => {
+    clonedScene.traverse((child) => {
       if ((child as Mesh).isMesh) {
         const mesh = child as Mesh;
         const mat = mesh.material as MeshStandardMaterial;
@@ -56,7 +69,7 @@ function Animal({ data, phaseOffset, onTap, isJumping, jumpProgress, onLoaded }:
 
     // Báo đã load xong
     onLoaded();
-  }, [scene, actions, onLoaded]);
+  }, [clonedScene, actions, onLoaded]);
 
   // Lắc lư idle và xử lý nhảy
   useFrame((state) => {
@@ -66,13 +79,13 @@ function Animal({ data, phaseOffset, onTap, isJumping, jumpProgress, onLoaded }:
     if (isJumping) {
       // Nhảy lên và squash/stretch
       const p = jumpProgress;
-      g.position.y = Math.sin(p * Math.PI) * 0.7;
+      g.position.y = yOffset + Math.sin(p * Math.PI) * 0.7;
       const sq = 1 + Math.sin(p * Math.PI * 2) * 0.08;
       g.scale.set(scale * sq, scale / sq, scale * sq);
     } else {
       // Lắc lư nhẹ
       g.rotation.y = Math.sin(state.clock.elapsedTime * 0.6 + phaseOffset) * 0.15;
-      g.position.y = 0;
+      g.position.y = yOffset;
       g.scale.set(scale, scale, scale);
     }
   });
@@ -83,7 +96,7 @@ function Animal({ data, phaseOffset, onTap, isJumping, jumpProgress, onLoaded }:
   return (
     <group position={data.pos}>
       <group ref={ref} rotation={[0, Math.PI, 0]}>
-        <primitive object={scene.clone()} />
+        <primitive object={clonedScene} />
       </group>
       {/* Vùng chạm trong suốt */}
       <mesh
@@ -311,7 +324,7 @@ export default function Game({ speaker, onExit }: GameProps) {
         background: 'linear-gradient(to bottom, var(--sky-top), var(--sky-bottom))',
       }}
     >
-      <Scene3D label="Trang trại" view={{ position: [0, 5.5, 12], target: [0, 0, -0.5], fov: 42 }}>
+      <Scene3D label="Trang trại" view={{ position: [0, 6, 14], target: [0, 0, -0.5], fov: 45 }}>
         <Suspense fallback={<GrassGround />}>
           <GrassGround />
           {ANIMALS.map((animal, i) => (
