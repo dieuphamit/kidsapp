@@ -220,10 +220,10 @@ function ShapeMesh({
           </RoundedBox>
         );
       case 'triangle':
-        // Xoay lăng trụ để mặt tam giác hướng về camera, nghiêng nhẹ 12° cho có khối
+        // Xoay lăng trụ để mặt tam giác hướng về camera (nghiêng ra phía trước), nghiêng nhẹ 12° cho có khối
         return (
           <mesh
-            rotation={[0.21, 0, 0]}
+            rotation={[-Math.PI / 2 + 0.21, 0, 0]}
             onPointerDown={handlePointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
