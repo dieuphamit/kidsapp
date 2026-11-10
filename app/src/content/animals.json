@@ -1,0 +1,19 @@
+[
+  { "key": "animal.cow", "vi": "Con bò", "ja": "うしさん" },
+  { "key": "animal.cow-sound", "vi": "Mò mò!", "ja": "モーモー!" },
+  { "key": "animal.chicken", "vi": "Con gà", "ja": "にわとりさん" },
+  { "key": "animal.chicken-sound", "vi": "Ò ó o!", "ja": "コケコッコー!" },
+  { "key": "animal.duck", "vi": "Con vịt", "ja": "あひるさん" },
+  { "key": "animal.duck-sound", "vi": "Quác quác quác!", "ja": "ガーガー!" },
+  { "key": "animal.pig", "vi": "Con heo", "ja": "ぶたさん" },
+  { "key": "animal.pig-sound", "vi": "Eng éc eng éc!", "ja": "ブーブー!" },
+  { "key": "animal.dog", "vi": "Con chó", "ja": "いぬさん" },
+  { "key": "animal.dog-sound", "vi": "Gâu gâu!", "ja": "ワンワン!" },
+  { "key": "animal.sheep", "vi": "Con cừu", "ja": "ひつじさん" },
+  { "key": "animal.sheep-sound", "vi": "Be he he he!", "ja": "ひつじさんは めえ めえって なくよ!" },
+  { "key": "animal.horse", "vi": "Con ngựa", "ja": "うまさん" },
+  { "key": "animal.horse-sound", "vi": "Hí hí hí!", "ja": "ヒヒーン!" },
+  { "key": "animal.rabbit", "vi": "Con thỏ", "ja": "うさぎさん" },
+  { "key": "animal.rabbit-sound", "vi": "Nhảy nhảy nhảy!", "ja": "ぴょんぴょん!" },
+  { "key": "farm.hello", "vi": "Đến trang trại rồi! Bé chạm vào bạn nào?", "ja": "まきばに ついたよ!どの こに さわる?" }
+]
