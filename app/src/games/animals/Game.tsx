@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF, useAnimations } from '@react-three/drei';
 import { Box3, Vector3 } from 'three';
@@ -8,6 +8,8 @@ import { BackHome } from '../../ui/BackHome';
 import type { GameProps } from '../../core/games';
 import { ANIMALS, type AnimalData } from './animals';
 
+const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
+
 const TARGET_HEIGHT = 1.2; // Chuẩn hóa chiều cao ~1.2 đơn vị
 
 type AnimalProps = {
@@ -16,9 +18,10 @@ type AnimalProps = {
   onTap: () => void;
   isJumping: boolean;
   jumpProgress: number;
+  onLoaded: () => void;
 };
 
-function Animal({ data, phaseOffset, onTap, isJumping, jumpProgress }: AnimalProps) {
+function Animal({ data, phaseOffset, onTap, isJumping, jumpProgress, onLoaded }: AnimalProps) {
   const ref = useRef<Group>(null);
   const { scene, animations } = useGLTF(import.meta.env.BASE_URL + 'models/' + data.model);
   const { actions } = useAnimations(animations, ref);
@@ -50,7 +53,10 @@ function Animal({ data, phaseOffset, onTap, isJumping, jumpProgress }: AnimalPro
     if (idleAction) {
       idleAction.play();
     }
-  }, [scene, actions]);
+
+    // Báo đã load xong
+    onLoaded();
+  }, [scene, actions, onLoaded]);
 
   // Lắc lư idle và xử lý nhảy
   useFrame((state) => {
@@ -141,13 +147,51 @@ export default function Game({ speaker, onExit }: GameProps) {
   const [lastSay, setLastSay] = useState('');
   const [jumping, setJumping] = useState<JumpState | null>(null);
   const [jumpProgress, setJumpProgress] = useState(0);
+  const [ready, setReady] = useState(false);
+  const [loadedCount, setLoadedCount] = useState(0);
   const soundTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const frameRef = useRef<number | null>(null);
 
-  const say = (key: string) => {
-    speaker.say(key);
-    setLastSay(key);
-  };
+  const say = useCallback(
+    (key: string) => {
+      speaker.say(key);
+      setLastSay(key);
+    },
+    [speaker]
+  );
+
+  const handleTap = useCallback(
+    (animalId: string) => {
+      // Hủy timeout cũ nếu có
+      if (soundTimeoutRef.current) {
+        clearTimeout(soundTimeoutRef.current);
+        soundTimeoutRef.current = null;
+      }
+
+      // Bắt đầu nhảy
+      setJumping({ id: animalId, startTime: Date.now() });
+
+      // Nói tên con vật
+      say(`animal.${animalId}`);
+
+      // Sau 1300ms nói tiếng kêu
+      soundTimeoutRef.current = setTimeout(() => {
+        say(`animal.${animalId}-sound`);
+      }, 1300);
+    },
+    [say]
+  );
+
+  const handleAnimalLoaded = useCallback(() => {
+    setLoadedCount((c) => c + 1);
+  }, []);
+
+  // Đánh dấu ready khi tất cả model đã load
+  useEffect(() => {
+    if (loadedCount >= ANIMALS.length && !ready) {
+      setReady(true);
+    }
+  }, [loadedCount, ready]);
 
   // Nói lời chào khi vào game
   useEffect(() => {
@@ -156,8 +200,17 @@ export default function Game({ speaker, onExit }: GameProps) {
       if (soundTimeoutRef.current) clearTimeout(soundTimeoutRef.current);
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [say]);
+
+  // Đăng ký hook cho e2e testing
+  useEffect(() => {
+    if (IS_E2E) {
+      window.__behocTap = handleTap;
+      return () => {
+        delete window.__behocTap;
+      };
+    }
+  }, [handleTap]);
 
   // Animation nhảy
   useEffect(() => {
@@ -188,29 +241,11 @@ export default function Game({ speaker, onExit }: GameProps) {
     };
   }, [jumping]);
 
-  const handleTap = (animalId: string) => {
-    // Hủy timeout cũ nếu có
-    if (soundTimeoutRef.current) {
-      clearTimeout(soundTimeoutRef.current);
-      soundTimeoutRef.current = null;
-    }
-
-    // Bắt đầu nhảy
-    setJumping({ id: animalId, startTime: Date.now() });
-
-    // Nói tên con vật
-    say(`animal.${animalId}`);
-
-    // Sau 1300ms nói tiếng kêu
-    soundTimeoutRef.current = setTimeout(() => {
-      say(`animal.${animalId}-sound`);
-    }, 1300);
-  };
-
   return (
     <div
       data-testid="game-animals"
       data-last-say={lastSay || undefined}
+      data-ready={ready ? 'true' : undefined}
       style={{
         position: 'fixed',
         inset: 0,
@@ -228,6 +263,7 @@ export default function Game({ speaker, onExit }: GameProps) {
               onTap={() => handleTap(animal.id)}
               isJumping={jumping?.id === animal.id}
               jumpProgress={jumping?.id === animal.id ? jumpProgress : 0}
+              onLoaded={handleAnimalLoaded}
             />
           ))}
         </Suspense>
