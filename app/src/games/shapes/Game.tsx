@@ -220,9 +220,10 @@ function ShapeMesh({
           </RoundedBox>
         );
       case 'triangle':
+        // Xoay lăng trụ để mặt tam giác hướng về camera, nghiêng nhẹ 12° cho có khối
         return (
           <mesh
-            rotation={[Math.PI / 2, 0, 0]}
+            rotation={[0.21, 0, 0]}
             onPointerDown={handlePointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
@@ -368,15 +369,15 @@ function CelebrationStars({ active }: { active: boolean }) {
 function Pond() {
   return (
     <group>
-      {/* Shore (grass) - extended to cover slot area */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 1.5]}>
-        <planeGeometry args={[10, 8]} />
+      {/* Shore (grass) - rộng hơn để không thấy mép trên iPad ngang */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 2]}>
+        <circleGeometry args={[40, 64]} />
         <meshStandardMaterial color={SHORE_COLOR} roughness={0.8} />
       </mesh>
-      {/* Water surface */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+      {/* Water surface - hạ xuống y=-0.05 để tránh z-fighting với ContactShadows */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
         <circleGeometry args={[3.5, 64]} />
-        <meshStandardMaterial color={POND_COLOR} roughness={0.3} transparent opacity={0.9} />
+        <meshStandardMaterial color={POND_COLOR} roughness={0.3} />
       </mesh>
     </group>
   );
@@ -826,7 +827,7 @@ export default function Game({ speaker, onExit }: GameProps) {
         background: 'linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%)',
       }}
     >
-      <Scene3D label="Hồ nước" view={{ position: [0, 3.6, 11], target: [0, 0.6, 0], fov: 38 }}>
+      <Scene3D label="Hồ nước" view={{ position: [0, 2.8, 9], target: [0, 0.3, 1.5], fov: 42 }} shadowScale={12}>
         <ShapesScene
           state={state}
           bouncingShapes={bouncingShapes}

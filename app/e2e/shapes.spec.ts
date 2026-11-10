@@ -1,6 +1,6 @@
-// E2E tests for Shapes game - T-009, T-011
+// E2E tests for Shapes game - T-009, T-011, T-018
 import { test, expect } from '@playwright/test';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, existsSync } from 'node:fs';
 
 // Slot positions from logic.ts (used for coordinate calculation)
 const SLOTS = {
@@ -10,8 +10,67 @@ const SLOTS = {
   circle: [2.4, 0, 3.5],
 } as const;
 
-test.beforeAll(() => {
-  mkdirSync('test-results/shots', { recursive: true });
+// Đảm bảo thư mục shots tồn tại
+const shotsDir = 'test-results/shots';
+if (!existsSync(shotsDir)) {
+  mkdirSync(shotsDir, { recursive: true });
+}
+
+// T-018: Hồ nước đẹp hơn
+test.describe('T-018: Hồ nước đẹp hơn', () => {
+  test('chụp hồ nước khi mới vào', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    await expect(page.getByTestId('home')).toBeVisible();
+
+    // Chạm nút Hồ nước
+    const pondButton = page.getByLabel('Hồ nước');
+    await pondButton.tap();
+
+    const gameEl = page.getByTestId('game-shapes');
+    await expect(gameEl).toBeVisible({ timeout: 10000 });
+    await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
+
+    // Đợi scene ổn định rồi chụp ảnh (không còn vệt tia tối)
+    await page.waitForTimeout(1500);
+    await page.screenshot({ path: 'test-results/shots/T-018-pond.png' });
+  });
+
+  test('chụp sau khi kéo đủ 4 khối', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    await expect(page.getByTestId('home')).toBeVisible();
+
+    // Vào game shapes
+    const pondButton = page.getByLabel('Hồ nước');
+    await pondButton.tap();
+    const gameEl = page.getByTestId('game-shapes');
+    await expect(gameEl).toBeVisible({ timeout: 10000 });
+    await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
+
+    // Đợi scene ổn định
+    await page.waitForTimeout(1000);
+
+    // Kéo từng khối vào đúng ô qua __behocDrag
+    const shapes = ['circle', 'square', 'triangle', 'star'] as const;
+    for (const shape of shapes) {
+      await page.evaluate(
+        ({ shape, slotX, slotZ }) => {
+          (window as unknown as { __behocDrag: (id: string, x: number, z: number) => void }).__behocDrag(
+            shape,
+            slotX,
+            slotZ
+          );
+        },
+        { shape, slotX: SLOTS[shape][0], slotZ: SLOTS[shape][2] }
+      );
+      await page.waitForTimeout(300);
+    }
+
+    // Đợi animation ăn mừng
+    await page.waitForTimeout(1200);
+
+    // Chụp ảnh lúc hoàn thành
+    await page.screenshot({ path: 'test-results/shots/T-018-done.png' });
+  });
 });
 
 test.describe('Shapes game (Màu và hình)', () => {
