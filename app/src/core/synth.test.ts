@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 
 // Mock Howler với ctx giả
 const fakeGain = {
@@ -42,7 +42,7 @@ function createFakeCtx(state: 'running' | 'suspended' = 'running') {
         },
         type: 'sine' as OscillatorType,
         start: vi.fn(),
-        stop: vi.fn((when?: number) => {
+        stop: vi.fn((_when?: number) => {
           // Simulate onended callback when stop is called
           setTimeout(() => osc.onended?.(), 0);
         }),
@@ -93,7 +93,7 @@ function createFakeCtx(state: 'running' | 'suspended' = 'running') {
         buffer: null as AudioBuffer | null,
         loop: false,
         start: vi.fn(),
-        stop: vi.fn((when?: number) => {
+        stop: vi.fn((_when?: number) => {
           setTimeout(() => src.onended?.(), 0);
         }),
         connect: vi.fn(),
@@ -258,7 +258,7 @@ describe('synth', () => {
     });
 
     it('đỉnh gain mọi loại ≤ 0.4', async () => {
-      const { synth, DRUM_KINDS } = await import('./synth');
+      const { DRUM_KINDS } = await import('./synth');
 
       for (const kind of DRUM_KINDS) {
         vi.resetModules();

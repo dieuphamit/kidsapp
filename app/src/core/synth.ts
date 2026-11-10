@@ -61,8 +61,8 @@ export function createSynth(
     return noiseBuffer;
   }
 
-  function addVoice(stop: () => void, startTime: number): void {
-    activeVoices.push({ stop, startTime });
+  function addVoice(voice: { stop: () => void; startTime: number }): void {
+    activeVoices.push(voice);
     // Nếu quá giới hạn, dừng âm cũ nhất
     while (activeVoices.length > MAX_VOICES) {
       const oldest = activeVoices.shift();
@@ -139,7 +139,7 @@ export function createSynth(
       },
       startTime: now,
     };
-    addVoice(voice, now);
+    addVoice(voice);
 
     // Cleanup khi kết thúc
     oscMain.onended = () => {
@@ -179,7 +179,7 @@ export function createSynth(
         osc.stop(now + 0.25);
 
         const voice = { stop: () => { try { osc.stop(); } catch { /* */ } }, startTime: now };
-        addVoice(voice, now);
+        addVoice(voice);
         osc.onended = () => {
           osc.disconnect();
           gain.disconnect();
@@ -210,7 +210,7 @@ export function createSynth(
         source.stop(now + 0.15);
 
         const voice = { stop: () => { try { source.stop(); } catch { /* */ } }, startTime: now };
-        addVoice(voice, now);
+        addVoice(voice);
         source.onended = () => {
           source.disconnect();
           filter.disconnect();
@@ -241,7 +241,7 @@ export function createSynth(
         source.stop(now + 0.12);
 
         const voice = { stop: () => { try { source.stop(); } catch { /* */ } }, startTime: now };
-        addVoice(voice, now);
+        addVoice(voice);
         source.onended = () => {
           source.disconnect();
           filter.disconnect();
@@ -286,7 +286,7 @@ export function createSynth(
           },
           startTime: now,
         };
-        addVoice(voice, now);
+        addVoice(voice);
         osc1.onended = () => {
           osc1.disconnect();
           osc2.disconnect();
