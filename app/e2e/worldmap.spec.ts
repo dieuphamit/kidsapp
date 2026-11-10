@@ -1,5 +1,10 @@
 // E2E tests for WorldMap component
 import { test, expect } from '@playwright/test';
+import { mkdirSync } from 'node:fs';
+
+test.beforeAll(() => {
+  mkdirSync('test-results/shots', { recursive: true });
+});
 
 test('WorldMap hiện 4 địa điểm, mây và Đậu Đậu', async ({ page }) => {
   await page.goto('./');
@@ -52,4 +57,7 @@ test('chụp ảnh WorldMap sau khi ổn định', async ({ page }) => {
   await page.waitForTimeout(800);
 
   await page.screenshot({ path: 'test-results/shots/T-005-worldmap.png' });
+
+  // Deliberately fail to test if tests are running
+  expect(false).toBe(true);
 });
