@@ -19,23 +19,25 @@
 
 .cloud {
   position: absolute;
+  z-index: 0;
   background: var(--paper);
   border-radius: 100px;
   box-shadow: 0 4px 12px rgba(60, 40, 120, 0.08);
+  opacity: 0.85;
   animation: drift linear infinite;
 }
 
 .cloud1 {
   width: 180px;
   height: 60px;
-  top: 8%;
+  top: 18%;
   animation-duration: 55s;
 }
 
 .cloud2 {
   width: 140px;
   height: 50px;
-  top: 16%;
+  top: 24%;
   animation-duration: 45s;
   animation-delay: -15s;
 }
@@ -43,7 +45,7 @@
 .cloud3 {
   width: 200px;
   height: 65px;
-  top: 6%;
+  top: 20%;
   animation-duration: 60s;
   animation-delay: -30s;
 }
@@ -51,7 +53,7 @@
 .cloud4 {
   width: 120px;
   height: 45px;
-  top: 20%;
+  top: 28%;
   animation-duration: 50s;
   animation-delay: -40s;
 }

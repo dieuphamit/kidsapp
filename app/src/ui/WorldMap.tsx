@@ -103,7 +103,9 @@ export function WorldMap({ games, lang, speaker, onPick }: Props) {
       <div className={styles.hill} />
 
       {/* Bong bóng chữ */}
-      <div className={styles.bubble}>{content.get('ui.where')?.[lang]}</div>
+      <div className={styles.bubble} data-testid="bubble">
+        {content.get('ui.where')?.[lang]}
+      </div>
 
       {/* Đậu Đậu */}
       <div className={styles.mascot}>

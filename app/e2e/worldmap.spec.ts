@@ -56,6 +56,45 @@ test('chụp ảnh WorldMap sau khi ổn định', async ({ page }) => {
   // Đợi 800ms cho mây và Đậu Đậu ổn định
   await page.waitForTimeout(800);
 
-  await page.screenshot({ path: 'test-results/shots/T-005-worldmap.png' });
+  await page.screenshot({ path: 'test-results/shots/T-017-worldmap.png' });
+});
 
+// Hàm helper kiểm tra 2 bounding box có giao nhau không
+function boxesOverlap(
+  a: { x: number; y: number; width: number; height: number },
+  b: { x: number; y: number; width: number; height: number },
+): boolean {
+  return !(
+    a.x + a.width <= b.x ||
+    b.x + b.width <= a.x ||
+    a.y + a.height <= b.y ||
+    b.y + b.height <= a.y
+  );
+}
+
+test('bong bóng không giao với mây ở 3 thời điểm', async ({ page }) => {
+  await page.goto('./');
+  await expect(page.getByTestId('home')).toBeVisible();
+
+  const bubble = page.getByTestId('bubble');
+  const clouds = page.locator('[data-testid="cloud"]');
+
+  // Kiểm tra ở 3 thời điểm: 0s, 2s, 4s
+  for (const waitTime of [0, 2000, 2000]) {
+    if (waitTime > 0) {
+      await page.waitForTimeout(waitTime);
+    }
+
+    const bubbleBox = await bubble.boundingBox();
+    expect(bubbleBox).not.toBeNull();
+
+    const cloudCount = await clouds.count();
+    for (let i = 0; i < cloudCount; i++) {
+      const cloudBox = await clouds.nth(i).boundingBox();
+      expect(cloudBox).not.toBeNull();
+
+      const overlap = boxesOverlap(bubbleBox!, cloudBox!);
+      expect(overlap, `Mây ${i + 1} giao với bong bóng`).toBe(false);
+    }
+  }
 });
