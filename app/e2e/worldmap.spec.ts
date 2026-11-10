@@ -1,10 +1,5 @@
+// E2E tests for WorldMap component
 import { test, expect } from '@playwright/test';
-import * as fs from 'fs';
-import * as path from 'path';
-
-// Ensure shots directory exists at the beginning
-const shotsDir = path.resolve(process.cwd(), 'test-results/shots');
-fs.mkdirSync(shotsDir, { recursive: true });
 
 test('WorldMap hiện 4 địa điểm, mây và Đậu Đậu', async ({ page }) => {
   await page.goto('./');
@@ -37,14 +32,10 @@ test('chạm địa điểm có phản hồi trong 100ms và ghi data-last-say',
 
   await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
 
-  // Đo thời gian phản hồi
-  const start = Date.now();
   await page.mouse.down();
 
-  // Chờ data-pressed xuất hiện (phản hồi nhanh)
+  // Chờ data-pressed xuất hiện (timeout 100ms đảm bảo phản hồi nhanh theo luật UX)
   await expect(orchardBtn).toHaveAttribute('data-pressed', '', { timeout: 100 });
-  const elapsed = Date.now() - start;
-  expect(elapsed).toBeLessThanOrEqual(100);
 
   // Gốc home có data-last-say
   const home = page.getByTestId('home');
@@ -60,5 +51,5 @@ test('chụp ảnh WorldMap sau khi ổn định', async ({ page }) => {
   // Đợi 800ms cho mây và Đậu Đậu ổn định
   await page.waitForTimeout(800);
 
-  await page.screenshot({ path: path.join(shotsDir, 'T-005-worldmap.png') });
+  await page.screenshot({ path: 'test-results/shots/T-005-worldmap.png' });
 });
