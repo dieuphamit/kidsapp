@@ -14,7 +14,8 @@ acceptance:
   - npm run verify
   - Từ bản đồ chạm Trang trại mở được game, chạm con bò nghe animal.cow rồi animal.cow-sound, nút 🏠 về lại bản đồ
   - Có ảnh app/test-results/shots/T-008-farm.png và T-008-tap.png
-attempts: 0
+attempts: 1
+last_error: npm run verify thất bại
 ---
 ## Mục tiêu
 Bé vào Trang trại: một bãi cỏ tròn như đĩa đất sét, 8 con vật 3D đứng thành hai hàng, khẽ lắc lư. Bé chạm con nào thì con đó nhảy lên co giãn, Đậu Đậu đọc tên ("Con bò") rồi "kêu" thay nó ("Ùm bò! Ùm bò!"). Không có đúng sai, chạm bao nhiêu cũng được. Nút 🏠 ở góc trên trái để về bản đồ.
@@ -61,3 +62,6 @@ Unit test đã qua hết; chỉ e2e trượt vì bấm vào mesh 3D trong Chromi
 - e2e: mở `./?e2e=1`, vào game, đợi `data-ready="true"` trên root game (đặt sau khi model/scene tải xong, dùng `useGLTF` + `Suspense` hoặc `onCreated` của Canvas), rồi gọi `page.evaluate(() => window.__behocTap('cow'))` để kiểm tra chuỗi `data-last-say`. Giữ thêm đúng 1 test bấm thật vào giữa canvas chỉ để chắc chạm thật có phản hồi (kiểm tra `data-last-say` đổi khác giá trị ban đầu), timeout 5 s.
 - Timeout: chuyển cảnh từ bản đồ vào game `toBeVisible({ timeout: 10000 })`; các kỳ vọng phụ thuộc animation/âm thanh ≥ 3000 ms. Không dùng `waitForTimeout` để chờ trạng thái — dùng `expect(...).toHaveAttribute(..., { timeout })`.
 - Khai báo kiểu `window.__behocTap` trong `src/vite-env.d.ts` nếu cần (thêm file này vào scope nếu sửa) hoặc dùng `(window as unknown as {...})`.
+
+## Phản hồi của bố mẹ (2026-11-11)
+- Bố cục chưa đạt (xem ảnh T-008-farm.png): 8 con dồn một hàng che nhau, chỉ thấy 5 con; ngựa cao gấp ~3 lần con khác; mặt đất là đĩa xanh nghiêng khổng lồ. Sửa: (1) chuẩn hóa CHIỀU CAO mọi con về ~1.2 đơn vị bằng Box3 của cả model (ngựa cũng vậy); (2) xếp 8 con thành 2 hàng so le hoặc vòng cung, khoảng cách đủ để không con nào che con nào, cả 8 con nằm trọn trong khung iPad ngang 1194x834 với lề an toàn, mỗi con có vùng chạm đủ lớn; (3) mặt đất là đồng cỏ phẳng kéo tới chân trời (plane lớn màu cỏ đất sét) với vài bụi cây/hàng rào gỗ đơn giản phía sau, camera nhìn hơi chếch từ trên xuống ~20°; (4) giữ vật liệu đất sét (roughness 0.85, metalness 0). Chụp lại T-008-farm.png và tự xem ảnh trước khi báo xong.
