@@ -1,5 +1,5 @@
 // Performance tests: FPS >= 50 cho các scene 3D và 2.5D
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 
 test.beforeAll(() => {
