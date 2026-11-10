@@ -26,6 +26,27 @@ test('sleepUntil không ngủ quá hạn chót; mặc định 30 phút khi khôn
   assert.deepEqual(slept, [1_000_000, 30 * 60_000]);
 });
 
+test('deadlineFrom từ chối giờ sai định dạng HH:MM bằng thông báo tiếng Việt', () => {
+  const now = new Date(2026, 10, 11, 23, 0);
+  for (const bad of ['24:00', '06:60', '6:30', '0630', 'abc', '', ' 06:30', null]) {
+    assert.throws(() => deadlineFrom(now, bad), /giờ dừng không hợp lệ/, String(bad));
+  }
+  assert.equal(deadlineFrom(now, '00:00').getHours(), 0);
+  assert.equal(deadlineFrom(now, '23:59').getMinutes(), 59);
+});
+
+test('sleepUntil: giờ reset đã qua thì vẫn ngủ tối thiểu 60 s, nhưng không quá hạn chót', async () => {
+  const slept = [];
+  const sleep = async (ms) => { slept.push(ms); };
+  const now = () => 1_000_000;
+  await sleepUntil(500_000, new Date(99_000_000), now, sleep);
+  await sleepUntil(1_000_000, new Date(99_000_000), now, sleep);
+  await sleepUntil(500_000, new Date(1_020_000), now, sleep);
+  await sleepUntil(500_000, new Date(900_000), now, sleep);
+  await sleepUntil(null, new Date(900_000), now, sleep);
+  assert.deepEqual(slept, [60_000, 60_000, 20_000, 0, 0]);
+});
+
 test('lock chạy tuần tự, lỗi không làm kẹt khóa', async () => {
   const lock = createLock();
   const order = [];
