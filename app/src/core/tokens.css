@@ -1,0 +1,24 @@
+:root {
+  --sky-top: #bfe6ff;
+  --sky-bottom: #e9d9ff;
+  --grass: #9be38a;
+  --clay-peach: #ffb4a2;
+  --clay-mint: #a0e7e5;
+  --clay-butter: #ffe29a;
+  --clay-leaf: #b4f8c8;
+  --clay-lilac: #cdb4ff;
+  --ink: #3b2a6b;
+  --ink-soft: #5b3fa8;
+  --paper: #ffffff;
+  --radius-clay: 36px;
+  --radius-bubble: 16px;
+  --shadow-clay: inset -8px -10px 18px rgba(0, 0, 0, 0.18), inset 8px 10px 18px rgba(255, 255, 255, 0.7),
+    0 14px 22px rgba(60, 40, 120, 0.25);
+  --shadow-clay-pressed: inset -4px -5px 10px rgba(0, 0, 0, 0.2), inset 4px 5px 10px rgba(255, 255, 255, 0.6),
+    0 4px 8px rgba(60, 40, 120, 0.25);
+  --touch-min: 120px;
+  --touch-gap: 24px;
+  --ease-squish: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-press: 120ms;
+  --font-kid: 'Baloo 2', 'Nunito', system-ui, sans-serif;
+}
