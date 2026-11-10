@@ -1,14 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const { play, stop, Howl } = vi.hoisted(() => {
+const { play, stop, Howl, Howler } = vi.hoisted(() => {
   const play = vi.fn();
   const stop = vi.fn();
   const Howl = vi.fn(function () { return { play, stop }; });
-  return { play, stop, Howl };
+  const Howler = { ctx: { state: 'suspended', resume: vi.fn() } };
+  return { play, stop, Howl, Howler };
 });
-vi.mock('howler', () => ({ Howl }));
+vi.mock('howler', () => ({ Howl, Howler }));
 
-import { audioUrl, sfxUrl, createSpeaker } from './audio';
+import { audioUrl, sfxUrl, createSpeaker, unlockAudioOnFirstGesture } from './audio';
 
 describe('audio', () => {
   beforeEach(() => { Howl.mockClear(); play.mockClear(); stop.mockClear(); });
@@ -33,5 +34,18 @@ describe('audio', () => {
     sp.say('ui.hello');
     sp.say('ui.great');
     expect(stop).toHaveBeenCalled();
+  });
+  it('unlockAudioOnFirstGesture resume AudioContext ở lần chạm đầu rồi gỡ listener', () => {
+    Howler.ctx.resume.mockClear();
+    unlockAudioOnFirstGesture();
+    window.dispatchEvent(new Event('touchend'));
+    window.dispatchEvent(new Event('click'));
+    expect(Howler.ctx.resume).toHaveBeenCalledTimes(1);
+  });
+  it('cleanup gỡ listener trước khi có chạm', () => {
+    Howler.ctx.resume.mockClear();
+    unlockAudioOnFirstGesture()();
+    window.dispatchEvent(new Event('click'));
+    expect(Howler.ctx.resume).not.toHaveBeenCalled();
   });
 });

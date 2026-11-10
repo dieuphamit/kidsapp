@@ -1,4 +1,4 @@
-import { Howl } from 'howler';
+import { Howl, Howler } from 'howler';
 import type { Lang } from './i18n';
 
 const BASE = import.meta.env.BASE_URL;
@@ -37,4 +37,17 @@ export function createSpeaker(getLang: () => Lang, base = BASE): Speaker {
       get(sfxUrl(name, base)).play();
     },
   };
+}
+
+/** iOS Safari chỉ mở khóa Web Audio ở touchend/click: resume AudioContext một lần rồi gỡ listener. */
+export function unlockAudioOnFirstGesture(): () => void {
+  const events = ['touchend', 'click'] as const;
+  const remove = () => events.forEach((e) => window.removeEventListener(e, unlock));
+  function unlock() {
+    const ctx = Howler.ctx;
+    if (ctx && ctx.state === 'suspended') void ctx.resume();
+    remove();
+  }
+  events.forEach((e) => window.addEventListener(e, unlock));
+  return remove;
 }
