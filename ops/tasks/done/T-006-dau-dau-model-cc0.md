@@ -13,6 +13,7 @@ acceptance:
   - Màn hình chính tải models/cat.glb (HTTP 200) và Đậu Đậu vẫn nhảy, nói ui.hello khi chạm
   - Có ảnh app/test-results/shots/T-006-daudau.png
 attempts: 0
+cancelled: true
 ---
 ## Mục tiêu
 Đậu Đậu trên bản đồ là con mèo 3D thật (model CC0 `cat.glb` từ T-003) thay cho mèo ghép từ quả cầu. Vẫn xoay qua lại nhè nhẹ, chạm vào thì nhảy lên co giãn kiểu đất sét và chào bé.
@@ -46,3 +47,6 @@ attempts: 0
 
 ## Màu của Đậu Đậu (bố mẹ yêu cầu, 10/11)
 Model `cat.glb` (Kenney Cube Pets) màu xám, nhưng Đậu Đậu đã chốt là mèo **kem cam** (`#f6c27a`, bụng/mõm kem `#fff1dc`, như bản tạm hiện tại). Khi nạp model, đổi màu vật liệu thân (nhân màu texture hoặc thay `material.color`) sang kem cam; giữ mắt và chi tiết tối. Chụp ảnh so sánh với bản tạm. Đặt `roughness` ≈ 0.85, `metalness` 0 cho cảm giác đất sét.
+
+## Hủy (11/11, 00:10)
+Không merge. Model Kenney (mèo khối vuông, nhuộm ra màu nâu sẫm) kém dễ thương hơn Đậu Đậu tròn hiện có mà bố mẹ đã duyệt. Giữ nguyên DauDau.tsx bản ghép khối.

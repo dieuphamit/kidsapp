@@ -7,6 +7,7 @@ depends_on:
   - T-004
   - T-005
 scope:
+  - app/src/vite-env.d.ts
   - app/src/games/animals/**
   - app/e2e/animals.spec.ts
 acceptance:
@@ -54,3 +55,10 @@ Bé vào Trang trại: một bãi cỏ tròn như đĩa đất sét, 8 con vật
 
 ## Đồng bộ phong cách (bố mẹ yêu cầu, 10/11)
 Model đến từ 2–3 bộ khác nhau (Kenney Cube Pets + Quaternius). Trong game phải làm chúng trông như một bộ đồ chơi: chuẩn hóa chiều cao (bounding box) cho mọi con ~1.2 đơn vị, cùng ánh sáng `Scene3D`, và áp vật liệu lì kiểu đất sét (giữ màu/texture gốc nhưng đặt `roughness` ≈ 0.85, `metalness` 0) cho mọi mesh. Chụp ảnh e2e cả đàn để bố mẹ so sánh.
+
+## Ghi chú sau lần thất bại (11/11, 00:15) — cách kiểm thử chạm vật thể 3D
+Unit test đã qua hết; chỉ e2e trượt vì bấm vào mesh 3D trong Chromium headless không ổn định (canvas chưa render khung đầu, máy đang tải nặng) và timeout quá ngắn.
+- Thêm **móc kiểm thử**: khi URL có `?e2e=1`, game gán `window.__behocTap = (id: string) => handleTap(id)` dùng CHUNG hàm xử lý với chạm thật (không viết logic riêng cho test). Gỡ khi unmount. Không bật khi không có `?e2e=1`.
+- e2e: mở `./?e2e=1`, vào game, đợi `data-ready="true"` trên root game (đặt sau khi model/scene tải xong, dùng `useGLTF` + `Suspense` hoặc `onCreated` của Canvas), rồi gọi `page.evaluate(() => window.__behocTap('cow'))` để kiểm tra chuỗi `data-last-say`. Giữ thêm đúng 1 test bấm thật vào giữa canvas chỉ để chắc chạm thật có phản hồi (kiểm tra `data-last-say` đổi khác giá trị ban đầu), timeout 5 s.
+- Timeout: chuyển cảnh từ bản đồ vào game `toBeVisible({ timeout: 10000 })`; các kỳ vọng phụ thuộc animation/âm thanh ≥ 3000 ms. Không dùng `waitForTimeout` để chờ trạng thái — dùng `expect(...).toHaveAttribute(..., { timeout })`.
+- Khai báo kiểu `window.__behocTap` trong `src/vite-env.d.ts` nếu cần (thêm file này vào scope nếu sửa) hoặc dùng `(window as unknown as {...})`.

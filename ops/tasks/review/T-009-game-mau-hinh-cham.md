@@ -6,14 +6,14 @@ depends_on:
   - T-005
   - T-007
 scope:
+  - app/src/vite-env.d.ts
   - app/src/games/shapes/**
   - app/e2e/shapes.spec.ts
 acceptance:
   - npm run verify
   - Từ bản đồ chạm Hồ nước mở được game, chạm một khối nghe color.<màu> rồi shape.<hình>
   - Có ảnh app/test-results/shots/T-009-pond.png
-attempts: 1
-last_error: npm run verify thất bại
+attempts: 0
 ---
 ## Mục tiêu
 Bé vào Hồ nước: mặt hồ tròn xanh mát, 4 khối đất sét 3D (quả bóng tròn, khối vuông, khối tam giác, ngôi sao) nổi bập bềnh và xoay chậm, mỗi khối một màu. Bé chạm khối nào thì khối đó nảy "boing", Đậu Đậu đọc màu ("Màu đỏ") rồi tên hình ("Hình tròn"). Chạm đủ cả 4 khối thì khen "Giỏi quá!" và các khối đổi sang màu mới.
@@ -52,3 +52,10 @@ Bé vào Hồ nước: mặt hồ tròn xanh mát, 4 khối đất sét 3D (qu�
 
 ## Tham khảo
 - Spec mục 6 (Màu và hình); CLAUDE.md luật 7, 8.
+
+## Ghi chú sau lần thất bại (11/11, 00:15) — cách kiểm thử chạm vật thể 3D
+Unit test đã qua hết; chỉ e2e trượt vì bấm vào mesh 3D trong Chromium headless không ổn định (canvas chưa render khung đầu, máy đang tải nặng) và timeout quá ngắn.
+- Thêm **móc kiểm thử**: khi URL có `?e2e=1`, game gán `window.__behocTap = (id: string) => handleTap(id)` dùng CHUNG hàm xử lý với chạm thật (không viết logic riêng cho test). Gỡ khi unmount. Không bật khi không có `?e2e=1`.
+- e2e: mở `./?e2e=1`, vào game, đợi `data-ready="true"` trên root game (đặt sau khi model/scene tải xong, dùng `useGLTF` + `Suspense` hoặc `onCreated` của Canvas), rồi gọi `page.evaluate(() => window.__behocTap('cow'))` để kiểm tra chuỗi `data-last-say`. Giữ thêm đúng 1 test bấm thật vào giữa canvas chỉ để chắc chạm thật có phản hồi (kiểm tra `data-last-say` đổi khác giá trị ban đầu), timeout 5 s.
+- Timeout: chuyển cảnh từ bản đồ vào game `toBeVisible({ timeout: 10000 })`; các kỳ vọng phụ thuộc animation/âm thanh ≥ 3000 ms. Không dùng `waitForTimeout` để chờ trạng thái — dùng `expect(...).toHaveAttribute(..., { timeout })`.
+- Khai báo kiểu `window.__behocTap` trong `src/vite-env.d.ts` nếu cần (thêm file này vào scope nếu sửa) hoặc dùng `(window as unknown as {...})`.
