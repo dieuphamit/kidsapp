@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Read", "Edit", "Write", "Glob", "Grep", "TodoWrite",
+      "Bash(npm run:*)", "Bash(npm test:*)",
+      "Bash(npx vitest:*)", "Bash(npx playwright test:*)", "Bash(npx tsc:*)", "Bash(npx oxlint:*)",
+      "Bash(npx @gltf-transform/cli:*)",
+      "Bash(node scripts/:*)", "Bash(uv run:*)",
+      "Bash(git status:*)", "Bash(git diff:*)", "Bash(git add:*)", "Bash(git commit:*)", "Bash(git log:*)",
+      "Bash(git checkout main -- :*)",
+      "Bash(ls:*)", "Bash(mkdir:*)", "Bash(cp ../../assets-src/:*)"
+    ],
+    "deny": [
+      "Bash(git push:*)", "Bash(git reset:*)", "Bash(git rebase:*)", "Bash(git merge:*)",
+      "Bash(git branch:*)", "Bash(git worktree:*)",
+      "Bash(npm install:*)", "Bash(npm i:*)", "Bash(curl:*)", "Bash(rm -rf:*)",
+      "WebFetch", "WebSearch",
+      "Edit(ops/**)", "Write(ops/**)", "Edit(CLAUDE.md)", "Write(CLAUDE.md)"
+    ]
+  }
+}

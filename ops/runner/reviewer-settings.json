@@ -1,0 +1,6 @@
+{
+  "permissions": {
+    "allow": ["Read", "Glob", "Grep", "Bash(git log:*)", "Bash(git diff:*)", "Bash(git show:*)"],
+    "deny": ["Edit", "Write", "Bash(git push:*)", "WebFetch", "WebSearch"]
+  }
+}
