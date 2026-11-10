@@ -14,7 +14,8 @@
   -webkit-tap-highlight-color: transparent;
   transition: transform var(--dur-press) var(--ease-squish), box-shadow var(--dur-press);
 }
-.clay:active {
+.clay:active,
+.clay[data-pressed] {
   transform: scale(0.92) translateY(4px);
   box-shadow: var(--shadow-clay-pressed);
 }

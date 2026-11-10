@@ -19,4 +19,17 @@ describe('ClayButton', () => {
     render(<ClayButton color="butter" label="x" onPress={() => {}}>x</ClayButton>);
     expect(screen.getByRole('button').style.background).toBe('var(--clay-butter)');
   });
+  it('đặt data-pressed khi chạm xuống và bỏ khi nhả', () => {
+    render(<ClayButton color="mint" label="Nhấn" onPress={() => {}}>x</ClayButton>);
+    const b = screen.getByRole('button', { name: 'Nhấn' });
+    expect(b).not.toHaveAttribute('data-pressed');
+    fireEvent.pointerDown(b);
+    expect(b).toHaveAttribute('data-pressed');
+    fireEvent.pointerUp(b);
+    expect(b).not.toHaveAttribute('data-pressed');
+  });
+  it('style của caller không làm nút nhỏ hơn 120px', () => {
+    render(<ClayButton color="peach" label="Rộng" size={50} onPress={() => {}} style={{ width: '10px' }}>x</ClayButton>);
+    expect(screen.getByRole('button', { name: 'Rộng' }).style.width).toBe('120px');
+  });
 });
