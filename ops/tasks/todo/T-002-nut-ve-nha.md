@@ -1,6 +1,6 @@
 ---
 id: T-002
-title: "Nút về nhà"
+title: Nút về nhà
 type: ui
 depends_on: []
 scope:
@@ -11,8 +11,9 @@ scope:
   - app/src/main.tsx
 acceptance:
   - npm run verify
-  - "BackHome.test.tsx kiểm tra pointerdown gọi onExit đúng 1 lần"
-  - "Có ảnh app/test-results/shots/T-002-backhome.png"
+  - BackHome.test.tsx kiểm tra pointerdown gọi onExit đúng 1 lần
+  - Có ảnh app/test-results/shots/T-002-backhome.png
+attempts: 0
 ---
 ## Mục tiêu
 Trong mọi game, góc trên bên trái luôn có một nút đất sét 🏠 màu lilac. Bé chạm vào là về ngay bản đồ, nút lún xuống tức thì (cảm giác "bóp đất sét").

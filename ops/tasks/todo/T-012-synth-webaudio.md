@@ -1,6 +1,6 @@
 ---
 id: T-012
-title: "Âm thanh đàn và trống bằng WebAudio"
+title: Âm thanh đàn và trống bằng WebAudio
 type: logic
 depends_on: []
 scope:
@@ -8,7 +8,8 @@ scope:
   - app/src/core/synth.test.ts
 acceptance:
   - npm run verify
-  - "synth.test.ts kiểm tra 8 tần số đô–đô, 4 loại trống, và tái dùng Howler.ctx thay vì tạo AudioContext thứ hai"
+  - synth.test.ts kiểm tra 8 tần số đô–đô, 4 loại trống, và tái dùng Howler.ctx thay vì tạo AudioContext thứ hai
+attempts: 0
 ---
 ## Mục tiêu
 Đàn 8 phím và 4 trống trong Nhà âm nhạc (T-015) phát tiếng ngay khi bé chạm, không cần file âm thanh: tiếng đàn tròn ấm như mộc cầm đồ chơi, tiếng trống vui, âm lượng vừa phải cho tai bé.

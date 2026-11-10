@@ -1,6 +1,6 @@
 ---
 id: T-010
-title: "Nội dung số 1–10 vi/ja"
+title: Nội dung số 1–10 vi/ja
 type: tts
 depends_on: []
 scope:
@@ -8,7 +8,8 @@ scope:
   - app/public/audio/**
 acceptance:
   - npm run verify
-  - "numbers.json có number.1 … number.10, count.hello, count.done; npm run check:audio xanh"
+  - numbers.json có number.1 … number.10, count.hello, count.done; npm run check:audio xanh
+attempts: 0
 ---
 ## Mục tiêu
 Chuẩn bị giọng đếm cho game Đếm quả (T-013): mỗi lần bé hái một quả, Đậu Đậu đếm "Một!", "Hai!"…, đủ mười thì khen.

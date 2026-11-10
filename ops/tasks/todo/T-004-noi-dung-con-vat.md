@@ -1,6 +1,6 @@
 ---
 id: T-004
-title: "Nội dung con vật vi/ja"
+title: Nội dung con vật vi/ja
 type: tts
 depends_on: []
 scope:
@@ -9,7 +9,8 @@ scope:
 acceptance:
   - npm run verify
   - "animals.json có 17 key: animal.<id> và animal.<id>-sound cho 8 con, cộng farm.hello"
-  - "npm run check:audio xanh"
+  - npm run check:audio xanh
+attempts: 0
 ---
 ## Mục tiêu
 Khi bé chạm con vật ở trang trại (T-008), Đậu Đậu đọc tên con vật rồi "kêu" thay con vật bằng giọng vui. Task này chỉ tạo nội dung và mp3.

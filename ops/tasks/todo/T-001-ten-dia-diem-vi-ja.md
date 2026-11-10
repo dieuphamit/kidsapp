@@ -1,6 +1,6 @@
 ---
 id: T-001
-title: "Tên 4 địa điểm vi/ja"
+title: Tên 4 địa điểm vi/ja
 type: tts
 depends_on: []
 scope:
@@ -8,8 +8,9 @@ scope:
   - app/public/audio/**
 acceptance:
   - npm run verify
-  - "app/src/content/places.json có đúng 4 key place.farm, place.pond, place.orchard, place.music"
-  - "npm run check:audio xanh, có app/public/audio/vi/place.*.mp3 và app/public/audio/ja/place.*.mp3"
+  - app/src/content/places.json có đúng 4 key place.farm, place.pond, place.orchard, place.music
+  - npm run check:audio xanh, có app/public/audio/vi/place.*.mp3 và app/public/audio/ja/place.*.mp3
+attempts: 0
 ---
 ## Mục tiêu
 Đậu Đậu đọc tên địa điểm khi bé chạm vào trên bản đồ "Thế giới nhỏ" (bản đồ làm ở T-005; task này chỉ chuẩn bị nội dung và giọng đọc).
