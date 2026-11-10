@@ -12,6 +12,7 @@ acceptance:
   - Ảnh `app/test-results/shots/T-018-pond.png` không còn vệt tia tối trên mặt nước
 attempts: 1
 last_error: npm run verify thất bại
+note: " | Claude sửa tay 11/11 sáng, đã xem ảnh"
 ---
 ## Mục tiêu
 Màn hình Hồ nước (game Màu và hình) hiện có vệt tia tối hình nan quạt trên mặt nước (bóng đổ/ContactShadows chồng lên mặt phẳng nước, z-fighting), và khối tam giác (lăng trụ) nhìn nghiêng trông như hộp méo, bé khó nhận ra là "tam giác".

@@ -17,6 +17,7 @@ acceptance:
   - perf.spec.ts đo FPS ≥ 50 ở bản đồ, Trang trại và Hồ nước
 attempts: 1
 last_error: npm run verify thất bại
+note: " | Claude sửa tay 11/11 sáng, đã xem ảnh"
 ---
 ## Mục tiêu
 Chặn sớm việc app nặng dần hoặc giật: mỗi lần verify đều đo khung hình các scene 3D và tổng dung lượng bản offline, để bé luôn chơi mượt trên iPad và cài được offline.
