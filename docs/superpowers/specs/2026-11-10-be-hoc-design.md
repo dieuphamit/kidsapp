@@ -1,6 +1,6 @@
 # Bé Học: thiết kế hệ thống
 
-**Ngày:** 10/11/2026 · **Trạng thái:** đã duyệt từng phần, chờ review bản viết
+**Ngày:** 10/11/2026 · **Trạng thái:** đã duyệt từng phần, đã duyệt bản viết
 **Người dùng cuối:** một bé 2 tuổi 4 tháng, dùng tiếp đến 5 tuổi · **Thiết bị:** iPad để ngang
 
 ## 1. Mục tiêu
@@ -24,15 +24,15 @@
 | Giọng đọc | edge-tts (giọng neural vi-VN và ja-JP), sinh lúc build bằng `tools/tts`. Chạy bằng `uv` trỏ `--python` tới Python312 có sẵn |
 | Lưu trữ | IndexedDB (cài đặt, tiến độ), chỉ lưu trên máy |
 | Test | Vitest (unit), Playwright WebKit với khung iPad 1180×820 (e2e + ảnh chụp màn hình) |
-| Hosting | Cloudflare Pages hoặc GitHub Pages (cần HTTPS để cài PWA) |
+| Hosting | GitHub Pages (có HTTPS, đủ để cài PWA), deploy bằng GitHub Actions khi `main` có thay đổi. Vite đặt `base` theo tên repo. Bố mẹ tự push; agent không được push |
 
 ## 3. Hướng hình ảnh (đã chốt qua mockup)
 
 - **Menu và nút bấm: đất sét 2.5D bằng CSS.** Khối phồng, bóng đổ mềm, bấm vào lún xuống (scale 0.92 + đổi bóng). Màu pastel tươi, nền gradient trời.
 - **Khoảnh khắc "wow": 3D thật.** Con vật 3D trong game Con vật, hình khối 3D trong game Màu và hình, linh vật 3D trên màn hình chính.
 - **Model 3D:** chỉ dùng gói CC0 (Kenney, Quaternius). Mỗi model ghi nguồn vào `app/public/models/CREDITS.md`.
-- **Màn hình chính kiểu "Thế giới nhỏ":** bản đồ có 4 địa điểm, gồm Trang trại (con vật), Hồ nước (màu và hình), Vườn quả (đếm số), Nhà nhạc (vẽ và âm nhạc). Linh vật đứng giữa, nói "Đi đâu chơi?" và chạy tới nơi bé chạm. Khi bé lớn thì thêm "đảo" mới.
-- **Linh vật:** tạm thời là cáo 🦊, tên chưa đặt (phụ huynh quyết trước task làm model linh vật).
+- **Màn hình chính kiểu "Thế giới nhỏ":** bản đồ có 4 địa điểm, gồm Trang trại (con vật), Hồ nước (màu và hình), Vườn quả (đếm số), Nhà nhạc (vẽ và âm nhạc). Đậu Đậu đứng giữa, nói "Đi đâu chơi?" và chạy tới nơi bé chạm. Khi bé lớn thì thêm "đảo" mới.
+- **Linh vật: mèo Đậu Đậu 🐱.** Tiếng Việt gọi "Đậu Đậu"; tiếng Nhật gọi theo âm đọc là "ダウダウ", để bé nghe ra cùng một tên ở cả hai ngôn ngữ. Model mèo 3D CC0, màu kem cam, mắt to. Đậu Đậu dẫn đường, khen bé, và đi ngủ khi hết giờ chơi.
 - Mockup tham khảo nằm trong `.superpowers/brainstorm/` (visual-style, home-layout).
 - Bước đầu của giai đoạn 0 là tạo **design tokens** (màu, bo góc, bóng, khoảng cách, chuyển động) và bộ component `ClayButton`, `ClayCard`, `Scene3D`, `Mascot`. Mọi game chỉ được dùng các token và component này.
 
@@ -43,7 +43,7 @@
 3. Không có âm báo sai, không có điểm số, không có thua. Nếu bé chạm sai thì gợi ý nhẹ.
 4. Không cần biết đọc. Chữ chỉ để trang trí; mọi chỉ dẫn đều bằng giọng nói.
 5. Không có link ra ngoài, không cần mạng sau lần tải đầu, không thu thập dữ liệu.
-6. Hẹn giờ phiên chơi mặc định 15 phút (chỉnh được trong khu phụ huynh). Hết giờ, linh vật đi ngủ và app khóa phần chơi đến khi phụ huynh mở.
+6. Hẹn giờ phiên chơi mặc định 15 phút (chỉnh được trong khu phụ huynh). Hết giờ, Đậu Đậu đi ngủ và app khóa phần chơi đến khi phụ huynh mở.
 7. Cổng phụ huynh: giữ góc trên bên phải 3 giây, rồi trả lời một phép tính có hai chữ số.
 8. Chỉ dùng thao tác chạm và kéo đơn giản. Không vuốt nhiều ngón, không chạm đúp, không cần chạm đúng thời điểm.
 9. Hiệu năng: 60fps trên iPad đời 2020 trở lên; mỗi scene 3D tối đa khoảng 50k tam giác; tổng bundle offline dưới 60MB.
@@ -116,7 +116,7 @@ be-hoc/
 
 - **Giai đoạn 0 (làm trực tiếp, không qua runner):** git, khung Vite/PWA, design tokens và component đất sét, Scene3D, core (audio, i18n, timer, gate, storage), lệnh verify, thư mục ops, runner và prompt, chạy thử runner với 1 task mẫu.
 - **Giai đoạn 1 (runner chạy đêm):** WorldMap, linh vật, 4 game MVP, TTS vi/ja, asset CC0.
-- **Giai đoạn 2:** deploy lên Pages, cài lên iPad, bé chơi thử, điều chỉnh theo phản ứng thực tế của bé.
+- **Giai đoạn 2:** deploy lên GitHub Pages, cài lên iPad, bé chơi thử, điều chỉnh theo phản ứng thực tế của bé.
 - **Sau này (3–5 tuổi):** thêm đảo mới (chữ cái, ghép hình, phân loại, kể chuyện), mỗi game là một module.
 
 ## 9. Rủi ro
