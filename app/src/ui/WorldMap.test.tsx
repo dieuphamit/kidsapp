@@ -4,6 +4,11 @@ import { WorldMap } from './WorldMap';
 import type { GameManifest } from '../core/games';
 import { lazy } from 'react';
 
+// Mock @react-three/fiber vì jsdom không có WebGL
+vi.mock('@react-three/fiber', () => ({
+  useFrame: vi.fn(),
+}));
+
 // Mock Scene3D and DauDau vì jsdom không có WebGL
 vi.mock('./Scene3D', () => ({
   Scene3D: ({ children, label }: { children: React.ReactNode; label: string }) => (

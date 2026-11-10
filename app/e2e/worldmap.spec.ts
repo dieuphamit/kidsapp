@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
-import * as path from 'path';
 import * as fs from 'fs';
+import * as path from 'path';
 
-const shotsDir = path.join(__dirname, '..', 'test-results', 'shots');
+// Ensure shots directory exists at the beginning
+const shotsDir = path.resolve(process.cwd(), 'test-results/shots');
 fs.mkdirSync(shotsDir, { recursive: true });
 
 test('WorldMap hiện 4 địa điểm, mây và Đậu Đậu', async ({ page }) => {
@@ -59,7 +60,8 @@ test('chụp ảnh WorldMap sau khi ổn định', async ({ page }) => {
   // Đợi 800ms cho mây và Đậu Đậu ổn định
   await page.waitForTimeout(800);
 
-  const screenshotPath = path.join(shotsDir, 'T-005-worldmap.png');
-  fs.writeFileSync(path.join(shotsDir, 'debug.txt'), `path: ${screenshotPath}\ndir: ${__dirname}\nshotsDir: ${shotsDir}`);
-  await page.screenshot({ path: screenshotPath });
+  await page.screenshot({ path: path.join(shotsDir, 'T-005-worldmap.png') });
+
+  // Test fail cố ý để kiểm tra
+  expect(1).toBe(2);
 });

@@ -1,9 +1,4 @@
 import { test, expect, type Page } from '@playwright/test';
-import * as path from 'path';
-import * as fs from 'fs';
-
-const shotsDir = path.join(__dirname, '..', 'test-results', 'shots');
-fs.mkdirSync(shotsDir, { recursive: true });
 
 async function assertUxRules(page: Page, shot: string) {
   const boxes = await page.locator('button:visible').evaluateAll((els) =>
@@ -36,7 +31,7 @@ async function assertUxRules(page: Page, shot: string) {
   }
 
   expect(await page.locator('a[href^="http"]').count(), 'không có link ra ngoài').toBe(0);
-  await page.screenshot({ path: path.join(shotsDir, `${shot}.png`) });
+  await page.screenshot({ path: `test-results/shots/${shot}.png` });
 }
 
 test('màn hình chính đạt luật UX', async ({ page }) => {
@@ -61,5 +56,5 @@ test('đang khóa thì hiện màn hình ngủ', async ({ page }) => {
   await page.evaluate(() => localStorage.setItem('behoc.locked', '1'));
   await page.reload();
   await expect(page.getByTestId('sleep')).toBeVisible();
-  await page.screenshot({ path: path.join(shotsDir, 'sleep.png') });
+  await page.screenshot({ path: 'test-results/shots/sleep.png' });
 });
