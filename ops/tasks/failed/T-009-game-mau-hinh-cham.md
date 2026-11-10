@@ -12,7 +12,8 @@ acceptance:
   - npm run verify
   - Từ bản đồ chạm Hồ nước mở được game, chạm một khối nghe color.<màu> rồi shape.<hình>
   - Có ảnh app/test-results/shots/T-009-pond.png
-attempts: 0
+attempts: 1
+last_error: npm run verify thất bại
 ---
 ## Mục tiêu
 Bé vào Hồ nước: mặt hồ tròn xanh mát, 4 khối đất sét 3D (quả bóng tròn, khối vuông, khối tam giác, ngôi sao) nổi bập bềnh và xoay chậm, mỗi khối một màu. Bé chạm khối nào thì khối đó nảy "boing", Đậu Đậu đọc màu ("Màu đỏ") rồi tên hình ("Hình tròn"). Chạm đủ cả 4 khối thì khen "Giỏi quá!" và các khối đổi sang màu mới.
