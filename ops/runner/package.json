@@ -1,0 +1,7 @@
+{
+  "name": "behoc-runner",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test test/*.test.mjs" },
+  "dependencies": { "picomatch": "^4.0.2", "yaml": "^2.6.0" }
+}

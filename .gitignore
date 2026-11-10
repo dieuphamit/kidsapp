@@ -5,3 +5,7 @@ wt/
 ops/logs/
 test-results/
 playwright-report/
+ops/logs/
+ops/reports/shots/
+ops/runner/node_modules/
+assets-src/
