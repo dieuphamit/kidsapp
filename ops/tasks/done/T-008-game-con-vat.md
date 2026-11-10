@@ -16,6 +16,7 @@ acceptance:
   - Có ảnh app/test-results/shots/T-008-farm.png và T-008-tap.png
 attempts: 1
 last_error: npm run verify thất bại
+note: " | Claude sửa tay trong worktree 11/11 sáng, đã xem ảnh"
 ---
 ## Mục tiêu
 Bé vào Trang trại: một bãi cỏ tròn như đĩa đất sét, 8 con vật 3D đứng thành hai hàng, khẽ lắc lư. Bé chạm con nào thì con đó nhảy lên co giãn, Đậu Đậu đọc tên ("Con bò") rồi "kêu" thay nó ("Ùm bò! Ùm bò!"). Không có đúng sai, chạm bao nhiêu cũng được. Nút 🏠 ở góc trên trái để về bản đồ.

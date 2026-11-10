@@ -13,6 +13,7 @@ acceptance:
   - Có ảnh app/test-results/shots/T-011-drag.png và T-011-done.png
 attempts: 1
 last_error: npm run verify thất bại
+note: " | Claude sửa tay trong worktree 11/11 sáng, đã xem ảnh"
 ---
 ## Mục tiêu
 Trên bờ hồ (phần dưới màn hình) có 4 ô "bóng" xám nhạt hình tròn, vuông, tam giác, sao. Bé kéo một khối từ mặt hồ thả vào bóng cùng hình: khối trượt khít vào ô, nảy vui, Đậu Đậu khen "Giỏi quá!". Thả sai chỗ: khối trôi nhẹ nhàng về chỗ cũ và Đậu Đậu gợi ý "Ồ, thử cái bóng khác xem nào!" (không có âm báo sai). Lấp đủ 4 bóng: tất cả nảy mừng, rồi một ván mới.
