@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { SHAPES, dealColors, markTapped, allTapped, type ShapesState } from './logic';
+import { SHAPES, dealColors, markTapped, allTapped, SLOTS, dropResult, markPlaced, allPlaced, type ShapesState } from './logic';
 import { LEARN_COLORS } from '../../core/tokens';
 import { contentByKey } from '../../core/content';
 
@@ -76,6 +76,86 @@ describe('shapes logic', () => {
       state = markTapped(state, 'circle');
       expect(allTapped(state)).toBe(true);
       expect(state.tapped.size).toBe(4);
+    });
+  });
+
+  describe('SLOTS', () => {
+    it('has positions for all 4 shapes', () => {
+      expect(Object.keys(SLOTS).sort()).toEqual([...SHAPES].sort());
+    });
+
+    it('slot order is different from SHAPES order', () => {
+      // SHAPES order: circle, square, triangle, star
+      // SLOTS x-positions from left to right should NOT be in same order
+      const slotsInXOrder = [...SHAPES].sort((a, b) => SLOTS[a][0] - SLOTS[b][0]);
+      expect(slotsInXOrder).not.toEqual([...SHAPES]);
+    });
+  });
+
+  describe('dropResult', () => {
+    it('returns snap when dropped exactly on correct slot', () => {
+      const circleSlot = SLOTS['circle'];
+      const result = dropResult('circle', circleSlot, SLOTS);
+      expect(result).toBe('snap');
+    });
+
+    it('returns snap when dropped near correct slot (within radius)', () => {
+      const circleSlot = SLOTS['circle'];
+      const nearPoint: [number, number, number] = [circleSlot[0] + 0.5, 0.4, circleSlot[2] + 0.3];
+      const result = dropResult('circle', nearPoint, SLOTS);
+      expect(result).toBe('snap');
+    });
+
+    it('returns wrong when dropped on different shape slot', () => {
+      const squareSlot = SLOTS['square'];
+      const result = dropResult('circle', squareSlot, SLOTS);
+      expect(result).toBe('wrong');
+    });
+
+    it('returns none when dropped far from any slot', () => {
+      const farPoint: [number, number, number] = [0, 0.4, 0]; // middle of pond
+      const result = dropResult('circle', farPoint, SLOTS);
+      expect(result).toBe('none');
+    });
+
+    it('respects custom radius', () => {
+      const circleSlot = SLOTS['circle'];
+      // Point 0.5 away from slot
+      const nearPoint: [number, number, number] = [circleSlot[0] + 0.5, 0, circleSlot[2]];
+
+      // With small radius (0.4), should be none
+      expect(dropResult('circle', nearPoint, SLOTS, 0.4)).toBe('none');
+
+      // With larger radius (0.6), should be snap
+      expect(dropResult('circle', nearPoint, SLOTS, 0.6)).toBe('snap');
+    });
+  });
+
+  describe('markPlaced and allPlaced', () => {
+    it('placing 4 shapes results in allPlaced true', () => {
+      const colors = dealColors();
+      let state: ShapesState = { colors, tapped: new Set(), placed: new Set() };
+
+      state = markPlaced(state, 'circle');
+      expect(allPlaced(state)).toBe(false);
+
+      state = markPlaced(state, 'square');
+      expect(allPlaced(state)).toBe(false);
+
+      state = markPlaced(state, 'triangle');
+      expect(allPlaced(state)).toBe(false);
+
+      state = markPlaced(state, 'star');
+      expect(allPlaced(state)).toBe(true);
+    });
+
+    it('placing same shape twice does not duplicate', () => {
+      const colors = dealColors();
+      let state: ShapesState = { colors, tapped: new Set(), placed: new Set() };
+
+      state = markPlaced(state, 'circle');
+      state = markPlaced(state, 'circle');
+      expect(state.placed.size).toBe(1);
     });
   });
 

@@ -1,6 +1,22 @@
-// E2E tests for Shapes game - T-009
+// E2E tests for Shapes game - T-009, T-011
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
+
+// Slot positions from logic.ts (used for coordinate calculation)
+const SLOTS = {
+  star: [-2.4, 0, 3.5],
+  triangle: [-0.8, 0, 3.5],
+  square: [0.8, 0, 3.5],
+  circle: [2.4, 0, 3.5],
+} as const;
+
+// Shape positions on pond
+const SHAPE_POSITIONS = {
+  circle: [-2.4, 0.8, 0],
+  square: [-0.8, 0.8, 0],
+  triangle: [0.8, 0.8, 0],
+  star: [2.4, 0.8, 0],
+} as const;
 
 test.beforeAll(() => {
   mkdirSync('test-results/shots', { recursive: true });
@@ -98,5 +114,109 @@ test.describe('Shapes game (Màu và hình)', () => {
 
     // Kiểm tra quay lại home
     await expect(page.getByTestId('home')).toBeVisible();
+  });
+
+  // T-011: Drag and drop tests
+  test('kéo khối tròn vào ô bóng tròn - snap thành công', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    await expect(page.getByTestId('home')).toBeVisible();
+
+    // Vào game shapes
+    const pondButton = page.getByLabel('Hồ nước');
+    await pondButton.tap();
+    const gameEl = page.getByTestId('game-shapes');
+    await expect(gameEl).toBeVisible({ timeout: 10000 });
+    await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
+
+    // Đợi scene ổn định
+    await page.waitForTimeout(1000);
+
+    // Sử dụng hook __behocDrag để kéo circle vào slot circle
+    // Circle slot is at x=2.4, z=3.5
+    await page.evaluate(
+      ({ slotX, slotZ }) => {
+        (window as unknown as { __behocDrag: (id: string, x: number, z: number) => void }).__behocDrag(
+          'circle',
+          slotX,
+          slotZ
+        );
+      },
+      { slotX: SLOTS.circle[0], slotZ: SLOTS.circle[2] }
+    );
+
+    // Chụp ảnh lúc đang kéo (trước khi hoàn tất animation)
+    await page.screenshot({ path: 'test-results/shots/T-011-drag.png' });
+
+    // Sau khi thả đúng: ui.great
+    await expect(gameEl).toHaveAttribute('data-last-say', 'ui.great', { timeout: 3000 });
+  });
+
+  test('kéo khối vào ô sai - nghe pond.try-again', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    await expect(page.getByTestId('home')).toBeVisible();
+
+    // Vào game shapes
+    const pondButton = page.getByLabel('Hồ nước');
+    await pondButton.tap();
+    const gameEl = page.getByTestId('game-shapes');
+    await expect(gameEl).toBeVisible({ timeout: 10000 });
+    await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
+
+    // Đợi scene ổn định
+    await page.waitForTimeout(1000);
+
+    // Kéo circle vào slot của square (sai)
+    await page.evaluate(
+      ({ slotX, slotZ }) => {
+        (window as unknown as { __behocDrag: (id: string, x: number, z: number) => void }).__behocDrag(
+          'circle',
+          slotX,
+          slotZ
+        );
+      },
+      { slotX: SLOTS.square[0], slotZ: SLOTS.square[2] }
+    );
+
+    // Sau khi thả sai: pond.try-again
+    await expect(gameEl).toHaveAttribute('data-last-say', 'pond.try-again', { timeout: 3000 });
+  });
+
+  test('kéo tất cả khối vào đúng ô - ăn mừng', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    await expect(page.getByTestId('home')).toBeVisible();
+
+    // Vào game shapes
+    const pondButton = page.getByLabel('Hồ nước');
+    await pondButton.tap();
+    const gameEl = page.getByTestId('game-shapes');
+    await expect(gameEl).toBeVisible({ timeout: 10000 });
+    await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
+
+    // Đợi scene ổn định
+    await page.waitForTimeout(1000);
+
+    // Kéo từng khối vào đúng ô
+    const shapes = ['circle', 'square', 'triangle', 'star'] as const;
+    for (const shape of shapes) {
+      await page.evaluate(
+        ({ shape, slotX, slotZ }) => {
+          (window as unknown as { __behocDrag: (id: string, x: number, z: number) => void }).__behocDrag(
+            shape,
+            slotX,
+            slotZ
+          );
+        },
+        { shape, slotX: SLOTS[shape][0], slotZ: SLOTS[shape][2] }
+      );
+
+      // Đợi một chút giữa các lần kéo
+      await page.waitForTimeout(300);
+    }
+
+    // Đợi animation ăn mừng (800ms delay + animation)
+    await page.waitForTimeout(1200);
+
+    // Chụp ảnh lúc ăn mừng
+    await page.screenshot({ path: 'test-results/shots/T-011-done.png' });
   });
 });
