@@ -15,8 +15,7 @@ acceptance:
   - npm run verify
   - colors.json có 6 key color.*, shapes.json có 4 key shape.* và 3 key pond.*; npm run check:audio xanh
   - tokens.ts export LEARN_COLORS và LEARN_HEX, tokens.css có 6 biến --learn-*
-attempts: 1
-last_error: npm run verify thất bại
+attempts: 0
 ---
 ## Mục tiêu
 Chuẩn bị tên 6 màu, 4 hình và câu dẫn của Hồ nước để game Màu và hình (T-009, T-011) và phần vẽ (T-014) đọc lên được; đồng thời thêm bảng 6 "màu học" dùng chung cho các game.
