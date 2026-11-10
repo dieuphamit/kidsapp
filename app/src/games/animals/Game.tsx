@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF, useAnimations } from '@react-three/drei';
 import { Box3, Vector3 } from 'three';
@@ -22,19 +22,18 @@ function Animal({ data, phaseOffset, onTap, isJumping, jumpProgress }: AnimalPro
   const ref = useRef<Group>(null);
   const { scene, animations } = useGLTF(import.meta.env.BASE_URL + 'models/' + data.model);
   const { actions } = useAnimations(animations, ref);
-  const [scale, setScale] = useState(1);
 
-  // Tính scale để chuẩn hóa chiều cao
-  useEffect(() => {
+  // Tính scale để chuẩn hóa chiều cao (dùng useMemo, không setState trong effect)
+  const scale = useMemo(() => {
     const box = new Box3().setFromObject(scene);
     const size = new Vector3();
     box.getSize(size);
     const height = size.y;
-    if (height > 0) {
-      setScale(TARGET_HEIGHT / height);
-    }
+    return height > 0 ? TARGET_HEIGHT / height : 1;
+  }, [scene]);
 
-    // Áp vật liệu lì kiểu đất sét cho mọi mesh
+  // Áp vật liệu lì kiểu đất sét và chạy animation Idle
+  useEffect(() => {
     scene.traverse((child) => {
       if ((child as Mesh).isMesh) {
         const mesh = child as Mesh;

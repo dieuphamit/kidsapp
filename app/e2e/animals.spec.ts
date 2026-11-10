@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 
+// E2E tests for animals game
 test.beforeAll(() => {
   mkdirSync('test-results/shots', { recursive: true });
 });
@@ -20,14 +21,18 @@ test('chụp ảnh trang trại sau khi model load xong', async ({ page }) => {
   await page.goto('./');
   await expect(page.getByTestId('home')).toBeVisible();
 
+  // Chờ nút Trang trại hiện trước khi click (tăng timeout cho 3D scene load)
+  const farmBtn = page.getByLabel('Trang trại');
+  await expect(farmBtn).toBeVisible({ timeout: 10000 });
+
   // Bắt đầu chờ response trước khi click
   const responsePromise = page.waitForResponse((r) => r.url().includes('cow.glb'));
 
   // Chạm nút Trang trại
-  await page.getByLabel('Trang trại').click();
+  await farmBtn.click();
 
   // Chờ game hiện
-  await expect(page.getByTestId('game-animals')).toBeVisible({ timeout: 5000 });
+  await expect(page.getByTestId('game-animals')).toBeVisible({ timeout: 10000 });
 
   // Chờ cow.glb load xong
   await responsePromise;
@@ -43,15 +48,19 @@ test('chạm con bò nghe animal.cow rồi animal.cow-sound', async ({ page }) =
   await page.goto('./');
   await expect(page.getByTestId('home')).toBeVisible();
 
+  // Chờ nút Trang trại hiện (tăng timeout cho 3D scene load)
+  const farmBtn = page.getByLabel('Trang trại');
+  await expect(farmBtn).toBeVisible({ timeout: 10000 });
+
   // Bắt đầu chờ response trước khi click
   const responsePromise = page.waitForResponse((r) => r.url().includes('cow.glb'));
 
   // Chạm nút Trang trại
-  await page.getByLabel('Trang trại').click();
+  await farmBtn.click();
 
   // Chờ game hiện
   const gameEl = page.getByTestId('game-animals');
-  await expect(gameEl).toBeVisible({ timeout: 5000 });
+  await expect(gameEl).toBeVisible({ timeout: 10000 });
 
   // Chờ cow.glb load xong
   await responsePromise;
@@ -72,15 +81,14 @@ test('chạm con bò nghe animal.cow rồi animal.cow-sound', async ({ page }) =
   // Chạm vào con bò
   await page.mouse.click(cowX, cowY);
 
-  // Chụp ảnh ngay sau khi chạm (thấy bò đang nhảy)
-  await page.waitForTimeout(100);
-  await page.screenshot({ path: 'test-results/shots/T-008-tap.png' });
-
-  // Kiểm tra data-last-say = animal.cow
+  // Kiểm tra data-last-say = animal.cow NGAY sau khi click (trước khi timeout 1300ms fire)
   await expect(gameEl).toHaveAttribute('data-last-say', 'animal.cow', { timeout: 500 });
 
-  // Sau 1.6s → data-last-say = animal.cow-sound
-  await page.waitForTimeout(1600);
+  // Chụp ảnh ngay sau khi chạm (thấy bò đang nhảy)
+  await page.screenshot({ path: 'test-results/shots/T-008-tap.png' });
+
+  // Chờ 1.4s (để timeout 1300ms fire) → data-last-say = animal.cow-sound
+  await page.waitForTimeout(1400);
   await expect(gameEl).toHaveAttribute('data-last-say', 'animal.cow-sound', { timeout: 500 });
 });
 
