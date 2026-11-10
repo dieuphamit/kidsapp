@@ -2,6 +2,7 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import { useFrame } from '@react-three/fiber';
 import { useGLTF, useAnimations } from '@react-three/drei';
 import { Box3, Vector3 } from 'three';
+import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import type { Group, Mesh, MeshStandardMaterial } from 'three';
 import { Scene3D } from '../../ui/Scene3D';
 import { BackHome } from '../../ui/BackHome';
@@ -28,25 +29,30 @@ function Animal({ data, phaseOffset, onTap, isJumping, jumpProgress, onLoaded }:
 
   // Clone và chuẩn hóa model
   const { clonedScene, scale, yOffset } = useMemo(() => {
-    const cloned = scene.clone(true);
+    // SkeletonUtils.clone: model có khung xương (ngựa, cừu) cần bản sao xương riêng, scene.clone giữ bind vào xương gốc
+    const cloned = cloneSkinned(scene);
     // Reset transform để đo chính xác
     cloned.position.set(0, 0, 0);
     cloned.rotation.set(0, 0, 0);
     cloned.scale.set(1, 1, 1);
     cloned.updateMatrixWorld(true);
 
-    const box = new Box3().setFromObject(cloned);
+    const box = new Box3().setFromObject(cloned, true);
     const size = new Vector3();
     box.getSize(size);
     // Scale theo CHIỀU CAO (y) để chuẩn hóa mọi con cùng chiều cao ~1.2
     const height = size.y;
-    const s = height > 0 ? TARGET_HEIGHT / height : 1;
+    const s = height > 0 ? (data.height ?? TARGET_HEIGHT) / height : 1;
 
     // Tính offset Y để chân đặt trên mặt đất
     const yOff = -box.min.y * s;
+    // Căn tâm x/z về gốc group để model nào cũng đứng đúng ô của nó
+    const center = new Vector3();
+    box.getCenter(center);
+    cloned.position.set(-center.x, 0, -center.z);
 
     return { clonedScene: cloned, scale: s, yOffset: yOff };
-  }, [scene]);
+  }, [scene, data.height]);
 
   // Áp vật liệu lì kiểu đất sét và chạy animation Idle
   useEffect(() => {
@@ -94,7 +100,7 @@ function Animal({ data, phaseOffset, onTap, isJumping, jumpProgress, onLoaded }:
   const hitboxSize: [number, number, number] = [1.2, 1.6, 1.2];
 
   return (
-    <group position={data.pos}>
+    <group position={data.pos} rotation={[0, data.rotY ?? 0, 0]}>
       <group ref={ref} rotation={[0, Math.PI, 0]}>
         <primitive object={clonedScene} />
       </group>
@@ -324,7 +330,7 @@ export default function Game({ speaker, onExit }: GameProps) {
         background: 'linear-gradient(to bottom, var(--sky-top), var(--sky-bottom))',
       }}
     >
-      <Scene3D label="Trang trại" view={{ position: [0, 6, 14], target: [0, 0, -0.5], fov: 45 }}>
+      <Scene3D label="Trang trại" shadowScale={18} view={{ position: [0, 4.2, 10], target: [0, 0.5, -0.2], fov: 45 }}>
         <Suspense fallback={<GrassGround />}>
           <GrassGround />
           {ANIMALS.map((animal, i) => (

@@ -21,9 +21,11 @@ type Props = {
   label: string;
   /** Vị trí camera, điểm nhìn và góc nhìn dọc (độ); bỏ trống thì dùng DEFAULT_VIEW. */
   view?: Partial<typeof DEFAULT_VIEW>;
+  /** cạnh vùng nhận bóng (đơn vị 3D); cảnh trải rộng cần lớn hơn để bóng không bị cắt vuông */
+  shadowScale?: number;
 };
 
-export function Scene3D({ children, label, view }: Props) {
+export function Scene3D({ children, label, view, shadowScale = 7 }: Props) {
   const { position, target, fov } = { ...DEFAULT_VIEW, ...view };
   return (
     <div role="img" aria-label={label} style={{ position: 'absolute', inset: 0 }}>
@@ -40,7 +42,7 @@ export function Scene3D({ children, label, view }: Props) {
         <directionalLight position={[3, 5, 6]} intensity={1.3} color="#fff0dc" />
         <directionalLight position={[-4, 2, 3]} intensity={0.5} color="#efe4ff" />
         {children}
-        <ContactShadows position={[0, 0, 0]} opacity={0.3} blur={2.8} scale={7} far={3} color="#5b3f6b" />
+        <ContactShadows position={[0, 0, 0]} opacity={0.3} blur={2.8} scale={shadowScale} far={3} color="#5b3f6b" />
       </Canvas>
     </div>
   );
