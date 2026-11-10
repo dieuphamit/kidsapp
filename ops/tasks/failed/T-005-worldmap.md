@@ -17,7 +17,8 @@ acceptance:
   - npm run verify
   - Màn hình chính hiện 4 nút địa điểm lấy từ key place.* và ux-rules.spec.ts kiểm tra có ít nhất một nút địa điểm, mọi nút ≥120px và cách nhau ≥24px
   - Có ảnh app/test-results/shots/T-005-worldmap.png
-attempts: 0
+attempts: 1
+last_error: npm run verify thất bại
 ---
 ## Mục tiêu
 Màn hình chính thành bản đồ "Thế giới nhỏ": trời xanh nhạt chuyển tím, mây trắng trôi chậm, một ngọn đồi cỏ tròn, 4 địa điểm bằng đất sét (Trang trại, Hồ nước, Vườn quả, Nhà âm nhạc). Đậu Đậu đứng giữa, bong bóng chữ "Đi đâu chơi nào?". Bé chạm một địa điểm: nút lún xuống ngay, Đậu Đậu nhảy tưng tưng về phía đó và đọc tên địa điểm; nếu nơi đó có game thì mở game.

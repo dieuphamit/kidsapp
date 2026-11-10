@@ -43,3 +43,6 @@ attempts: 0
 
 ## Tham khảo
 - Spec mục 3 (linh vật Đậu Đậu: kem cam, mắt to); CLAUDE.md luật 7, 8; `app/public/models/CREDITS.md`.
+
+## Màu của Đậu Đậu (bố mẹ yêu cầu, 10/11)
+Model `cat.glb` (Kenney Cube Pets) màu xám, nhưng Đậu Đậu đã chốt là mèo **kem cam** (`#f6c27a`, bụng/mõm kem `#fff1dc`, như bản tạm hiện tại). Khi nạp model, đổi màu vật liệu thân (nhân màu texture hoặc thay `material.color`) sang kem cam; giữ mắt và chi tiết tối. Chụp ảnh so sánh với bản tạm. Đặt `roughness` ≈ 0.85, `metalness` 0 cho cảm giác đất sét.
