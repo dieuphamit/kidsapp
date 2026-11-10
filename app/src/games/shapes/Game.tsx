@@ -535,7 +535,7 @@ export default function Game({ speaker, onExit }: GameProps) {
     progress: number;
   } | null>(null);
   const [celebrating, setCelebrating] = useState(false);
-  const [hasEverDragged, setHasEverDragged] = useState(false);
+  const hasEverDraggedRef = useRef(false);
 
   const shapeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const greatTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -713,7 +713,7 @@ export default function Game({ speaker, onExit }: GameProps) {
         if (dist > DRAG_THRESHOLD) {
           // Start dragging - cancel pending shape speech
           cancelPendingSpeech();
-          setHasEverDragged(true);
+          hasEverDraggedRef.current = true;
 
           setDragState((prev) =>
             prev
@@ -768,7 +768,7 @@ export default function Game({ speaker, onExit }: GameProps) {
 
     // Show drag hint after ~4s if user hasn't dragged
     hintTimeoutRef.current = setTimeout(() => {
-      if (!hasEverDragged) {
+      if (!hasEverDraggedRef.current) {
         say('pond.drag-hint');
       }
     }, 4000);
@@ -780,7 +780,7 @@ export default function Game({ speaker, onExit }: GameProps) {
       if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
       if (animateBackIntervalRef.current) clearInterval(animateBackIntervalRef.current);
     };
-  }, [say, hasEverDragged]);
+  }, [say]);
 
   // E2E test hooks
   useEffect(() => {
@@ -801,7 +801,7 @@ export default function Game({ speaker, onExit }: GameProps) {
 
         // Simulate drag and drop
         const dropPoint: [number, number, number] = [toX, DRAG_Y, toZ];
-        setHasEverDragged(true);
+        hasEverDraggedRef.current = true;
         handleDrop(shape, dropPoint);
       }
     };
