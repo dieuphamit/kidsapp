@@ -97,7 +97,7 @@ test('approve: night-run đang chạy (lock pid sống) → từ chối, không 
   fs.writeFileSync(path.join(e.root, 'ops', '.runner.lock'), JSON.stringify({ pid: process.pid, startedAt: 'x' }));
   let merged = false;
   const cli = createCli({ root: e.root, log: e.log, merge: async () => { merged = true; return { ok: true }; } });
-  await assert.rejects(cli.run(['approve', 'T-008']), /đang chạy/);
+  await assert.rejects(cli.run(['approve', 'T-008']), /đang chạy.*xóa ops\/\.runner\.lock/);
   assert.equal(merged, false);
   assert.equal(only(e).state, 'review');
 });
@@ -145,4 +145,14 @@ test('list: in theo trạng thái, kèm task bị chặn và file lỗi', async 
 test('lệnh không biết → lỗi kèm hướng dẫn', async () => {
   const e = env();
   await assert.rejects(createCli({ root: e.root, log: e.log }).run(['xoa']), /Lệnh: list/);
+});
+
+test('promote: scope còn placeholder <...> → từ chối, task vẫn ở backlog', async () => {
+  const e = env();
+  const file = path.join(e.tasksDir, 'backlog', 'T-030-x.md');
+  fs.writeFileSync(file, '---\nid: T-030\ntitle: t\ntype: ui\nscope:\n  - app/src/games/<id>/**\nacceptance: ["npm run verify"]\n---\nmô tả\n');
+  const cli = createCli({ root: e.root, log: e.log });
+  await assert.rejects(cli.run(['promote', 'T-030']), /<id>/);
+  assert.ok(fs.existsSync(file));
+  assert.ok(!fs.existsSync(path.join(e.tasksDir, 'todo', 'T-030-x.md')));
 });

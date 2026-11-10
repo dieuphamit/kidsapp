@@ -8,14 +8,14 @@
 //   node ops/runner/task.mjs retry T-012               → failed → todo
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { loadAllWithErrors, blockedReasons, moveTask, parseTask, STATES, TYPES } from './lib/tasks.mjs';
 import { mergeVerified } from './lib/pipeline.mjs';
 import { removeWorktree as realRemoveWorktree, worktreeDir } from './lib/git.mjs';
 import { createLock } from './lib/lock.mjs';
 import { run } from './lib/sh.mjs';
 import { localDate } from './lib/time.mjs';
-import { liveRunLock } from './lib/runlock.mjs';
+import { liveRunLock, LOCK_HINT } from './lib/runlock.mjs';
+import { blockedText, isMain } from './lib/cli-util.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 const USAGE = 'Lệnh: list | new "tiêu đề" [type] | promote ID | approve ID | reject ID "phản hồi" | retry ID';
@@ -23,14 +23,6 @@ const USAGE = 'Lệnh: list | new "tiêu đề" [type] | promote ID | approve ID
 export const slug = (s) =>
   s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLowerCase()
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
-
-const blockedLine = (b) => {
-  const parts = [];
-  if (b.missing.length) parts.push(`chưa có task ${b.missing.join(', ')}`);
-  if (b.failed.length) parts.push(`phụ thuộc đã lỗi ${b.failed.join(', ')}`);
-  if (b.waiting.length) parts.push(`chờ ${b.waiting.join(', ')} xong`);
-  return `${b.id}: ${parts.join('; ')}`;
-};
 
 export function createCli({
   root = ROOT,
@@ -74,7 +66,7 @@ export function createCli({
       }
       if (!tasks.length) log('(chưa có task nào)');
       const blocked = blockedReasons(tasks);
-      if (blocked.length) log(`\nTask todo bị chặn:\n${blocked.map((b) => `  ${blockedLine(b)}`).join('\n')}`);
+      if (blocked.length) log(`\nTask todo bị chặn:\n${blocked.map((b) => `  ${blockedText(b)}`).join('\n')}`);
       if (errors.length) log(`\nFile task lỗi:\n${errors.map((x) => `  ${x.message}`).join('\n')}`);
     },
 
@@ -95,14 +87,17 @@ export function createCli({
     },
 
     promote(id) {
-      moveTask(tasksDir, find(id, 'backlog'), 'todo');
+      const t = find(id, 'backlog');
+      const todo = t.scope.filter((x) => x.includes('<'));
+      if (todo.length) throw new Error(`${id}: scope còn placeholder chưa điền: ${todo.join(', ')}`);
+      moveTask(tasksDir, t, 'todo');
       log(`${id} → todo`);
     },
 
     async approve(id) {
       const t = find(id, 'review');
       const held = liveRunLock(lockFile);
-      if (held) throw new Error(`night-run đang chạy (pid ${held.pid}, từ ${held.startedAt}); đợi nó xong rồi hãy approve`);
+      if (held) throw new Error(`night-run đang chạy (pid ${held.pid}, từ ${held.startedAt}); đợi nó xong rồi hãy approve (${LOCK_HINT})`);
       const logFile = path.join(root, 'ops', 'logs', `approve-${t.id}.log`);
       fs.mkdirSync(path.dirname(logFile), { recursive: true });
       const m = await merge({ root, mergeLock: createLock(), exec }, worktreeDir(root, t.id), t, 0, logFile);
@@ -150,17 +145,7 @@ export function createCli({
   };
 }
 
-const isMain = () => {
-  if (!process.argv[1]) return false;
-  const norm = (p) => {
-    let r = path.resolve(p);
-    try { r = fs.realpathSync.native(r); } catch { /* giữ nguyên */ }
-    return process.platform === 'win32' ? r.toLowerCase() : r;
-  };
-  return norm(process.argv[1]) === norm(fileURLToPath(import.meta.url));
-};
-
-if (isMain()) {
+if (isMain(import.meta.url)) {
   createCli().run(process.argv.slice(2)).catch((e) => {
     console.error(e.message);
     process.exitCode = 1;
