@@ -61,7 +61,4 @@ test('chụp ảnh WorldMap sau khi ổn định', async ({ page }) => {
   await page.waitForTimeout(800);
 
   await page.screenshot({ path: path.join(shotsDir, 'T-005-worldmap.png') });
-
-  // Test fail cố ý để kiểm tra
-  expect(1).toBe(2);
 });
