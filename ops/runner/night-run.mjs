@@ -4,16 +4,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { fileURLToPath } from 'node:url';
 import { loadAllWithErrors, eligible, blockedReasons, moveTask } from './lib/tasks.mjs';
-import { processTask as realProcessTask } from './lib/pipeline.mjs';
+import { processTask as realProcessTask, MIN_ATTEMPT_MS } from './lib/pipeline.mjs';
+import { blockedText, isMain } from './lib/cli-util.mjs';
 import { createLock } from './lib/lock.mjs';
 import { deadlineFrom, localDate } from './lib/time.mjs';
 import { run } from './lib/sh.mjs';
 import { git as realGit } from './lib/git.mjs';
 import { runAgent, parseJson, reviewerArgs } from './lib/agent.mjs';
 import { buildReport } from './lib/report.mjs';
-import { acquireRunLock, releaseRunLock } from './lib/runlock.mjs';
+import { acquireRunLock, releaseRunLock, LOCK_HINT } from './lib/runlock.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 export const MAX_HOURS = 14;
@@ -21,8 +21,14 @@ export const MAX_PARALLEL = 6;
 // agent chạy được code (npx, npm run) nên có thể ghi ra ngoài worktree: những chỗ này phải luôn sạch
 // KHÔNG đưa vào đây các đường dẫn runner tự ghi: ops/tasks, ops/reports, ops/logs, ops/.runner.lock
 export const GUARDED = ['ops/runner', 'CLAUDE.md', '.github', '.claude'];
-const REVIEWER_TIMEOUT_MS = 20 * 60_000;
+const REVIEWER_MAX_MS = 20 * 60_000;
+const REVIEWER_MIN_MS = 5 * 60_000;
 const LOCK_NAME = '.runner.lock';
+// SIGBREAK: Ctrl+Break / đóng cửa sổ console trên Windows
+const SIGNALS = ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGBREAK'];
+
+// 3: có cảnh báo nghiêm trọng (lỗi fatal hoặc integrity guard)
+export const exitCodeFor = (res) => (res.alerts?.length || res.integrity?.length ? 3 : 0);
 
 export function parseParallel(v) {
   const s = String(v ?? '').trim();
@@ -31,16 +37,10 @@ export function parseParallel(v) {
   return n;
 }
 
-export function blockedText(b) {
-  const parts = [];
-  if (b.missing.length) parts.push(`chưa có task ${b.missing.join(', ')}`);
-  if (b.failed.length) parts.push(`phụ thuộc đã lỗi ${b.failed.join(', ')}`);
-  if (b.waiting.length) parts.push(`chờ ${b.waiting.join(', ')} xong`);
-  return `${b.id}: ${parts.join('; ')}`;
-}
+export { blockedText };
 
 async function guardChanges(root, git) {
-  const out = await git(root, 'status', '--porcelain', '--untracked-files=all', '--', ...GUARDED);
+  const out = await git(root, '--no-optional-locks', 'status', '--porcelain', '--untracked-files=all', '--', ...GUARDED);
   return out ? out.split(/\r?\n/).map((l) => l.trim()).filter(Boolean) : [];
 }
 
@@ -56,11 +56,11 @@ async function preflight(root, git) {
 }
 
 // Reviewer chỉ đọc: cùng bộ cờ với agent (không nạp settings người dùng, không MCP) nhưng settings riêng
-export async function defaultReviewer({ root, ops, records, logFile, exec = run }) {
+export async function defaultReviewer({ root, ops, records, logFile, exec = run, timeoutMs = REVIEWER_MAX_MS }) {
   const role = fs.readFileSync(path.join(ops, 'runner', 'prompts', 'reviewer.md'), 'utf8');
   const prompt = `${role}\n\n\`\`\`json\n${JSON.stringify(records, null, 1)}\n\`\`\``;
   const r = await exec('claude', reviewerArgs(path.join(ops, 'runner', 'reviewer-settings.json')), {
-    cwd: root, input: prompt, timeoutMs: REVIEWER_TIMEOUT_MS, logFile,
+    cwd: root, input: prompt, timeoutMs, logFile,
   });
   const j = parseJson(r.stdout ?? '');
   if (r.code !== 0 || !j || j.is_error) {
@@ -92,7 +92,7 @@ function dryRun({ tasksDir, deadline, tooLong, log }) {
 }
 
 async function commitOps({ root, git, exec, date, log }) {
-  await git(root, 'add', '--', 'ops');
+  await git(root, 'add', '--', 'ops', ':(exclude)ops/runner');
   // lock nằm trong .gitignore; phòng khi .gitignore thiếu dòng đó thì gỡ khỏi index
   await git(root, 'rm', '--cached', '-q', '--ignore-unmatch', '--', `ops/${LOCK_NAME}`);
   const staged = await exec('git', ['diff', '--cached', '--quiet'], { cwd: root });
@@ -100,7 +100,7 @@ async function commitOps({ root, git, exec, date, log }) {
     log('Không có thay đổi nào trong ops/ để commit');
     return false;
   }
-  const r = await exec('git', ['commit', '-q', '-m', `chore(ops): kết quả đêm ${date}`], { cwd: root });
+  const r = await exec('git', ['commit', '-q', '-m', `chore(ops): kết quả đêm ${date}`, '--', 'ops'], { cwd: root });
   if (r.code !== 0) {
     log(`Commit ops thất bại: ${(r.stderr || r.stdout || '').trim()}`);
     return false;
@@ -127,6 +127,17 @@ async function night({ root, ops, tasksDir, parallel, deadline, start, date, opt
       moveTask(tasksDir, t, 'todo');
       log(`[${stamp()}] khôi phục ${t.id}: doing → todo`);
     } catch (e) {
+      const dup = path.join(tasksDir, 'todo', path.basename(t.file));
+      if (fs.existsSync(dup)) {
+        // crash giữa lúc chuyển: bản todo/ đã ghi đủ, bản doing/ chỉ là phần thừa
+        try {
+          fs.rmSync(t.file);
+          const message = `${t.id}: todo/ đã có bản đầy đủ, đã xóa bản thừa ${t.file} (doing/)`;
+          log(`[${stamp()}] khôi phục ${message}`);
+          runErrors.push({ file: t.file, message });
+          continue;
+        } catch { /* rơi xuống báo lỗi như thường */ }
+      }
       const message = `không trả được ${t.id} từ doing/ về todo/: ${e.message}`;
       log(`[${stamp()}] ${message}`);
       runErrors.push({ file: t.file, message });
@@ -157,7 +168,7 @@ async function night({ root, ops, tasksDir, parallel, deadline, start, date, opt
   };
 
   for (;;) {
-    if (!stopped() && now() < deadline) {
+    if (!stopped() && deadline.getTime() - now().getTime() >= MIN_ATTEMPT_MS) {
       const ready = eligible(loadAllWithErrors(tasksDir).tasks).filter((t) => !running.has(t.id) && !tried.has(t.id));
       while (freeSlots.length && ready.length) {
         const t = ready.shift();
@@ -187,11 +198,15 @@ async function night({ root, ops, tasksDir, parallel, deadline, start, date, opt
 
   let notes = '';
   if (records.length && !opts.noReview) {
+    const left = deadline.getTime() - now().getTime();
     if (fatal.length) {
       notes = '(bỏ qua reviewer vì runner gặp lỗi nghiêm trọng)';
+    } else if (left <= 0) {
+      notes = '(bỏ qua reviewer vì đã hết giờ chạy đêm)';
     } else {
       try {
-        notes = await runReviewer({ root, ops, records, logFile: path.join(logsDir, 'reviewer.log') });
+        const timeoutMs = Math.min(REVIEWER_MAX_MS, Math.max(REVIEWER_MIN_MS, left));
+        notes = await runReviewer({ root, ops, records, logFile: path.join(logsDir, 'reviewer.log'), timeoutMs });
       } catch (e) {
         notes = `(reviewer lỗi, bỏ qua: ${e.message})`;
         log(`[${stamp()}] ${notes}`);
@@ -270,15 +285,16 @@ export async function runNight(opts = {}, deps = {}) {
   // lấy lock trước mọi await: hai lần gọi liền nhau thì lần sau chắc chắn thấy lock
   const lockFile = path.join(ops, LOCK_NAME);
   acquireRunLock(lockFile);
-  const onSigint = () => {
+  const onSignal = (sig) => () => {
     releaseRunLock(lockFile);
-    process.exit(130);
+    process.exit(sig === 'SIGINT' ? 130 : 143);
   };
-  process.once('SIGINT', onSigint);
+  const handlers = SIGNALS.map((sig) => [sig, onSignal(sig)]);
+  for (const [sig, h] of handlers) process.once(sig, h);
   try {
     return await night({ root, ops, tasksDir, parallel, deadline, start, date, opts, deps: d });
   } finally {
-    process.off('SIGINT', onSigint);
+    for (const [sig, h] of handlers) process.off(sig, h);
     releaseRunLock(lockFile);
   }
 }
@@ -298,20 +314,10 @@ async function main() {
   });
   if (res.dryRun) return;
   console.log(`Xong. Report: ${path.relative(ROOT, res.report)}${res.committed ? '' : ' (chưa commit ops/)'}`);
-  if (res.integrity.length) process.exitCode = 2;
+  process.exitCode = exitCodeFor(res);
 }
 
-function isMain() {
-  if (!process.argv[1]) return false;
-  const norm = (p) => {
-    let r = path.resolve(p);
-    try { r = fs.realpathSync.native(r); } catch { /* giữ nguyên */ }
-    return process.platform === 'win32' ? r.toLowerCase() : r;
-  };
-  return norm(process.argv[1]) === norm(fileURLToPath(import.meta.url));
-}
-
-if (isMain()) {
+if (isMain(import.meta.url)) {
   main().catch((e) => {
     console.error(e.message ?? e);
     process.exitCode = 1;

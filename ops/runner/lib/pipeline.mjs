@@ -12,7 +12,7 @@ const NO_CHANGES = 'agent không thay đổi gì';
 const AGENT_MAX_MS = 90 * 60_000;
 // chừa 10 phút cho verify/merge sau agent; còn dưới 20 phút thì không bắt đầu lần thử mới
 const DEADLINE_MARGIN_MS = 10 * 60_000;
-const MIN_ATTEMPT_MS = 20 * 60_000;
+export const MIN_ATTEMPT_MS = 20 * 60_000;
 const DIRTY_ROOT = 'repo gốc đang bẩn, không merge được';
 const withoutError = ({ last_error, ...rest }) => rest;
 

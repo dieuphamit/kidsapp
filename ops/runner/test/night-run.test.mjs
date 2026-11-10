@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { tempRepo } from './helpers.mjs';
-import { runNight, GUARDED, defaultReviewer } from '../night-run.mjs';
+import { runNight, GUARDED, defaultReviewer, exitCodeFor } from '../night-run.mjs';
 import { STATES, moveTask, loadAll } from '../lib/tasks.mjs';
 
 const quiet = () => {};
@@ -206,7 +206,7 @@ test('dry-run với hạn chót quá 14 giờ chỉ cảnh báo', async () => {
   assert.match(lines.join('\n'), /14 giờ/);
 });
 
-test('khôi phục task kẹt ở doing/ về todo/; file đích trùng không làm dừng cả đêm', async () => {
+test('khôi phục task kẹt ở doing/ về todo/; todo/ đã có bản thì xóa bản doing/ trùng', async () => {
   const e = env();
   addTask(e.tasksDir, 'T-001', { state: 'doing' });
   addTask(e.tasksDir, 'T-002', { state: 'doing' });
@@ -217,10 +217,12 @@ test('khôi phục task kẹt ở doing/ về todo/; file đích trùng không l
   assert.equal(p.seenStates['T-001'], 'todo');
   assert.ok(p.calls.includes('T-001'));
   assert.ok(p.calls.includes('T-003'));
-  assert.ok(!p.calls.includes('T-002'));
-  assert.ok(res.errors.some((x) => /T-002/.test(x.file) && /đã tồn tại/.test(x.message)));
+  // todo/ đã có bản đầy đủ (crash giữa lúc chuyển): bỏ bản doing/, ghi chú lại, vẫn chạy task
+  assert.ok(p.calls.includes('T-002'));
+  assert.ok(!fs.existsSync(path.join(e.tasksDir, 'doing', 'T-002.md')));
+  assert.ok(res.errors.some((x) => /T-002/.test(x.message) && /doing\/.*đã xóa|đã xóa.*doing\//.test(x.message)));
   const html = fs.readFileSync(path.join(e.root, 'ops', 'reports', `${res.date}.html`), 'utf8');
-  assert.match(html, /đã tồn tại/);
+  assert.match(html, /đã xóa/);
 });
 
 test('lock: night-run khác đang sống → từ chối chạy, không đụng lock', async () => {
@@ -320,4 +322,89 @@ test('processTask ném lỗi → ghi record failed, các task khác vẫn chạy
   assert.equal(r1.status, 'failed');
   assert.match(r1.reason, /nổ/);
   assert.deepEqual(p.calls, ['T-002']);
+});
+
+test('C: còn dưới 20 phút tới hạn chót → không giao task mới', async () => {
+  const e = env();
+  addTask(e.tasksDir, 'T-001');
+  const p = fakeProcess();
+  const res = await runNight(opts(e, { until: hhmm(15) }), { processTask: p.fn, log: quiet });
+  assert.deepEqual(p.calls, []);
+  assert.equal(loadAll(e.tasksDir)[0].state, 'todo');
+  assert.equal(res.records.length, 0);
+});
+
+function lateClock(offsetMin) {
+  const o = { ms: 0 };
+  return { o, now: () => new Date(Date.now() + o.ms), jump: () => { o.ms = offsetMin * 60_000; } };
+}
+
+test('D: reviewer timeout = min(20 phút, max(5 phút, còn lại)); quá hạn chót thì bỏ qua reviewer', async () => {
+  const run = async (offsetMin) => {
+    const e = env();
+    addTask(e.tasksDir, 'T-001');
+    const clock = lateClock(offsetMin);
+    let args = null;
+    const p = fakeProcess({ 'T-001': { sideEffect: () => clock.jump() } });
+    const res = await runNight(opts(e, { noReview: false }), {
+      processTask: p.fn, log: quiet, now: clock.now,
+      runReviewer: async (a) => { args = a; return 'ok'; },
+    });
+    return { args, res };
+  };
+  assert.equal((await run(0)).args.timeoutMs, 20 * 60_000);
+  assert.equal((await run(116.5)).args.timeoutMs, 5 * 60_000);
+  const late = await run(125);
+  assert.equal(late.args, null);
+  assert.ok(late.res.records.length === 1);
+  assert.match(fs.readFileSync(late.res.report, 'utf8'), /hết giờ/);
+});
+
+test('defaultReviewer dùng timeoutMs được truyền vào', async () => {
+  const e = env();
+  fs.mkdirSync(path.join(e.root, 'ops', 'runner', 'prompts'), { recursive: true });
+  fs.writeFileSync(path.join(e.root, 'ops', 'runner', 'prompts', 'reviewer.md'), 'role');
+  let seen = null;
+  const exec = async (cmd, args, o) => { seen = o; return { code: 0, stdout: JSON.stringify({ result: 'ok' }), stderr: '' }; };
+  await defaultReviewer({ root: e.root, ops: path.join(e.root, 'ops'), records: [], logFile: null, exec, timeoutMs: 123_000 });
+  assert.equal(seen.timeoutMs, 123_000);
+});
+
+test('A: kiểm tra integrity dùng git --no-optional-locks status', async () => {
+  const e = env();
+  addTask(e.tasksDir, 'T-001');
+  const calls = [];
+  const git = async (cwd, ...args) => {
+    calls.push(args);
+    const { git: real } = await import('../lib/git.mjs');
+    return real(cwd, ...args);
+  };
+  await runNight(opts(e), { processTask: fakeProcess().fn, log: quiet, git });
+  const guard = calls.filter((a) => a.includes('status') && a.includes('--untracked-files=all'));
+  assert.ok(guard.length >= 2);
+  for (const a of guard) assert.equal(a[0], '--no-optional-locks');
+});
+
+test('F: commit ops giới hạn pathspec, không add ops/runner', async () => {
+  const e = env();
+  addTask(e.tasksDir, 'T-001');
+  const gitCalls = [];
+  const execCalls = [];
+  const { git: real } = await import('../lib/git.mjs');
+  const { run } = await import('../lib/sh.mjs');
+  await runNight(opts(e), {
+    processTask: fakeProcess().fn, log: quiet,
+    git: async (cwd, ...a) => { gitCalls.push(a); return real(cwd, ...a); },
+    exec: async (cmd, a, o) => { execCalls.push([cmd, ...a]); return run(cmd, a, o); },
+  });
+  const add = gitCalls.find((a) => a[0] === 'add');
+  assert.deepEqual(add, ['add', '--', 'ops', ':(exclude)ops/runner']);
+  const commit = execCalls.find((a) => a[0] === 'git' && a.includes('commit'));
+  assert.deepEqual(commit.slice(-2), ['--', 'ops']);
+});
+
+test('G: exitCodeFor — 3 khi có cảnh báo (fatal/integrity), 0 khi sạch', () => {
+  assert.equal(exitCodeFor({ alerts: [], integrity: [] }), 0);
+  assert.equal(exitCodeFor({ alerts: ['x'], integrity: [] }), 3);
+  assert.equal(exitCodeFor({ alerts: ['x'], integrity: ['a'] }), 3);
 });

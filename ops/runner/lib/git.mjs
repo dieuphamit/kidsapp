@@ -140,7 +140,7 @@ export async function ffMerge(root, id) {
   const cur = await run('git', ['symbolic-ref', '--short', 'HEAD'], { cwd: root });
   const branch = cur.code === 0 ? cur.stdout.trim() : '';
   if (branch !== 'main') throw new Error(`repo gốc không ở nhánh main (đang ở ${branch || 'HEAD rời'}), không merge task/${id}`);
-  const dirty = await git(root, 'status', '--porcelain', '--', '.', ':(exclude)ops');
+  const dirty = await git(root, '--no-optional-locks', 'status', '--porcelain', '--', '.', ':(exclude)ops');
   if (dirty) throw new Error(`không merge task/${id}: thư mục gốc còn thay đổi chưa commit (ngoài ops/):\n${dirty}`);
   await git(root, 'merge', '--ff-only', `task/${id}`);
 }
