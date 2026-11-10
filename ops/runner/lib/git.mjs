@@ -25,6 +25,19 @@ function normPath(p) {
 }
 const samePath = (a, b) => normPath(a) === normPath(b);
 
+// git worktree remove --force (Git for Windows 2.51) xóa XUYÊN junction: nội dung assets-src gốc sẽ mất.
+// Luôn gỡ mọi symlink/junction ở cấp đầu của worktree trước khi để git hay fs xóa thư mục.
+export function detachLinks(dir) {
+  let names;
+  try { names = fs.readdirSync(dir); } catch { return; }
+  for (const name of names) {
+    const p = path.join(dir, name);
+    try {
+      if (fs.lstatSync(p).isSymbolicLink()) fs.unlinkSync(p);
+    } catch { /* không gỡ được thì để nơi gọi phát hiện */ }
+  }
+}
+
 function removeDir(dir) {
   try {
     fs.rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 500 });
@@ -67,6 +80,7 @@ export async function ensureWorktree(root, id) {
   if (fs.existsSync(dir)) {
     if (await isValidWorktree(root, dir)) return dir;
     // rác còn sót (thư mục thường, worktree hỏng) → dọn rồi tạo lại
+    detachLinks(dir);
     await run('git', ['worktree', 'remove', '--force', dir], { cwd: root });
     removeDir(dir);
     if (fs.existsSync(dir)) throw new Error(`không xóa được thư mục worktree cũ: ${dir}`);
@@ -123,6 +137,9 @@ export async function resetToMain(dir) {
 
 // Gốc phải sạch ngoài ops/ (ops/tasks thay đổi suốt đêm); bẩn thì ném để caller park task
 export async function ffMerge(root, id) {
+  const cur = await run('git', ['symbolic-ref', '--short', 'HEAD'], { cwd: root });
+  const branch = cur.code === 0 ? cur.stdout.trim() : '';
+  if (branch !== 'main') throw new Error(`repo gốc không ở nhánh main (đang ở ${branch || 'HEAD rời'}), không merge task/${id}`);
   const dirty = await git(root, 'status', '--porcelain', '--', '.', ':(exclude)ops');
   if (dirty) throw new Error(`không merge task/${id}: thư mục gốc còn thay đổi chưa commit (ngoài ops/):\n${dirty}`);
   await git(root, 'merge', '--ff-only', `task/${id}`);
@@ -131,6 +148,7 @@ export async function ffMerge(root, id) {
 export async function removeWorktree(root, id) {
   const dir = worktreeDir(root, id);
   const branch = `task/${id}`;
+  detachLinks(dir);
   await run('git', ['worktree', 'remove', '--force', dir], { cwd: root });
   if (fs.existsSync(dir)) removeDir(dir);
   await git(root, 'worktree', 'prune');
@@ -140,4 +158,42 @@ export async function removeWorktree(root, id) {
   }
   if (fs.existsSync(dir)) throw new Error(`không xóa được thư mục worktree ${dir} (có thể đang bị khóa)`);
   if (branchError) throw branchError;
+}
+
+// Hoàn tác file ngoài scope về trạng thái ở merge-base với main: có ở base thì checkout, không có thì xóa
+export async function revertPaths(dir, files, message = 'chore: runner hoàn tác file ngoài scope') {
+  await assertTaskWorktree(dir);
+  if (!files.length) return false;
+  const base = await git(dir, 'merge-base', 'main', 'HEAD');
+  for (const f of files) {
+    const atBase = await run('git', ['cat-file', '-e', `${base}:${f}`], { cwd: dir });
+    if (atBase.code === 0) await git(dir, '--literal-pathspecs', 'checkout', base, '--', f);
+    else await git(dir, '--literal-pathspecs', 'rm', '-f', '-q', '--ignore-unmatch', '--', f);
+  }
+  if (!(await git(dir, 'status', '--porcelain'))) return false;
+  await git(dir, 'commit', '-q', '-m', message);
+  return true;
+}
+
+export const ASSETS_DIR = 'assets-src';
+
+// Cho agent thấy <root>/assets-src thành <wt>/assets-src (junction; không tạo được thì chép).
+// assets-src/ có trong .gitignore gốc nên không bao giờ bị commit. Không có thư mục nguồn → bỏ qua.
+export async function linkAssetsSrc(root, wt) {
+  await assertTaskWorktree(wt);
+  const target = path.join(root, ASSETS_DIR);
+  if (!fs.existsSync(target)) return false;
+  const link = path.join(wt, ASSETS_DIR);
+  let st = null;
+  try { st = fs.lstatSync(link); } catch { /* chưa có */ }
+  if (st) {
+    if (!st.isSymbolicLink() || fs.existsSync(link)) return true;
+    fs.unlinkSync(link); // junction hỏng
+  }
+  try {
+    fs.symlinkSync(target, link, 'junction');
+  } catch {
+    fs.cpSync(target, link, { recursive: true });
+  }
+  return true;
 }

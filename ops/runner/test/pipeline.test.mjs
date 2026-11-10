@@ -60,15 +60,16 @@ test('ui qua verify → vào review, chưa merge', async () => {
   assert.ok(!fs.existsSync(path.join(e.root, 'app', 'ui.txt')));
 });
 
-test('sửa ngoài scope 2 lần → failed, main không đổi, agent nhận phản hồi', async () => {
+test('chỉ sửa ngoài scope 2 lần → runner hoàn tác, coi như không làm gì → failed, main không đổi', async () => {
   const e = env();
   const feedbacks = [];
   const agent = async (a) => { feedbacks.push(a.feedback); return writes('README.md')(a); };
   const rec = await processTask(addTask(e.tasksDir, 'T-102', 'logic', ['app/**']), 0, ctx(e, agent));
   assert.equal(rec.status, 'failed');
-  assert.match(rec.reason, /ngoài scope: README.md/);
+  assert.match(rec.reason, /không thay đổi gì/);
+  assert.match(rec.note, /hoàn tác.*README\.md/);
   assert.equal(feedbacks[0], null);
-  assert.match(feedbacks[1], /README.md/);
+  assert.match(feedbacks[1], /README\.md/);
   assert.ok(!fs.existsSync(path.join(e.root, 'README.md')));
   assert.equal(loadAll(e.tasksDir)[0].state, 'failed');
 });
@@ -183,4 +184,182 @@ test('mergeVerified chạy được với ctx tối giản {root, mergeLock, exe
     wt, task, 0, path.join(e.ops, 'approve.log'));
   assert.equal(m.ok, true);
   assert.ok(fs.existsSync(path.join(e.root, 'app', 'j.txt')));
+});
+
+const verifyCounter = (c) => {
+  const n = { verify: 0, ci: 0 };
+  const inner = c.exec;
+  c.exec = async (cmd, args, opts) => {
+    if (args.includes('verify')) n.verify++;
+    if (args.includes('ci')) n.ci++;
+    return inner(cmd, args, opts);
+  };
+  return n;
+};
+
+test('agent không thay đổi gì → tính là một lần thử, không verify, không merge → failed', async () => {
+  const e = env();
+  let calls = 0;
+  const feedbacks = [];
+  const agent = async (a) => { calls++; feedbacks.push(a.feedback); return { code: 0, rateLimited: false, json: { result: 'Không cần làm gì.' } }; };
+  const c = ctx(e, agent);
+  const n = verifyCounter(c);
+  const rec = await processTask(addTask(e.tasksDir, 'T-120', 'logic', ['app/**']), 0, c);
+  assert.equal(rec.status, 'failed');
+  assert.equal(rec.reason, 'agent không thay đổi gì');
+  assert.equal(calls, 2);
+  assert.equal(n.verify, 0);
+  assert.match(feedbacks[1], /không thay đổi/);
+  assert.equal(loadAll(e.tasksDir)[0].state, 'failed');
+});
+
+test('sửa cả trong lẫn ngoài scope → runner tự hoàn tác phần ngoài scope rồi verify, merge; không tốn lần thử', async () => {
+  const e = env();
+  let calls = 0;
+  const agent = async (a) => {
+    calls++;
+    fs.writeFileSync(path.join(a.cwd, 'README.md'), 'ngoài scope');
+    fs.writeFileSync(path.join(a.cwd, '.gitignore'), 'bị sửa\n');
+    return writes('app/k.txt')(a);
+  };
+  const rec = await processTask(addTask(e.tasksDir, 'T-121', 'logic', ['app/**']), 0, ctx(e, agent));
+  assert.equal(rec.status, 'done');
+  assert.equal(calls, 1);
+  assert.ok(fs.existsSync(path.join(e.root, 'app', 'k.txt')));
+  assert.ok(!fs.existsSync(path.join(e.root, 'README.md')));
+  assert.equal(e.g('diff', '--quiet', 'HEAD~2', 'HEAD', '--', '.gitignore'), '');
+  assert.match(rec.note, /hoàn tác file ngoài scope: (README\.md, \.gitignore|\.gitignore, README\.md)/);
+  assert.match(e.g('log', '--format=%s', '-3'), /chore\(T-121\): runner hoàn tác file ngoài scope/);
+});
+
+test('npm ci thất bại → xóa node_modules, trả task về todo (paused), không gọi agent', async () => {
+  const e = env();
+  fs.writeFileSync(path.join(e.root, 'app', 'package.json'), '{}');
+  e.g('add', '-A');
+  e.g('commit', '-qm', 'app package');
+  let calls = 0;
+  const c = ctx(e, async (a) => { calls++; return writes('app/l.txt')(a); });
+  c.exec = async (cmd, args, opts) => {
+    if (args.includes('ci')) {
+      fs.mkdirSync(path.join(opts.cwd, 'node_modules', 'nua-voi'), { recursive: true });
+      return { code: 1, stdout: '', stderr: 'npm ERR! network ETIMEDOUT' };
+    }
+    return { code: 0, stdout: '', stderr: '' };
+  };
+  const rec = await processTask(addTask(e.tasksDir, 'T-122', 'logic', ['app/**']), 0, c);
+  assert.equal(rec.status, 'paused');
+  assert.match(rec.reason, /^npm ci thất bại: .*ETIMEDOUT/);
+  assert.equal(calls, 0);
+  assert.ok(!fs.existsSync(path.join(worktreeDir(e.root, 'T-122'), 'app', 'node_modules')));
+  const [t] = loadAll(e.tasksDir);
+  assert.equal(t.state, 'todo');
+  assert.equal(t.attempts, 0);
+});
+
+test('còn dưới 20 phút tới hạn chót → paused trước khi gọi agent', async () => {
+  const e = env();
+  let calls = 0;
+  const c = ctx(e, async (a) => { calls++; return writes('app/m.txt')(a); });
+  c.deadline = new Date(Date.now() + 15 * 60_000);
+  const rec = await processTask(addTask(e.tasksDir, 'T-123', 'logic', ['app/**']), 0, c);
+  assert.equal(rec.status, 'paused');
+  assert.equal(calls, 0);
+  assert.equal(loadAll(e.tasksDir)[0].state, 'todo');
+});
+
+test('timeout của agent = min(90 phút, hạn chót − 10 phút); agent nhận slot', async () => {
+  const e = env();
+  const seen = [];
+  const c = ctx(e, async (a) => { seen.push(a); return writes('app/n.txt')(a); });
+  c.deadline = new Date(Date.now() + 60 * 60_000);
+  await processTask(addTask(e.tasksDir, 'T-124', 'logic', ['app/**']), 3, c);
+  assert.equal(seen[0].slot, 3);
+  assert.ok(seen[0].timeoutMs <= 50 * 60_000 && seen[0].timeoutMs > 49 * 60_000, String(seen[0].timeoutMs));
+  const e2 = env();
+  const seen2 = [];
+  const c2 = ctx(e2, async (a) => { seen2.push(a); return writes('app/n.txt')(a); });
+  c2.deadline = new Date(Date.now() + 5 * 3_600_000);
+  await processTask(addTask(e2.tasksDir, 'T-125', 'logic', ['app/**']), 0, c2);
+  assert.equal(seen2[0].timeoutMs, 90 * 60_000);
+});
+
+test('claude chưa đăng nhập → paused, fatal, task về todo, không tính lần thử', async () => {
+  const e = env();
+  let calls = 0;
+  const agent = async () => {
+    calls++;
+    return { code: 1, rateLimited: false, authError: true, stdout: '', stderr: '', json: { is_error: true, result: 'Invalid API key · Please run /login' } };
+  };
+  const rec = await processTask(addTask(e.tasksDir, 'T-126', 'logic', ['app/**']), 0, ctx(e, agent));
+  assert.equal(rec.status, 'paused');
+  assert.equal(rec.fatal, true);
+  assert.match(rec.reason, /^claude chưa đăng nhập\/hết hạn: .*\/login/);
+  assert.equal(calls, 1);
+  const [t] = loadAll(e.tasksDir);
+  assert.equal(t.state, 'todo');
+  assert.equal(t.attempts, 0);
+});
+
+test('agent lỗi và không để lại thay đổi → lý do có exit/subtype/đuôi log', async () => {
+  const e = env();
+  const agent = async () => ({ code: 1, rateLimited: false, stdout: '', stderr: '', json: { is_error: true, subtype: 'error_during_execution', result: 'boom' } });
+  const rec = await processTask(addTask(e.tasksDir, 'T-127', 'logic', ['app/**']), 0, ctx(e, agent));
+  assert.equal(rec.status, 'failed');
+  assert.equal(rec.reason, 'agent lỗi (exit 1, error_during_execution): boom');
+  assert.match(loadAll(e.tasksDir)[0].last_error, /error_during_execution/);
+});
+
+test('agent hết lượt nhưng đã để lại thay đổi → vẫn kiểm tra như thường và merge', async () => {
+  const e = env();
+  const agent = async (a) => {
+    await writes('app/o.txt')(a);
+    return { code: 1, rateLimited: false, stdout: '', stderr: '', json: { is_error: true, subtype: 'error_max_turns', num_turns: 101 } };
+  };
+  const rec = await processTask(addTask(e.tasksDir, 'T-128', 'logic', ['app/**']), 0, ctx(e, agent));
+  assert.equal(rec.status, 'done');
+  assert.match(rec.note, /error_max_turns/);
+  assert.ok(fs.existsSync(path.join(e.root, 'app', 'o.txt')));
+});
+
+test('permission_denials được tóm tắt vào note', async () => {
+  const e = env();
+  const agent = async (a) => {
+    await writes('app/p.txt')(a);
+    return { code: 0, rateLimited: false, json: { result: 'Xong.', permission_denials: [{ tool_name: 'Write', tool_input: { file_path: '../../ops/x.txt', content: 'x' } }] } };
+  };
+  const rec = await processTask(addTask(e.tasksDir, 'T-129', 'logic', ['app/**']), 0, ctx(e, agent));
+  assert.equal(rec.status, 'done');
+  assert.match(rec.note, /^Xong\./);
+  assert.match(rec.note, /quyền bị từ chối \(1\): Write: \.\.\/\.\.\/ops\/x\.txt/);
+});
+
+test('task có last_error → lần gọi đầu đã có phản hồi về lỗi trước', async () => {
+  const e = env();
+  const t = addTask(e.tasksDir, 'T-130', 'logic', ['app/**']);
+  const feedbacks = [];
+  const agent = async (a) => { feedbacks.push(a.feedback); return writes('app/q.txt')(a); };
+  await processTask({ ...t, last_error: 'npm run verify thất bại' }, 0, ctx(e, agent));
+  assert.match(feedbacks[0], /npm run verify thất bại/);
+});
+
+test('task asset: assets-src gốc hiện trong worktree, không bị commit, còn nguyên sau khi dọn', async () => {
+  const e = env();
+  fs.appendFileSync(path.join(e.root, '.gitignore'), 'assets-src/\n');
+  e.g('commit', '-qam', 'ignore assets-src');
+  fs.mkdirSync(path.join(e.root, 'assets-src', 'kenney'), { recursive: true });
+  fs.writeFileSync(path.join(e.root, 'assets-src', 'kenney', 'bo.glb'), 'glTF');
+  let seen = null;
+  const agent = async (a) => {
+    seen = fs.readFileSync(path.join(a.cwd, 'assets-src', 'kenney', 'bo.glb'), 'utf8');
+    fs.mkdirSync(path.join(a.cwd, 'app', 'public', 'models'), { recursive: true });
+    fs.copyFileSync(path.join(a.cwd, 'assets-src', 'kenney', 'bo.glb'), path.join(a.cwd, 'app', 'public', 'models', 'bo.glb'));
+    return { code: 0, rateLimited: false, json: { result: 'Đã chép bò.' } };
+  };
+  const rec = await processTask(addTask(e.tasksDir, 'T-131', 'asset', ['app/public/models/**']), 0, ctx(e, agent));
+  assert.equal(rec.status, 'done');
+  assert.equal(seen, 'glTF');
+  assert.ok(fs.existsSync(path.join(e.root, 'app', 'public', 'models', 'bo.glb')));
+  assert.equal(e.g('ls-files', 'assets-src'), '');
+  assert.equal(fs.readFileSync(path.join(e.root, 'assets-src', 'kenney', 'bo.glb'), 'utf8'), 'glTF');
+  assert.ok(!fs.existsSync(worktreeDir(e.root, 'T-131')));
 });

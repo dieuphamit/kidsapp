@@ -4,10 +4,16 @@ import { moveTask } from './tasks.mjs';
 import { outOfScope } from './scope.mjs';
 import * as gitLib from './git.mjs';
 import { sleepUntil as realSleepUntil } from './time.mjs';
+import { agentFailure, denialSummary } from './agent.mjs';
 
 const tail = (s, n = 6000) => (s.length > n ? s.slice(-n) : s);
 const BASE_PORT = 4173;
 const PAUSED = 'hết giờ chạy đêm, để lại cho đêm sau';
+const NO_CHANGES = 'agent không thay đổi gì';
+const AGENT_MAX_MS = 90 * 60_000;
+// chừa 10 phút cho verify/merge sau agent; còn dưới 20 phút thì không bắt đầu lần thử mới
+const DEADLINE_MARGIN_MS = 10 * 60_000;
+const MIN_ATTEMPT_MS = 20 * 60_000;
 const DIRTY_ROOT = 'repo gốc đang bẩn, không merge được';
 
 // ctx.git cho phép thay từng hàm git (test); mặc định dùng git.mjs
@@ -79,46 +85,70 @@ export async function processTask(input, slot, ctx) {
     id: task.id, title: task.title, type: task.type, status, attempts: task.attempts,
     minutes: Math.round((Date.now() - t0) / 60_000), ...extra,
   });
-  const pastDeadline = () => Date.now() >= ctx.deadline.getTime();
+  const remainingMs = () => ctx.deadline.getTime() - Date.now();
   const fail = (reason, note) => {
     task = moveTask(ctx.tasksDir, { ...task, attempts: task.attempts + 1, last_error: reason }, 'failed');
     return rec('failed', { reason, note });
   };
+  // không phải lỗi của agent: trả về todo, không tính lần thử
+  const pause = (reason, extra = {}) => {
+    task = moveTask(ctx.tasksDir, task, 'todo');
+    return rec('paused', { reason, note, ...extra });
+  };
 
   let note = '';
   try {
-    if (pastDeadline()) {
-      task = moveTask(ctx.tasksDir, task, 'todo');
-      return rec('paused', { reason: PAUSED });
-    }
+    if (remainingMs() < MIN_ATTEMPT_MS) return pause(PAUSED);
 
     const wt = await g.ensureWorktree(ctx.root, task.id);
+    if (task.type === 'asset' || task.type === 'tts') await g.linkAssetsSrc(ctx.root, wt);
     const appDir = path.join(wt, 'app');
     if (fs.existsSync(path.join(appDir, 'package.json')) && !fs.existsSync(path.join(appDir, 'node_modules'))) {
-      await ctx.exec('npm', ['ci', '--no-audit', '--no-fund'], { cwd: appDir, logFile, timeoutMs: 15 * 60_000 });
+      const ci = await ctx.exec('npm', ['ci', '--no-audit', '--no-fund'], { cwd: appDir, logFile, timeoutMs: 15 * 60_000 });
+      if (ci.code !== 0) {
+        // node_modules dở dang sẽ làm lần sau bỏ qua npm ci
+        fs.rmSync(path.join(appDir, 'node_modules'), { recursive: true, force: true, maxRetries: 3, retryDelay: 500 });
+        return pause(`npm ci thất bại: ${tail(`${ci.stdout ?? ''}\n${ci.stderr ?? ''}`.trim(), 500)}`);
+      }
     }
 
-    let feedback = null;
+    // task chạy lại (retry/đêm sau) biết lần trước hỏng vì sao
+    let feedback = task.last_error ? `Lần chạy trước thất bại: ${task.last_error}` : null;
     let reason = '';
     let attempt = 0;
     while (attempt < 2) {
-      if (pastDeadline()) {
-        task = moveTask(ctx.tasksDir, task, 'todo');
-        return rec('paused', { reason: PAUSED, note });
+      const left = remainingMs();
+      if (left < MIN_ATTEMPT_MS) return pause(PAUSED);
+      const timeoutMs = Math.min(AGENT_MAX_MS, left - DEADLINE_MARGIN_MS);
+      const a = await ctx.agent({ cwd: wt, task, ops: ctx.ops, feedback, logFile, slot, timeoutMs });
+      if (a.authError) {
+        const msg = tail(String(a.json?.result || a.stderr || a.stdout || '').trim(), 300);
+        return pause(`claude chưa đăng nhập/hết hạn: ${msg}`, { fatal: true });
       }
-      const a = await ctx.agent({ cwd: wt, task, ops: ctx.ops, feedback, logFile });
       if (a.rateLimited) {
         await sleepUntil(a.resetAt, ctx.deadline);
         continue;
       }
       attempt++;
-      note = a.json?.result ?? '';
+      const failure = agentFailure(a);
+      const denials = denialSummary(a.json);
+      note = [a.json?.result ?? '', failure && `[${failure}]`, denials && `[${denials}]`].filter(Boolean).join('\n');
+      if (failure || denials) appendLog(logFile, [failure, denials].filter(Boolean).join('\n'));
       await g.commitAll(wt, `feat(${task.id}): ${task.title}`);
 
-      const bad = outOfScope(await g.changedFiles(wt), task.scope);
+      let files = await g.changedFiles(wt);
+      const bad = outOfScope(files, task.scope);
       if (bad.length) {
-        reason = `sửa ngoài scope: ${bad.join(', ')}`;
-        feedback = `Bạn đã sửa file ngoài scope: ${bad.join(', ')}. Khôi phục chúng (git checkout main -- <file>; file mới thì xóa) rồi commit; chỉ sửa trong scope.`;
+        // runner tự hoàn tác, không tốn một lần thử của agent
+        await g.revertPaths(wt, bad, `chore(${task.id}): runner hoàn tác file ngoài scope`);
+        note = `${note}\n[runner đã hoàn tác file ngoài scope: ${bad.join(', ')}]`;
+        files = await g.changedFiles(wt);
+      }
+      if (!files.length) {
+        // agent lỗi/hết lượt mà không để lại gì → lý do là lỗi của agent; ngược lại là không làm gì
+        reason = failure ?? NO_CHANGES;
+        const outside = bad.length ? ` File ngoài scope đã bị runner hoàn tác: ${bad.join(', ')}.` : '';
+        feedback = `${failure ? `${failure}\n` : ''}Lần trước agent không thay đổi gì trong scope.${outside} Hãy sửa đúng các file trong scope rồi git add, git commit.`;
         continue;
       }
 

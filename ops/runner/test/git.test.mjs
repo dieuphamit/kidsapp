@@ -146,3 +146,86 @@ test('rebase conflict thì hủy rebase và trả về false', async () => {
   assert.equal(await rebaseOnMain(wt), false);
   assert.equal(g('-C', wt, 'status', '--porcelain'), '', 'worktree sạch sau khi abort');
 });
+
+import { revertPaths, linkAssetsSrc } from '../lib/git.mjs';
+import os from 'node:os';
+
+test('revertPaths: file có ở base thì khôi phục, file mới thì xóa, rồi commit', async () => {
+  const { root, g } = tempRepo();
+  const wt = await ensureWorktree(root, 'T-020');
+  fs.writeFileSync(path.join(wt, 'app', 'b.txt'), 'trong scope');
+  fs.writeFileSync(path.join(wt, '.gitignore'), 'bị sửa\n');
+  fs.writeFileSync(path.join(wt, 'README [1].md'), 'file mới ngoài scope');
+  fs.rmSync(path.join(wt, 'app', 'a.txt'));
+  await commitAll(wt, 'agent làm');
+  await revertPaths(wt, ['.gitignore', 'README [1].md', 'app/a.txt'], 'chore(T-020): runner hoàn tác file ngoài scope');
+  assert.deepEqual(await changedFiles(wt), ['app/b.txt']);
+  assert.equal(g('-C', wt, 'diff', '--quiet', 'main', '--', '.gitignore'), '');
+  assert.ok(!fs.existsSync(path.join(wt, 'README [1].md')));
+  assert.equal(fs.readFileSync(path.join(wt, 'app', 'a.txt'), 'utf8'), 'a');
+  assert.equal(g('-C', wt, 'log', '-1', '--format=%s'), 'chore(T-020): runner hoàn tác file ngoài scope');
+  assert.equal(g('-C', wt, 'status', '--porcelain'), '');
+});
+
+test('revertPaths từ chối chạy ở repo gốc', async () => {
+  const { root } = tempRepo();
+  await assert.rejects(revertPaths(root, ['app/a.txt']), /worktree/);
+});
+
+test('ffMerge ném lỗi khi repo gốc không ở nhánh main', async () => {
+  const { root, g } = tempRepo();
+  const wt = await ensureWorktree(root, 'T-021');
+  fs.writeFileSync(path.join(wt, 'app', 'moi.txt'), 'từ task');
+  await commitAll(wt, 'task thêm file');
+  g('checkout', '-q', '-b', 'phase-0');
+  await assert.rejects(ffMerge(root, 'T-021'), /repo gốc không ở nhánh main/);
+  assert.equal(g('rev-parse', 'main'), g('rev-parse', 'phase-0'));
+  assert.ok(!fs.existsSync(path.join(root, 'app', 'moi.txt')));
+});
+
+function assetsRepo() {
+  const r = tempRepo();
+  fs.appendFileSync(path.join(r.root, '.gitignore'), 'assets-src/\n');
+  r.g('commit', '-qam', 'ignore assets-src');
+  fs.mkdirSync(path.join(r.root, 'assets-src', 'kenney'), { recursive: true });
+  fs.writeFileSync(path.join(r.root, 'assets-src', 'kenney', 'bo.glb'), 'glTF');
+  return r;
+}
+
+test('linkAssetsSrc: nối assets-src vào worktree, git bỏ qua, gọi lại không lỗi', async () => {
+  const { root, g } = assetsRepo();
+  const wt = await ensureWorktree(root, 'T-022');
+  assert.equal(await linkAssetsSrc(root, wt), true);
+  assert.equal(fs.readFileSync(path.join(wt, 'assets-src', 'kenney', 'bo.glb'), 'utf8'), 'glTF');
+  assert.equal(await linkAssetsSrc(root, wt), true);
+  assert.equal(g('-C', wt, 'status', '--porcelain'), '');
+  assert.equal(await commitAll(wt, 'không có gì'), false);
+});
+
+test('linkAssetsSrc: không có <root>/assets-src thì bỏ qua', async () => {
+  const { root } = tempRepo();
+  const wt = await ensureWorktree(root, 'T-023');
+  assert.equal(await linkAssetsSrc(root, wt), false);
+  assert.ok(!fs.existsSync(path.join(wt, 'assets-src')));
+});
+
+test('removeWorktree không xóa xuyên junction assets-src (git worktree remove sẽ xóa nội dung đích)', async () => {
+  const { root, g } = assetsRepo();
+  const wt = await ensureWorktree(root, 'T-024');
+  await linkAssetsSrc(root, wt);
+  await removeWorktree(root, 'T-024');
+  assert.ok(!fs.existsSync(wt));
+  assert.equal(fs.readFileSync(path.join(root, 'assets-src', 'kenney', 'bo.glb'), 'utf8'), 'glTF');
+  assert.ok(!branchExists(g, 'task/T-024'));
+});
+
+test('ensureWorktree dọn worktree hỏng có junction mà không xóa xuyên junction', async () => {
+  const { root } = assetsRepo();
+  const wt = await ensureWorktree(root, 'T-025');
+  await linkAssetsSrc(root, wt);
+  // làm hỏng worktree: xóa .git để show-toplevel không còn trỏ về wt
+  fs.rmSync(path.join(wt, '.git'), { force: true });
+  const again = await ensureWorktree(root, 'T-025');
+  assert.equal(again, wt);
+  assert.equal(fs.readFileSync(path.join(root, 'assets-src', 'kenney', 'bo.glb'), 'utf8'), 'glTF');
+});
