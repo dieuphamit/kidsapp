@@ -1,0 +1,8 @@
+[
+  { "key": "color.red", "vi": "Màu đỏ", "ja": "あか" },
+  { "key": "color.yellow", "vi": "Màu vàng", "ja": "きいろ" },
+  { "key": "color.green", "vi": "Màu xanh lá", "ja": "みどり" },
+  { "key": "color.blue", "vi": "Màu xanh dương", "ja": "あお" },
+  { "key": "color.orange", "vi": "Màu cam", "ja": "オレンジ" },
+  { "key": "color.purple", "vi": "Màu tím", "ja": "むらさき" }
+]
