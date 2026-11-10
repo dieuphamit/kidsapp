@@ -28,7 +28,22 @@
       "Bash(git rm app/*)",
       "Bash(git mv app/*)",
       "Bash(ls:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(npm ls:*)",
+      "Bash(E2E_PORT=* npx playwright test *)",
+      "Bash(E2E_PORT=* npm run *)",
+      "Bash(echo:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(grep:*)",
+      "Bash(stat:*)",
+      "Bash(wc:*)",
+      "Bash(tee /dev/stderr)",
+      "Bash(true)",
+      "Bash(pwd)",
+      "Bash(which:*)",
+      "Bash(dir:*)"
     ],
     "deny": [
       "Bash(git push:*)",

@@ -8,6 +8,11 @@ Quy trình bắt buộc:
 3. Chạy `npm run verify` trong `app/` đến khi xanh; cổng e2e đã được đặt qua biến E2E_PORT. Không được xóa, skip hay nới lỏng test để cho qua.
 4. `git add` và `git commit` với message tiếng Việt.
 
+Cách chạy lệnh (lệnh sai dạng sẽ bị từ chối và bạn không thấy kết quả):
+- Chạy từ gốc worktree dạng `cd app && <lệnh>`. Tool Bash đã trả về cả stdout, stderr và exit code, nên KHÔNG thêm `; echo $?`, `| tee`, `> file`/`2>&1 > file`, `|| true` hay tiền tố `E2E_PORT=...` (E2E_PORT đã có sẵn trong env). Không dùng `node -e`.
+- Một file test: `cd app && npx vitest run src/x.test.ts`, `cd app && npx playwright test e2e/x.spec.ts`. Kiểm tra kiểu: `cd app && npx tsc -b`. Toàn bộ: `cd app && npm run verify`; timeout của Bash (15 phút, tối đa 30) đủ cho verify, không cần chạy nền.
+- Xem file/thư mục bằng tool Read/Glob/Grep (hoặc `ls`, `cat`, `grep`); muốn ghi file thì dùng tool Write/Edit, không ghi qua redirect của shell.
+
 Lint là oxlint; e2e chạy Chromium giả lập iPad.
 
 Giới hạn: chỉ sửa file trong scope của task; không sửa `ops/`, `CLAUDE.md`, `.github/`; không push; không cài thư viện mới. Quyền ghi chỉ có trong `app/` và `tools/`; lệnh bị từ chối thì đừng tìm cách lách, ghi lại trong phần tóm tắt.

@@ -14,5 +14,10 @@ Model 3D (task loại asset):
   (nguồn .gltf kèm .bin/texture cũng được, kết quả luôn là một file .glb). Mỗi model không quá 1MB, mỗi scene tổng cộng không quá ~50k tam giác.
 - Ghi vào `app/public/models/CREDITS.md`: tên file, gói nguồn, tác giả, license CC0.
 
+Cách chạy lệnh (lệnh sai dạng sẽ bị từ chối và bạn không thấy kết quả):
+- Chạy từ gốc worktree dạng `cd app && <lệnh>`. Tool Bash đã trả về cả stdout, stderr và exit code, nên KHÔNG thêm `; echo $?`, `| tee`, `> file`/`2>&1 > file`, `|| true` hay tiền tố `E2E_PORT=...` (E2E_PORT đã có sẵn trong env). Không dùng `node -e`.
+- Một file test: `cd app && npx vitest run src/x.test.ts`, `cd app && npx playwright test e2e/x.spec.ts`. Kiểm tra kiểu: `cd app && npx tsc -b`. Toàn bộ: `cd app && npm run verify`; timeout của Bash (15 phút, tối đa 30) đủ cho verify, không cần chạy nền.
+- Xem file/thư mục bằng tool Read/Glob/Grep (hoặc `ls`, `cat`, `grep`); muốn ghi file thì dùng tool Write/Edit, không ghi qua redirect của shell.
+
 Cuối cùng chạy `npm run verify` trong `app/` (cổng e2e đã được đặt qua biến E2E_PORT), rồi `git add` và `git commit`. Chỉ sửa file trong scope.
 Kết thúc bằng 2–4 câu tóm tắt. Mỗi câu hỏi cho bố mẹ ghi trên một dòng riêng, bắt đầu bằng `CÂU HỎI:`.
