@@ -2,7 +2,7 @@
 id: T-007
 title: Nội dung màu và hình vi/ja
 type: ui
-depends_on: []
+depends_on: [T-010]
 scope:
   - app/src/content/colors.json
   - app/src/content/shapes.json

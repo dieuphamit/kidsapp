@@ -2,7 +2,7 @@
 id: T-010
 title: Nội dung số 1–10 vi/ja
 type: tts
-depends_on: []
+depends_on: [T-004]
 scope:
   - app/src/content/numbers.json
   - app/public/audio/**
