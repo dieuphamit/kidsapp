@@ -10,7 +10,7 @@ import { ANIMALS, type AnimalData } from './animals';
 
 const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
 
-const TARGET_HEIGHT = 1.2; // Chuẩn hóa chiều cao ~1.2 đơn vị
+const TARGET_HEIGHT = 1.2; // Chuẩn hóa chiều cao ~1.2
 
 type AnimalProps = {
   data: AnimalData;
@@ -100,39 +100,98 @@ function Animal({ data, phaseOffset, onTap, isJumping, jumpProgress, onLoaded }:
   );
 }
 
+/** Cột hàng rào gỗ đơn giản */
+function FencePost({ x, z }: { x: number; z: number }) {
+  return (
+    <group position={[x, 0, z]}>
+      {/* Cột */}
+      <mesh position={[0, 0.5, 0]}>
+        <cylinderGeometry args={[0.08, 0.1, 1, 8]} />
+        <meshStandardMaterial color="#c8a87c" roughness={0.9} metalness={0} />
+      </mesh>
+      {/* Đỉnh cột tròn */}
+      <mesh position={[0, 1.02, 0]}>
+        <sphereGeometry args={[0.1, 8, 6]} />
+        <meshStandardMaterial color="#d4b896" roughness={0.85} metalness={0} />
+      </mesh>
+    </group>
+  );
+}
+
+/** Thanh ngang hàng rào */
+function FenceRail({ x1, x2, z, y }: { x1: number; x2: number; z: number; y: number }) {
+  const length = Math.abs(x2 - x1);
+  const midX = (x1 + x2) / 2;
+  return (
+    <mesh position={[midX, y, z]} rotation={[0, 0, 0]}>
+      <boxGeometry args={[length, 0.08, 0.06]} />
+      <meshStandardMaterial color="#d4b896" roughness={0.85} metalness={0} />
+    </mesh>
+  );
+}
+
+/** Bụi cây tròn đơn giản */
+function Bush({ x, z, scale = 1, color = '#6fd17a' }: { x: number; z: number; scale?: number; color?: string }) {
+  return (
+    <group position={[x, 0, z]} scale={scale}>
+      <mesh position={[0, 0.3, 0]}>
+        <sphereGeometry args={[0.4, 12, 10]} />
+        <meshStandardMaterial color={color} roughness={0.85} metalness={0} />
+      </mesh>
+      <mesh position={[0.25, 0.22, 0.15]}>
+        <sphereGeometry args={[0.28, 10, 8]} />
+        <meshStandardMaterial color={color} roughness={0.85} metalness={0} />
+      </mesh>
+      <mesh position={[-0.2, 0.25, -0.1]}>
+        <sphereGeometry args={[0.32, 10, 8]} />
+        <meshStandardMaterial color={color} roughness={0.85} metalness={0} />
+      </mesh>
+    </group>
+  );
+}
+
 function GrassGround() {
+  // Hàng rào: 5 cột ở z = -4, từ x = -5 đến x = 5
+  const fencePosts = [-5, -2.5, 0, 2.5, 5];
+
   return (
     <group>
-      {/* Đĩa cỏ dẹt */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
-        <cylinderGeometry args={[5, 5, 0.15, 64]} />
-        <meshStandardMaterial color="#9be38a" roughness={0.8} />
+      {/* Mặt đất phẳng rộng - plane kéo tới chân trời */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+        <planeGeometry args={[40, 30]} />
+        <meshStandardMaterial color="#9be38a" roughness={0.85} metalness={0} />
       </mesh>
-      {/* Mép bo bằng torus */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
-        <torusGeometry args={[5, 0.08, 16, 64]} />
-        <meshStandardMaterial color="#9be38a" roughness={0.8} />
+
+      {/* Hàng rào gỗ phía sau */}
+      {fencePosts.map((x) => (
+        <FencePost key={x} x={x} z={-4} />
+      ))}
+      <FenceRail x1={-5} x2={5} z={-4} y={0.35} />
+      <FenceRail x1={-5} x2={5} z={-4} y={0.7} />
+
+      {/* Bụi cây phía sau */}
+      <Bush x={-6} z={-5.5} scale={1.2} color="#5bb34e" />
+      <Bush x={-3.5} z={-5} scale={0.9} color="#6fd17a" />
+      <Bush x={1} z={-5.2} scale={1.1} color="#4da644" />
+      <Bush x={4} z={-4.8} scale={0.8} color="#6fd17a" />
+      <Bush x={6.5} z={-5.5} scale={1.3} color="#5bb34e" />
+
+      {/* Vài hoa nhỏ pastel rải rác */}
+      <mesh position={[-4, 0.08, 2.5]}>
+        <sphereGeometry args={[0.12, 10, 8]} />
+        <meshStandardMaterial color="#ffb4a2" roughness={0.8} metalness={0} />
       </mesh>
-      {/* Vài bụi cỏ/hoa pastel */}
-      <mesh position={[-3.5, 0.15, 2.5]}>
-        <sphereGeometry args={[0.18, 16, 12]} />
-        <meshStandardMaterial color="#ffb4a2" roughness={0.7} />
+      <mesh position={[4.5, 0.1, 0.5]}>
+        <sphereGeometry args={[0.1, 10, 8]} />
+        <meshStandardMaterial color="#cdb4ff" roughness={0.8} metalness={0} />
       </mesh>
-      <mesh position={[3.2, 0.12, -2.8]}>
-        <sphereGeometry args={[0.15, 16, 12]} />
-        <meshStandardMaterial color="#cdb4ff" roughness={0.7} />
+      <mesh position={[-5, 0.09, -1]}>
+        <sphereGeometry args={[0.11, 10, 8]} />
+        <meshStandardMaterial color="#ffe29a" roughness={0.8} metalness={0} />
       </mesh>
-      <mesh position={[2.8, 0.1, 3]}>
-        <sphereGeometry args={[0.12, 16, 12]} />
-        <meshStandardMaterial color="#ffe29a" roughness={0.7} />
-      </mesh>
-      <mesh position={[-2.5, 0.14, -3.2]}>
-        <sphereGeometry args={[0.16, 16, 12]} />
-        <meshStandardMaterial color="#a0e7e5" roughness={0.7} />
-      </mesh>
-      <mesh position={[0.5, 0.11, 3.5]}>
-        <sphereGeometry args={[0.13, 16, 12]} />
-        <meshStandardMaterial color="#b4f8c8" roughness={0.7} />
+      <mesh position={[5.2, 0.08, 2]}>
+        <sphereGeometry args={[0.1, 10, 8]} />
+        <meshStandardMaterial color="#a0e7e5" roughness={0.8} metalness={0} />
       </mesh>
     </group>
   );
@@ -252,7 +311,7 @@ export default function Game({ speaker, onExit }: GameProps) {
         background: 'linear-gradient(to bottom, var(--sky-top), var(--sky-bottom))',
       }}
     >
-      <Scene3D label="Trang trại" view={{ position: [0, 4.2, 13], target: [0, 0.8, 0], fov: 40 }}>
+      <Scene3D label="Trang trại" view={{ position: [0, 5.5, 12], target: [0, 0, -0.5], fov: 42 }}>
         <Suspense fallback={<GrassGround />}>
           <GrassGround />
           {ANIMALS.map((animal, i) => (
