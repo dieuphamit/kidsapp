@@ -43,3 +43,27 @@ test('escape dấu nháy đơn, src ảnh được encodeURI, minutes là số',
   assert.match(html, /0 phút/);
   assert.match(html, /overflow-wrap:anywhere/);
 });
+
+test('report có mục file task lỗi, task bị chặn và banner cảnh báo', () => {
+  const html = buildReport({
+    date: '2026-11-11',
+    records: [],
+    errors: [{ file: 'ops/tasks/todo/hong.md', message: 'hong.md: thiếu frontmatter <--->' }],
+    blocked: [{ id: 'T-030', missing: ['T-099'], failed: ['T-012'], waiting: ['T-020'] }],
+    alerts: ['Runner dừng sớm: claude chưa đăng nhập'],
+  });
+  assert.match(html, /class="alert"/);
+  assert.match(html, /claude chưa đăng nhập/);
+  assert.match(html, /thiếu frontmatter &lt;---&gt;/);
+  assert.match(html, /T-030/);
+  assert.match(html, /T-099/);
+  assert.match(html, /T-012/);
+  assert.match(html, /T-020/);
+});
+
+test('không có errors/blocked/alerts → không có các mục đó', () => {
+  const html = buildReport({ date: '2026-11-11', records: [] });
+  assert.doesNotMatch(html, /class="alert"/);
+  assert.doesNotMatch(html, /File task lỗi/);
+  assert.doesNotMatch(html, /bị chặn/);
+});

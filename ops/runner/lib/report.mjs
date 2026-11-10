@@ -27,7 +27,18 @@ const card = (r, extra = '') => `
     ${extra}
   </article>`;
 
-export function buildReport({ date, records, notes = '', minutes = 0 }) {
+const idList = (ids) => ids.map(esc).join(', ');
+function blockedItem(b) {
+  const parts = [];
+  if (b.missing?.length) parts.push(`chưa có task ${idList(b.missing)}`);
+  if (b.failed?.length) parts.push(`phụ thuộc đã lỗi ${idList(b.failed)} (retry nó trước)`);
+  if (b.waiting?.length) parts.push(`chờ ${idList(b.waiting)} xong`);
+  return `<li><b>${esc(b.id)}</b>: ${parts.join('; ')}</li>`;
+}
+
+// errors: [{file, message}] (file task hỏng, id trùng, lỗi khôi phục); blocked: kết quả blockedReasons;
+// alerts: thông báo nghiêm trọng (dừng sớm, integrity guard) hiện thành banner đầu trang
+export function buildReport({ date, records, notes = '', minutes = 0, errors = [], blocked = [], alerts = [] }) {
   const c = summarize(records);
   const qs = extractQuestions(records);
   const review = records.filter((r) => r.status === 'review').map((r) => card(r, `
@@ -51,13 +62,17 @@ node ops/runner/task.mjs reject ${esc(r.id)} "cần sửa gì"</pre>`)).join('')
   .shots{display:flex;gap:10px;overflow-x:auto}.shots img{height:260px;border-radius:12px;border:1px solid var(--line)}
   pre{background:var(--bg);padding:8px 12px;border-radius:10px;overflow-x:auto}
   small{opacity:.7;font-weight:400}
+  .alert{background:var(--failed);color:#3b1a12;border-radius:16px;padding:14px 18px;margin:12px 0;font-weight:600;overflow-wrap:anywhere}
   h3,.note,.reason{overflow-wrap:anywhere}.noshot{opacity:.7;font-style:italic}
 </style></head><body><main>
 <h1>Báo cáo đêm ${esc(date)}</h1>
+${alerts.map((a) => `<div class="alert" role="alert">⚠️ ${esc(a).replace(/\n/g, '<br>')}</div>`).join('')}
 <div class="kpi"><div>✅ Xong: <b>${c.done}</b></div><div>👀 Chờ duyệt: <b>${c.review}</b></div><div>❌ Lỗi: <b>${c.failed}</b></div><div>⏸ Để đêm sau: <b>${c.paused}</b></div><div>⏱ ${Math.round(minutes)} phút</div></div>
 ${qs.length ? `<h2>❓ Câu hỏi cho bố mẹ</h2><ul>${qs.map((q) => `<li><b>${esc(q.id)}</b>: ${esc(q.q)}</li>`).join('')}</ul>` : ''}
 ${review ? `<h2>👀 Chờ duyệt giao diện</h2>${review}` : ''}
 ${failed ? `<h2>❌ Chưa xong</h2>${failed}` : ''}
+${blocked.length ? `<h2>⛔ Task todo bị chặn</h2><ul>${blocked.map(blockedItem).join('')}</ul>` : ''}
+${errors.length ? `<h2>⚠️ File task lỗi</h2><ul>${errors.map((x) => `<li>${esc(x.message)}</li>`).join('')}</ul>` : ''}
 ${done ? `<h2>✅ Đã merge vào main</h2>${done}` : ''}
 ${notes ? `<h2>🧐 Nhận xét của reviewer</h2><pre style="white-space:pre-wrap">${esc(notes)}</pre>` : ''}
 </main></body></html>`;

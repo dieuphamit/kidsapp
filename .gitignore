@@ -9,3 +9,4 @@ ops/logs/
 ops/reports/shots/
 ops/runner/node_modules/
 assets-src/
+ops/.runner.lock
