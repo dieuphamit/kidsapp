@@ -6,7 +6,7 @@ const baseURL = `http://localhost:${port}/be-hoc/`;
 export default defineConfig({
   testDir: 'e2e',
   outputDir: 'test-results/artifacts',
-  timeout: 30_000,
+  timeout: 60_000, // test 3D nặng (vẽ, trang trại) chạy sát 30s trên máy không GPU
   // e2e 3D trên máy không GPU (WebGL phần mềm) + nhiều slot song song hay chập chờn; thử lại 1 lần,
   // lỗi thật vẫn trượt cả 2 lần. Lần chạy lại hiện "flaky" trong output để còn theo dõi.
   retries: 1,
