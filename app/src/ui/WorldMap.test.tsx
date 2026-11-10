@@ -4,21 +4,12 @@ import { WorldMap } from './WorldMap';
 import type { GameManifest } from '../core/games';
 import { lazy } from 'react';
 
-// Mock @react-three/fiber vì jsdom không có WebGL
-vi.mock('@react-three/fiber', () => ({
-  useFrame: vi.fn(),
-}));
-
-// Mock Scene3D and DauDau vì jsdom không có WebGL
-vi.mock('./Scene3D', () => ({
-  Scene3D: ({ children, label }: { children: React.ReactNode; label: string }) => (
-    <div role="img" aria-label={label}>{children}</div>
-  ),
-}));
-
-vi.mock('./DauDau', () => ({
-  DauDau: ({ onTap }: { onTap(): void }) => (
-    <button data-testid="daudau" onClick={onTap}>DauDau</button>
+// Mock WorldMapScene vì jsdom không có WebGL
+vi.mock('./WorldMapScene', () => ({
+  WorldMapScene: ({ onTapDauDau }: { target: number; onTapDauDau(): void }) => (
+    <div role="img" aria-label="Đậu Đậu" onClick={onTapDauDau}>
+      <button data-testid="daudau" onClick={onTapDauDau}>DauDau</button>
+    </div>
   ),
 }));
 

@@ -1,15 +1,17 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, fireEvent } from '@testing-library/react';
-import type { ReactNode } from 'react';
 import { Home } from './Home';
 import type { GameManifest } from '../core/games';
 
 // Mẫu test component có 3D: R3F (<Canvas>, useFrame) không chạy được trong jsdom,
 // nên mock module chứa phần 3D bằng một div. Phần 3D chỉ kiểm tra bằng Playwright.
-vi.mock('./Scene3D', () => ({
-  Scene3D: ({ children }: { children?: ReactNode }) => <div data-testid="scene">{children}</div>,
+vi.mock('./WorldMapScene', () => ({
+  WorldMapScene: ({ onTapDauDau }: { target: number; onTapDauDau(): void }) => (
+    <div data-testid="scene" role="img" aria-label="Đậu Đậu" onClick={onTapDauDau}>
+      <div data-testid="daudau" />
+    </div>
+  ),
 }));
-vi.mock('./DauDau', () => ({ DauDau: () => <div data-testid="daudau" /> }));
 
 const game = {
   id: 'demo', title: { vi: 'Nông trại', ja: 'のうじょう' }, place: 'place.farm',
@@ -17,6 +19,13 @@ const game = {
 } as unknown as GameManifest;
 
 describe('Home', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('hiện bong bóng lời nói theo ngôn ngữ và scene đã mock', () => {
     const speaker = { say: vi.fn(), sfx: vi.fn() };
     const { getByText, getByTestId } = render(<Home games={[game]} lang="vi" speaker={speaker} onPick={vi.fn()} />);
@@ -26,9 +35,11 @@ describe('Home', () => {
   it('chạm nút game thì nói tên chỗ chơi và chọn game', () => {
     const speaker = { say: vi.fn(), sfx: vi.fn() };
     const onPick = vi.fn();
-    const { getByRole } = render(<Home games={[game]} lang="ja" speaker={speaker} onPick={onPick} />);
-    fireEvent.pointerDown(getByRole('button', { name: 'のうじょう' }));
+    const { getByLabelText } = render(<Home games={[game]} lang="ja" speaker={speaker} onPick={onPick} />);
+    fireEvent.pointerDown(getByLabelText('まきば'));
     expect(speaker.say).toHaveBeenCalledWith('place.farm');
+    expect(onPick).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(900);
     expect(onPick).toHaveBeenCalledTimes(1);
     expect(onPick).toHaveBeenCalledWith(game);
   });

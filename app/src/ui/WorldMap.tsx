@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { useFrame } from '@react-three/fiber';
-import type { Group } from 'three';
 import styles from './WorldMap.module.css';
-import { Scene3D } from './Scene3D';
-import { DauDau } from './DauDau';
+import { WorldMapScene } from './WorldMapScene';
 import { ClayButton } from './ClayButton';
 import { contentByKey } from '../core/content';
 import type { GameManifest } from '../core/games';
@@ -37,47 +34,6 @@ function getPlaces(lang: Lang) {
     }
   }
   return places;
-}
-
-type WalkerProps = {
-  target: number;
-  children: React.ReactNode;
-};
-
-function Walker({ target, children }: WalkerProps) {
-  const ref = useRef<Group>(null);
-  const bouncePhase = useRef(0);
-
-  useFrame((_, dt) => {
-    const g = ref.current;
-    if (!g) return;
-
-    const speed = 2.5;
-    const diff = target - g.position.x;
-
-    if (Math.abs(diff) > 0.02) {
-      const dir = Math.sign(diff);
-      const step = Math.min(Math.abs(diff), speed * dt) * dir;
-      g.position.x += step;
-
-      // Nảy 2 nhịp khi di chuyển
-      bouncePhase.current += dt * 12;
-      g.position.y = Math.abs(Math.sin(bouncePhase.current)) * 0.4;
-
-      // Xoay mặt về hướng đi
-      g.rotation.y = dir > 0 ? -0.4 : 0.4;
-    } else {
-      g.position.x = target;
-      g.position.y = 0;
-      bouncePhase.current = 0;
-      // Giữ hướng cuối cùng hoặc về trước
-      if (Math.abs(target) < 0.1) {
-        g.rotation.y = 0;
-      }
-    }
-  });
-
-  return <group ref={ref}>{children}</group>;
 }
 
 type Props = {
@@ -151,11 +107,7 @@ export function WorldMap({ games, lang, speaker, onPick }: Props) {
 
       {/* Đậu Đậu */}
       <div className={styles.mascot}>
-        <Scene3D label="Đậu Đậu">
-          <Walker target={target}>
-            <DauDau onTap={() => say('ui.hello')} />
-          </Walker>
-        </Scene3D>
+        <WorldMapScene target={target} onTapDauDau={() => say('ui.hello')} />
       </div>
 
       {/* 4 địa điểm */}
