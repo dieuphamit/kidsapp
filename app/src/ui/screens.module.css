@@ -1,0 +1,27 @@
+.full { position: fixed; inset: 0; }
+.gateZone {
+  position: fixed; top: 0; right: 0; width: 120px; height: 120px;
+  background: transparent; border: 0; z-index: 50;
+}
+.dialog {
+  position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center;
+  background: rgba(59, 42, 107, 0.45);
+}
+.card {
+  background: var(--paper); border-radius: var(--radius-clay); box-shadow: var(--shadow-clay);
+  padding: 32px; display: flex; flex-direction: column; gap: 16px; min-width: 360px; font-size: 28px;
+}
+.card input, .card select { font: inherit; padding: 8px 12px; border-radius: 12px; border: 2px solid var(--clay-lilac); }
+.card button { font: inherit; min-height: 64px; border-radius: 20px; border: 0; background: var(--clay-mint); box-shadow: var(--shadow-clay); }
+.homeGrid {
+  position: fixed; left: 0; right: 0; bottom: 40px; display: flex; justify-content: center; gap: var(--touch-gap);
+}
+.bubble {
+  position: fixed; top: 32px; left: 50%; transform: translateX(-50%);
+  background: var(--paper); color: var(--ink-soft); border-radius: var(--radius-bubble);
+  padding: 10px 24px; font-size: 32px; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+}
+.sleep {
+  background: linear-gradient(#2b2f6b, #5b3fa8); color: var(--paper);
+  display: flex; align-items: center; justify-content: center; font-size: 96px;
+}
