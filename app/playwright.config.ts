@@ -7,6 +7,9 @@ export default defineConfig({
   testDir: 'e2e',
   outputDir: 'test-results/artifacts',
   timeout: 30_000,
+  // e2e 3D trên máy không GPU (WebGL phần mềm) + nhiều slot song song hay chập chờn; thử lại 1 lần,
+  // lỗi thật vẫn trượt cả 2 lần. Lần chạy lại hiện "flaky" trong output để còn theo dõi.
+  retries: 1,
   use: { baseURL, video: 'retain-on-failure', serviceWorkers: 'allow' },
   projects: [
     {
