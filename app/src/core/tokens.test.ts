@@ -1,7 +1,10 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { TOUCH_MIN_PX, TOUCH_GAP_PX, CLAY_COLORS, LEARN_COLORS, LEARN_HEX } from './tokens';
 import { contentByKey } from './content';
-import tokensCss from './tokens.css?raw';
+
+const tokensCss = readFileSync(join(import.meta.dirname, 'tokens.css'), 'utf-8');
 
 describe('tokens', () => {
   it('vùng chạm theo luật UX', () => {
