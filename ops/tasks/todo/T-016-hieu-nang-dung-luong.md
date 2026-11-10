@@ -1,8 +1,12 @@
 ---
 id: T-016
-title: "Kiểm tra hiệu năng và dung lượng"
+title: Kiểm tra hiệu năng và dung lượng
 type: test
-depends_on: [T-008, T-011, T-013, T-015]
+depends_on:
+  - T-008
+  - T-011
+  - T-013
+  - T-015
 scope:
   - app/e2e/perf.spec.ts
   - app/scripts/check-size.mjs
@@ -10,7 +14,8 @@ scope:
 acceptance:
   - npm run verify
   - "npm run verify chạy thêm check-size: dist/ < 60MB và mỗi model .glb ≤ 1MB"
-  - "perf.spec.ts đo FPS ≥ 50 ở bản đồ, Trang trại và Hồ nước"
+  - perf.spec.ts đo FPS ≥ 50 ở bản đồ, Trang trại và Hồ nước
+attempts: 0
 ---
 ## Mục tiêu
 Chặn sớm việc app nặng dần hoặc giật: mỗi lần verify đều đo khung hình các scene 3D và tổng dung lượng bản offline, để bé luôn chơi mượt trên iPad và cài được offline.

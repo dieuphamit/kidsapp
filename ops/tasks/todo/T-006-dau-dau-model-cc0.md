@@ -1,15 +1,18 @@
 ---
 id: T-006
-title: "Đậu Đậu dùng model CC0"
+title: Đậu Đậu dùng model CC0
 type: ui
-depends_on: [T-003, T-005]
+depends_on:
+  - T-003
+  - T-005
 scope:
   - app/src/ui/DauDau.tsx
   - app/e2e/daudau.spec.ts
 acceptance:
   - npm run verify
-  - "Màn hình chính tải models/cat.glb (HTTP 200) và Đậu Đậu vẫn nhảy, nói ui.hello khi chạm"
-  - "Có ảnh app/test-results/shots/T-006-daudau.png"
+  - Màn hình chính tải models/cat.glb (HTTP 200) và Đậu Đậu vẫn nhảy, nói ui.hello khi chạm
+  - Có ảnh app/test-results/shots/T-006-daudau.png
+attempts: 0
 ---
 ## Mục tiêu
 Đậu Đậu trên bản đồ là con mèo 3D thật (model CC0 `cat.glb` từ T-003) thay cho mèo ghép từ quả cầu. Vẫn xoay qua lại nhè nhẹ, chạm vào thì nhảy lên co giãn kiểu đất sét và chào bé.

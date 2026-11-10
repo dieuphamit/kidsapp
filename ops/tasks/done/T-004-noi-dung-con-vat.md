@@ -2,7 +2,8 @@
 id: T-004
 title: Nội dung con vật vi/ja
 type: tts
-depends_on: [T-001]
+depends_on:
+  - T-001
 scope:
   - app/src/content/animals.json
   - app/public/audio/**

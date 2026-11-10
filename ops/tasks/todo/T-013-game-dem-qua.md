@@ -1,15 +1,18 @@
 ---
 id: T-013
-title: "Game Đếm quả"
+title: Game Đếm quả
 type: ui
-depends_on: [T-005, T-010]
+depends_on:
+  - T-005
+  - T-010
 scope:
   - app/src/games/counting/**
   - app/e2e/counting.spec.ts
 acceptance:
   - npm run verify
-  - "Chạm lần lượt 10 quả thì nghe number.1 … number.10 rồi count.done, quả rơi vào giỏ"
-  - "Có ảnh app/test-results/shots/T-013-tree.png và T-013-basket.png"
+  - Chạm lần lượt 10 quả thì nghe number.1 … number.10 rồi count.done, quả rơi vào giỏ
+  - Có ảnh app/test-results/shots/T-013-tree.png và T-013-basket.png
+attempts: 0
 ---
 ## Mục tiêu
 Bé vào Vườn quả: một cây đất sét to tròn có 10 quả táo. Bé chạm quả nào thì quả đó rơi lộp bộp xuống chiếc giỏ dưới gốc cây và Đậu Đậu đếm "Một!", "Hai!"… Hái đủ 10 quả thì Đậu Đậu khen "Mười quả! Bé đếm giỏi quá!", sao lấp lánh bay lên, rồi cây mọc quả mới.

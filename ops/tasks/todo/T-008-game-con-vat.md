@@ -1,15 +1,19 @@
 ---
 id: T-008
-title: "Game Con vật (trang trại 3D)"
+title: Game Con vật (trang trại 3D)
 type: ui
-depends_on: [T-003, T-004, T-005]
+depends_on:
+  - T-003
+  - T-004
+  - T-005
 scope:
   - app/src/games/animals/**
   - app/e2e/animals.spec.ts
 acceptance:
   - npm run verify
-  - "Từ bản đồ chạm Trang trại mở được game, chạm con bò nghe animal.cow rồi animal.cow-sound, nút 🏠 về lại bản đồ"
-  - "Có ảnh app/test-results/shots/T-008-farm.png và T-008-tap.png"
+  - Từ bản đồ chạm Trang trại mở được game, chạm con bò nghe animal.cow rồi animal.cow-sound, nút 🏠 về lại bản đồ
+  - Có ảnh app/test-results/shots/T-008-farm.png và T-008-tap.png
+attempts: 0
 ---
 ## Mục tiêu
 Bé vào Trang trại: một bãi cỏ tròn như đĩa đất sét, 8 con vật 3D đứng thành hai hàng, khẽ lắc lư. Bé chạm con nào thì con đó nhảy lên co giãn, Đậu Đậu đọc tên ("Con bò") rồi "kêu" thay nó ("Ùm bò! Ùm bò!"). Không có đúng sai, chạm bao nhiêu cũng được. Nút 🏠 ở góc trên trái để về bản đồ.
@@ -46,3 +50,6 @@ Bé vào Trang trại: một bãi cỏ tròn như đĩa đất sét, 8 con vật
 
 ## Tham khảo
 - Spec mục 6 (Con vật và tiếng kêu); CLAUDE.md luật UX, mục Cấu trúc; `app/public/models/CREDITS.md`.
+
+## Đồng bộ phong cách (bố mẹ yêu cầu, 10/11)
+Model đến từ 2–3 bộ khác nhau (Kenney Cube Pets + Quaternius). Trong game phải làm chúng trông như một bộ đồ chơi: chuẩn hóa chiều cao (bounding box) cho mọi con ~1.2 đơn vị, cùng ánh sáng `Scene3D`, và áp vật liệu lì kiểu đất sét (giữ màu/texture gốc nhưng đặt `roughness` ≈ 0.85, `metalness` 0) cho mọi mesh. Chụp ảnh e2e cả đàn để bố mẹ so sánh.

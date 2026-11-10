@@ -7,8 +7,9 @@ scope:
   - app/public/models/**
 acceptance:
   - npm run verify
-  - "Có 9 file app/public/models/{cow,chicken,duck,pig,dog,sheep,horse,rabbit,cat}.glb, mỗi file ≤ 1MB"
+  - Có 9 file app/public/models/{cow,chicken,duck,pig,dog,sheep,horse,rabbit,cat}.glb, mỗi file ≤ 1MB
   - "app/public/models/CREDITS.md ghi đủ 9 dòng: gói nguồn, tác giả, license CC0, số tam giác, tên animation"
+attempts: 0
 ---
 ## Mục tiêu
 Chuẩn bị model 3D cho trang trại (T-008) và cho Đậu Đậu (T-006): 8 con vật dễ thương kiểu low-poly, bo tròn, màu phẳng, hợp thế giới đồ chơi đất sét, cộng một con mèo làm Đậu Đậu.
@@ -38,3 +39,16 @@ Chuẩn bị model 3D cho trang trại (T-008) và cho Đậu Đậu (T-006): 8 
 
 ## Tham khảo
 - CLAUDE.md luật 7, 8; spec mục 3; prompt `ops/runner/prompts/asset.md`.
+
+## Nguồn đã chọn (bố mẹ duyệt, 10/11)
+`assets-src/` đã có sẵn (xem `assets-src/README.md`). Ưu tiên bộ Kenney Cube Pets cho đồng bộ phong cách:
+- cow ← `kenney-cube-pets/Models/GLB format/animal-cow.glb`
+- chicken ← `kenney-cube-pets/Models/GLB format/animal-chick.glb` (gà con, dễ thương hơn)
+- pig ← `kenney-cube-pets/Models/GLB format/animal-pig.glb`
+- dog ← `kenney-cube-pets/Models/GLB format/animal-dog.glb`
+- rabbit ← `kenney-cube-pets/Models/GLB format/animal-bunny.glb`
+- cat ← `kenney-cube-pets/Models/GLB format/animal-cat.glb`
+- duck ← `polypizza-cc0/ducky-IsaLousberg.glb`
+- sheep ← `polypizza-cc0/sheep-Quaternius-2.glb`
+- horse ← `quaternius-ultimate-animated-animals/glTF/Horse.gltf` (nếu optimize ra GLB > 1MB thì bỏ animation bằng tùy chọn của gltf-transform hoặc dùng `quaternius-farm-animals` không được vì là FBX — khi đó ghi CÂU HỎI)
+Texture của Kenney nằm ở `kenney-cube-pets/Models/GLB format/Textures`; kiểm tra GLB sau optimize vẫn hiển thị đúng màu (nếu texture rời thì gltf-transform phải nhúng vào GLB).

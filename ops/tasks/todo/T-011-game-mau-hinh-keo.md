@@ -2,14 +2,16 @@
 id: T-011
 title: "Game Màu và hình: kéo vào bóng"
 type: ui
-depends_on: [T-009]
+depends_on:
+  - T-009
 scope:
   - app/src/games/shapes/**
   - app/e2e/shapes.spec.ts
 acceptance:
   - npm run verify
-  - "Kéo một khối thả vào ô bóng cùng hình thì khối khớp vào ô và nghe ui.great; thả sai chỗ thì khối trôi về, nghe pond.try-again"
-  - "Có ảnh app/test-results/shots/T-011-drag.png và T-011-done.png"
+  - Kéo một khối thả vào ô bóng cùng hình thì khối khớp vào ô và nghe ui.great; thả sai chỗ thì khối trôi về, nghe pond.try-again
+  - Có ảnh app/test-results/shots/T-011-drag.png và T-011-done.png
+attempts: 0
 ---
 ## Mục tiêu
 Trên bờ hồ (phần dưới màn hình) có 4 ô "bóng" xám nhạt hình tròn, vuông, tam giác, sao. Bé kéo một khối từ mặt hồ thả vào bóng cùng hình: khối trượt khít vào ô, nảy vui, Đậu Đậu khen "Giỏi quá!". Thả sai chỗ: khối trôi nhẹ nhàng về chỗ cũ và Đậu Đậu gợi ý "Ồ, thử cái bóng khác xem nào!" (không có âm báo sai). Lấp đủ 4 bóng: tất cả nảy mừng, rồi một ván mới.

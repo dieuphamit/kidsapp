@@ -2,14 +2,17 @@
 id: T-014
 title: "Game Vẽ và nhạc: phần vẽ"
 type: ui
-depends_on: [T-005, T-007]
+depends_on:
+  - T-005
+  - T-007
 scope:
   - app/src/games/music/**
   - app/e2e/music.spec.ts
 acceptance:
   - npm run verify
-  - "Vẽ bằng một ngón tay để lại nét màu đang chọn; nút xóa làm trang giấy trắng lại"
-  - "Có ảnh app/test-results/shots/T-014-draw.png"
+  - Vẽ bằng một ngón tay để lại nét màu đang chọn; nút xóa làm trang giấy trắng lại
+  - Có ảnh app/test-results/shots/T-014-draw.png
+attempts: 0
 ---
 ## Mục tiêu
 Bé vào Nhà âm nhạc và thấy một tờ giấy trắng bo tròn như tấm bảng đồ chơi. Bé lấy ngón tay vẽ, nét to tròn mềm. Dưới tờ giấy là 6 "hũ màu" đất sét; chạm hũ nào thì hũ đó phồng to lên, Đậu Đậu đọc tên màu, nét vẽ đổi màu. Có một nút xóa to: chạm vào thì tờ giấy mờ dần rồi trắng tinh.

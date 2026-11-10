@@ -2,14 +2,17 @@
 id: T-015
 title: "Game Vẽ và nhạc: đàn và trống"
 type: ui
-depends_on: [T-012, T-014]
+depends_on:
+  - T-012
+  - T-014
 scope:
   - app/src/games/music/**
   - app/e2e/music.spec.ts
 acceptance:
   - npm run verify
-  - "Trong Nhà âm nhạc chuyển được giữa vẽ và nhạc; chạm phím gọi synth.playNote(i), chạm trống gọi synth.playDrum(kind)"
-  - "Có ảnh app/test-results/shots/T-015-instruments.png"
+  - Trong Nhà âm nhạc chuyển được giữa vẽ và nhạc; chạm phím gọi synth.playNote(i), chạm trống gọi synth.playDrum(kind)
+  - Có ảnh app/test-results/shots/T-015-instruments.png
+attempts: 0
 ---
 ## Mục tiêu
 Nhà âm nhạc có hai trò: vẽ (đã có ở T-014) và chơi nhạc. Ở trò nhạc, bé thấy 8 phím đàn đất sét cầu vồng xếp hàng dưới và 4 cái trống tròn phía trên. Chạm phím: phím lún xuống, vang một nốt đô-rê-mi, một nốt nhạc ♪ nhỏ bay lên. Chạm trống: trống nhún "bùm", rung nhẹ.
