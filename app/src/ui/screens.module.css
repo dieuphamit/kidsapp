@@ -17,9 +17,11 @@
   position: fixed; left: 0; right: 0; bottom: 40px; display: flex; justify-content: center; gap: var(--touch-gap);
 }
 .bubble {
-  position: fixed; top: 32px; left: 50%; transform: translateX(-50%);
-  background: var(--paper); color: var(--ink-soft); border-radius: var(--radius-bubble);
-  padding: 10px 24px; font-size: 32px; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+  /* nằm sát mép trên để tai Đậu Đậu không bị che, kể cả lúc nhảy */
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 1;
+  background: var(--paper); color: var(--ink-soft); border-radius: var(--radius-clay);
+  padding: 4px 28px; font-size: 30px; line-height: 1.4; white-space: nowrap;
+  box-shadow: 0 6px 14px rgba(60, 40, 120, 0.15);
 }
 .sleep {
   background: linear-gradient(#2b2f6b, #5b3fa8); color: var(--paper);

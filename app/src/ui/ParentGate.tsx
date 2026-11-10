@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styles from './screens.module.css';
 import { HOLD_MS, makeQuestion, checkAnswer, type GateQuestion } from '../core/parentGate';
 
@@ -11,6 +11,9 @@ export function ParentGate({ onOpen, rand = Math.random }: { onOpen(): void; ran
     if (timer.current) clearTimeout(timer.current);
     timer.current = null;
   };
+
+  // Dọn hẹn giờ giữ nút khi component bị gỡ, tránh setState sau unmount
+  useEffect(() => cancel, []);
 
   const submit = () => {
     const ok = q !== null && checkAnswer(q, value);
