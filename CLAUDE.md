@@ -8,6 +8,12 @@ App PWA học và chơi cho bé 2–5 tuổi trên iPad. Spec: `docs/superpowers
 - Sinh giọng đọc sau khi sửa `app/src/content/*.json` (chạy từ thư mục gốc):
   `uv run --python C:/Users/tdqua/AppData/Local/Programs/Python/Python312/python.exe --with edge-tts tools/tts/generate.py`
 
+## Kiểm thử
+- Chạy lệnh từ gốc worktree dạng `cd app && <lệnh>`. Tool Bash trả về sẵn output và exit code: không thêm `; echo $?`, `| tee`, redirect ra file, `|| true`, tiền tố `E2E_PORT=` (đã có trong env) hay `node -e`; các dạng đó bị từ chối.
+- Một file: `npx vitest run src/x.test.ts`, `npx playwright test e2e/x.spec.ts`; toàn bộ: `npm run verify`.
+- Test unit (`src/**/*.test.ts(x)`, `src/test-setup.ts`) dùng `tsconfig.test.json`, có type Node; code app (`tsconfig.app.json`) thì không, đừng import `node:*` ngoài test. Đọc file thật trong test: `readFileSync(join(import.meta.dirname, 'tokens.css'), 'utf8')` (mẫu: `src/core/tokensCss.test.ts`); không dùng `?raw` (Vitest trả về '').
+- R3F (`<Canvas>`, `useFrame`) không chạy trong jsdom. Để phần 3D ở file riêng (ví dụ `WorldMapScene.tsx`), test unit thì `vi.mock('./WorldMapScene', ...)` thay bằng một `<div>` (mẫu: `src/ui/Home.test.tsx`); phần 3D chỉ kiểm tra bằng Playwright.
+
 ## Luật UX trẻ em (không được vi phạm)
 1. Vùng chạm ≥120×120px, cách nhau ≥24px. Dùng `ClayButton` (đã ép sàn 120px kể cả khi truyền `style`, và đặt `data-pressed` lúc pointerdown), không tự viết nút.
 2. Mọi lần chạm đều có phản hồi trong 100ms (`onPointerDown`, âm thanh hoặc chuyển động).
