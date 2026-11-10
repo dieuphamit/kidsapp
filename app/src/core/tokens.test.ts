@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 import { TOUCH_MIN_PX, TOUCH_GAP_PX, CLAY_COLORS, LEARN_COLORS, LEARN_HEX } from './tokens';
 import { contentByKey } from './content';
+import tokensCss from './tokens.css?raw';
 
 describe('tokens', () => {
   it('vùng chạm theo luật UX', () => {
@@ -35,12 +34,10 @@ describe('tokens', () => {
     });
 
     it('tokens.css có dòng --learn-<id>: <hex> khớp LEARN_HEX', () => {
-      const cssPath = join(import.meta.dirname, 'tokens.css');
-      const cssContent = readFileSync(cssPath, 'utf-8');
       for (const color of LEARN_COLORS) {
         const expectedHex = LEARN_HEX[color];
         const pattern = new RegExp(`--learn-${color}:\\s*${expectedHex}`, 'i');
-        expect(cssContent).toMatch(pattern);
+        expect(tokensCss).toMatch(pattern);
       }
     });
   });
