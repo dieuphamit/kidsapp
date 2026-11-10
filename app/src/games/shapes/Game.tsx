@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
@@ -86,7 +86,7 @@ function ShapeMesh({ shape, color, position, phase, bouncing, onTap }: ShapeMesh
     }
   }, [bouncing]);
 
-  const handlePointerDown = (e: THREE.Event) => {
+  const handlePointerDown = (e: { stopPropagation: () => void }) => {
     e.stopPropagation();
     onTap();
   };

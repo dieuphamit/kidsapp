@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { SHAPES, dealColors, markTapped, allTapped, type Shape, type ShapesState } from './logic';
-import { LEARN_COLORS, type LearnColor } from '../../core/tokens';
+import { SHAPES, dealColors, markTapped, allTapped, type ShapesState } from './logic';
+import { LEARN_COLORS } from '../../core/tokens';
 import { contentByKey } from '../../core/content';
 
 describe('shapes logic', () => {
