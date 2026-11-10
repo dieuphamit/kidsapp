@@ -157,7 +157,8 @@ function ShapeMesh({
 
     // Slow rotation (pause when dragging or placed)
     if (!dragging && !placed) {
-      groupRef.current.rotation.y = t * 0.3 + phase;
+      // lắc nhẹ ±20° thay vì quay tròn: mặt tam giác/ngôi sao luôn hướng về bé
+      groupRef.current.rotation.y = Math.sin(t * 0.6 + phase) * 0.35;
     }
 
     // Scale handling
@@ -370,12 +371,12 @@ function Pond() {
   return (
     <group>
       {/* Shore (grass) - rộng hơn để không thấy mép trên iPad ngang */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 2]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.06, 2]}>
         <circleGeometry args={[40, 64]} />
         <meshStandardMaterial color={SHORE_COLOR} roughness={0.8} />
       </mesh>
-      {/* Water surface - hạ xuống y=-0.05 để tránh z-fighting với ContactShadows */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
+      {/* Water surface - y=-0.03: trên cỏ (-0.06), dưới ContactShadows (0) để không z-fighting */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.03, 0]}>
         <circleGeometry args={[3.5, 64]} />
         <meshStandardMaterial color={POND_COLOR} roughness={0.3} />
       </mesh>
@@ -827,7 +828,7 @@ export default function Game({ speaker, onExit }: GameProps) {
         background: 'linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%)',
       }}
     >
-      <Scene3D label="Hồ nước" view={{ position: [0, 2.8, 9], target: [0, 0.3, 1.5], fov: 42 }} shadowScale={12}>
+      <Scene3D label="Hồ nước" view={{ position: [0, 3.2, 10.5], target: [0, 0.3, 1.2], fov: 42 }} shadowScale={12}>
         <ShapesScene
           state={state}
           bouncingShapes={bouncingShapes}
