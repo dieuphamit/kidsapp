@@ -10,7 +10,8 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "check:audio": "node scripts/check-audio.mjs",
-    "verify": "tsc -b && oxlint && vitest run && npm run check:audio && playwright test",
+    "check:size": "node scripts/check-size.mjs",
+    "verify": "tsc -b && oxlint && vitest run && npm run check:audio && playwright test && npm run check:size",
     "model:opt": "gltf-transform optimize",
     "preview": "vite preview"
   },
