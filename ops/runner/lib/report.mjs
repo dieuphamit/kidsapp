@@ -1,4 +1,8 @@
-const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const mins = (m) => { const n = Number(m); return Number.isFinite(n) ? Math.round(n) : 0; };
+const shotsHtml = (r) => (r.shots?.length
+  ? `<div class="shots">${r.shots.map((s) => `<img src="${esc(encodeURI(s))}" alt="${esc(r.id)}">`).join('')}</div>`
+  : '<p class="noshot">không có ảnh</p>');
 
 export function summarize(records) {
   const c = { done: 0, review: 0, failed: 0, paused: 0 };
@@ -18,7 +22,7 @@ export function extractQuestions(records) {
 
 const card = (r, extra = '') => `
   <article class="card ${r.status}">
-    <h3>${esc(r.id)} · ${esc(r.title)} <small>${esc(r.type)} · ${r.minutes ?? 0} phút</small></h3>
+    <h3>${esc(r.id)} · ${esc(r.title)} <small>${esc(r.type)} · ${mins(r.minutes)} phút</small></h3>
     ${r.note ? `<p class="note">${esc(r.note).replace(/\n/g, '<br>')}</p>` : ''}
     ${extra}
   </article>`;
@@ -27,7 +31,7 @@ export function buildReport({ date, records, notes = '', minutes = 0 }) {
   const c = summarize(records);
   const qs = extractQuestions(records);
   const review = records.filter((r) => r.status === 'review').map((r) => card(r, `
-    <div class="shots">${(r.shots ?? []).map((s) => `<img src="${esc(s)}" alt="${esc(r.id)}">`).join('')}</div>
+    ${shotsHtml(r)}
     <pre>node ops/runner/task.mjs approve ${esc(r.id)}
 node ops/runner/task.mjs reject ${esc(r.id)} "cần sửa gì"</pre>`)).join('');
   const done = records.filter((r) => r.status === 'done').map((r) => card(r)).join('');
@@ -47,6 +51,7 @@ node ops/runner/task.mjs reject ${esc(r.id)} "cần sửa gì"</pre>`)).join('')
   .shots{display:flex;gap:10px;overflow-x:auto}.shots img{height:260px;border-radius:12px;border:1px solid var(--line)}
   pre{background:var(--bg);padding:8px 12px;border-radius:10px;overflow-x:auto}
   small{opacity:.7;font-weight:400}
+  h3,.note,.reason{overflow-wrap:anywhere}.noshot{opacity:.7;font-style:italic}
 </style></head><body><main>
 <h1>Báo cáo đêm ${esc(date)}</h1>
 <div class="kpi"><div>✅ Xong: <b>${c.done}</b></div><div>👀 Chờ duyệt: <b>${c.review}</b></div><div>❌ Lỗi: <b>${c.failed}</b></div><div>⏸ Để đêm sau: <b>${c.paused}</b></div><div>⏱ ${Math.round(minutes)} phút</div></div>

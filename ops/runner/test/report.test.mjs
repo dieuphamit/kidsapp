@@ -24,3 +24,22 @@ test('report có ảnh, lệnh duyệt, lý do lỗi, và escape HTML', () => {
   assert.match(html, /Bò &lt;3D&gt;/);
   assert.match(html, /Nên duyệt T-008/);
 });
+
+test('thẻ review không có ảnh → ghi rõ "không có ảnh"', () => {
+  const html = buildReport({ date: '2026-11-11', records: [{ id: 'T-020', title: 'Nút', type: 'ui', status: 'review', minutes: 5, shots: [] }] });
+  assert.match(html, /không có ảnh/);
+  assert.doesNotMatch(html, /<img /);
+  const html2 = buildReport({ date: '2026-11-11', records: [{ id: 'T-021', title: 'Nút', type: 'ui', status: 'review', minutes: 5 }] });
+  assert.match(html2, /không có ảnh/);
+});
+
+test('escape dấu nháy đơn, src ảnh được encodeURI, minutes là số', () => {
+  const html = buildReport({ date: '2026-11-11', records: [
+    { id: 'T-022', title: "Bé's <b>", type: 'ui', status: 'review', minutes: '<script>', shots: ['shots/T-022/màn hình 1.png'] },
+  ] });
+  assert.match(html, /Bé&#39;s &lt;b&gt;/);
+  assert.match(html, /src="shots\/T-022\/m%C3%A0n%20h%C3%ACnh%201\.png"/);
+  assert.doesNotMatch(html, /<script>/);
+  assert.match(html, /0 phút/);
+  assert.match(html, /overflow-wrap:anywhere/);
+});
