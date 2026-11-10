@@ -16,7 +16,7 @@ App PWA học và chơi cho bé 2–5 tuổi trên iPad. Spec: `docs/superpowers
 5. Không link ra ngoài, không gọi mạng lúc chạy, không thu thập dữ liệu.
 6. Chỉ chạm và kéo đơn giản. Không vuốt nhiều ngón, không chạm đúp.
 7. Chỉ dùng màu và bóng từ `src/core/tokens.css`. Scene 3D dùng lại `Scene3D` (`src/ui/Scene3D.tsx`, prop `view` tùy chỉnh camera): màu phẳng, ánh sáng ấm, chỉ ContactShadows; không thêm shadow map. Model chỉ lấy từ gói CC0 (Kenney, Quaternius) và ghi nguồn vào `app/public/models/CREDITS.md`.
-8. Mỗi scene 3D ≤ ~50k tam giác; nén GLB bằng `npx @gltf-transform/cli optimize in.glb out.glb --compress meshopt`.
+8. Mỗi scene 3D ≤ ~50k tam giác; nén GLB, chạy trong `app/`: `npm run model:opt -- ../assets-src/<đường-dẫn> public/models/<tên>.glb --compress meshopt`.
 
 ## Cấu trúc
 - Game mới: `app/src/games/<id>/manifest.ts` export `manifest: GameManifest` (xem `src/core/games.ts`), `Game.tsx`, test unit, và `app/e2e/<id>.spec.ts` có chụp ảnh vào `app/test-results/shots/<task-id>-<tên>.png` (trong test viết `test-results/shots/...`, tính từ `app/`; runner lấy mọi file .png ở đó).

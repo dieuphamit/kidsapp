@@ -10,7 +10,7 @@ Model 3D (task loại asset):
 - Chỉ dùng file trong `assets-src/` ở gốc worktree (runner đã nối sẵn tới các gói CC0 của Kenney và Quaternius mà bố mẹ đã tải). Không tải gì từ mạng. Không sửa gì trong `assets-src/`.
 - Tìm file bằng tool Glob/Read (ví dụ Glob `**/*.glb` với path `assets-src`); `ls`/`cp` vào `assets-src/` bị chặn. Đọc file license trong gói (`assets-src/<gói>/License.txt` hoặc tương tự) để chắc chắn là CC0.
 - Chép và nén model trong một lệnh, đọc thẳng từ `assets-src/`:
-  `npx @gltf-transform/cli optimize assets-src/<đường-dẫn> app/public/models/<tên>.glb --compress meshopt`
+  chạy trong `app/`: `npm run model:opt -- ../assets-src/<đường-dẫn> public/models/<tên>.glb --compress meshopt`
   (nguồn .gltf kèm .bin/texture cũng được, kết quả luôn là một file .glb). Mỗi model không quá 1MB, mỗi scene tổng cộng không quá ~50k tam giác.
 - Ghi vào `app/public/models/CREDITS.md`: tên file, gói nguồn, tác giả, license CC0.
 
