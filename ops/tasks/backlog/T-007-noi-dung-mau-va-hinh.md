@@ -1,7 +1,7 @@
 ---
 id: T-007
 title: "Nội dung màu và hình vi/ja"
-type: tts
+type: ui
 depends_on: []
 scope:
   - app/src/content/colors.json

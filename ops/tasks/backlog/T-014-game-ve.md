@@ -2,7 +2,7 @@
 id: T-014
 title: "Game Vẽ và nhạc: phần vẽ"
 type: ui
-depends_on: [T-005]
+depends_on: [T-005, T-007]
 scope:
   - app/src/games/music/**
   - app/e2e/music.spec.ts
