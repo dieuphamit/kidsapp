@@ -35,7 +35,7 @@ test.describe('Counting game', () => {
     await expect(page.getByTestId('game-counting')).toBeVisible();
 
     for (let i = 1; i <= 10; i++) {
-      const fruitBtn = page.getByLabel(`Quả ${i}`);
+      const fruitBtn = page.getByLabel(`Quả ${i}`, { exact: true });
       await expect(fruitBtn).toBeVisible();
       const box = await fruitBtn.boundingBox();
       expect(box).not.toBeNull();
@@ -76,7 +76,7 @@ test.describe('Counting game', () => {
 
     // Hái 10 quả
     for (let i = 1; i <= 10; i++) {
-      const fruit = page.getByLabel(`Quả ${i}`);
+      const fruit = page.getByLabel(`Quả ${i}`, { exact: true });
       await fruit.tap();
       await page.waitForTimeout(150);
     }
