@@ -1,0 +1,191 @@
+.scene {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 50%, var(--grass) 100%);
+  overflow: hidden;
+  font-family: var(--font-kid);
+}
+
+.tree {
+  position: absolute;
+  bottom: 160px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.trunk {
+  width: 80px;
+  height: 180px;
+  background: color-mix(in srgb, var(--clay-peach) 60%, var(--ink) 40%);
+  border-radius: 40px / 60px;
+  box-shadow: var(--shadow-clay);
+}
+
+.canopy {
+  position: absolute;
+  bottom: 120px;
+  width: 720px;
+  height: 400px;
+  background: var(--clay-leaf);
+  border-radius: 50%;
+  box-shadow: var(--shadow-clay);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 24px;
+  padding: 40px 12px;
+}
+
+.fruitGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 120px);
+  gap: 24px;
+  position: relative;
+}
+
+.fruitSlot {
+  width: 120px;
+  height: 120px;
+  position: relative;
+}
+
+.fruit {
+  position: absolute;
+  inset: 0;
+  transition: transform 600ms var(--ease-squish), opacity 300ms;
+}
+
+.fruit[data-falling="true"] {
+  animation: fall 600ms var(--ease-squish) forwards;
+}
+
+@keyframes fall {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(350px) scale(0.9);
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(340px) scale(1.1, 0.9);
+  }
+  100% {
+    transform: translateY(350px) scale(1);
+    opacity: 0;
+  }
+}
+
+.basket {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 360px;
+  height: 140px;
+  background: var(--clay-butter);
+  border-radius: 40px / 50px;
+  box-shadow: var(--shadow-clay);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 20px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 16px,
+    color-mix(in srgb, var(--clay-butter) 70%, var(--ink) 30%) 16px,
+    color-mix(in srgb, var(--clay-butter) 70%, var(--ink) 30%) 18px
+  );
+}
+
+.basketContent {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  max-width: 320px;
+}
+
+.basketFruit {
+  font-size: 32px;
+  animation: bounceIn 300ms var(--ease-squish);
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.countDisplay {
+  position: absolute;
+  bottom: 50px;
+  right: calc(50% - 220px);
+  font-size: 72px;
+  font-weight: 700;
+  color: var(--ink);
+  text-shadow: 2px 2px 0 var(--paper);
+}
+
+.fruitEmoji {
+  font-size: 64px;
+  line-height: 1;
+}
+
+.stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.star {
+  position: absolute;
+  font-size: 48px;
+  animation: starFly 2s var(--ease-squish) forwards;
+}
+
+@keyframes starFly {
+  0% {
+    transform: translateY(0) scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-50px) scale(1.2) rotate(30deg);
+  }
+  100% {
+    transform: translateY(-400px) scale(0.5) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+.regrow {
+  animation: regrow 500ms var(--ease-squish);
+}
+
+@keyframes regrow {
+  0% {
+    transform: scale(0);
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
