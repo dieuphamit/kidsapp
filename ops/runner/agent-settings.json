@@ -1,21 +1,24 @@
 {
   "permissions": {
     "allow": [
-      "Read", "Edit", "Write", "Glob", "Grep", "TodoWrite",
+      "Read", "Glob", "Grep", "TodoWrite",
+      "Edit(app/**)", "Write(app/**)", "Edit(tools/**)", "Write(tools/**)",
       "Bash(npm run:*)", "Bash(npm test:*)",
       "Bash(npx vitest:*)", "Bash(npx playwright test:*)", "Bash(npx tsc:*)", "Bash(npx oxlint:*)",
       "Bash(npx @gltf-transform/cli:*)",
-      "Bash(node scripts/:*)", "Bash(uv run:*)",
+      "Bash(node scripts/*)", "Bash(uv run:*)",
       "Bash(git status:*)", "Bash(git diff:*)", "Bash(git add:*)", "Bash(git commit:*)", "Bash(git log:*)",
-      "Bash(git checkout main -- :*)",
-      "Bash(ls:*)", "Bash(mkdir:*)", "Bash(cp ../../assets-src/:*)"
+      "Bash(git checkout main -- app/*)", "Bash(git checkout main -- tools/*)",
+      "Bash(rm app/*)", "Bash(git rm app/*)", "Bash(git mv app/*)",
+      "Bash(ls:*)", "Bash(mkdir:*)"
     ],
     "deny": [
       "Bash(git push:*)", "Bash(git reset:*)", "Bash(git rebase:*)", "Bash(git merge:*)",
       "Bash(git branch:*)", "Bash(git worktree:*)",
       "Bash(npm install:*)", "Bash(npm i:*)", "Bash(curl:*)", "Bash(rm -rf:*)",
       "WebFetch", "WebSearch",
-      "Edit(ops/**)", "Write(ops/**)", "Edit(CLAUDE.md)", "Write(CLAUDE.md)"
+      "Edit(ops/**)", "Write(ops/**)", "Edit(../**)", "Write(../**)",
+      "Edit(CLAUDE.md)", "Write(CLAUDE.md)"
     ]
   }
 }

@@ -19,7 +19,7 @@ App PWA học và chơi cho bé 2–5 tuổi trên iPad. Spec: `docs/superpowers
 8. Mỗi scene 3D ≤ ~50k tam giác; nén GLB bằng `npx @gltf-transform/cli optimize in.glb out.glb --compress meshopt`.
 
 ## Cấu trúc
-- Game mới: `app/src/games/<id>/manifest.ts` export `manifest: GameManifest` (xem `src/core/games.ts`), `Game.tsx`, test unit, và `app/e2e/<id>.spec.ts` có chụp ảnh vào `test-results/shots/<id>-*.png`.
+- Game mới: `app/src/games/<id>/manifest.ts` export `manifest: GameManifest` (xem `src/core/games.ts`), `Game.tsx`, test unit, và `app/e2e/<id>.spec.ts` có chụp ảnh vào `app/test-results/shots/<task-id>-<tên>.png` (trong test viết `test-results/shots/...`, tính từ `app/`; runner lấy mọi file .png ở đó).
 - Game không import lẫn nhau; dùng chung chỉ qua `src/core` và `src/ui`.
 
 ## Thư viện được phép
