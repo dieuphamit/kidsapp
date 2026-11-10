@@ -3,7 +3,7 @@ import { DEFAULT_SETTINGS, loadSettings, saveSettings, type Settings } from './c
 import { createSpeaker, unlockAudioOnFirstGesture } from './core/audio';
 import { ALL_GAMES, gamesForAge, type GameManifest } from './core/games';
 import { startSession, isOver, readLocked, writeLocked } from './core/session';
-import { Home } from './ui/Home';
+import { WorldMap } from './ui/WorldMap';
 import { SleepScreen } from './ui/SleepScreen';
 import { ParentGate } from './ui/ParentGate';
 import { ParentArea } from './ui/ParentArea';
@@ -42,7 +42,7 @@ export default function App() {
           <game.Component lang={settings.lang} speaker={speaker} onExit={() => setGame(null)} />
         </Suspense>
       ) : (
-        <Home games={games} lang={settings.lang} speaker={speaker} onPick={setGame} />
+        <WorldMap games={games} lang={settings.lang} speaker={speaker} onPick={setGame} />
       )}
       <ParentGate onOpen={() => setParentOpen(true)} />
       {parentOpen && (

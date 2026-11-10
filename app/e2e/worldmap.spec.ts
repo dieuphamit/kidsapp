@@ -1,0 +1,65 @@
+import { test, expect } from '@playwright/test';
+import * as path from 'path';
+import * as fs from 'fs';
+
+const shotsDir = path.join(__dirname, '..', 'test-results', 'shots');
+fs.mkdirSync(shotsDir, { recursive: true });
+
+test('WorldMap hiện 4 địa điểm, mây và Đậu Đậu', async ({ page }) => {
+  await page.goto('./');
+  await expect(page.getByTestId('home')).toBeVisible();
+
+  // 4 nút địa điểm
+  await expect(page.getByLabel('Trang trại')).toBeVisible();
+  await expect(page.getByLabel('Hồ nước')).toBeVisible();
+  await expect(page.getByLabel('Vườn quả')).toBeVisible();
+  await expect(page.getByLabel('Nhà âm nhạc')).toBeVisible();
+
+  // Ít nhất 3 đám mây
+  const clouds = page.locator('[data-testid="cloud"]');
+  await expect(clouds).toHaveCount(await clouds.count());
+  expect(await clouds.count()).toBeGreaterThanOrEqual(3);
+
+  // Đậu Đậu hiện
+  await expect(page.getByRole('img', { name: 'Đậu Đậu' })).toBeVisible();
+});
+
+test('chạm địa điểm có phản hồi trong 100ms và ghi data-last-say', async ({ page }) => {
+  await page.goto('./');
+  await expect(page.getByTestId('home')).toBeVisible();
+
+  const orchardBtn = page.getByLabel('Vườn quả');
+  await expect(orchardBtn).toBeVisible();
+
+  const box = await orchardBtn.boundingBox();
+  expect(box).not.toBeNull();
+
+  await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
+
+  // Đo thời gian phản hồi
+  const start = Date.now();
+  await page.mouse.down();
+
+  // Chờ data-pressed xuất hiện (phản hồi nhanh)
+  await expect(orchardBtn).toHaveAttribute('data-pressed', '', { timeout: 100 });
+  const elapsed = Date.now() - start;
+  expect(elapsed).toBeLessThanOrEqual(100);
+
+  // Gốc home có data-last-say
+  const home = page.getByTestId('home');
+  await expect(home).toHaveAttribute('data-last-say', 'place.orchard', { timeout: 200 });
+
+  await page.mouse.up();
+});
+
+test('chụp ảnh WorldMap sau khi ổn định', async ({ page }) => {
+  await page.goto('./');
+  await expect(page.getByTestId('home')).toBeVisible();
+
+  // Đợi 800ms cho mây và Đậu Đậu ổn định
+  await page.waitForTimeout(800);
+
+  const screenshotPath = path.join(shotsDir, 'T-005-worldmap.png');
+  fs.writeFileSync(path.join(shotsDir, 'debug.txt'), `path: ${screenshotPath}\ndir: ${__dirname}\nshotsDir: ${shotsDir}`);
+  await page.screenshot({ path: screenshotPath });
+});
