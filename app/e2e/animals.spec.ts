@@ -58,8 +58,9 @@ test('cham con bo nghe animal.cow roi animal.cow-sound (via hook)', async ({ pag
 
   // Gọi hook để tap con bò
   await page.evaluate(() => {
-    if (window.__behocTap) {
-      window.__behocTap('cow');
+    const w = window as Window & { __behocTap?: (id: string) => void };
+    if (w.__behocTap) {
+      w.__behocTap('cow');
     }
   });
 
