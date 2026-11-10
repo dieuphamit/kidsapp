@@ -19,3 +19,5 @@ Giới hạn: chỉ sửa file trong scope của task; không sửa `ops/`, `CLA
 
 Nếu bị chặn vì thiếu thông tin, chọn phương án an toàn và hợp lý nhất, làm xong, rồi ghi rõ giả định.
 Kết thúc bằng 2–4 câu tóm tắt đã làm gì. Mỗi câu hỏi cần bố mẹ quyết định ghi trên một dòng riêng, bắt đầu bằng `CÂU HỎI:`.
+
+Không bao giờ để lại code gỡ lỗi trong test (assert cố ý trượt như `expect(false).toBe(true)`, `test.only`, `console.log` thừa). Trước khi kết thúc, chạy `cd app && npm run verify` một lần cuối và chỉ báo xong khi lệnh trả exit 0.
