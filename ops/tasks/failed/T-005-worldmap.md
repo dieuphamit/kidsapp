@@ -6,6 +6,8 @@ depends_on:
   - T-001
   - T-002
 scope:
+  - app/src/ui/Home.test.tsx
+  - app/src/ui/WorldMapScene.tsx
   - app/src/ui/WorldMap.tsx
   - app/src/ui/WorldMap.module.css
   - app/src/ui/WorldMap.test.tsx
@@ -58,3 +60,8 @@ Màn hình chính thành bản đồ "Thế giới nhỏ": trời xanh nhạt ch
 
 ## Tham khảo
 - Spec mục 3 ("Thế giới nhỏ"), mục 4; mockup `.superpowers/brainstorm/` (home-layout) nếu có.
+
+## Ghi chú sau 3 lần thất bại (10/11, 23:05)
+- Nguyên nhân lần trước: `src/ui/Home.test.tsx` (test mẫu, import `./Home`) vẫn còn trong khi task bỏ `Home.tsx` → 2 test lỗi. Giờ đã cho phép: **xóa `Home.test.tsx`** khi bỏ Home, và chuyển các ý test sang `WorldMap.test.tsx`.
+- Tách mọi phần 3D (Đậu Đậu, Walker, useFrame) vào `WorldMapScene.tsx`; trong `WorldMap.test.tsx` dùng `vi.mock('./WorldMapScene', () => ({ WorldMapScene: () => <div data-testid="scene" /> }))` (xem mục Kiểm thử trong CLAUDE.md). Không render R3F trong jsdom.
+- Làm nhỏ: `cd app && npx vitest run src/ui/WorldMap.test.tsx` cho tới khi xanh, rồi `cd app && npx playwright test e2e/worldmap.spec.ts`, cuối cùng `cd app && npm run verify`. Không viết lại những gì đã có trên branch, chỉ sửa chỗ lỗi.
