@@ -43,7 +43,7 @@ describe('shapes logic', () => {
   describe('markTapped and allTapped', () => {
     it('3 shapes tapped -> allTapped false; 4th shape -> true', () => {
       const colors = dealColors();
-      let state: ShapesState = { colors, tapped: new Set() };
+      let state: ShapesState = { colors, tapped: new Set(), placed: new Set() };
 
       state = markTapped(state, 'circle');
       expect(allTapped(state)).toBe(false);
@@ -60,7 +60,7 @@ describe('shapes logic', () => {
 
     it('tapping same shape again does not break state', () => {
       const colors = dealColors();
-      let state: ShapesState = { colors, tapped: new Set() };
+      let state: ShapesState = { colors, tapped: new Set(), placed: new Set() };
 
       state = markTapped(state, 'circle');
       state = markTapped(state, 'circle');

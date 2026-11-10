@@ -10,14 +10,6 @@ const SLOTS = {
   circle: [2.4, 0, 3.5],
 } as const;
 
-// Shape positions on pond
-const SHAPE_POSITIONS = {
-  circle: [-2.4, 0.8, 0],
-  square: [-0.8, 0.8, 0],
-  triangle: [0.8, 0.8, 0],
-  star: [2.4, 0.8, 0],
-} as const;
-
 test.beforeAll(() => {
   mkdirSync('test-results/shots', { recursive: true });
 });
