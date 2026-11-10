@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, existsSync } from 'node:fs';
 
-// E2E tests for animals game
-test.beforeAll(() => {
-  mkdirSync('test-results/shots', { recursive: true });
-});
+// Đảm bảo thư mục shots tồn tại
+const shotsDir = 'test-results/shots';
+if (!existsSync(shotsDir)) {
+  mkdirSync(shotsDir, { recursive: true });
+}
 
 test('chạm Trang trại mở game animals', async ({ page }) => {
   await page.goto('./');
