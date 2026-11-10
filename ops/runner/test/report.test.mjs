@@ -67,3 +67,10 @@ test('không có errors/blocked/alerts → không có các mục đó', () => {
   assert.doesNotMatch(html, /File task lỗi/);
   assert.doesNotMatch(html, /bị chặn/);
 });
+
+test('src ảnh: mã hóa từng đoạn, # và dấu cách không làm hỏng URL', () => {
+  const html = buildReport({ date: '2026-11-11', records: [
+    { id: 'T-023', title: 'x', type: 'ui', status: 'review', minutes: 1, shots: ['shots/T-023/ảnh #1 a.png'] },
+  ] });
+  assert.match(html, /src="shots\/T-023\/%E1%BA%A3nh%20%231%20a\.png"/);
+});

@@ -1,7 +1,7 @@
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const mins = (m) => { const n = Number(m); return Number.isFinite(n) ? Math.round(n) : 0; };
 const shotsHtml = (r) => (r.shots?.length
-  ? `<div class="shots">${r.shots.map((s) => `<img src="${esc(encodeURI(s))}" alt="${esc(r.id)}">`).join('')}</div>`
+  ? `<div class="shots">${r.shots.map((s) => `<img src="${esc(s.split('/').map(encodeURIComponent).join('/'))}" alt="${esc(r.id)}">`).join('')}</div>`
   : '<p class="noshot">không có ảnh</p>');
 
 export function summarize(records) {

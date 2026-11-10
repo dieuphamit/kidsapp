@@ -139,18 +139,18 @@ test('verify không chạy được (exec ném) → failed, không kẹt ở doi
   assert.ok(stateDirEmpty(e, 'doing'));
 });
 
-test('repo gốc bẩn khi merge → failed ngay, không thử lần hai, main không đổi', async () => {
+test('repo gốc bẩn khi merge → paused ngay, không thử lần hai, main không đổi', async () => {
   const e = env();
   fs.writeFileSync(path.join(e.root, 'dirty.txt'), 'chưa commit');
   let calls = 0;
   const agent = async (a) => { calls++; return writes('app/h.txt')(a); };
   const rec = await processTask(addTask(e.tasksDir, 'T-109', 'logic', ['app/**']), 0, ctx(e, agent));
-  assert.equal(rec.status, 'failed');
+  assert.equal(rec.status, 'paused');
   assert.match(rec.reason, /repo gốc đang bẩn, không merge được/);
   assert.equal(calls, 1);
   assert.ok(!fs.existsSync(path.join(e.root, 'app', 'h.txt')));
   const [t] = loadAll(e.tasksDir);
-  assert.equal(t.state, 'failed');
+  assert.equal(t.state, 'todo');
   assert.match(t.last_error, /repo gốc đang bẩn/);
 });
 
@@ -248,6 +248,7 @@ test('npm ci thất bại → xóa node_modules, trả task về todo (paused), 
   };
   const rec = await processTask(addTask(e.tasksDir, 'T-122', 'logic', ['app/**']), 0, c);
   assert.equal(rec.status, 'paused');
+  assert.equal(rec.fatal, true);
   assert.match(rec.reason, /^npm ci thất bại: .*ETIMEDOUT/);
   assert.equal(calls, 0);
   assert.ok(!fs.existsSync(path.join(worktreeDir(e.root, 'T-122'), 'app', 'node_modules')));
@@ -362,4 +363,74 @@ test('task asset: assets-src gốc hiện trong worktree, không bị commit, c�
   assert.equal(e.g('ls-files', 'assets-src'), '');
   assert.equal(fs.readFileSync(path.join(e.root, 'assets-src', 'kenney', 'bo.glb'), 'utf8'), 'glTF');
   assert.ok(!fs.existsSync(worktreeDir(e.root, 'T-131')));
+});
+
+test('repo gốc không ở main khi merge → paused fatal, attempts không tăng, lý do được giữ trong last_error', async () => {
+  const e = env();
+  e.g('checkout', '-q', '-b', 'khac');
+  let calls = 0;
+  const agent = async (a) => { calls++; return writes('app/r1.txt')(a); };
+  const rec = await processTask(addTask(e.tasksDir, 'T-140', 'logic', ['app/**']), 0, ctx(e, agent));
+  assert.equal(rec.status, 'paused');
+  assert.equal(rec.fatal, true);
+  assert.match(rec.reason, /không ở nhánh main/);
+  assert.equal(calls, 1);
+  const [t] = loadAll(e.tasksDir);
+  assert.equal(t.state, 'todo');
+  assert.equal(t.attempts, 0);
+  assert.match(t.last_error, /không ở nhánh main/);
+});
+
+test('repo gốc bẩn khi merge → paused fatal (môi trường, không phải lỗi task), attempts không tăng', async () => {
+  const e = env();
+  fs.writeFileSync(path.join(e.root, 'dirty.txt'), 'chưa commit');
+  const rec = await processTask(addTask(e.tasksDir, 'T-141', 'logic', ['app/**']), 0, ctx(e, writes('app/r2.txt')));
+  assert.equal(rec.status, 'paused');
+  assert.equal(rec.fatal, true);
+  assert.match(rec.reason, /repo gốc đang bẩn/);
+  const [t] = loadAll(e.tasksDir);
+  assert.equal(t.state, 'todo');
+  assert.equal(t.attempts, 0);
+  assert.match(t.last_error, /repo gốc đang bẩn/);
+});
+
+test('hết giờ sau một lần thử hỏng → pause giữ last_error là lý do thật, không phải câu "hết giờ"', async () => {
+  const e = env();
+  const c = ctx(e, writes('app/r3.txt'), 1);
+  let n = 0;
+  const inner = c.exec;
+  c.exec = async (cmd, args, opts) => {
+    if (args.includes('verify') && ++n === 1) c.deadline = new Date(Date.now() + 5 * 60_000);
+    return inner(cmd, args, opts);
+  };
+  const rec = await processTask(addTask(e.tasksDir, 'T-142', 'logic', ['app/**']), 0, c);
+  assert.equal(rec.status, 'paused');
+  const [t] = loadAll(e.tasksDir);
+  assert.equal(t.state, 'todo');
+  assert.equal(t.attempts, 0);
+  assert.equal(t.last_error, 'npm run verify thất bại');
+});
+
+test('task thành công (done) hoặc review thì xóa last_error khỏi frontmatter', async () => {
+  const e = env();
+  const t1 = addTask(e.tasksDir, 'T-143', 'logic', ['app/**']);
+  await processTask({ ...t1, last_error: 'lỗi cũ' }, 0, ctx(e, writes('app/r4.txt')));
+  const d = loadAll(e.tasksDir).find((t) => t.id === 'T-143');
+  assert.equal(d.state, 'done');
+  assert.ok(!('last_error' in d));
+  const t2 = addTask(e.tasksDir, 'T-144', 'ui', ['app/**']);
+  await processTask({ ...t2, last_error: 'lỗi cũ' }, 0, ctx(e, writes('app/r5.txt')));
+  const r = loadAll(e.tasksDir).find((t) => t.id === 'T-144');
+  assert.equal(r.state, 'review');
+  assert.ok(!('last_error' in r));
+});
+
+test('linkAssetsSrc ném → task failed với lý do rõ, không kẹt ở doing', async () => {
+  const e = env();
+  const c = ctx(e, writes('app/r6.txt'));
+  c.git = { linkAssetsSrc: async () => { throw new Error('EPERM junction'); } };
+  const rec = await processTask(addTask(e.tasksDir, 'T-145', 'asset', ['app/**']), 0, c);
+  assert.equal(rec.status, 'failed');
+  assert.match(rec.reason, /EPERM junction/);
+  assert.ok(stateDirEmpty(e, 'doing'));
 });

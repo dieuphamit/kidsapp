@@ -177,9 +177,9 @@ export async function revertPaths(dir, files, message = 'chore: runner hoàn tá
 
 export const ASSETS_DIR = 'assets-src';
 
-// Cho agent thấy <root>/assets-src thành <wt>/assets-src (junction; không tạo được thì chép).
+// Cho agent thấy <root>/assets-src thành <wt>/assets-src (junction; không tạo được thì ném, không chép dự phòng).
 // assets-src/ có trong .gitignore gốc nên không bao giờ bị commit. Không có thư mục nguồn → bỏ qua.
-export async function linkAssetsSrc(root, wt) {
+export async function linkAssetsSrc(root, wt, { symlink = fs.symlinkSync } = {}) {
   await assertTaskWorktree(wt);
   const target = path.join(root, ASSETS_DIR);
   if (!fs.existsSync(target)) return false;
@@ -190,10 +190,6 @@ export async function linkAssetsSrc(root, wt) {
     if (!st.isSymbolicLink() || fs.existsSync(link)) return true;
     fs.unlinkSync(link); // junction hỏng
   }
-  try {
-    fs.symlinkSync(target, link, 'junction');
-  } catch {
-    fs.cpSync(target, link, { recursive: true });
-  }
+  symlink(target, link, 'junction');
   return true;
 }

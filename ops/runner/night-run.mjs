@@ -11,7 +11,7 @@ import { createLock } from './lib/lock.mjs';
 import { deadlineFrom, localDate } from './lib/time.mjs';
 import { run } from './lib/sh.mjs';
 import { git as realGit } from './lib/git.mjs';
-import { runAgent, parseJson, claudeArgs } from './lib/agent.mjs';
+import { runAgent, parseJson, reviewerArgs } from './lib/agent.mjs';
 import { buildReport } from './lib/report.mjs';
 import { acquireRunLock, releaseRunLock } from './lib/runlock.mjs';
 
@@ -19,7 +19,8 @@ const ROOT = path.resolve(import.meta.dirname, '..', '..');
 export const MAX_HOURS = 14;
 export const MAX_PARALLEL = 6;
 // agent chạy được code (npx, npm run) nên có thể ghi ra ngoài worktree: những chỗ này phải luôn sạch
-export const GUARDED = ['ops/runner', 'CLAUDE.md', '.github'];
+// KHÔNG đưa vào đây các đường dẫn runner tự ghi: ops/tasks, ops/reports, ops/logs, ops/.runner.lock
+export const GUARDED = ['ops/runner', 'CLAUDE.md', '.github', '.claude'];
 const REVIEWER_TIMEOUT_MS = 20 * 60_000;
 const LOCK_NAME = '.runner.lock';
 
@@ -58,7 +59,7 @@ async function preflight(root, git) {
 export async function defaultReviewer({ root, ops, records, logFile, exec = run }) {
   const role = fs.readFileSync(path.join(ops, 'runner', 'prompts', 'reviewer.md'), 'utf8');
   const prompt = `${role}\n\n\`\`\`json\n${JSON.stringify(records, null, 1)}\n\`\`\``;
-  const r = await exec('claude', claudeArgs('logic', path.join(ops, 'runner', 'reviewer-settings.json')), {
+  const r = await exec('claude', reviewerArgs(path.join(ops, 'runner', 'reviewer-settings.json')), {
     cwd: root, input: prompt, timeoutMs: REVIEWER_TIMEOUT_MS, logFile,
   });
   const j = parseJson(r.stdout ?? '');

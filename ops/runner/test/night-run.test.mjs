@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { tempRepo } from './helpers.mjs';
-import { runNight } from '../night-run.mjs';
+import { runNight, GUARDED, defaultReviewer } from '../night-run.mjs';
 import { STATES, moveTask, loadAll } from '../lib/tasks.mjs';
 
 const quiet = () => {};
@@ -150,6 +150,33 @@ test('integrity guard: CLAUDE.md bị sửa cũng bị phát hiện', async () =
   const res = await runNight(opts(e), { processTask: p.fn, log: quiet });
   assert.equal(res.committed, false);
   assert.match(res.integrity.join('\n'), /CLAUDE\.md/);
+});
+
+test('integrity guard: .claude bị ghi cũng bị phát hiện; ops/tasks, reports, logs, lock không nằm trong danh sách', async () => {
+  assert.ok(GUARDED.includes('.claude'));
+  for (const p of ['ops/tasks', 'ops/reports', 'ops/logs', 'ops/.runner.lock']) assert.ok(!GUARDED.includes(p), p);
+  const e = env();
+  addTask(e.tasksDir, 'T-001');
+  addTask(e.tasksDir, 'T-002');
+  const p = fakeProcess({ 'T-001': { sideEffect: (ctx) => {
+    fs.mkdirSync(path.join(ctx.root, '.claude'), { recursive: true });
+    fs.writeFileSync(path.join(ctx.root, '.claude', 'settings.json'), '{}');
+  } } });
+  const res = await runNight(opts(e, { parallel: '1' }), { processTask: p.fn, log: quiet });
+  assert.deepEqual(p.calls, ['T-001']);
+  assert.equal(res.committed, false);
+  assert.match(res.integrity.join('\n'), /\.claude/);
+});
+
+test('defaultReviewer dùng reviewerArgs (30 lượt)', async () => {
+  const e = env();
+  fs.mkdirSync(path.join(e.root, 'ops', 'runner', 'prompts'), { recursive: true });
+  fs.writeFileSync(path.join(e.root, 'ops', 'runner', 'prompts', 'reviewer.md'), 'role');
+  let seen = null;
+  const exec = async (cmd, args) => { seen = args; return { code: 0, stdout: JSON.stringify({ result: 'ok' }), stderr: '' }; };
+  await defaultReviewer({ root: e.root, ops: path.join(e.root, 'ops'), records: [], logFile: null, exec });
+  assert.equal(seen[seen.indexOf('--max-turns') + 1], '30');
+  assert.match(seen[seen.indexOf('--settings') + 1], /reviewer-settings\.json$/);
 });
 
 test('dry-run: liệt kê task sẵn sàng, bị chặn, file lỗi; không cần nhánh main, không tạo lock', async () => {

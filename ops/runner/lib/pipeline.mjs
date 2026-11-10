@@ -4,10 +4,9 @@ import { moveTask } from './tasks.mjs';
 import { outOfScope } from './scope.mjs';
 import * as gitLib from './git.mjs';
 import { sleepUntil as realSleepUntil } from './time.mjs';
-import { agentFailure, denialSummary } from './agent.mjs';
+import { agentFailure, denialSummary, BASE_PORT } from './agent.mjs';
 
 const tail = (s, n = 6000) => (s.length > n ? s.slice(-n) : s);
-const BASE_PORT = 4173;
 const PAUSED = 'hết giờ chạy đêm, để lại cho đêm sau';
 const NO_CHANGES = 'agent không thay đổi gì';
 const AGENT_MAX_MS = 90 * 60_000;
@@ -15,6 +14,7 @@ const AGENT_MAX_MS = 90 * 60_000;
 const DEADLINE_MARGIN_MS = 10 * 60_000;
 const MIN_ATTEMPT_MS = 20 * 60_000;
 const DIRTY_ROOT = 'repo gốc đang bẩn, không merge được';
+const withoutError = ({ last_error, ...rest }) => rest;
 
 // ctx.git cho phép thay từng hàm git (test); mặc định dùng git.mjs
 const gitOf = (ctx) => ({ ...gitLib, ...(ctx.git ?? {}) });
@@ -69,7 +69,9 @@ export function mergeVerified(ctx, wt, task, slot, logFile) {
     } catch (e) {
       appendLog(logFile, e.message);
       const dirty = /thay đổi chưa commit/.test(e.message);
-      return { ok: false, park: true, reason: dirty ? DIRTY_ROOT : `merge thất bại: ${e.message}`, feedback: null };
+      const notMain = /không ở nhánh main/.test(e.message);
+      // gốc không ở main/bẩn là lỗi môi trường, không phải lỗi của task
+      return { ok: false, park: true, env: dirty || notMain, reason: dirty ? DIRTY_ROOT : `merge thất bại: ${e.message}`, feedback: null };
     }
     return { ok: true };
   });
@@ -90,10 +92,14 @@ export async function processTask(input, slot, ctx) {
     task = moveTask(ctx.tasksDir, { ...task, attempts: task.attempts + 1, last_error: reason }, 'failed');
     return rec('failed', { reason, note });
   };
-  // không phải lỗi của agent: trả về todo, không tính lần thử
-  const pause = (reason, extra = {}) => {
-    task = moveTask(ctx.tasksDir, task, 'todo');
-    return rec('paused', { reason, note, ...extra });
+  // không phải lỗi của agent: trả về todo, không tính lần thử.
+  // Đã chạy ít nhất một lần thì giữ lý do thất bại gần nhất làm phản hồi cho lần sau.
+  let attempt = 0;
+  let reason = '';
+  const pause = (why, extra = {}) => {
+    const keep = attempt > 0 ? (reason || task.last_error) : task.last_error;
+    task = moveTask(ctx.tasksDir, keep ? { ...task, last_error: keep } : task, 'todo');
+    return rec('paused', { reason: why, note, ...extra });
   };
 
   let note = '';
@@ -108,14 +114,12 @@ export async function processTask(input, slot, ctx) {
       if (ci.code !== 0) {
         // node_modules dở dang sẽ làm lần sau bỏ qua npm ci
         fs.rmSync(path.join(appDir, 'node_modules'), { recursive: true, force: true, maxRetries: 3, retryDelay: 500 });
-        return pause(`npm ci thất bại: ${tail(`${ci.stdout ?? ''}\n${ci.stderr ?? ''}`.trim(), 500)}`);
+        return pause(`npm ci thất bại: ${tail(`${ci.stdout ?? ''}\n${ci.stderr ?? ''}`.trim(), 500)}`, { fatal: true });
       }
     }
 
     // task chạy lại (retry/đêm sau) biết lần trước hỏng vì sao
     let feedback = task.last_error ? `Lần chạy trước thất bại: ${task.last_error}` : null;
-    let reason = '';
-    let attempt = 0;
     while (attempt < 2) {
       const left = remainingMs();
       if (left < MIN_ATTEMPT_MS) return pause(PAUSED);
@@ -161,12 +165,12 @@ export async function processTask(input, slot, ctx) {
 
       const shots = collectShots(wt, ctx.shotsRoot, ctx.shotsRel, task.id);
       if (task.type === 'ui') {
-        task = moveTask(ctx.tasksDir, task, 'review');
+        task = moveTask(ctx.tasksDir, withoutError(task), 'review');
         return rec('review', { shots, note });
       }
       const m = await mergeVerified(ctx, wt, task, slot, logFile);
       if (m.ok) {
-        task = moveTask(ctx.tasksDir, task, 'done');
+        task = moveTask(ctx.tasksDir, withoutError(task), 'done');
         // code đã vào main: dọn worktree lỗi chỉ là cảnh báo, không đổi kết quả
         try {
           await g.removeWorktree(ctx.root, task.id);
@@ -176,6 +180,7 @@ export async function processTask(input, slot, ctx) {
         return rec('done', { shots, note });
       }
       reason = m.reason;
+      if (m.env) return pause(m.reason, { fatal: true });
       if (m.park) break;
       if (m.reset) await g.resetToMain(wt);
       feedback = m.feedback;

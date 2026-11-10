@@ -202,6 +202,14 @@ test('linkAssetsSrc: nối assets-src vào worktree, git bỏ qua, gọi lại k
   assert.equal(await commitAll(wt, 'không có gì'), false);
 });
 
+test('linkAssetsSrc: không tạo được junction thì ném, không chép dự phòng', async () => {
+  const { root } = assetsRepo();
+  const wt = await ensureWorktree(root, 'T-026');
+  const symlink = () => { throw new Error('EPERM'); };
+  await assert.rejects(() => linkAssetsSrc(root, wt, { symlink }), /EPERM/);
+  assert.ok(!fs.existsSync(path.join(wt, 'assets-src')));
+});
+
 test('linkAssetsSrc: không có <root>/assets-src thì bỏ qua', async () => {
   const { root } = tempRepo();
   const wt = await ensureWorktree(root, 'T-023');

@@ -35,7 +35,7 @@ test('parseJson an toàn với output hỏng', () => {
   assert.deepEqual(parseJson('{"a":1}'), { a: 1 });
 });
 
-import { CLAUDE_ARGS, claudeArgs, MAX_TURNS, isAuthError, agentFailure, denialSummary, runAgent } from '../lib/agent.mjs';
+import { CLAUDE_ARGS, claudeArgs, reviewerArgs, BASE_PORT, MAX_TURNS, isAuthError, agentFailure, denialSummary, runAgent } from '../lib/agent.mjs';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -131,4 +131,13 @@ test('runAgent: truyền E2E_PORT theo slot, timeout, settings và max-turns the
   assert.equal(r.json.result, 'xong');
   assert.equal(r.rateLimited, false);
   assert.equal(r.authError, false);
+});
+
+test('reviewerArgs: --max-turns 30 và settings riêng của reviewer', () => {
+  assert.equal(MAX_TURNS.review, 30);
+  const a = reviewerArgs('r.json');
+  assert.equal(a[a.indexOf('--max-turns') + 1], '30');
+  assert.equal(a[a.indexOf('--settings') + 1], 'r.json');
+  assert.ok(a.includes('--strict-mcp-config'));
+  assert.equal(BASE_PORT, 4173);
 });

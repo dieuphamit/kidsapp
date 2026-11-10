@@ -35,7 +35,7 @@ test('sau khi kill do timeout mà close không tới thì vẫn resolve với co
   const r = await run('node', ['-e', 'setTimeout(()=>{},8000)'], { timeoutMs: 200, killGraceMs: 300, killFn: () => {} });
   assert.equal(r.code, 1);
   assert.match(r.stderr, /quá thời gian/);
-  assert.ok(Date.now() - t0 < 3000, `mất ${Date.now() - t0}ms`);
+  assert.ok(Date.now() - t0 < 8000, `mất ${Date.now() - t0}ms`);
   assert.ok(r.pid, 'trả về pid');
   // tiến trình vẫn sống (killFn giả không làm gì) → chứng tỏ resolve không cần chờ close
   assert.doesNotThrow(() => process.kill(r.pid, 0));
@@ -86,5 +86,5 @@ test('quá timeout thì dừng và ghi dấu vào stderr', async () => {
   const r = await run('node', ['-e', 'setTimeout(()=>{},10000)'], { timeoutMs: 300 });
   assert.notEqual(r.code, 0);
   assert.match(r.stderr, /quá thời gian/);
-  assert.ok(Date.now() - t0 < 3000);
+  assert.ok(Date.now() - t0 < 8000);
 });

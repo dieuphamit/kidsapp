@@ -3,7 +3,7 @@ import path from 'node:path';
 import { run as realRun } from './sh.mjs';
 
 const FEEDBACK_MAX = 6000;
-const BASE_PORT = 4173;
+export const BASE_PORT = 4173;
 const DEFAULT_TIMEOUT_MS = 90 * 60_000;
 
 export function roleFor(type) {
@@ -100,10 +100,15 @@ export const CLAUDE_ARGS = [
   '--setting-sources', 'project', '--strict-mcp-config',
 ];
 
-export const MAX_TURNS = { ui: 150, logic: 100, test: 100, asset: 60, tts: 60 };
+export const MAX_TURNS = { ui: 150, logic: 100, test: 100, asset: 60, tts: 60, review: 30 };
 
 export function claudeArgs(type, settingsPath) {
   return [...CLAUDE_ARGS, '--max-turns', String(MAX_TURNS[type] ?? 100), '--settings', settingsPath];
+}
+
+// Reviewer chỉ đọc: cùng bộ cờ nhưng ít lượt hơn
+export function reviewerArgs(settingsPath) {
+  return [...CLAUDE_ARGS, '--max-turns', String(MAX_TURNS.review), '--settings', settingsPath];
 }
 
 export async function runAgent({ cwd, task, ops, feedback, logFile, slot = 0, timeoutMs = DEFAULT_TIMEOUT_MS, run = realRun }) {
