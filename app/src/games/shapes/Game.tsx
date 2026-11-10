@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
 import { Scene3D } from '../../ui/Scene3D';
@@ -7,6 +7,8 @@ import { BackHome } from '../../ui/BackHome';
 import type { GameProps } from '../../core/games';
 import { LEARN_HEX, type LearnColor } from '../../core/tokens';
 import { SHAPES, dealColors, markTapped, allTapped, type Shape, type ShapesState } from './logic';
+
+const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
 
 const SHAPE_POSITIONS: [number, number, number][] = [
   [-2.4, 0.8, 0],
@@ -181,17 +183,32 @@ function Ripple({ delay }: { delay: number }) {
   );
 }
 
+function ReadyNotifier({ onReady }: { onReady: () => void }) {
+  const gl = useThree((s) => s.gl);
+  useEffect(() => {
+    // Notify parent that scene is ready after first render
+    const id = requestAnimationFrame(() => {
+      if (gl) onReady();
+    });
+    return () => cancelAnimationFrame(id);
+  }, [gl, onReady]);
+  return null;
+}
+
 function ShapesScene({
   state,
   bouncingShape,
   onTapShape,
+  onReady,
 }: {
   state: ShapesState;
   bouncingShape: Shape | null;
   onTapShape: (shape: Shape) => void;
+  onReady: () => void;
 }) {
   return (
     <>
+      <ReadyNotifier onReady={onReady} />
       <Pond />
       <Ripple delay={0} />
       <Ripple delay={1.5} />
@@ -218,6 +235,7 @@ export default function Game({ speaker, onExit }: GameProps) {
   }));
   const [lastSay, setLastSay] = useState('');
   const [bouncingShape, setBouncingShape] = useState<Shape | null>(null);
+  const [ready, setReady] = useState(false);
   const shapeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const greatTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -229,15 +247,6 @@ export default function Game({ speaker, onExit }: GameProps) {
     },
     [speaker]
   );
-
-  useEffect(() => {
-    say('pond.hello');
-    return () => {
-      if (shapeTimeoutRef.current) clearTimeout(shapeTimeoutRef.current);
-      if (greatTimeoutRef.current) clearTimeout(greatTimeoutRef.current);
-      if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
-    };
-  }, [say]);
 
   const handleTapShape = useCallback(
     (shape: Shape) => {
@@ -286,10 +295,38 @@ export default function Game({ speaker, onExit }: GameProps) {
     [state, say]
   );
 
+  useEffect(() => {
+    say('pond.hello');
+    return () => {
+      if (shapeTimeoutRef.current) clearTimeout(shapeTimeoutRef.current);
+      if (greatTimeoutRef.current) clearTimeout(greatTimeoutRef.current);
+      if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
+    };
+  }, [say]);
+
+  // E2E test hook: expose handleTapShape to window when ?e2e=1
+  useEffect(() => {
+    if (!IS_E2E) return;
+    const win = window as unknown as { __behocTap?: (id: string) => void };
+    win.__behocTap = (id: string) => {
+      if (SHAPES.includes(id as Shape)) {
+        handleTapShape(id as Shape);
+      }
+    };
+    return () => {
+      delete win.__behocTap;
+    };
+  }, [handleTapShape]);
+
+  const handleReady = useCallback(() => {
+    setReady(true);
+  }, []);
+
   return (
     <div
       data-testid="game-shapes"
       data-last-say={lastSay || undefined}
+      data-ready={ready ? 'true' : undefined}
       style={{
         position: 'fixed',
         inset: 0,
@@ -297,7 +334,7 @@ export default function Game({ speaker, onExit }: GameProps) {
       }}
     >
       <Scene3D label="Hồ nước" view={{ position: [0, 3.6, 11], target: [0, 0.6, 0], fov: 38 }}>
-        <ShapesScene state={state} bouncingShape={bouncingShape} onTapShape={handleTapShape} />
+        <ShapesScene state={state} bouncingShape={bouncingShape} onTapShape={handleTapShape} onReady={handleReady} />
       </Scene3D>
       <BackHome onExit={onExit} />
     </div>
