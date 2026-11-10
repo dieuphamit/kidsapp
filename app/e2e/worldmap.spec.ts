@@ -58,6 +58,4 @@ test('chụp ảnh WorldMap sau khi ổn định', async ({ page }) => {
 
   await page.screenshot({ path: 'test-results/shots/T-005-worldmap.png' });
 
-  // Deliberately fail to test if tests are running
-  expect(false).toBe(true);
 });
