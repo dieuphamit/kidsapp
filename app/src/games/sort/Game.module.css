@@ -1,0 +1,194 @@
+.scene {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 50%, var(--grass) 100%);
+  overflow: hidden;
+  font-family: var(--font-kid);
+  touch-action: none;
+}
+
+/* Vườn quả - phía trên */
+.orchard {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 32px;
+  max-width: 1000px;
+}
+
+.fruitSlot {
+  width: 140px;
+  height: 140px;
+  position: relative;
+}
+
+.fruit {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  z-index: 10;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+  box-shadow: var(--shadow-clay);
+  transition: transform 100ms;
+}
+
+.fruit:active {
+  cursor: grabbing;
+}
+
+.fruit[data-pressed] {
+  transform: scale(0.95);
+}
+
+.fruitImg {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* Quả đang kéo */
+.dragging {
+  position: fixed;
+  z-index: 100;
+  pointer-events: none;
+  transform: scale(1.1);
+  box-shadow: var(--shadow-clay), 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+/* Giỏ - phía dưới */
+.baskets {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 48px;
+}
+
+.basket {
+  width: 280px;
+  height: 200px;
+  background: var(--clay-butter);
+  border-radius: 40px / 50px;
+  box-shadow: var(--shadow-clay);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 24px;
+  position: relative;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 20px,
+    color-mix(in srgb, var(--clay-butter) 70%, var(--ink) 30%) 20px,
+    color-mix(in srgb, var(--clay-butter) 70%, var(--ink) 30%) 22px
+  );
+  transition: transform 200ms var(--ease-squish);
+}
+
+.basket[data-bounce] {
+  animation: basketBounce 300ms var(--ease-squish);
+}
+
+@keyframes basketBounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.05, 0.95); }
+  60% { transform: scale(0.98, 1.02); }
+  100% { transform: scale(1); }
+}
+
+/* Viền màu giỏ */
+.basket[data-color="red"] {
+  border: 8px solid var(--learn-red);
+}
+.basket[data-color="yellow"] {
+  border: 8px solid var(--learn-yellow);
+}
+.basket[data-color="green"] {
+  border: 8px solid var(--learn-green);
+}
+
+/* Quả mẫu làm gợi ý */
+.basketHint {
+  position: absolute;
+  top: 20px;
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+/* Quả đã xếp vào giỏ */
+.basketContent {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  max-width: 240px;
+}
+
+.basketFruit {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  animation: fruitLand 300ms var(--ease-squish);
+}
+
+@keyframes fruitLand {
+  0% {
+    transform: scale(0) translateY(-40px);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15) translateY(0);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Hiệu ứng trôi về khi sai */
+.returning {
+  transition: left 400ms var(--ease-squish), top 400ms var(--ease-squish);
+}
+
+/* Sao bay */
+.stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.star {
+  position: absolute;
+  font-size: 48px;
+  animation: starFly 2s var(--ease-squish) forwards;
+}
+
+@keyframes starFly {
+  0% {
+    transform: translateY(0) scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-50px) scale(1.2) rotate(30deg);
+  }
+  100% {
+    transform: translateY(-400px) scale(0.5) rotate(180deg);
+    opacity: 0;
+  }
+}
