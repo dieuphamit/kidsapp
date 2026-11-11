@@ -18,15 +18,16 @@ function mockSpeaker() {
 }
 
 const DummyGame = () => <div>Game</div>;
-function makeGame(place: string): GameManifest {
+function makeGame(id: string, place: string): GameManifest {
   return {
-    id: place.replace('place.', ''),
-    title: { vi: 'Game ' + place, ja: 'ゲーム' + place },
+    id,
+    title: { vi: 'Game ' + id, ja: 'ゲーム' + id },
     place,
     icon: '🎮',
     color: 'mint',
     minAge: 24,
     maxAge: 72,
+    order: 0,
     Component: lazy(() => Promise.resolve({ default: DummyGame })),
   };
 }
@@ -39,10 +40,17 @@ describe('WorldMap', () => {
     vi.useRealTimers();
   });
 
-  it('render 4 nút địa điểm với tên tiếng Việt', () => {
+  it('render 4 nút địa điểm có game với tên tiếng Việt', () => {
     const speaker = mockSpeaker();
     const onPick = vi.fn();
-    render(<WorldMap games={[]} lang="vi" speaker={speaker} onPick={onPick} />);
+    const onOpenPicker = vi.fn();
+    const games = [
+      makeGame('farm', 'place.farm'),
+      makeGame('pond', 'place.pond'),
+      makeGame('orchard', 'place.orchard'),
+      makeGame('music', 'place.music'),
+    ];
+    render(<WorldMap games={games} lang="vi" speaker={speaker} onPick={onPick} onOpenPicker={onOpenPicker} />);
 
     expect(screen.getByLabelText('Trang trại')).toBeInTheDocument();
     expect(screen.getByLabelText('Hồ nước')).toBeInTheDocument();
@@ -50,21 +58,53 @@ describe('WorldMap', () => {
     expect(screen.getByLabelText('Nhà âm nhạc')).toBeInTheDocument();
   });
 
-  it('render 4 nút địa điểm với tên tiếng Nhật', () => {
+  it('render 6 nút địa điểm có game với tên tiếng Nhật', () => {
     const speaker = mockSpeaker();
     const onPick = vi.fn();
-    render(<WorldMap games={[]} lang="ja" speaker={speaker} onPick={onPick} />);
+    const onOpenPicker = vi.fn();
+    const games = [
+      makeGame('farm', 'place.farm'),
+      makeGame('pond', 'place.pond'),
+      makeGame('orchard', 'place.orchard'),
+      makeGame('music', 'place.music'),
+      makeGame('zoo', 'place.zoo'),
+      makeGame('house', 'place.house'),
+    ];
+    render(<WorldMap games={games} lang="ja" speaker={speaker} onPick={onPick} onOpenPicker={onOpenPicker} />);
 
     expect(screen.getByLabelText('まきば')).toBeInTheDocument();
     expect(screen.getByLabelText('いけ')).toBeInTheDocument();
     expect(screen.getByLabelText('かじゅえん')).toBeInTheDocument();
     expect(screen.getByLabelText('おんがくのいえ')).toBeInTheDocument();
+    expect(screen.getByLabelText('どうぶつえん')).toBeInTheDocument();
+    expect(screen.getByLabelText('ダウダウのおうち')).toBeInTheDocument();
+  });
+
+  it('ẩn địa điểm không có game nào', () => {
+    const speaker = mockSpeaker();
+    const onPick = vi.fn();
+    const onOpenPicker = vi.fn();
+    // Chỉ có game cho farm và pond
+    const games = [
+      makeGame('farm', 'place.farm'),
+      makeGame('pond', 'place.pond'),
+    ];
+    render(<WorldMap games={games} lang="vi" speaker={speaker} onPick={onPick} onOpenPicker={onOpenPicker} />);
+
+    expect(screen.getByLabelText('Trang trại')).toBeInTheDocument();
+    expect(screen.getByLabelText('Hồ nước')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Vườn quả')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Nhà âm nhạc')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Sở thú')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Nhà Đậu Đậu')).not.toBeInTheDocument();
   });
 
   it('gọi speaker.say với place key khi pointerDown vào địa điểm', () => {
     const speaker = mockSpeaker();
     const onPick = vi.fn();
-    render(<WorldMap games={[]} lang="vi" speaker={speaker} onPick={onPick} />);
+    const onOpenPicker = vi.fn();
+    const games = [makeGame('pond', 'place.pond')];
+    render(<WorldMap games={games} lang="vi" speaker={speaker} onPick={onPick} onOpenPicker={onOpenPicker} />);
 
     const pondBtn = screen.getByLabelText('Hồ nước');
     fireEvent.pointerDown(pondBtn);
@@ -72,11 +112,12 @@ describe('WorldMap', () => {
     expect(speaker.say).toHaveBeenCalledWith('place.pond');
   });
 
-  it('gọi onPick với game sau 800ms nếu địa điểm có game', () => {
+  it('gọi onPick với game sau 800ms nếu địa điểm có 1 game', () => {
     const speaker = mockSpeaker();
     const onPick = vi.fn();
-    const farmGame = makeGame('place.farm');
-    render(<WorldMap games={[farmGame]} lang="vi" speaker={speaker} onPick={onPick} />);
+    const onOpenPicker = vi.fn();
+    const farmGame = makeGame('farm', 'place.farm');
+    render(<WorldMap games={[farmGame]} lang="vi" speaker={speaker} onPick={onPick} onOpenPicker={onOpenPicker} />);
 
     const farmBtn = screen.getByLabelText('Trang trại');
     fireEvent.pointerDown(farmBtn);
@@ -86,24 +127,35 @@ describe('WorldMap', () => {
 
     vi.advanceTimersByTime(900);
     expect(onPick).toHaveBeenCalledWith(farmGame);
+    expect(onOpenPicker).not.toHaveBeenCalled();
   });
 
-  it('không gọi onPick nếu địa điểm không có game', () => {
+  it('gọi onOpenPicker sau 800ms nếu địa điểm có >= 2 game', () => {
     const speaker = mockSpeaker();
     const onPick = vi.fn();
-    render(<WorldMap games={[]} lang="vi" speaker={speaker} onPick={onPick} />);
+    const onOpenPicker = vi.fn();
+    const farmGame1 = makeGame('farm1', 'place.farm');
+    const farmGame2 = makeGame('farm2', 'place.farm');
+    render(<WorldMap games={[farmGame1, farmGame2]} lang="vi" speaker={speaker} onPick={onPick} onOpenPicker={onOpenPicker} />);
 
     const farmBtn = screen.getByLabelText('Trang trại');
     fireEvent.pointerDown(farmBtn);
 
-    vi.advanceTimersByTime(2000);
+    expect(speaker.say).toHaveBeenCalledWith('place.farm');
     expect(onPick).not.toHaveBeenCalled();
+    expect(onOpenPicker).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(900);
+    expect(onPick).not.toHaveBeenCalled();
+    expect(onOpenPicker).toHaveBeenCalledTimes(1);
+    expect(onOpenPicker).toHaveBeenCalledWith('place.farm', [farmGame1, farmGame2]);
   });
 
   it('gọi speaker.say ui.where khi mount', () => {
     const speaker = mockSpeaker();
     const onPick = vi.fn();
-    render(<WorldMap games={[]} lang="vi" speaker={speaker} onPick={onPick} />);
+    const onOpenPicker = vi.fn();
+    render(<WorldMap games={[]} lang="vi" speaker={speaker} onPick={onPick} onOpenPicker={onOpenPicker} />);
 
     expect(speaker.say).toHaveBeenCalledWith('ui.where');
   });
@@ -111,7 +163,8 @@ describe('WorldMap', () => {
   it('hiện Đậu Đậu với role img', () => {
     const speaker = mockSpeaker();
     const onPick = vi.fn();
-    render(<WorldMap games={[]} lang="vi" speaker={speaker} onPick={onPick} />);
+    const onOpenPicker = vi.fn();
+    render(<WorldMap games={[]} lang="vi" speaker={speaker} onPick={onPick} onOpenPicker={onOpenPicker} />);
 
     expect(screen.getByRole('img', { name: 'Đậu Đậu' })).toBeInTheDocument();
   });

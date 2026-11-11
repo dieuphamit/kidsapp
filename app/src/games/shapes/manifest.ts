@@ -9,5 +9,6 @@ export const manifest: GameManifest = {
   color: 'mint',
   minAge: 24,
   maxAge: 72,
+  order: 0,
   Component: lazy(() => import('./Game')),
 };

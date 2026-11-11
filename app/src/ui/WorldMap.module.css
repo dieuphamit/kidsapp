@@ -124,3 +124,15 @@
   right: 18%;
   top: 62%;
 }
+
+.placeTopCenter {
+  left: 50%;
+  transform: translateX(-50%);
+  top: 8%;
+}
+
+.placeBottomCenter {
+  left: 50%;
+  transform: translateX(-50%);
+  top: 78%;
+}

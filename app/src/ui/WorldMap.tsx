@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './WorldMap.module.css';
 import { WorldMapScene } from './WorldMapScene';
 import { ClayButton } from './ClayButton';
 import { contentByKey } from '../core/content';
-import type { GameManifest } from '../core/games';
+import { gamesByPlace, type GameManifest } from '../core/games';
 import type { Lang } from '../core/i18n';
 import type { Speaker } from '../core/audio';
 import type { ClayColor } from '../core/tokens';
@@ -14,19 +14,22 @@ type PlaceLook = {
   icon: string;
   color: ClayColor;
   posClass: string;
+  direction: 'left' | 'right' | 'center';
 };
 
+// Bố cục 3 cột x 2 hàng, Đậu Đậu ở giữa
 const PLACE_LOOK: Record<string, PlaceLook> = {
-  'place.farm': { icon: '🐄', color: 'butter', posClass: styles.placeTopLeft },
-  'place.pond': { icon: '🦆', color: 'mint', posClass: styles.placeBottomLeft },
-  'place.orchard': { icon: '🍎', color: 'leaf', posClass: styles.placeTopRight },
-  'place.music': { icon: '🎵', color: 'lilac', posClass: styles.placeBottomRight },
+  'place.farm': { icon: '🐄', color: 'butter', posClass: styles.placeTopLeft, direction: 'left' },
+  'place.pond': { icon: '🦆', color: 'mint', posClass: styles.placeBottomLeft, direction: 'left' },
+  'place.orchard': { icon: '🍎', color: 'leaf', posClass: styles.placeTopRight, direction: 'right' },
+  'place.music': { icon: '🎵', color: 'lilac', posClass: styles.placeBottomRight, direction: 'right' },
+  'place.zoo': { icon: '🦁', color: 'peach', posClass: styles.placeTopCenter, direction: 'center' },
+  'place.house': { icon: '🏠', color: 'lilac', posClass: styles.placeBottomCenter, direction: 'center' },
 };
 
 function getPlaces(lang: Lang) {
   const places: { key: string; text: string; look: PlaceLook }[] = [];
   for (const [key, item] of content) {
-    // địa điểm chưa có chỗ trên bản đồ (nội dung vào trước khi bố cục xong) thì chưa hiện, tránh nút đè nhau
     if (key.startsWith('place.') && PLACE_LOOK[key]) {
       places.push({ key, text: item[lang], look: PLACE_LOOK[key] });
     }
@@ -39,9 +42,10 @@ type Props = {
   lang: Lang;
   speaker: Speaker;
   onPick(g: GameManifest): void;
+  onOpenPicker(placeKey: string, placeGames: GameManifest[]): void;
 };
 
-export function WorldMap({ games, lang, speaker, onPick }: Props) {
+export function WorldMap({ games, lang, speaker, onPick, onOpenPicker }: Props) {
   const [lastSay, setLastSay] = useState('');
   const [target, setTarget] = useState(0);
   const [locked, setLocked] = useState(false);
@@ -63,23 +67,37 @@ export function WorldMap({ games, lang, speaker, onPick }: Props) {
   }, []);
 
   const places = getPlaces(lang);
+  const gamesMap = useMemo(() => gamesByPlace(games), [games]);
 
-  const handlePlacePress = (placeKey: string, posClass: string) => {
+  // Chỉ hiện địa điểm có ít nhất 1 game
+  const visiblePlaces = places.filter((p) => {
+    const list = gamesMap.get(p.key);
+    return list && list.length > 0;
+  });
+
+  const handlePlacePress = (placeKey: string, direction: 'left' | 'right' | 'center') => {
     if (locked) return;
 
     say(placeKey);
 
-    // Xác định hướng đi dựa vào vị trí nút
+    // Xác định hướng đi
     let dir = 0;
-    if (posClass.includes('Left')) dir = -1.6;
-    else if (posClass.includes('Right')) dir = 1.6;
+    if (direction === 'left') dir = -1.6;
+    else if (direction === 'right') dir = 1.6;
     setTarget(dir);
 
-    const game = games.find((g) => g.place === placeKey);
-    if (game) {
+    const placeGames = gamesMap.get(placeKey) ?? [];
+    if (placeGames.length === 1) {
+      // Chỉ 1 trò → vào thẳng như cũ
       setLocked(true);
       pendingTimeout.current = setTimeout(() => {
-        onPick(game);
+        onPick(placeGames[0]);
+      }, 800);
+    } else if (placeGames.length >= 2) {
+      // Nhiều trò → mở picker
+      setLocked(true);
+      pendingTimeout.current = setTimeout(() => {
+        onOpenPicker(placeKey, placeGames);
       }, 800);
     } else {
       // Không có game, về giữa sau 1.5s
@@ -110,15 +128,15 @@ export function WorldMap({ games, lang, speaker, onPick }: Props) {
         <WorldMapScene target={target} onTapDauDau={() => say('ui.hello')} />
       </div>
 
-      {/* 4 địa điểm */}
-      {places.map(({ key, text, look }) => (
+      {/* 6 địa điểm */}
+      {visiblePlaces.map(({ key, text, look }) => (
         <div key={key} className={`${styles.place} ${look.posClass}`}>
           <ClayButton
             color={look.color}
             label={text}
             caption={text}
             size={168}
-            onPress={() => handlePlacePress(key, look.posClass)}
+            onPress={() => handlePlacePress(key, look.direction)}
           >
             {look.icon}
           </ClayButton>

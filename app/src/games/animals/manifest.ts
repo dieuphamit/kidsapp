@@ -9,5 +9,7 @@ export const manifest: GameManifest = {
   color: 'butter',
   minAge: 24,
   maxAge: 72,
+  order: 0,
+  titleKey: 'game.farm3d',
   Component: lazy(() => import('./Game')),
 };
