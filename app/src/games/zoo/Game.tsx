@@ -1,125 +1,14 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { useGLTF, useAnimations } from '@react-three/drei';
-import { Box3, Vector3 } from 'three';
-import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
-import type { Group, Mesh, MeshStandardMaterial } from 'three';
 import { Scene3D } from '../../ui/Scene3D';
+import { WanderAnimal, WanderProbe, type WanderRegistry } from '../../ui/WanderAnimal';
+import { startReact } from '../../ui/wander';
 import { BackHome } from '../../ui/BackHome';
 import type { GameProps } from '../../core/games';
-import { pickSixAnimals, type WildAnimalData } from './wildAnimals';
+import { pickSixAnimals, placeZooAnimals } from './wildAnimals';
 
 const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
-
-const TARGET_HEIGHT = 1.2;
-
-/** Bố cục 2 hàng × 3: hàng sau gần hơn (z = -0.6), hàng trước xa hơn (z = 3.0) */
-const POSITIONS: [number, number, number][] = [
-  // Hàng sau (z = -0.6): 3 con
-  [-3.5, 0, -0.6],
-  [0, 0, -0.6],
-  [3.5, 0, -0.6],
-  // Hàng trước (z = 3.0): 3 con
-  [-3.0, 0, 3.0],
-  [0, 0, 3.0],
-  [3.0, 0, 3.0],
-];
-
-type AnimalProps = {
-  data: WildAnimalData;
-  pos: [number, number, number];
-  phaseOffset: number;
-  onTap: () => void;
-  isJumping: boolean;
-  jumpProgress: number;
-  onLoaded: () => void;
-};
-
-function Animal({ data, pos, phaseOffset, onTap, isJumping, jumpProgress, onLoaded }: AnimalProps) {
-  const ref = useRef<Group>(null);
-  const { scene, animations } = useGLTF(import.meta.env.BASE_URL + 'models/' + data.model);
-  const { actions } = useAnimations(animations, ref);
-
-  // Clone và chuẩn hóa model
-  const { clonedScene, scale, yOffset } = useMemo(() => {
-    const cloned = cloneSkinned(scene);
-    cloned.position.set(0, 0, 0);
-    cloned.rotation.set(0, 0, 0);
-    cloned.scale.set(1, 1, 1);
-    cloned.updateMatrixWorld(true);
-
-    const box = new Box3().setFromObject(cloned, true);
-    const size = new Vector3();
-    box.getSize(size);
-    const height = size.y;
-    const s = height > 0 ? (data.height ?? TARGET_HEIGHT) / height : 1;
-
-    const yOff = -box.min.y * s;
-    const center = new Vector3();
-    box.getCenter(center);
-    cloned.position.set(-center.x, 0, -center.z);
-
-    return { clonedScene: cloned, scale: s, yOffset: yOff };
-  }, [scene, data.height]);
-
-  // Áp vật liệu lì kiểu đất sét và chạy animation Idle
-  useEffect(() => {
-    clonedScene.traverse((child) => {
-      if ((child as Mesh).isMesh) {
-        const mesh = child as Mesh;
-        const mat = mesh.material as MeshStandardMaterial;
-        if (mat && mat.isMeshStandardMaterial) {
-          mat.roughness = 0.85;
-          mat.metalness = 0;
-        }
-      }
-    });
-
-    const idleAction = actions['Idle'] || actions['idle'];
-    if (idleAction) {
-      idleAction.play();
-    }
-
-    onLoaded();
-  }, [clonedScene, actions, onLoaded]);
-
-  // Lắc lư idle và xử lý nhảy
-  useFrame((state) => {
-    const g = ref.current;
-    if (!g) return;
-
-    if (isJumping) {
-      const p = jumpProgress;
-      g.position.y = yOffset + Math.sin(p * Math.PI) * 0.7;
-      const sq = 1 + Math.sin(p * Math.PI * 2) * 0.08;
-      g.scale.set(scale * sq, scale / sq, scale * sq);
-    } else {
-      g.rotation.y = Math.sin(state.clock.elapsedTime * 0.6 + phaseOffset) * 0.15;
-      g.position.y = yOffset;
-      g.scale.set(scale, scale, scale);
-    }
-  });
-
-  const hitboxSize: [number, number, number] = [1.2, 1.6, 1.2];
-
-  return (
-    <group position={pos} rotation={[0, data.rotY ?? 0, 0]}>
-      <group ref={ref} rotation={[0, Math.PI, 0]}>
-        <primitive object={clonedScene} />
-      </group>
-      <mesh
-        position={[0, 0.8, 0]}
-        onPointerDown={(e) => {
-          e.stopPropagation();
-          onTap();
-        }}
-      >
-        <boxGeometry args={hitboxSize} />
-        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-      </mesh>
-    </group>
-  );
-}
+/** e2e: `?e2e=1&seed=N` chọn cố định 6 con để ảnh chụp/test lặp lại được */
+const E2E_SEED = IS_E2E ? Number(new URLSearchParams(window.location.search).get('seed')) || undefined : undefined;
 
 /** Cột hàng rào gỗ đơn giản */
 function FencePost({ x, z }: { x: number; z: number }) {
@@ -227,22 +116,18 @@ function ZooGround() {
   );
 }
 
-type JumpState = {
-  id: string;
-  startTime: number;
-};
-
 export default function Game({ speaker, onExit }: GameProps) {
   const [lastSay, setLastSay] = useState('');
-  const [jumping, setJumping] = useState<JumpState | null>(null);
-  const [jumpProgress, setJumpProgress] = useState(0);
-  const [ready, setReady] = useState(false);
   const [loadedCount, setLoadedCount] = useState(0);
+  // Sẵn sàng khi mọi model đã load
+  const ready = loadedCount >= 6;
   const soundTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const frameRef = useRef<number | null>(null);
+  // Trạng thái đi lại của từng con (đọc/ghi trong useFrame, không gây render lại)
+  const [registry] = useState<WanderRegistry>(() => new Map());
 
-  // Chọn ngẫu nhiên 6 con khi mount, giữ ổn định trong suốt game
-  const animals = useMemo(() => pickSixAnimals(), []);
+  // Chọn ngẫu nhiên 6 con khi mount, giữ ổn định trong suốt game; 3 con đi dạo, 3 con đứng yên
+  const animals = useMemo(() => pickSixAnimals(E2E_SEED), []);
+  const placed = useMemo(() => placeZooAnimals(animals), [animals]);
 
   const say = useCallback(
     (key: string) => {
@@ -259,31 +144,27 @@ export default function Game({ speaker, onExit }: GameProps) {
         soundTimeoutRef.current = null;
       }
 
-      setJumping({ id: animalId, startTime: Date.now() });
+      // Con vật dừng lại, ngoảnh về bé và nhảy (vẽ trong useFrame)
+      const st = registry.get(animalId);
+      if (st) startReact(st);
       say(`animal.${animalId}`);
 
       soundTimeoutRef.current = setTimeout(() => {
         say(`animal.${animalId}-sound`);
       }, 1300);
     },
-    [say]
+    [say, registry]
   );
 
   const handleAnimalLoaded = useCallback(() => {
     setLoadedCount((c) => c + 1);
   }, []);
 
-  useEffect(() => {
-    if (loadedCount >= 6 && !ready) {
-      setReady(true);
-    }
-  }, [loadedCount, ready]);
 
   useEffect(() => {
     say('zoo.hello');
     return () => {
       if (soundTimeoutRef.current) clearTimeout(soundTimeoutRef.current);
-      if (frameRef.current) cancelAnimationFrame(frameRef.current);
     };
   }, [say]);
 
@@ -296,35 +177,6 @@ export default function Game({ speaker, onExit }: GameProps) {
       };
     }
   }, [handleTap]);
-
-  // Animation nhảy
-  useEffect(() => {
-    if (!jumping) {
-      setJumpProgress(0);
-      return;
-    }
-
-    const duration = 600;
-    const startTime = jumping.startTime;
-
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      setJumpProgress(progress);
-
-      if (progress < 1) {
-        frameRef.current = requestAnimationFrame(animate);
-      } else {
-        setJumping(null);
-      }
-    };
-
-    frameRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (frameRef.current) cancelAnimationFrame(frameRef.current);
-    };
-  }, [jumping]);
 
   // Lấy danh sách id của 6 con đang hiện để e2e có thể kiểm tra
   const visibleIds = useMemo(() => animals.map((a) => a.id).join(','), [animals]);
@@ -344,19 +196,24 @@ export default function Game({ speaker, onExit }: GameProps) {
       <Scene3D label="Sở thú" shadowScale={18} view={{ position: [0, 4.2, 10], target: [0, 0.5, -0.2], fov: 45 }}>
         <Suspense fallback={<ZooGround />}>
           <ZooGround />
-          {animals.map((animal, i) => (
-            <Animal
-              key={animal.id}
-              data={animal}
-              pos={POSITIONS[i]}
-              phaseOffset={i * 0.8}
-              onTap={() => handleTap(animal.id)}
-              isJumping={jumping?.id === animal.id}
-              jumpProgress={jumping?.id === animal.id ? jumpProgress : 0}
+          {placed.map((p, i) => (
+            <WanderAnimal
+              key={p.data.id}
+              id={p.data.id}
+              model={p.data.model}
+              height={p.data.height}
+              pos={p.pos}
+              rotY={p.rotY}
+              lane={p.lane}
+              gait={p.data.gait}
+              phase={i * 0.8}
+              registry={registry}
+              onTap={() => handleTap(p.data.id)}
               onLoaded={handleAnimalLoaded}
             />
           ))}
         </Suspense>
+        <WanderProbe registry={registry} />
       </Scene3D>
       <BackHome onExit={onExit} />
     </div>

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { pickGame } from './pick.js';
+import { expectAnimalsWander, expectTapStopsWalker } from './wander.js';
 import { mkdirSync, existsSync } from 'node:fs';
 
 // Đảm bảo thư mục shots tồn tại
@@ -135,4 +136,19 @@ test('nút Về nhà có kích thước đủ lớn và hoạt động', async (
   // Chạm nút Về nhà → về lại home
   await backBtn.click();
   await expect(page.getByTestId('home')).toBeVisible({ timeout: 3000 });
+});
+
+test('con vật đi dạo qua lại, chạm con đang đi thì nó dừng lại rồi đi tiếp', async ({ page }) => {
+  test.setTimeout(120_000); // WebGL phần mềm: vài khung hình/giây
+  await page.goto('./?e2e=1');
+  await page.getByLabel('Trang trại').click();
+  await pickGame(page, 'animals');
+  const gameEl = page.getByTestId('game-animals');
+  await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 15000 });
+
+  const [first] = await expectAnimalsWander(page, gameEl, 'wander-farm', 3);
+  // Bò đứng yên ở hàng trước (test chạm thật phía trên dựa vào chỗ đó)
+  expect(first.cow.mode).toBe('idle');
+
+  await expectTapStopsWalker(page, gameEl);
 });

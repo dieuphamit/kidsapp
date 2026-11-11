@@ -56,3 +56,20 @@ describe('pickSixAnimals', () => {
     }
   });
 });
+
+describe('placeZooAnimals', () => {
+  it('3 con đi dạo ở 3 làn khác độ sâu, cá không đi dạo, con cao đi làn sau', async () => {
+    const { placeZooAnimals } = await import('./wildAnimals');
+    for (let seed = 1; seed < 60; seed++) {
+      const placed = placeZooAnimals(pickSixAnimals(seed));
+      expect(placed).toHaveLength(6);
+      const walkers = placed.filter((p) => p.lane);
+      expect(walkers).toHaveLength(3);
+      expect(new Set(walkers.map((p) => p.pos[2])).size).toBe(3);
+      expect(walkers.some((p) => p.data.id === 'fish')).toBe(false);
+      const h = walkers.map((p) => p.data.height ?? 1.2);
+      expect(h[0]).toBeGreaterThanOrEqual(h[1]);
+      expect(h[1]).toBeGreaterThanOrEqual(h[2]);
+    }
+  });
+});

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { pickGame } from './pick.js';
+import { expectAnimalsWander, expectTapStopsWalker } from './wander.js';
 import { mkdirSync, existsSync } from 'node:fs';
 
 // Đảm bảo thư mục shots tồn tại
@@ -124,4 +125,20 @@ test('nút Về nhà có kích thước đủ lớn và hoạt động', async (
   // Chạm nút Về nhà → về lại home
   await backBtn.click();
   await expect(page.getByTestId('home')).toBeVisible({ timeout: 3000 });
+});
+
+test('thú đi dạo qua lại theo làn, chạm con đang đi thì nó dừng lại rồi đi tiếp', async ({ page }) => {
+  test.setTimeout(120_000); // WebGL phần mềm: vài khung hình/giây
+  // seed=5: hươu cao cổ, gấu túi, vẹt (nhảy lò cò) đi dạo; hổ, gấu, cánh cụt đứng yên
+  await page.goto('./?e2e=1&seed=5');
+  await page.getByLabel('Sở thú').click();
+  await pickGame(page, 'zoo3d');
+  const gameEl = page.getByTestId('game-zoo');
+  await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 15000 });
+  await expect(gameEl).toHaveAttribute('data-visible-animals', 'parrot,giraffe,koala,tiger,bear,penguin');
+
+  const [first] = await expectAnimalsWander(page, gameEl, 'wander-zoo', 2);
+  expect(first.giraffe.z, 'con cao nhất đi làn sau cùng').toBeLessThan(first.koala.z);
+
+  await expectTapStopsWalker(page, gameEl);
 });
