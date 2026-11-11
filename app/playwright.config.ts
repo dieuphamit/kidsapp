@@ -10,6 +10,8 @@ export default defineConfig({
   // e2e 3D trên máy không GPU (WebGL phần mềm) + nhiều slot song song hay chập chờn; thử lại 1 lần,
   // lỗi thật vẫn trượt cả 2 lần. Lần chạy lại hiện "flaky" trong output để còn theo dõi.
   retries: 1,
+  // mỗi worker là một Chromium vẽ WebGL bằng CPU; máy bận (nhiều slot runner, app khác, antivirus) thì nhiều worker làm test 3D hết giờ
+  workers: 2,
   use: { baseURL, video: 'retain-on-failure', serviceWorkers: 'allow' },
   projects: [
     {
