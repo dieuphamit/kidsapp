@@ -189,14 +189,6 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
     setDrag(null);
   };
 
-  // Vị trí gốc của quả (để trôi về)
-  const getFruitOriginalPos = (idx: number) => {
-    const el = fruitRefs.current[idx];
-    if (!el) return { x: 0, y: 0 };
-    const rect = stageRect(el);
-    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-  };
-
   return (
     <div
       className={styles.scene}

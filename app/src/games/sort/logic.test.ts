@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { newRound, drop, isDone, type State } from './logic';
+import { newRound, drop, isDone } from './logic';
 import { contentByKey } from '../../core/content';
 
 describe('sort/logic', () => {

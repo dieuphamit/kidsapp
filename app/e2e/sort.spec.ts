@@ -2,6 +2,17 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync, existsSync } from 'node:fs';
 
+// Type declaration for E2E hook
+type FruitColor = 'red' | 'yellow' | 'green';
+declare global {
+  interface Window {
+    __behocSort?: {
+      fruits(): { id: string; color: FruitColor }[];
+      drop(i: number, color: FruitColor): void;
+    };
+  }
+}
+
 // Đảm bảo thư mục shots tồn tại
 const shotsDir = 'test-results/shots';
 if (!existsSync(shotsDir)) {
