@@ -1,8 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync, existsSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-// Đảm bảo thư mục shots tồn tại
-const shotsDir = 'test-results/shots';
+// Đường dẫn tuyệt đối đến thư mục shots
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const shotsDir = join(__dirname, '..', 'test-results', 'shots');
 if (!existsSync(shotsDir)) {
   mkdirSync(shotsDir, { recursive: true });
 }
@@ -25,7 +28,7 @@ test.describe('Peekaboo game', () => {
     await expect(gameEl).toHaveAttribute('data-last-say', 'peek.hello', { timeout: 5000 });
 
     // Chụp ảnh bụi cây
-    await page.screenshot({ path: 'test-results/shots/T-026-bushes.png' });
+    await page.screenshot({ path: join(shotsDir, 'T-026-bushes.png') });
   });
 
   test('chạm bụi trống → peek.empty', async ({ page }) => {
@@ -87,7 +90,7 @@ test.describe('Peekaboo game', () => {
     expect(lastSay).toMatch(/^animal\./);
 
     // Chụp ảnh khi thú hiện ra
-    await page.screenshot({ path: 'test-results/shots/T-026-found.png' });
+    await page.screenshot({ path: join(shotsDir, 'T-026-found.png') });
   });
 
   test('mọi bụi có kích thước >= 120px', async ({ page }) => {
