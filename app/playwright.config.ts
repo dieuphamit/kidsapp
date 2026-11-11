@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const port = Number(process.env.E2E_PORT ?? 4173);
-const baseURL = `http://localhost:${port}/be-hoc/`;
+const baseURL = `http://localhost:${port}/kidsapp/`;
 
 export default defineConfig({
   testDir: 'e2e',
