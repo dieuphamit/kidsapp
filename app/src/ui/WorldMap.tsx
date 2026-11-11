@@ -42,7 +42,7 @@ type Props = {
   lang: Lang;
   speaker: Speaker;
   onPick(g: GameManifest): void;
-  onOpenPicker(placeKey: string, placeGames: GameManifest[]): void;
+  onOpenPicker?(placeKey: string, placeGames: GameManifest[]): void;
 };
 
 export function WorldMap({ games, lang, speaker, onPick, onOpenPicker }: Props) {
@@ -97,7 +97,7 @@ export function WorldMap({ games, lang, speaker, onPick, onOpenPicker }: Props) 
       // Nhiều trò → mở picker
       setLocked(true);
       pendingTimeout.current = setTimeout(() => {
-        onOpenPicker(placeKey, placeGames);
+        onOpenPicker?.(placeKey, placeGames);
       }, 800);
     } else {
       // Không có game, về giữa sau 1.5s
