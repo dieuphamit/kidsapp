@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { pickGame } from './pick.js';
 import { mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -18,6 +19,7 @@ test.describe('Counting game', () => {
     const orchardBtn = page.getByLabel('Vườn quả');
     await expect(orchardBtn).toBeVisible();
     await orchardBtn.tap();
+    await pickGame(page, 'counting');
 
     // Game counting hiện
     const gameRoot = page.getByTestId('game-counting');
@@ -32,6 +34,7 @@ test.describe('Counting game', () => {
     await page.goto('./');
     const orchardBtn = page.getByLabel('Vườn quả');
     await orchardBtn.tap();
+    await pickGame(page, 'counting');
     await expect(page.getByTestId('game-counting')).toBeVisible();
 
     for (let i = 1; i <= 10; i++) {
@@ -48,6 +51,7 @@ test.describe('Counting game', () => {
     await page.goto('./');
     const orchardBtn = page.getByLabel('Vườn quả');
     await orchardBtn.tap();
+    await pickGame(page, 'counting');
     const gameRoot = page.getByTestId('game-counting');
     await expect(gameRoot).toBeVisible();
 
@@ -71,6 +75,7 @@ test.describe('Counting game', () => {
     await page.goto('./');
     const orchardBtn = page.getByLabel('Vườn quả');
     await orchardBtn.tap();
+    await pickGame(page, 'counting');
     const gameRoot = page.getByTestId('game-counting');
     await expect(gameRoot).toBeVisible();
 
@@ -91,6 +96,7 @@ test.describe('Counting game', () => {
     await page.goto('./');
     const orchardBtn = page.getByLabel('Vườn quả');
     await orchardBtn.tap();
+    await pickGame(page, 'counting');
     await expect(page.getByTestId('game-counting')).toBeVisible();
 
     const backBtn = page.getByRole('button', { name: 'Về nhà' });

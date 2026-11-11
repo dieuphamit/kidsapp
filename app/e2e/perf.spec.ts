@@ -1,5 +1,6 @@
 // Performance tests: FPS >= 50 cho các scene 3D và 2.5D
 import { test, expect, type Page } from '@playwright/test';
+import { pickGame } from './pick.js';
 import { mkdirSync } from 'node:fs';
 
 test.setTimeout(60_000);
@@ -83,6 +84,7 @@ test.describe('Performance tests', () => {
     const farmBtn = page.getByLabel('Trang trại');
     await expect(farmBtn).toBeVisible({ timeout: 10000 });
     await farmBtn.click();
+    await pickGame(page, 'animals');
 
     // Chờ game hiện và model cow.glb load xong
     const gameEl = page.getByTestId('game-animals');
@@ -105,6 +107,7 @@ test.describe('Performance tests', () => {
     const pondBtn = page.getByLabel('Hồ nước');
     await expect(pondBtn).toBeVisible({ timeout: 10000 });
     await pondBtn.click();
+    await pickGame(page, 'shapes');
 
     // Chờ game hiện và sẵn sàng
     const gameEl = page.getByTestId('game-shapes');
@@ -127,6 +130,7 @@ test.describe('Performance tests', () => {
     const orchardBtn = page.getByLabel('Vườn quả');
     await expect(orchardBtn).toBeVisible({ timeout: 10000 });
     await orchardBtn.tap();
+    await pickGame(page, 'counting');
 
     // Chờ game hiện
     const gameEl = page.getByTestId('game-counting');

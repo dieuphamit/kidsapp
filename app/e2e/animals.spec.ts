@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { pickGame } from './pick.js';
 import { mkdirSync, existsSync } from 'node:fs';
 
 // Đảm bảo thư mục shots tồn tại
@@ -13,6 +14,7 @@ test('chạm Trang trại mở game animals', async ({ page }) => {
 
   // Chạm nút Trang trại
   await page.getByLabel('Trang trại').click();
+  await pickGame(page, 'animals');
 
   // Game animals hiện trong 10s
   await expect(page.getByTestId('game-animals')).toBeVisible({ timeout: 10000 });
@@ -28,6 +30,7 @@ test('chụp ảnh trang trại sau khi model load xong', async ({ page }) => {
 
   // Chạm nút Trang trại
   await farmBtn.click();
+  await pickGame(page, 'animals');
 
   // Chờ game hiện và ready
   const gameEl = page.getByTestId('game-animals');
@@ -51,6 +54,7 @@ test('cham con bo nghe animal.cow roi animal.cow-sound (via hook)', async ({ pag
 
   // Chạm nút Trang trại
   await farmBtn.click();
+  await pickGame(page, 'animals');
 
   // Chờ game hiện và ready
   const gameEl = page.getByTestId('game-animals');
@@ -81,6 +85,7 @@ test('chạm thật vào canvas có phản hồi', async ({ page }) => {
 
   // Chạm nút Trang trại
   await page.getByLabel('Trang trại').click();
+  await pickGame(page, 'animals');
 
   // Chờ game hiện và ready
   const gameEl = page.getByTestId('game-animals');
@@ -113,6 +118,7 @@ test('nút Về nhà có kích thước đủ lớn và hoạt động', async (
 
   // Chạm nút Trang trại
   await page.getByLabel('Trang trại').click();
+  await pickGame(page, 'animals');
 
   // Chờ game hiện
   await expect(page.getByTestId('game-animals')).toBeVisible({ timeout: 10000 });

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { pickGame } from './pick.js';
 import { mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -19,6 +20,7 @@ test.describe('Memory game - T-025', () => {
     const houseBtn = page.getByLabel('Nhà Đậu Đậu');
     await expect(houseBtn).toBeVisible({ timeout: 10000 });
     await houseBtn.click();
+    await pickGame(page, 'memory');
 
     // Game memory hiện trong 10s
     const gameEl = page.getByTestId('game-memory');
@@ -32,6 +34,7 @@ test.describe('Memory game - T-025', () => {
     await page.goto('./?e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
     await page.getByLabel('Nhà Đậu Đậu').click();
+    await pickGame(page, 'memory');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
 
     // Chờ preview hiện (500ms sau hello) + 500ms buffer
@@ -133,6 +136,7 @@ test.describe('Memory game - T-025', () => {
     const houseBtn = page.getByLabel('Nhà Đậu Đậu');
     await expect(houseBtn).toBeVisible({ timeout: 10000 });
     await houseBtn.click();
+    await pickGame(page, 'memory');
 
     const gameEl = page.getByTestId('game-memory');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
@@ -203,6 +207,7 @@ test.describe('Memory game - T-025', () => {
 
     // Vào game Memory
     await page.getByLabel('Nhà Đậu Đậu').click();
+    await pickGame(page, 'memory');
     await expect(page.getByTestId('game-memory')).toBeVisible({ timeout: 10000 });
 
     // Kiểm tra nút Về nhà có kích thước ≥ 120x120

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { pickGame } from './pick.js';
 import { mkdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,6 +20,7 @@ test.describe('Peekaboo game', () => {
     const zooBtn = page.getByLabel('Sở thú');
     await expect(zooBtn).toBeVisible({ timeout: 10000 });
     await zooBtn.click();
+    await pickGame(page, 'peekaboo');
 
     // Game peekaboo hiện (vào thẳng vì chỉ có 1 game trong Sở thú)
     const gameEl = page.getByTestId('game-peekaboo');
@@ -37,6 +39,7 @@ test.describe('Peekaboo game', () => {
 
     // Vào Sở thú - vào thẳng game vì chỉ có 1 game
     await page.getByLabel('Sở thú').click();
+    await pickGame(page, 'peekaboo');
 
     const gameEl = page.getByTestId('game-peekaboo');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
@@ -64,6 +67,7 @@ test.describe('Peekaboo game', () => {
 
     // Vào Sở thú - vào thẳng game vì chỉ có 1 game
     await page.getByLabel('Sở thú').click();
+    await pickGame(page, 'peekaboo');
 
     const gameEl = page.getByTestId('game-peekaboo');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
@@ -99,6 +103,7 @@ test.describe('Peekaboo game', () => {
 
     // Vào Sở thú - vào thẳng game vì chỉ có 1 game
     await page.getByLabel('Sở thú').click();
+    await pickGame(page, 'peekaboo');
 
     const gameEl = page.getByTestId('game-peekaboo');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
@@ -121,6 +126,7 @@ test.describe('Peekaboo game', () => {
 
     // Vào Sở thú - vào thẳng game vì chỉ có 1 game
     await page.getByLabel('Sở thú').click();
+    await pickGame(page, 'peekaboo');
 
     await expect(page.getByTestId('game-peekaboo')).toBeVisible({ timeout: 10000 });
 

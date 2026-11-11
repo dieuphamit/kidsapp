@@ -135,10 +135,10 @@ test('chạm địa điểm có 1 game thì vào thẳng game như cũ', async (
   await page.goto('./');
   await expect(page.getByTestId('home')).toBeVisible();
 
-  const farmBtn = page.getByLabel('Trang trại');
-  await expect(farmBtn).toBeVisible();
+  const pondBtn = page.getByLabel('Hồ nước');
+  await expect(pondBtn).toBeVisible();
 
-  const box = await farmBtn.boundingBox();
+  const box = await pondBtn.boundingBox();
   expect(box).not.toBeNull();
 
   await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
@@ -151,4 +151,5 @@ test('chạm địa điểm có 1 game thì vào thẳng game như cũ', async (
   // Phải đang trong game (home không còn visible hoặc game-picker không hiện)
   // Kiểm tra game-picker không hiện (vì chỉ có 1 game)
   await expect(page.getByTestId('game-picker')).not.toBeVisible();
+  await expect(page.getByTestId('game-shapes')).toBeVisible({ timeout: 10_000 });
 });

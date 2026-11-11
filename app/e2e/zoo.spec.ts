@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { pickGame } from './pick.js';
 import { mkdirSync, existsSync } from 'node:fs';
 
 // Đảm bảo thư mục shots tồn tại
@@ -17,6 +18,7 @@ test('vào Sở thú từ Home qua picker và chụp ảnh', async ({ page }) =>
 
   // Chạm nút Sở thú
   await zooBtn.click();
+  await pickGame(page, 'zoo3d');
 
   // Nếu có GamePicker, chọn game zoo3d
   const picker = page.getByTestId('game-picker');
@@ -48,6 +50,7 @@ test('chạm thú nghe animal.<id> rồi animal.<id>-sound (via hook)', async ({
   const zooBtn = page.getByLabel('Sở thú');
   await expect(zooBtn).toBeVisible({ timeout: 10000 });
   await zooBtn.click();
+  await pickGame(page, 'zoo3d');
 
   // Nếu có GamePicker, chọn game zoo3d
   const picker = page.getByTestId('game-picker');
@@ -95,6 +98,7 @@ test('nút Về nhà có kích thước đủ lớn và hoạt động', async (
   const zooBtn = page.getByLabel('Sở thú');
   await expect(zooBtn).toBeVisible({ timeout: 10000 });
   await zooBtn.click();
+  await pickGame(page, 'zoo3d');
 
   // Nếu có GamePicker, chọn game zoo3d
   const picker = page.getByTestId('game-picker');

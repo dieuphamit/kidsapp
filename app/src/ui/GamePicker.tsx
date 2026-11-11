@@ -60,8 +60,8 @@ export function GamePicker({ placeKey, games, lang, speaker, onPick, onBack }: P
       {/* Các nút trò chơi */}
       <div className={styles.games}>
         {games.map((g) => (
+          <div key={g.id} data-testid={`pick-${g.id}`}>
           <ClayButton
-            key={g.id}
             color={g.color}
             size={200}
             label={g.title[lang]}
@@ -70,6 +70,7 @@ export function GamePicker({ placeKey, games, lang, speaker, onPick, onBack }: P
           >
             {g.icon}
           </ClayButton>
+          </div>
         ))}
       </div>
 

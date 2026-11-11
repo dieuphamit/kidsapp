@@ -1,6 +1,7 @@
 // iPhone 14 Pro Max: app thiết kế cho khung 1194×834 phải co lại vừa màn hình điện thoại,
 // cầm dọc thì tự xoay ngang; nút vẫn chạm được; cổng phụ huynh có nút ⚙️ để đổi ngôn ngữ.
 import { test, expect, type Page } from '@playwright/test';
+import { pickGame } from './pick.js';
 import { mkdirSync } from 'node:fs';
 
 test.beforeAll(() => mkdirSync('test-results/shots', { recursive: true }));
@@ -28,6 +29,7 @@ test.describe('iPhone ngang 932×430', () => {
     await expectPlacesInside(page, 932, 430);
     await page.screenshot({ path: 'test-results/shots/mobile-landscape.png' });
     await page.getByRole('button', { name: 'Trang trại' }).tap();
+    await pickGame(page, 'animals');
     await expect(page.getByTestId('game-animals')).toBeVisible({ timeout: 15_000 });
   });
 });
@@ -42,6 +44,7 @@ test.describe('iPhone dọc 430×932', () => {
     await expectPlacesInside(page, 430, 932);
     await page.screenshot({ path: 'test-results/shots/mobile-portrait.png' });
     await page.getByRole('button', { name: 'Vườn quả' }).tap();
+    await pickGame(page, 'counting');
     await expect(page.getByTestId('game-counting')).toBeVisible({ timeout: 15_000 });
   });
 });
@@ -79,6 +82,7 @@ for (const [name, vw, vh] of [["ngang", 932, 430], ["dọc", 430, 932]] as const
     test("canvas Trang trại phủ hết khung", async ({ page }) => {
       await page.goto("./");
       await page.getByRole("button", { name: "Trang trại" }).tap();
+      await pickGame(page, 'animals');
       await expect(page.getByTestId("game-animals")).toBeVisible({ timeout: 15_000 });
       const stage = (await page.getByTestId("stage").boundingBox())!;
       const canvas = (await page.locator("[data-testid=game-animals] canvas").first().boundingBox())!;
