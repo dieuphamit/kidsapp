@@ -33,7 +33,11 @@ export function ParentGate({ onOpen, rand = Math.random }: { onOpen(): void; ran
         }}
         onPointerUp={cancel}
         onPointerLeave={cancel}
-      />
+        onContextMenu={(e) => e.preventDefault()}
+      >
+        <span className={styles.gateIcon} aria-hidden="true">⚙️</span>
+        <span className={styles.gateHint} aria-hidden="true">giữ 3 giây</span>
+      </button>
       {q && (
         <div className={styles.dialog} role="dialog" aria-label="Xác nhận phụ huynh">
           <div className={styles.card}>

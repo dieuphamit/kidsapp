@@ -39,15 +39,51 @@ export function createSpeaker(getLang: () => Lang, base = BASE): Speaker {
   };
 }
 
-/** iOS Safari chỉ mở khóa Web Audio ở touchend/click: resume AudioContext một lần rồi gỡ listener. */
+/**
+ * iPhone/iPad: Web Audio mặc định theo nút gạt im lặng (gạt im lặng là mất hết tiếng).
+ * Khai báo phiên "playback" (Safari 16.4+) để app kêu như trình phát nhạc. Trình duyệt khác bỏ qua.
+ */
+export function preferPlaybackAudioSession(nav: Navigator = navigator): void {
+  const session = (nav as Navigator & { audioSession?: { type: string } }).audioSession;
+  if (session) {
+    try { session.type = 'playback'; } catch { /* trình duyệt không cho đổi: bỏ qua */ }
+  }
+}
+
+/**
+ * iOS Safari chỉ mở khóa Web Audio trong một cử chỉ người dùng (touchend/click).
+ * Thử ở mọi cử chỉ cho tới khi AudioContext thật sự chạy (lần chạm đầu có thể đến trước khi Howler
+ * tạo AudioContext, hoặc iOS để ở trạng thái "interrupted" sau cuộc gọi/khóa màn hình).
+ */
 export function unlockAudioOnFirstGesture(): () => void {
-  const events = ['touchend', 'click'] as const;
+  preferPlaybackAudioSession();
+  const events = ['touchend', 'click', 'pointerup', 'keydown'] as const;
   const remove = () => events.forEach((e) => window.removeEventListener(e, unlock));
   function unlock() {
+    if (!Howler.ctx) Howler.volume(); // buộc Howler tạo AudioContext ngay trong cử chỉ
     const ctx = Howler.ctx;
-    if (ctx && ctx.state === 'suspended') void ctx.resume();
-    remove();
+    if (!ctx) return;
+    if (ctx.state !== 'running') {
+      const resumed = ctx.resume();
+      try {
+        // phát 1 mẫu im lặng: cách chắc chắn nhất để iOS mở khóa
+        const src = ctx.createBufferSource();
+        src.buffer = ctx.createBuffer(1, 1, 22050);
+        src.connect(ctx.destination);
+        src.start(0);
+      } catch { /* môi trường không đủ Web Audio: resume() là đủ */ }
+      void Promise.resolve(resumed).then(() => { if (ctx.state === 'running') remove(); });
+    } else {
+      remove();
+    }
   }
   events.forEach((e) => window.addEventListener(e, unlock));
-  return remove;
+  // quay lại app sau khi khóa màn hình: iOS treo AudioContext, cần mở lại ở lần chạm sau
+  const onVisible = () => {
+    if (document.visibilityState === 'visible' && Howler.ctx && Howler.ctx.state !== 'running') {
+      events.forEach((e) => window.addEventListener(e, unlock));
+    }
+  };
+  document.addEventListener('visibilitychange', onVisible);
+  return () => { remove(); document.removeEventListener('visibilitychange', onVisible); };
 }

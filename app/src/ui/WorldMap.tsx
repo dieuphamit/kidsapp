@@ -23,14 +23,12 @@ const PLACE_LOOK: Record<string, PlaceLook> = {
   'place.music': { icon: '🎵', color: 'lilac', posClass: styles.placeBottomRight },
 };
 
-const DEFAULT_LOOK: PlaceLook = { icon: '⭐', color: 'peach', posClass: '' };
-
 function getPlaces(lang: Lang) {
   const places: { key: string; text: string; look: PlaceLook }[] = [];
   for (const [key, item] of content) {
-    if (key.startsWith('place.')) {
-      const look = PLACE_LOOK[key] ?? DEFAULT_LOOK;
-      places.push({ key, text: item[lang], look });
+    // địa điểm chưa có chỗ trên bản đồ (nội dung vào trước khi bố cục xong) thì chưa hiện, tránh nút đè nhau
+    if (key.startsWith('place.') && PLACE_LOOK[key]) {
+      places.push({ key, text: item[lang], look: PLACE_LOOK[key] });
     }
   }
   return places;

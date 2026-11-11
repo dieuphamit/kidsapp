@@ -9,7 +9,7 @@ const { play, stop, Howl, Howler } = vi.hoisted(() => {
 });
 vi.mock('howler', () => ({ Howl, Howler }));
 
-import { audioUrl, sfxUrl, createSpeaker, unlockAudioOnFirstGesture } from './audio';
+import { audioUrl, sfxUrl, createSpeaker, unlockAudioOnFirstGesture, preferPlaybackAudioSession } from './audio';
 
 describe('audio', () => {
   beforeEach(() => { Howl.mockClear(); play.mockClear(); stop.mockClear(); });
@@ -35,12 +35,33 @@ describe('audio', () => {
     sp.say('ui.great');
     expect(stop).toHaveBeenCalled();
   });
-  it('unlockAudioOnFirstGesture resume AudioContext ở lần chạm đầu rồi gỡ listener', () => {
-    Howler.ctx.resume.mockClear();
-    unlockAudioOnFirstGesture();
+  it('unlockAudioOnFirstGesture resume ở lần chạm đầu, gỡ listener khi AudioContext đã chạy', async () => {
+    Howler.ctx.state = 'suspended';
+    Howler.ctx.resume.mockReset();
+    Howler.ctx.resume.mockImplementation(() => { Howler.ctx.state = 'running'; return Promise.resolve(); });
+    const cleanup = unlockAudioOnFirstGesture();
     window.dispatchEvent(new Event('touchend'));
+    await Promise.resolve(); await Promise.resolve();
     window.dispatchEvent(new Event('click'));
     expect(Howler.ctx.resume).toHaveBeenCalledTimes(1);
+    cleanup();
+  });
+  it('unlockAudioOnFirstGesture thử lại ở lần chạm sau nếu iOS chưa mở khóa', async () => {
+    Howler.ctx.state = 'suspended';
+    Howler.ctx.resume.mockReset();
+    Howler.ctx.resume.mockImplementation(() => Promise.resolve()); // vẫn suspended
+    const cleanup = unlockAudioOnFirstGesture();
+    window.dispatchEvent(new Event('touchend'));
+    await Promise.resolve();
+    window.dispatchEvent(new Event('touchend'));
+    expect(Howler.ctx.resume).toHaveBeenCalledTimes(2);
+    cleanup();
+  });
+  it('preferPlaybackAudioSession đặt audioSession.type = playback khi trình duyệt hỗ trợ', () => {
+    const nav = { audioSession: { type: 'auto' } } as unknown as Navigator;
+    preferPlaybackAudioSession(nav);
+    expect((nav as unknown as { audioSession: { type: string } }).audioSession.type).toBe('playback');
+    expect(() => preferPlaybackAudioSession({} as Navigator)).not.toThrow();
   });
   it('cleanup gỡ listener trước khi có chạm', () => {
     Howler.ctx.resume.mockClear();

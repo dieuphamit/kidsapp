@@ -1,0 +1,17 @@
+/* Nền phủ cả cửa sổ (phần viền ngoài khung cùng màu trời) */
+.outer {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--sky-top), var(--sky-bottom));
+}
+
+/* Khung 1194×834. transform làm khung thành "containing block" cho các phần tử position: fixed bên trong,
+   nên các màn hình (fixed; inset: 0) tự lấp đúng khung thay vì cả cửa sổ. */
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: center center;
+  overflow: hidden;
+}

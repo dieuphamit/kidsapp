@@ -2,19 +2,33 @@ import { useState } from 'react';
 import styles from './screens.module.css';
 import type { Settings } from '../core/settings';
 
-type Props = { settings: Settings; onSave(s: Settings): void; onUnlock(): void; onClose(): void };
+const LANGS: [Settings['lang'], string][] = [['vi', '🇻🇳 Tiếng Việt'], ['ja', '🇯🇵 日本語']];
+
+type Props ={ settings: Settings; onSave(s: Settings): void; onUnlock(): void; onClose(): void };
 
 export function ParentArea({ settings, onSave, onUnlock, onClose }: Props) {
   const [s, setS] = useState(settings);
   return (
     <div className={styles.dialog} role="dialog" aria-label="Cài đặt phụ huynh">
       <div className={styles.card}>
-        <label>Ngôn ngữ{' '}
-          <select aria-label="Ngôn ngữ" value={s.lang} onChange={(e) => setS({ ...s, lang: e.target.value as Settings['lang'] })}>
-            <option value="vi">Tiếng Việt</option>
-            <option value="ja">日本語</option>
-          </select>
-        </label>
+        <span className={styles.sectionTitle}>Ngôn ngữ / ことば</span>
+        <div className={styles.langRow} role="group" aria-label="Ngôn ngữ">
+          {LANGS.map(([lang, text]) => (
+            <button
+              key={lang}
+              type="button"
+              className={styles.langBtn}
+              aria-pressed={s.lang === lang}
+              onClick={() => {
+                const next = { ...s, lang };
+                setS(next);
+                onSave(next); // đổi ngay, không cần bấm Lưu
+              }}
+            >
+              {text}
+            </button>
+          ))}
+        </div>
         <label>Tuổi (tháng){' '}
           <input aria-label="Tuổi (tháng)" type="number" min={18} max={84} value={s.ageMonths}
             onChange={(e) => setS({ ...s, ageMonths: Number(e.target.value) })} />

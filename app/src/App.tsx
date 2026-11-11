@@ -7,6 +7,7 @@ import { WorldMap } from './ui/WorldMap';
 import { SleepScreen } from './ui/SleepScreen';
 import { ParentGate } from './ui/ParentGate';
 import { ParentArea } from './ui/ParentArea';
+import { Stage } from './ui/Stage';
 
 export default function App() {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
@@ -34,7 +35,7 @@ export default function App() {
   const games = gamesForAge(ALL_GAMES, settings.ageMonths);
 
   return (
-    <>
+    <Stage>
       {locked ? (
         <SleepScreen speaker={speaker} />
       ) : game ? (
@@ -53,6 +54,6 @@ export default function App() {
           onClose={() => setParentOpen(false)}
         />
       )}
-    </>
+    </Stage>
   );
 }
