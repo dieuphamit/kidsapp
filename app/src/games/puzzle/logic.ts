@@ -3,6 +3,8 @@
  * Không phụ thuộc React hay DOM.
  */
 
+import { FRUIT_IDS, isFruit } from '../../content/fruitIds';
+
 /**
  * Danh sách ID các card (con vật và quả) để dùng làm ảnh ghép.
  * Lấy từ cards/index.json, chỉ dùng farm và fruit để phù hợp với bé nhỏ.
@@ -11,7 +13,7 @@ const CARD_IDS = [
   // farm animals
   'cow', 'chicken', 'duck', 'pig', 'dog', 'sheep', 'horse', 'rabbit', 'cat',
   // fruits
-  'apple', 'banana', 'cherries', 'grapes', 'lemon', 'orange', 'pear', 'pineapple', 'strawberry', 'watermelon',
+  ...FRUIT_IDS,
 ];
 
 export interface Piece {
@@ -152,8 +154,7 @@ export function nextRound(state: PuzzleState, seed = 0): PuzzleState {
  * Lấy key nội dung để say tên hình (animal.<id> hoặc fruit.<id>).
  */
 export function cardContentKey(cardId: string): string {
-  const fruits = ['apple', 'banana', 'cherries', 'grapes', 'lemon', 'orange', 'pear', 'pineapple', 'strawberry', 'watermelon'];
-  if (fruits.includes(cardId)) {
+  if (isFruit(cardId)) {
     return `fruit.${cardId}`;
   }
   return `animal.${cardId}`;

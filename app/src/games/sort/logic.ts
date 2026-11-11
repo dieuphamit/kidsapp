@@ -3,7 +3,7 @@
  *
  * Màu đỏ: apple, cherries, strawberry
  * Màu vàng: banana, lemon, pineapple
- * Màu xanh lá: pear, watermelon
+ * Màu xanh lá: pear, watermelon, avocado
  */
 
 export type FruitColor = 'red' | 'yellow' | 'green';
@@ -27,7 +27,7 @@ export interface State {
 const FRUITS_BY_COLOR: Record<FruitColor, string[]> = {
   red: ['apple', 'cherries', 'strawberry'],
   yellow: ['banana', 'lemon', 'pineapple'],
-  green: ['pear', 'watermelon'],
+  green: ['pear', 'watermelon', 'avocado'],
 };
 
 /** Seeded random number generator (xorshift32). */

@@ -122,5 +122,29 @@
   {
     "id": "watermelon",
     "kind": "fruit"
+  },
+  {
+    "id": "kiwi",
+    "kind": "fruit"
+  },
+  {
+    "id": "papaya",
+    "kind": "fruit"
+  },
+  {
+    "id": "avocado",
+    "kind": "fruit"
+  },
+  {
+    "id": "coconut",
+    "kind": "fruit"
+  },
+  {
+    "id": "blueberry",
+    "kind": "fruit"
+  },
+  {
+    "id": "peach",
+    "kind": "fruit"
   }
 ]

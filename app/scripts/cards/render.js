@@ -71,7 +71,9 @@ async function render(id) {
 
     // Xoay ~25° để thấy mặt và khối; vật dài theo chiều sâu (vd quả chuối) xoay thêm 90° để chiều dài nằm ngang
     const elongatedZ = size.z > size.x * 1.3;
-    pivot.rotation.y = THREE.MathUtils.degToRad(elongatedZ ? 25 + 90 : 25);
+    // Một số model nhìn đẹp hơn từ phía sau (vd kiwi: mặt cắt xanh quay ra sau)
+    const EXTRA_YAW = { kiwi: 180 };
+    pivot.rotation.y = THREE.MathUtils.degToRad((elongatedZ ? 25 + 90 : 25) + (EXTRA_YAW[id] ?? 0));
     pivot.updateMatrixWorld(true);
 
     // Đo lại sau khi xoay; chiều sâu ít ảnh hưởng khung hình nên tính nhẹ hơn

@@ -12,7 +12,8 @@ const OUTPUT_DIR = join(ROOT, 'public', 'cards');
 const CARDS = {
   farm: ['cow', 'chicken', 'duck', 'pig', 'dog', 'sheep', 'horse', 'rabbit', 'cat'],
   wild: ['elephant', 'giraffe', 'lion', 'tiger', 'monkey', 'panda', 'penguin', 'koala', 'fox', 'bear', 'parrot', 'fish'],
-  fruit: ['apple', 'banana', 'cherries', 'grapes', 'lemon', 'orange', 'pear', 'pineapple', 'strawberry', 'watermelon']
+  fruit: ['apple', 'banana', 'cherries', 'grapes', 'lemon', 'orange', 'pear', 'pineapple', 'strawberry', 'watermelon',
+    'kiwi', 'papaya', 'avocado', 'coconut', 'blueberry', 'peach']
 };
 
 async function main() {

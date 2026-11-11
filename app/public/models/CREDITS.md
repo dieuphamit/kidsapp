@@ -64,3 +64,14 @@ Hướng: mọi model nhìn về +Z, đứng trên y=0. Kích thước không đ
 | bear.glb | https://poly.pizza/m/0PXWfxfb0Hu | Poly by Google | CC-BY 3.0 |
 | parrot.glb | https://poly.pizza/m/dfNjMLtO0pd | Poly by Google | CC-BY 3.0 |
 | fish.glb | https://poly.pizza/m/3GPUntjwqCa | Poly by Google | CC-BY 3.0 |
+
+## Trái cây thêm (poly.pizza)
+
+| File | Nguồn | Tác giả | Giấy phép |
+|---|---|---|---|
+| kiwi.glb | https://poly.pizza/m/9wlRP9sLbd- | Jarlan Perez | CC-BY 3.0 |
+| papaya.glb | https://poly.pizza/m/0yGd5C0sZ12 | Poly by Google | CC-BY 3.0 |
+| avocado.glb | https://poly.pizza/m/ZUN3itcCyX | Quaternius | CC0 (Public Domain) |
+| coconut.glb | https://poly.pizza/m/fY5jzVAVuCl | Poly by Google | CC-BY 3.0 |
+| blueberry.glb | https://poly.pizza/m/ecQMbKzX7Mo | sirkitree | CC-BY 3.0 |
+| peach.glb | https://poly.pizza/m/0cVeALx2mxi | jeremy | CC-BY 3.0 |

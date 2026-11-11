@@ -48,7 +48,7 @@ describe('sort/logic', () => {
       const state = newRound(3, 999);
       const validRed = ['apple', 'cherries', 'strawberry'];
       const validYellow = ['banana', 'lemon', 'pineapple'];
-      const validGreen = ['pear', 'watermelon'];
+      const validGreen = ['pear', 'watermelon', 'avocado'];
       for (const f of state.fruits) {
         if (f.color === 'red') expect(validRed).toContain(f.id);
         else if (f.color === 'yellow') expect(validYellow).toContain(f.id);

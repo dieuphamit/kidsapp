@@ -18,5 +18,17 @@
   { "key": "fruit.strawberry", "vi": "Quả dâu tây", "ja": "いちご" },
   { "key": "fruit.strawberry-color", "vi": "Dâu tây màu đỏ!", "ja": "いちごは あかいね!" },
   { "key": "fruit.watermelon", "vi": "Quả dưa hấu", "ja": "すいか" },
-  { "key": "fruit.watermelon-color", "vi": "Dưa hấu màu xanh lá!", "ja": "すいかは みどりだね!" }
+  { "key": "fruit.watermelon-color", "vi": "Dưa hấu màu xanh lá!", "ja": "すいかは みどりだね!" },
+  { "key": "fruit.kiwi", "vi": "Quả kiwi", "ja": "キウイ" },
+  { "key": "fruit.kiwi-color", "vi": "Kiwi bên trong màu xanh lá!", "ja": "キウイは なかが みどりだね!" },
+  { "key": "fruit.papaya", "vi": "Quả đu đủ", "ja": "パパイヤ" },
+  { "key": "fruit.papaya-color", "vi": "Đu đủ chín màu cam!", "ja": "パパイヤは オレンジいろ!" },
+  { "key": "fruit.avocado", "vi": "Quả bơ", "ja": "アボカド" },
+  { "key": "fruit.avocado-color", "vi": "Bơ màu xanh lá!", "ja": "アボカドは みどりだね!" },
+  { "key": "fruit.coconut", "vi": "Quả dừa", "ja": "ココナッツ" },
+  { "key": "fruit.coconut-color", "vi": "Dừa màu nâu, bên trong màu trắng!", "ja": "ココナッツは ちゃいろ、なかは しろいね!" },
+  { "key": "fruit.blueberry", "vi": "Quả việt quất", "ja": "ブルーベリー" },
+  { "key": "fruit.blueberry-color", "vi": "Việt quất màu xanh tím!", "ja": "ブルーベリーは あおむらさき!" },
+  { "key": "fruit.peach", "vi": "Quả đào", "ja": "もも" },
+  { "key": "fruit.peach-color", "vi": "Đào màu hồng!", "ja": "ももは ピンクだね!" }
 ]
