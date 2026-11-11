@@ -1,0 +1,126 @@
+[
+  {
+    "id": "cow",
+    "kind": "farm"
+  },
+  {
+    "id": "chicken",
+    "kind": "farm"
+  },
+  {
+    "id": "duck",
+    "kind": "farm"
+  },
+  {
+    "id": "pig",
+    "kind": "farm"
+  },
+  {
+    "id": "dog",
+    "kind": "farm"
+  },
+  {
+    "id": "sheep",
+    "kind": "farm"
+  },
+  {
+    "id": "horse",
+    "kind": "farm"
+  },
+  {
+    "id": "rabbit",
+    "kind": "farm"
+  },
+  {
+    "id": "cat",
+    "kind": "farm"
+  },
+  {
+    "id": "elephant",
+    "kind": "wild"
+  },
+  {
+    "id": "giraffe",
+    "kind": "wild"
+  },
+  {
+    "id": "lion",
+    "kind": "wild"
+  },
+  {
+    "id": "tiger",
+    "kind": "wild"
+  },
+  {
+    "id": "monkey",
+    "kind": "wild"
+  },
+  {
+    "id": "panda",
+    "kind": "wild"
+  },
+  {
+    "id": "penguin",
+    "kind": "wild"
+  },
+  {
+    "id": "koala",
+    "kind": "wild"
+  },
+  {
+    "id": "fox",
+    "kind": "wild"
+  },
+  {
+    "id": "bear",
+    "kind": "wild"
+  },
+  {
+    "id": "parrot",
+    "kind": "wild"
+  },
+  {
+    "id": "fish",
+    "kind": "wild"
+  },
+  {
+    "id": "apple",
+    "kind": "fruit"
+  },
+  {
+    "id": "banana",
+    "kind": "fruit"
+  },
+  {
+    "id": "cherries",
+    "kind": "fruit"
+  },
+  {
+    "id": "grapes",
+    "kind": "fruit"
+  },
+  {
+    "id": "lemon",
+    "kind": "fruit"
+  },
+  {
+    "id": "orange",
+    "kind": "fruit"
+  },
+  {
+    "id": "pear",
+    "kind": "fruit"
+  },
+  {
+    "id": "pineapple",
+    "kind": "fruit"
+  },
+  {
+    "id": "strawberry",
+    "kind": "fruit"
+  },
+  {
+    "id": "watermelon",
+    "kind": "fruit"
+  }
+]
