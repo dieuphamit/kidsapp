@@ -7,6 +7,7 @@ App PWA học và chơi cho bé 2–5 tuổi trên iPad. Spec: `docs/superpowers
 - Lint là oxlint (không phải eslint). E2E chạy Chromium giả lập iPad (WebKit bị chặn trên máy này), nên đừng dựa vào hành vi chỉ có ở WebKit; iPad Safari thật do bố mẹ kiểm tra.
 - Sinh giọng đọc sau khi sửa `app/src/content/*.json` (chạy từ thư mục gốc):
   `uv run --python C:/Users/tdqua/AppData/Local/Programs/Python/Python312/python.exe --with edge-tts tools/tts/generate.py`
+- Tiếng kêu con vật là ghi âm thật, không phải TTS: `say('animal.<id>-sound')` phát `public/audio/sfx/animal-<id>.mp3` (`speechUrl` trong `src/core/audio.ts`), nên key này không có trong content json. Thêm/đổi con vật: sửa `app/scripts/animal-sounds.json` (nguồn Commons CC0/PD/CC BY/CC BY-SA) rồi chạy trong `app/`: `node scripts/animal-sounds.mjs` (sinh lại mp3 và `CREDITS.md`).
 
 ## Kiểm thử
 - Chạy lệnh từ gốc worktree dạng `cd app && <lệnh>`. Tool Bash trả về sẵn output và exit code: không thêm `; echo $?`, `| tee`, redirect ra file, `|| true`, tiền tố `E2E_PORT=` (đã có trong env) hay `node -e`; các dạng đó bị từ chối.

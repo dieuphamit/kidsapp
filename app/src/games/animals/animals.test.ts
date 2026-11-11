@@ -18,12 +18,13 @@ describe('animals data', () => {
     expect(unique.size).toBe(ids.length);
   });
 
-  it('mỗi id có animal.<id> và animal.<id>-sound trong content', () => {
+  it('mỗi id có tên animal.<id> trong content và tiếng kêu thật sfx/animal-<id>.mp3', () => {
+    const sfxDir = join(import.meta.dirname, '../../../public/audio/sfx');
     for (const animal of ANIMALS) {
       const nameKey = `animal.${animal.id}`;
-      const soundKey = `animal.${animal.id}-sound`;
       expect(content.has(nameKey), `Thiếu ${nameKey}`).toBe(true);
-      expect(content.has(soundKey), `Thiếu ${soundKey}`).toBe(true);
+      // say('animal.<id>-sound') phát file ghi âm này (xem speechUrl trong core/audio.ts)
+      expect(existsSync(join(sfxDir, `animal-${animal.id}.mp3`)), `Thiếu sfx/animal-${animal.id}.mp3`).toBe(true);
     }
   });
 

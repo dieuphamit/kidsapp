@@ -1,0 +1,331 @@
+{
+ "sounds": [
+  {
+   "id": "cow",
+   "title": "File:Single Cow Moo.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Single_Cow_Moo.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/a/a5/Single_Cow_Moo.ogg",
+   "author": "MichaeltheFox8621",
+   "license": "CC BY-SA 4.0",
+   "what": "bò mẹ kêu \"ò\" (moo) ở trang trại Pitlochry",
+   "segments": [
+    [
+     0.95,
+     2.62
+    ]
+   ]
+  },
+  {
+   "id": "chicken",
+   "title": "File:Kukuriku.flac",
+   "page": "https://commons.wikimedia.org/wiki/File:Kukuriku.flac",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Kukuriku.flac",
+   "author": "Yosef Ben Melamed",
+   "license": "CC BY-SA 4.0",
+   "what": "gà trống gáy",
+   "segments": [
+    [
+     0.66,
+     2.75
+    ]
+   ]
+  },
+  {
+   "id": "duck",
+   "title": "File:Anas platyrhynchos - Mallard - XC62258.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Anas_platyrhynchos_-_Mallard_-_XC62258.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Anas_platyrhynchos_-_Mallard_-_XC62258.ogg",
+   "author": "Jonathon Jongsma",
+   "license": "CC BY-SA 3.0",
+   "what": "vịt trời (mallard) kêu cạp cạp",
+   "segments": [
+    [
+     1.13,
+     2.65
+    ]
+   ]
+  },
+  {
+   "id": "pig",
+   "title": "File:Pig grunt - Erdie.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Pig_grunt_-_Erdie.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/a/ac/Pig_grunt_-_Erdie.ogg",
+   "author": "erdie",
+   "license": "CC BY 3.0",
+   "what": "heo ủn ỉn (một tiếng, phát 2 lần)",
+   "segments": [
+    [
+     0,
+     0.66
+    ],
+    [
+     0,
+     0.66
+    ]
+   ],
+   "gap": 0.12
+  },
+  {
+   "id": "dog",
+   "title": "File:Barking of a dog.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Barking_of_a_dog.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Barking_of_a_dog.ogg",
+   "author": "Amada44",
+   "license": "CC BY-SA 3.0",
+   "what": "chó sủa 3 tiếng",
+   "segments": [
+    [
+     0.1,
+     2.15
+    ]
+   ]
+  },
+  {
+   "id": "sheep",
+   "title": "File:Sheep bleating.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Sheep_bleating.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/1/13/Sheep_bleating.ogg",
+   "author": "earthcalling",
+   "license": "Public domain",
+   "what": "cừu kêu be",
+   "segments": [
+    [
+     0.62,
+     1.75
+    ]
+   ]
+  },
+  {
+   "id": "horse",
+   "title": "File:Wiehern.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Wiehern.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/d/db/Wiehern.ogg",
+   "author": "Hü.",
+   "license": "Public domain",
+   "what": "ngựa hí",
+   "segments": [
+    [
+     0.05,
+     1.8
+    ]
+   ]
+  },
+  {
+   "id": "rabbit",
+   "title": "File:Rabbit oinks and squeaks.wav",
+   "page": "https://commons.wikimedia.org/wiki/File:Rabbit_oinks_and_squeaks.wav",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/4/49/Rabbit_oinks_and_squeaks.wav",
+   "author": "kessir",
+   "license": "CC0",
+   "what": "thỏ nhà kêu \"ụt ụt\" khe khẽ (honk/oink) — thỏ gần như không kêu",
+   "segments": [
+    [
+     20.15,
+     21.5
+    ]
+   ]
+  },
+  {
+   "id": "elephant",
+   "title": "File:Elephant voice - trumpeting.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Elephant_voice_-_trumpeting.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/4/40/Elephant_voice_-_trumpeting.ogg",
+   "author": "தகவலுழவன்",
+   "license": "CC0",
+   "what": "voi (voi châu Á) rống bằng vòi",
+   "segments": [
+    [
+     0.12,
+     1.44
+    ]
+   ]
+  },
+  {
+   "id": "giraffe",
+   "title": "File:Giraffe snort.oga",
+   "page": "https://commons.wikimedia.org/wiki/File:Giraffe_snort.oga",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/1/10/Giraffe_snort.oga",
+   "author": "Anton Baotic, Florian Sicks and Angela S. Stoeger",
+   "license": "CC BY-SA 4.0",
+   "what": "hươu cao cổ khịt mũi (phát 2 lần)",
+   "segments": [
+    [
+     0,
+     0.99
+    ],
+    [
+     0,
+     0.99
+    ]
+   ],
+   "gap": 0.25
+  },
+  {
+   "id": "lion",
+   "title": "File:Lion raring-sound1TamilNadu178.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Lion_raring-sound1TamilNadu178.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/7/7d/Lion_raring-sound1TamilNadu178.ogg",
+   "author": "த*உழவன்",
+   "license": "Public domain",
+   "what": "sư tử đực gầm (vườn thú)",
+   "segments": [
+    [
+     0.35,
+     2.3
+    ]
+   ]
+  },
+  {
+   "id": "tiger",
+   "title": "File:439280 schots angry-tiger.wav",
+   "page": "https://commons.wikimedia.org/wiki/File:439280_schots_angry-tiger.wav",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/29/439280_schots_angry-tiger.wav/439280_schots_angry-tiger.wav.ogg",
+   "file": "439280_schots_angry-tiger.wav.ogg",
+   "author": "schots",
+   "license": "CC0",
+   "what": "hổ gầm gừ trong chuồng (một tiếng gừ, có vang); nguồn tải là bản chuyển mã của Commons",
+   "segments": [
+    [
+     2.95,
+     5.3
+    ]
+   ]
+  },
+  {
+   "id": "monkey",
+   "title": "File:Pant-hoot call made by a male chimpanzee.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Pant-hoot_call_made_by_a_male_chimpanzee.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/5/56/Pant-hoot_call_made_by_a_male_chimpanzee.ogg",
+   "author": "Pawel Fedurek et al.",
+   "license": "CC BY 4.0",
+   "what": "tinh tinh đực kêu \"hú hú\" (pant-hoot), đoạn đầu",
+   "segments": [
+    [
+     1.55,
+     3.75
+    ]
+   ]
+  },
+  {
+   "id": "panda",
+   "title": "File:Giant panda twittering.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Giant_panda_twittering.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/b/b8/Giant_panda_twittering.ogg",
+   "author": "Mizunoryu (người tải lên, \"own work\")",
+   "license": "Public domain",
+   "what": "gấu trúc lớn kêu ríu rít (vườn thú)",
+   "segments": [
+    [
+     0.75,
+     2.4
+    ]
+   ]
+  },
+  {
+   "id": "penguin",
+   "title": "File:Vocal-individuality-cues-in-the-African-penguin-(Spheniscus-demersus)-a-source-filter-theory-srep17255-s2.oga",
+   "page": "https://commons.wikimedia.org/wiki/File:Vocal-individuality-cues-in-the-African-penguin-(Spheniscus-demersus)-a-source-filter-theory-srep17255-s2.oga",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/2/29/Vocal-individuality-cues-in-the-African-penguin-%28Spheniscus-demersus%29-a-source-filter-theory-srep17255-s2.oga",
+   "author": "Favaro L, Gamba M, Alfieri C, Pessani D, McElligott A",
+   "license": "CC BY 4.0",
+   "what": "chim cánh cụt châu Phi kêu (một tiếng, phát 2 lần)",
+   "segments": [
+    [
+     0.48,
+     1.08
+    ],
+    [
+     0.48,
+     1.08
+    ]
+   ],
+   "gap": 0.2
+  },
+  {
+   "id": "koala",
+   "title": "File:Perception-of-Male-Caller-Identity-in-Koalas-(Phascolarctos-cinereus)-Acoustic-Analysis-and-pone.0020329.s001.ogv",
+   "page": "https://commons.wikimedia.org/wiki/File:Perception-of-Male-Caller-Identity-in-Koalas-(Phascolarctos-cinereus)-Acoustic-Analysis-and-pone.0020329.s001.ogv",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/be/Perception-of-Male-Caller-Identity-in-Koalas-%28Phascolarctos-cinereus%29-Acoustic-Analysis-and-pone.0020329.s001.ogv/Perception-of-Male-Caller-Identity-in-Koalas-%28Phascolarctos-cinereus%29-Acoustic-Analysis-and-pone.0020329.s001.ogv.240p.vp9.webm",
+   "file": "koala-pone.0020329.s001.240p.vp9.webm",
+   "author": "Charlton B, Ellis W, McKinnon A, Brumm J, Nilsson K, Fitch W",
+   "license": "CC BY 2.5",
+   "what": "gấu túi đực kêu rống (bellow) ở Lone Pine Koala Sanctuary, lấy tiếng từ video; nguồn tải là bản chuyển mã của Commons",
+   "segments": [
+    [
+     17.95,
+     20.55
+    ]
+   ]
+  },
+  {
+   "id": "fox",
+   "title": "File:Bellender Fuchs.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Bellender_Fuchs.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Bellender_Fuchs.ogg",
+   "author": "Jugrü",
+   "license": "CC BY-SA 3.0",
+   "what": "cáo đỏ sủa 2 tiếng (bỏ khoảng lặng giữa)",
+   "segments": [
+    [
+     0.58,
+     1.45
+    ],
+    [
+     3.98,
+     4.75
+    ]
+   ],
+   "gap": 0.25
+  },
+  {
+   "id": "bear",
+   "title": "File:Bear growl.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Bear_growl.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Bear_growl.ogg",
+   "author": "Shizhao",
+   "license": "CC BY 3.0",
+   "what": "gấu con gầm gừ",
+   "segments": [
+    [
+     0.15,
+     2.15
+    ]
+   ]
+  },
+  {
+   "id": "parrot",
+   "title": "File:Scarlet macaw 01.wav",
+   "page": "https://commons.wikimedia.org/wiki/File:Scarlet_macaw_01.wav",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/8/89/Scarlet_macaw_01.wav",
+   "author": "Ganesh Mohan T",
+   "license": "CC BY-SA 4.0",
+   "what": "vẹt đỏ đuôi dài (scarlet macaw) kêu quác 2 tiếng (bỏ khoảng giữa)",
+   "segments": [
+    [
+     11,
+     11.9
+    ],
+    [
+     12.58,
+     13.12
+    ]
+   ],
+   "gap": 0.15
+  },
+  {
+   "id": "fish",
+   "title": "File:Toberbreedia water bubbling.opus",
+   "page": "https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/c/cd/Toberbreedia_water_bubbling.opus",
+   "author": "A.-K. D.",
+   "license": "CC0",
+   "what": "tiếng nước sủi bọt lục bục (cá không kêu)",
+   "segments": [
+    [
+     9.2,
+     11.2
+    ]
+   ]
+  }
+ ]
+}

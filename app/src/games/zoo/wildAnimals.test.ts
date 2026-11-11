@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { pickSixAnimals, WILD_ANIMALS } from './wildAnimals';
 
 describe('pickSixAnimals', () => {
@@ -53,6 +55,13 @@ describe('pickSixAnimals', () => {
       expect(animal.id.length).toBeGreaterThan(0);
       expect(animal.model).toBeDefined();
       expect(animal.model).toMatch(/\.glb$/);
+    }
+  });
+
+  it('mỗi con có tiếng kêu thật sfx/animal-<id>.mp3 (say animal.<id>-sound phát file này)', () => {
+    const sfxDir = join(import.meta.dirname, '../../../public/audio/sfx');
+    for (const animal of WILD_ANIMALS) {
+      expect(existsSync(join(sfxDir, `animal-${animal.id}.mp3`)), `Thiếu sfx/animal-${animal.id}.mp3`).toBe(true);
     }
   });
 });
