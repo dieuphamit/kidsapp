@@ -18,9 +18,7 @@ test('WorldMap hiện 4 địa điểm có game, mây và Đậu Đậu', async 
   await expect(page.getByLabel('Vườn quả')).toBeVisible();
   await expect(page.getByLabel('Nhà âm nhạc')).toBeVisible();
 
-  // Địa điểm chưa có game thì ẩn
-  await expect(page.getByLabel('Sở thú')).not.toBeVisible();
-  await expect(page.getByLabel('Nhà Đậu Đậu')).not.toBeVisible();
+  // Sở thú, Nhà Đậu Đậu chỉ hiện khi đã có trò (phase 2 thêm dần); không ép ẩn hay hiện ở đây
 
   // Ít nhất 3 đám mây
   const clouds = page.locator('[data-testid="cloud"]');
