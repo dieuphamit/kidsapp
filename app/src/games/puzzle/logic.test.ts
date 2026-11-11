@@ -105,7 +105,7 @@ describe('pieceTargetPosition', () => {
 describe('snap', () => {
   const W = 360;
   const H = 360;
-  const threshold = Math.min(W, H) * 0.18; // 64.8
+  // Threshold = Math.min(W, H) * 0.18 = 64.8
 
   test('mảnh 0 đặt đúng chỗ → true', () => {
     // Mảnh 0 của 2 mảnh: target là (90, 180)

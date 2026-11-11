@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
-import { clientToStage, stageRect } from '../../ui/Stage';
+import { clientToStage } from '../../ui/Stage';
 import {
   newPuzzle,
   snap,
@@ -133,7 +133,6 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
             const notPlaced = s.pieces.find((p) => !p.placed);
             if (!notPlaced) return s;
             // Di chuyển mảnh đến đúng chỗ
-            const { w, h } = pieceDimensions(s.pieceCount);
             const frameLeft = (1194 - FRAME_SIZE) / 2;
             const frameTop = (834 - FRAME_SIZE) / 2;
             const target = pieceTargetPosition(
@@ -228,7 +227,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
   );
 
   const handlePointerUp = useCallback(
-    (e: React.PointerEvent) => {
+    (_e: React.PointerEvent) => {
       if (!dragRef.current) return;
       const { pieceIdx } = dragRef.current;
       dragRef.current = null;
