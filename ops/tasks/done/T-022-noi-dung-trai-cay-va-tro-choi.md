@@ -16,6 +16,7 @@ acceptance:
   - npm run check:audio xanh
 attempts: 1
 last_error: npm run verify thất bại
+note: " | lỗi do bản đồ hiện địa điểm chưa có chỗ; đã sửa ở fix/mobile"
 ---
 ## Mục tiêu
 Giọng đọc cho trái cây và cho 6 trò mới của phase 2.

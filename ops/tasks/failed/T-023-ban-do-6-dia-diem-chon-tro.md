@@ -2,7 +2,8 @@
 id: T-023
 title: Bản đồ 6 địa điểm và màn chọn trò
 type: ui
-depends_on: [T-022]
+depends_on:
+  - T-022
 scope:
   - app/src/ui/WorldMap.tsx
   - app/src/ui/WorldMap.module.css
@@ -19,10 +20,11 @@ scope:
   - app/e2e/picker.spec.ts
 acceptance:
   - npm run verify
-  - "Bản đồ có 6 địa điểm (thêm Sở thú, Nhà Đậu Đậu), nút ≥120px, cách nhau ≥24px, nằm trọn trong khung 1194×834"
-  - "Địa điểm có ≥2 trò thì chạm vào hiện màn chọn trò; có 1 trò thì vào thẳng như cũ"
-  - "GameProps có ageMonths; ảnh app/test-results/shots/T-023-map.png và T-023-picker.png"
-attempts: 0
+  - Bản đồ có 6 địa điểm (thêm Sở thú, Nhà Đậu Đậu), nút ≥120px, cách nhau ≥24px, nằm trọn trong khung 1194×834
+  - Địa điểm có ≥2 trò thì chạm vào hiện màn chọn trò; có 1 trò thì vào thẳng như cũ
+  - GameProps có ageMonths; ảnh app/test-results/shots/T-023-map.png và T-023-picker.png
+attempts: 1
+last_error: npm run verify thất bại
 ---
 ## Mục tiêu
 Phase 2 thêm 6 trò mới, nên mỗi địa điểm có thể có nhiều trò. Bản đồ cần thêm 2 địa điểm và một màn chọn trò đơn giản cho bé.
