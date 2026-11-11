@@ -28,14 +28,14 @@ describe('Home', () => {
 
   it('hiện bong bóng lời nói theo ngôn ngữ và scene đã mock', () => {
     const speaker = { say: vi.fn(), sfx: vi.fn() };
-    const { getByText, getByTestId } = render(<Home games={[game]} lang="vi" speaker={speaker} onPick={vi.fn()} onOpenPicker={vi.fn()} />);
+    const { getByText, getByTestId } = render(<Home games={[game]} lang="vi" speaker={speaker} onPick={vi.fn()} />);
     expect(getByText('Đi đâu chơi nào?')).toBeInTheDocument();
     expect(getByTestId('scene')).toContainElement(getByTestId('daudau'));
   });
   it('chạm nút game thì nói tên chỗ chơi và chọn game', () => {
     const speaker = { say: vi.fn(), sfx: vi.fn() };
     const onPick = vi.fn();
-    const { getByLabelText } = render(<Home games={[game]} lang="ja" speaker={speaker} onPick={onPick} onOpenPicker={vi.fn()} />);
+    const { getByLabelText } = render(<Home games={[game]} lang="ja" speaker={speaker} onPick={onPick} />);
     fireEvent.pointerDown(getByLabelText('まきば'));
     expect(speaker.say).toHaveBeenCalledWith('place.farm');
     expect(onPick).not.toHaveBeenCalled();
