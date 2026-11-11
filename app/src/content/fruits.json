@@ -1,0 +1,22 @@
+[
+  { "key": "fruit.apple", "vi": "Quả táo", "ja": "りんご" },
+  { "key": "fruit.apple-color", "vi": "Táo màu đỏ!", "ja": "りんごは あかいね!" },
+  { "key": "fruit.banana", "vi": "Quả chuối", "ja": "バナナ" },
+  { "key": "fruit.banana-color", "vi": "Chuối màu vàng!", "ja": "バナナは きいろだね!" },
+  { "key": "fruit.cherries", "vi": "Quả anh đào", "ja": "さくらんぼ" },
+  { "key": "fruit.cherries-color", "vi": "Anh đào màu đỏ!", "ja": "さくらんぼは あかいね!" },
+  { "key": "fruit.grapes", "vi": "Chùm nho", "ja": "ぶどう" },
+  { "key": "fruit.grapes-color", "vi": "Nho màu tím!", "ja": "ぶどうは むらさきだね!" },
+  { "key": "fruit.lemon", "vi": "Quả chanh vàng", "ja": "レモン" },
+  { "key": "fruit.lemon-color", "vi": "Chanh màu vàng!", "ja": "レモンは きいろだね!" },
+  { "key": "fruit.orange", "vi": "Quả cam", "ja": "みかん" },
+  { "key": "fruit.orange-color", "vi": "Cam màu cam!", "ja": "みかんは オレンジいろ!" },
+  { "key": "fruit.pear", "vi": "Quả lê", "ja": "なし" },
+  { "key": "fruit.pear-color", "vi": "Lê màu xanh lá!", "ja": "なしは みどりだね!" },
+  { "key": "fruit.pineapple", "vi": "Quả dứa", "ja": "パイナップル" },
+  { "key": "fruit.pineapple-color", "vi": "Dứa màu vàng!", "ja": "パイナップルは きいろだね!" },
+  { "key": "fruit.strawberry", "vi": "Quả dâu tây", "ja": "いちご" },
+  { "key": "fruit.strawberry-color", "vi": "Dâu tây màu đỏ!", "ja": "いちごは あかいね!" },
+  { "key": "fruit.watermelon", "vi": "Quả dưa hấu", "ja": "すいか" },
+  { "key": "fruit.watermelon-color", "vi": "Dưa hấu màu xanh lá!", "ja": "すいかは みどりだね!" }
+]

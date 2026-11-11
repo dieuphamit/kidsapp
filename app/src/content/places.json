@@ -2,5 +2,7 @@
   { "key": "place.farm", "vi": "Trang trại", "ja": "まきば" },
   { "key": "place.pond", "vi": "Hồ nước", "ja": "いけ" },
   { "key": "place.orchard", "vi": "Vườn quả", "ja": "かじゅえん" },
-  { "key": "place.music", "vi": "Nhà âm nhạc", "ja": "おんがくのいえ" }
+  { "key": "place.music", "vi": "Nhà âm nhạc", "ja": "おんがくのいえ" },
+  { "key": "place.zoo", "vi": "Sở thú", "ja": "どうぶつえん" },
+  { "key": "place.house", "vi": "Nhà Đậu Đậu", "ja": "ダウダウのおうち" }
 ]
