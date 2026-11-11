@@ -2,7 +2,8 @@
 id: T-020
 title: Thẻ hình 2D render từ model (31 thẻ)
 type: asset
-depends_on: [T-019]
+depends_on:
+  - T-019
 scope:
   - app/scripts/render-cards.mjs
   - app/scripts/cards/**
@@ -10,7 +11,7 @@ scope:
   - app/package.json
 acceptance:
   - npm run verify
-  - "Có 31 file app/public/cards/<id>.png nền trong suốt, mỗi file ≤ 150KB"
+  - Có 31 file app/public/cards/<id>.png nền trong suốt, mỗi file ≤ 150KB
   - "app/public/cards/index.json liệt kê 31 thẻ: { id, kind: 'farm'|'wild'|'fruit' }"
 attempts: 0
 ---

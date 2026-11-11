@@ -2,7 +2,8 @@
 id: T-022
 title: Nội dung trái cây, địa điểm mới và câu dẫn các trò vi/ja
 type: tts
-depends_on: [T-021]
+depends_on:
+  - T-021
 scope:
   - app/src/content/fruits.json
   - app/src/content/games2.json
@@ -10,10 +11,11 @@ scope:
   - app/public/audio/**
 acceptance:
   - npm run verify
-  - "fruits.json có 20 key fruit.<id> và fruit.<id>-color cho 10 quả"
-  - "places.json thêm place.zoo, place.house; games2.json có đủ key ở bảng dưới"
+  - fruits.json có 20 key fruit.<id> và fruit.<id>-color cho 10 quả
+  - places.json thêm place.zoo, place.house; games2.json có đủ key ở bảng dưới
   - npm run check:audio xanh
-attempts: 0
+attempts: 1
+last_error: npm run verify thất bại
 ---
 ## Mục tiêu
 Giọng đọc cho trái cây và cho 6 trò mới của phase 2.
