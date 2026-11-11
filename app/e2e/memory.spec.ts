@@ -104,9 +104,26 @@ test.describe('Memory game - T-025', () => {
     // Đặt level 4 vào idb trước khi vào game
     await page.goto('./?e2e=1');
 
+    // Use native IndexedDB API (idb-keyval default store)
     await page.evaluate(async () => {
-      const { set } = await import('idb-keyval');
-      await set('memory.level', 4);
+      return new Promise<void>((resolve, reject) => {
+        const request = indexedDB.open('keyval-store', 1);
+        request.onupgradeneeded = () => {
+          request.result.createObjectStore('keyval');
+        };
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => {
+          const db = request.result;
+          const tx = db.transaction('keyval', 'readwrite');
+          const store = tx.objectStore('keyval');
+          store.put(4, 'memory.level');
+          tx.oncomplete = () => {
+            db.close();
+            resolve();
+          };
+          tx.onerror = () => reject(tx.error);
+        };
+      });
     });
 
     // Reload và vào game
@@ -162,8 +179,21 @@ test.describe('Memory game - T-025', () => {
 
     // Clean up
     await page.evaluate(async () => {
-      const { del } = await import('idb-keyval');
-      await del('memory.level');
+      return new Promise<void>((resolve, reject) => {
+        const request = indexedDB.open('keyval-store', 1);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => {
+          const db = request.result;
+          const tx = db.transaction('keyval', 'readwrite');
+          const store = tx.objectStore('keyval');
+          store.delete('memory.level');
+          tx.oncomplete = () => {
+            db.close();
+            resolve();
+          };
+          tx.onerror = () => reject(tx.error);
+        };
+      });
     });
   });
 

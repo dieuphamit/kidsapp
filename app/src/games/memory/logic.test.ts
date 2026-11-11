@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   newRound,
   flip,
@@ -13,20 +13,17 @@ import {
   type GameState,
 } from './logic';
 
+// Store for mock
+const mockStore = new Map<string, unknown>();
+
 // Mock idb-keyval
-vi.mock('idb-keyval', () => {
-  const store = new Map<string, unknown>();
-  return {
-    get: vi.fn((key: string) => Promise.resolve(store.get(key))),
-    set: vi.fn((key: string, val: unknown) => {
-      store.set(key, val);
-      return Promise.resolve();
-    }),
-    // Clear store between tests
-    _clear: () => store.clear(),
-    _store: store,
-  };
-});
+vi.mock('idb-keyval', () => ({
+  get: vi.fn((key: string) => Promise.resolve(mockStore.get(key))),
+  set: vi.fn((key: string, val: unknown) => {
+    mockStore.set(key, val);
+    return Promise.resolve();
+  }),
+}));
 
 const mockCards: Card[] = [
   { id: 'cow', kind: 'farm' },
@@ -293,9 +290,8 @@ describe('progressLevel', () => {
 });
 
 describe('storage', () => {
-  beforeEach(async () => {
-    const { _clear } = await import('idb-keyval');
-    (_clear as () => void)();
+  beforeEach(() => {
+    mockStore.clear();
   });
 
   it('loadLevel returns null when not set', async () => {
