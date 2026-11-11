@@ -10,7 +10,8 @@ acceptance:
   - npm run verify
   - "wild.json có 25 key: animal.<id> và animal.<id>-sound cho 12 thú hoang, cộng zoo.hello"
   - npm run check:audio xanh
-attempts: 0
+attempts: 1
+last_error: npm run verify thất bại
 ---
 ## Mục tiêu
 Giọng đọc tên và "tiếng kêu / điều thú vị" cho 12 thú hoang ở Sở thú và các trò thẻ hình.

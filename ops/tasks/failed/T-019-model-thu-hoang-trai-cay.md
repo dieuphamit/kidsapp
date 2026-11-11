@@ -8,8 +8,9 @@ scope:
 acceptance:
   - npm run verify
   - "Có 22 file mới trong app/public/models/: elephant, giraffe, lion, tiger, monkey, panda, penguin, koala, fox, bear, parrot, fish, apple, banana, cherries, grapes, lemon, orange, pear, pineapple, strawberry, watermelon (.glb), mỗi file ≤ 1MB"
-  - "CREDITS.md thêm đủ 22 dòng"
-attempts: 0
+  - CREDITS.md thêm đủ 22 dòng
+attempts: 1
+last_error: "agent lỗi (exit 0, error_max_turns): hết số lượt cho phép sau 61 lượt"
 ---
 ## Mục tiêu
 Chuẩn bị model cho Sở thú 3D (T-024) và cho thẻ hình 2D (T-020): 12 thú hoang và 10 trái cây cùng phong cách đồ chơi khối với trang trại.

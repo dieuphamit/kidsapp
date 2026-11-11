@@ -1,30 +1,140 @@
 {
  "date": "2026-11-11",
- "minutes": 34,
- "deadline": "2026-11-10T22:30:00.000Z",
+ "minutes": 116,
+ "deadline": "2026-11-11T14:00:00.000Z",
  "records": [
   {
-   "id": "T-016",
-   "title": "Kiểm tra hiệu năng và dung lượng",
-   "type": "test",
+   "id": "T-019",
+   "title": "Model 3D CC0: 12 thú hoang + 10 trái cây",
+   "type": "asset",
    "status": "failed",
    "attempts": 1,
-   "minutes": 18,
-   "reason": "npm run verify thất bại",
-   "note": "**Tóm tắt:** Đã sửa lỗi TypeScript trong `app/e2e/perf.spec.ts` - thay `import { Page }` thành `import { type Page }` để tuân thủ tùy chọn `verbatimModuleSyntax`. Lệnh `npm run verify` đã pass.\n\nCÂU HỎI: FPS đo được trên môi trường CI/sandbox có thể thấp hơn 50 do Chromium headless dùng SwiftShader (render phần mềm). Có muốn thêm cờ `--use-gl=angle` vào playwright.config hoặc chấp nhận đo trên iPad thật thay vì CI?\n[quyền bị từ chối (2): Bash: cd app && npx vite build 2>&1; Bash: cd app && node -e \"const p=require('os').tmpdir()+'/test-size-'+Date.now(); require('fs').mkdirSync(]"
+   "minutes": 40,
+   "reason": "agent lỗi (exit 0, error_max_turns): hết số lượt cho phép sau 61 lượt",
+   "note": "[agent lỗi (exit 0, error_max_turns): hết số lượt cho phép sau 61 lượt]\n[quyền bị từ chối (15): Bash: ls -la \"assets-src/kenney-cube-pets/Models/GLB format/animal-elephant.glb\"; Bash: cd app && npx gltf-transform optimize \"../assets-src/kenney-cube-pets/Models/GLB format/animal-eleph; Bash: cd app && test -f \"../assets-src/kenney-cube-pets/Models/GLB format/animal-elephant.glb\" && echo \"ex; Bash: cd app && npx @gltf-transform/cli --help; Bash: cd app && npx gltf-transform cp \"../assets-src/kenney-cube-pets/Models/GLB format/animal-elephant.gl (+10 nữa)]"
   },
   {
-   "id": "T-018",
-   "title": "Hồ nước đẹp hơn (bỏ vệt bóng, tam giác dễ nhận)",
-   "type": "ui",
+   "id": "T-021",
+   "title": "Nội dung thú hoang vi/ja",
+   "type": "tts",
    "status": "failed",
    "attempts": 1,
-   "minutes": 33,
+   "minutes": 114,
    "reason": "npm run verify thất bại",
-   "note": "[agent lỗi (exit 0, error_max_turns): hết số lượt cho phép sau 151 lượt]\n[quyền bị từ chối (19): Bash: cd app && npm run verify && echo \"SUCCESS\" && exit 0; Bash: cd app && rm -f test-results/shots/T-018-pond.png && npx playwright test \"e2e/shapes.spec.ts\" --grep; Bash: cd app && rm -f test-results/shots/T-018-pond.png; Bash: rm C:/Dieupham/Projects/be-hoc/wt/T-018/app/test-results/shots/T-018-pond.png; Bash: cd app && rm -rf test-results/shots/T-018-pond.png test-results/shots/T-018-done.png (+14 nữa)]"
+   "note": "Working tree sạch - tất cả đã được commit từ lần trước. `npm run verify` và `npm run check:audio` đều qua.\n\nNhìn lại log lỗi lần trước: test fail là `e2e\\animals.spec.ts:44:1 › cham con bo nghe animal.cow roi animal.cow-sound` - liên quan đến `animals.json` (animal.cow), không phải `wild.json`. File `wild.json` đã đúng và đầy đủ 25 key theo yêu cầu. Lỗi đó thuộc scope của task khác.\n\n---\n\n**Tóm tắt:** File `wild.json` đã có đầy đủ 25 key (12 tên thú hoang + 12 tiếng kêu/điều thú vị + `zoo.hello`) với nội dung vi/ja. `npm run verify` và `npm run check:audio` đều pass. Không có thay đổi mới cần commit vì task đã hoàn thành từ lần trước. Lỗi test `animal.cow` trong log thuộc file `animals.spec.ts` và scope của task khác."
   }
  ],
  "errors": [],
- "blocked": [],
+ "blocked": [
+  {
+   "id": "T-020",
+   "missing": [],
+   "failed": [
+    "T-019"
+   ],
+   "waiting": []
+  },
+  {
+   "id": "T-022",
+   "missing": [],
+   "failed": [
+    "T-021"
+   ],
+   "waiting": []
+  },
+  {
+   "id": "T-023",
+   "missing": [],
+   "failed": [],
+   "waiting": [
+    "T-022"
+   ]
+  },
+  {
+   "id": "T-024",
+   "missing": [],
+   "failed": [
+    "T-019",
+    "T-021"
+   ],
+   "waiting": [
+    "T-023"
+   ]
+  },
+  {
+   "id": "T-025",
+   "missing": [],
+   "failed": [],
+   "waiting": [
+    "T-020",
+    "T-022",
+    "T-023"
+   ]
+  },
+  {
+   "id": "T-026",
+   "missing": [],
+   "failed": [],
+   "waiting": [
+    "T-020",
+    "T-022",
+    "T-023"
+   ]
+  },
+  {
+   "id": "T-027",
+   "missing": [],
+   "failed": [],
+   "waiting": [
+    "T-020",
+    "T-022",
+    "T-023"
+   ]
+  },
+  {
+   "id": "T-028",
+   "missing": [],
+   "failed": [],
+   "waiting": [
+    "T-020",
+    "T-022",
+    "T-023"
+   ]
+  },
+  {
+   "id": "T-029",
+   "missing": [],
+   "failed": [],
+   "waiting": [
+    "T-020",
+    "T-022",
+    "T-023"
+   ]
+  },
+  {
+   "id": "T-030",
+   "missing": [],
+   "failed": [],
+   "waiting": [
+    "T-020",
+    "T-022",
+    "T-023"
+   ]
+  },
+  {
+   "id": "T-031",
+   "missing": [],
+   "failed": [],
+   "waiting": [
+    "T-024",
+    "T-025",
+    "T-026",
+    "T-027",
+    "T-028",
+    "T-029",
+    "T-030"
+   ]
+  }
+ ],
  "alerts": []
 }
