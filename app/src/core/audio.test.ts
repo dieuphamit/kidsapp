@@ -9,7 +9,7 @@ const { play, stop, Howl, Howler } = vi.hoisted(() => {
 });
 vi.mock('howler', () => ({ Howl, Howler }));
 
-import { audioUrl, sfxUrl, createSpeaker, unlockAudioOnFirstGesture, preferPlaybackAudioSession } from './audio';
+import { audioUrl, sfxUrl, speechUrl, createSpeaker, unlockAudioOnFirstGesture, preferPlaybackAudioSession } from './audio';
 
 describe('audio', () => {
   beforeEach(() => { Howl.mockClear(); play.mockClear(); stop.mockClear(); });
@@ -28,6 +28,20 @@ describe('audio', () => {
     lang = 'ja';
     sp.say('ui.great');
     expect(Howl).toHaveBeenLastCalledWith({ src: ['/b/audio/ja/ui.great.mp3'] });
+  });
+  it('animal.<id>-sound là tiếng kêu thật trong sfx, không theo ngôn ngữ', () => {
+    expect(speechUrl('animal.cow-sound', 'vi', '/b/')).toBe('/b/audio/sfx/animal-cow.mp3');
+    expect(speechUrl('animal.cow-sound', 'ja', '/b/')).toBe('/b/audio/sfx/animal-cow.mp3');
+    expect(speechUrl('animal.cow', 'ja', '/b/')).toBe('/b/audio/ja/animal.cow.mp3');
+    expect(speechUrl('game.sound-quiz', 'vi', '/b/')).toBe('/b/audio/vi/game.sound-quiz.mp3');
+    let lang: 'vi' | 'ja' = 'vi';
+    const sp = createSpeaker(() => lang, '/b/');
+    sp.say('animal.lion-sound');
+    lang = 'ja';
+    sp.say('animal.lion-sound');
+    expect(Howl).toHaveBeenCalledTimes(1);
+    expect(Howl).toHaveBeenCalledWith({ src: ['/b/audio/sfx/animal-lion.mp3'] });
+    expect(play).toHaveBeenCalledTimes(2);
   });
   it('say() dừng câu đang nói trước khi nói câu mới', () => {
     const sp = createSpeaker(() => 'vi', '/b/');

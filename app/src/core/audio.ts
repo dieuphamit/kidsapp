@@ -11,6 +11,19 @@ export function sfxUrl(name: string, base = BASE): string {
   return `${base}audio/sfx/${name}.mp3`;
 }
 
+const ANIMAL_SOUND_KEY = /^animal\.([a-z]+)-sound$/;
+
+/**
+ * File phát cho một key của say(). Key `animal.<id>-sound` là tiếng kêu THẬT của con vật
+ * (ghi âm, không phụ thuộc ngôn ngữ) ở `audio/sfx/animal-<id>.mp3`, không phải giọng đọc TTS.
+ * Game vẫn gọi say('animal.<id>-sound') nên data-last-say/test giữ nguyên key đó.
+ * Nguồn và giấy phép: public/audio/sfx/CREDITS.md; sinh lại bằng scripts/animal-sounds.mjs.
+ */
+export function speechUrl(key: string, lang: Lang, base = BASE): string {
+  const m = ANIMAL_SOUND_KEY.exec(key);
+  return m ? sfxUrl(`animal-${m[1]}`, base) : audioUrl(key, lang, base);
+}
+
 export interface Speaker {
   say(key: string): void;
   sfx(name: string): void;
@@ -30,7 +43,7 @@ export function createSpeaker(getLang: () => Lang, base = BASE): Speaker {
   return {
     say(key) {
       current?.stop();
-      current = get(audioUrl(key, getLang(), base));
+      current = get(speechUrl(key, getLang(), base));
       current.play();
     },
     sfx(name) {
