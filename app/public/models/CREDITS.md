@@ -1,15 +1,3 @@
-| elephant.glb | kenney-cube-pets/Models/GLB format/animal-elephant.glb | Kenney | 676 | — (60 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
-| giraffe.glb | kenney-cube-pets/Models/GLB format/animal-giraffe.glb | Kenney | 598 | — (53 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
-| lion.glb | kenney-cube-pets/Models/GLB format/animal-lion.glb | Kenney | 883 | — (64 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
-| tiger.glb | kenney-cube-pets/Models/GLB format/animal-tiger.glb | Kenney | 945 | — (63 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
-| monkey.glb | kenney-cube-pets/Models/GLB format/animal-monkey.glb | Kenney | 910 | — (64 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
-| panda.glb | kenney-cube-pets/Models/GLB format/animal-panda.glb | Kenney | 734 | — (53 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
-| penguin.glb | kenney-cube-pets/Models/GLB format/animal-penguin.glb | Kenney | 558 | — (53 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
-| koala.glb | kenney-cube-pets/Models/GLB format/animal-koala.glb | Kenney | 594 | — (53 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
-| fox.glb | kenney-cube-pets/Models/GLB format/animal-fox.glb | Kenney | 568 | — (58 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
-| bear.glb | kenney-cube-pets/Models/GLB format/animal-polar.glb | Kenney | 522 | — (47 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
-| parrot.glb | kenney-cube-pets/Models/GLB format/animal-parrot.glb | Kenney | 530 | — (63 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
-| fish.glb | kenney-cube-pets/Models/GLB format/animal-fish.glb | Kenney | 414 | — (43 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
 | apple.glb | kenney-food-kit/Models/GLB format/apple.glb | Kenney | 136 | — (20 KB) | không có |
 | banana.glb | kenney-food-kit/Models/GLB format/banana.glb | Kenney | 104 | — (19 KB) | không có |
 | cherries.glb | kenney-food-kit/Models/GLB format/cherries.glb | Kenney | 134 | — (19 KB) | không có |
@@ -32,15 +20,6 @@ Hướng: mọi model nhìn về +Z, đứng trên y=0. Kích thước không đ
 
 | File | Nguồn (trong `assets-src/`) | Tác giả | Tam giác | Cao | Clip animation |
 |---|---|---|---|---|---|
-| `cat.glb` | `kenney-cube-pets/Models/GLB format/animal-cat.glb` | Kenney | 678 | 1.71 | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
-| `chicken.glb` | `kenney-cube-pets/Models/GLB format/animal-chick.glb` (gà con) | Kenney | 490 | 1.61 | như trên |
-| `cow.glb` | `kenney-cube-pets/Models/GLB format/animal-cow.glb` | Kenney | 578 | 1.63 | như trên |
-| `dog.glb` | `kenney-cube-pets/Models/GLB format/animal-dog.glb` | Kenney | 490 | 1.60 | như trên |
-| `pig.glb` | `kenney-cube-pets/Models/GLB format/animal-pig.glb` | Kenney | 424 | 1.60 | như trên |
-| `rabbit.glb` | `kenney-cube-pets/Models/GLB format/animal-bunny.glb` | Kenney | 575 | 2.02 | như trên |
-| `duck.glb` | `polypizza-cc0/ducky-IsaLousberg.glb` (https://poly.pizza/m/gt2eYOyOvU) | Isa Lousberg | 604 | 0.40 | không có (model tĩnh, cho nhún/xoay trong app) |
-| `sheep.glb` | `polypizza-cc0/sheep-Quaternius-2.glb` (https://poly.pizza/m/rgJXF570ZK) | Quaternius | 2,148 | 1.58 | Death, Headbutt, Idle, Idle_Eating, Jump_Loop, Jump_Start, Run, Walk |
-| `horse.glb` | `quaternius-ultimate-animated-animals/glTF/Horse.gltf` (Ultimate Animated Animals) | Quaternius | 2,179 | 4.84 | Attack_Headbutt, Attack_Kick, Death, Eating, Gallop, Gallop_Jump, Idle, Idle_2, Idle_Headlow, Idle_HitReact1, Idle_HitReact2, Jump_toIdle, Walk |
 
 ## Chỉnh sửa sau khi nén
 - `duck.glb`, `sheep.glb`: đặt metalness 0.4 → 0 (không có env map nên kim loại làm model tối, lệch tông đất sét).
@@ -56,3 +35,32 @@ Hướng: mọi model nhìn về +Z, đứng trên y=0. Kích thước không đ
   (ghi lại trong `assets-src/polypizza-cc0/SOURCES.txt`).
 
 - Kenney Cube Pets (thú hoang) và Kenney Food Kit 2.0 (trái cây, tải 11/11/2026 từ kenney.nl): License.txt ghi CC0 1.0.
+
+
+## Con vật giống thật: Google Poly (CC-BY 3.0)
+
+21 con vật thay bộ Kenney/Quaternius ngày 11/11/2026. Giấy phép **CC-BY 3.0**: được dùng tự do, **phải ghi tác giả** (ghi cả trong khu phụ huynh của app). Nguồn tải: poly.pizza (lưu trữ Google Poly). File gốc ở `assets-src/poly-google/` (không commit), nén `--compress meshopt --texture-size 512`.
+
+| File | Model | Tác giả | Giấy phép |
+|---|---|---|---|
+| cow.glb | https://poly.pizza/m/0OToIgkcVM7 | Poly by Google | CC-BY 3.0 |
+| chicken.glb | https://poly.pizza/m/6NTegstc5Jy | Poly by Google | CC-BY 3.0 |
+| duck.glb | https://poly.pizza/m/frSLi6b6Vid | Poly by Google | CC-BY 3.0 |
+| pig.glb | https://poly.pizza/m/6XC3XssJIU_ | Poly by Google | CC-BY 3.0 |
+| dog.glb | https://poly.pizza/m/0BnDT3T1wTE | Poly by Google | CC-BY 3.0 |
+| sheep.glb | https://poly.pizza/m/dXBMV4AY2DL | Poly by Google | CC-BY 3.0 |
+| horse.glb | https://poly.pizza/m/5ocnVSh_ZF- | Poly by Google | CC-BY 3.0 |
+| rabbit.glb | https://poly.pizza/m/3vvONbRCuEF | Poly by Google | CC-BY 3.0 |
+| cat.glb | https://poly.pizza/m/6dM1J6f6pm9 | Poly by Google | CC-BY 3.0 |
+| elephant.glb | https://poly.pizza/m/a27MA0rXyyj | Poly by Google | CC-BY 3.0 |
+| giraffe.glb | https://poly.pizza/m/80w8kwQU0QH | Poly by Google | CC-BY 3.0 |
+| lion.glb | https://poly.pizza/m/3XAJojWxSWz | Poly by Google | CC-BY 3.0 |
+| tiger.glb | https://poly.pizza/m/5A3w06FXUup | Poly by Google | CC-BY 3.0 |
+| monkey.glb | https://poly.pizza/m/6m3diqGPysx | Poly by Google | CC-BY 3.0 |
+| panda.glb | https://poly.pizza/m/2T6A0o4Kq2h | Poly by Google | CC-BY 3.0 |
+| penguin.glb | https://poly.pizza/m/fBXvsC6pe_V | Poly by Google | CC-BY 3.0 |
+| koala.glb | https://poly.pizza/m/fzCu8FM0HfB | Poly by Google | CC-BY 3.0 |
+| fox.glb | https://poly.pizza/m/10u8FYPC5Br | Poly by Google | CC-BY 3.0 |
+| bear.glb | https://poly.pizza/m/0PXWfxfb0Hu | Poly by Google | CC-BY 3.0 |
+| parrot.glb | https://poly.pizza/m/dfNjMLtO0pd | Poly by Google | CC-BY 3.0 |
+| fish.glb | https://poly.pizza/m/3GPUntjwqCa | Poly by Google | CC-BY 3.0 |

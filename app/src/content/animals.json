@@ -1,8 +1,8 @@
 [
   { "key": "animal.cow", "vi": "Con bò", "ja": "うしさん" },
   { "key": "animal.cow-sound", "vi": "Bò kêu ò ò!", "ja": "うしさんは モーモー!" },
-  { "key": "animal.chicken", "vi": "Gà con", "ja": "ひよこさん" },
-  { "key": "animal.chicken-sound", "vi": "Gà con kêu chíp chíp!", "ja": "ひよこさんは ピヨピヨ!" },
+  { "key": "animal.chicken", "vi": "Con gà", "ja": "にわとりさん" },
+  { "key": "animal.chicken-sound", "vi": "Gà trống gáy ò ó o!", "ja": "にわとりさんは コケコッコー!" },
   { "key": "animal.duck", "vi": "Con vịt", "ja": "あひるさん" },
   { "key": "animal.duck-sound", "vi": "Vịt kêu cạp cạp!", "ja": "あひるさんは ガーガー!" },
   { "key": "animal.pig", "vi": "Con heo", "ja": "ぶたさん" },

@@ -19,13 +19,13 @@ export type AnimalData = {
  */
 export const ANIMALS: AnimalData[] = [
   // Hàng sau (z = -0.6): cừu, heo, chó, ngựa (ngựa góc phải)
-  { id: 'sheep', model: 'sheep.glb', pos: [-4.2, 0, -0.6], rotY: 0.4 },
-  { id: 'pig', model: 'pig.glb', pos: [-1.4, 0, -0.6] },
-  { id: 'dog', model: 'dog.glb', pos: [1.4, 0, -0.6] },
-  { id: 'horse', model: 'horse.glb', pos: [4.2, 0, -0.6], height: 2.0, rotY: -0.5 },
+  { id: 'sheep', model: 'sheep.glb', pos: [-4.2, 0, -0.6], rotY: 0.7 },
+  { id: 'pig', model: 'pig.glb', pos: [-1.4, 0, -0.6], rotY: 0.6 },
+  { id: 'dog', model: 'dog.glb', pos: [1.4, 0, -0.6], rotY: -0.6 },
+  { id: 'horse', model: 'horse.glb', pos: [4.2, 0, -0.6], height: 1.7, rotY: -0.7 },
   // Hàng trước (z = 3.0): thỏ, bò (gần giữa), gà, vịt
-  { id: 'rabbit', model: 'rabbit.glb', pos: [-3.2, 0, 3.0] },
-  { id: 'cow', model: 'cow.glb', pos: [-1.0, 0, 3.0] },
-  { id: 'chicken', model: 'chicken.glb', pos: [1.3, 0, 3.0] },
-  { id: 'duck', model: 'duck.glb', pos: [3.5, 0, 3.0] },
+  { id: 'rabbit', model: 'rabbit.glb', pos: [-3.2, 0, 3.0], rotY: 0.7 },
+  { id: 'cow', model: 'cow.glb', pos: [-1.0, 0, 3.0], height: 1.4, rotY: 0.6 },
+  { id: 'chicken', model: 'chicken.glb', pos: [1.3, 0, 3.0], rotY: -0.6 },
+  { id: 'duck', model: 'duck.glb', pos: [3.5, 0, 3.0], rotY: -0.7 },
 ];

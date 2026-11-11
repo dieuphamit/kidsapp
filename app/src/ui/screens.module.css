@@ -36,3 +36,4 @@
   background: linear-gradient(#2b2f6b, #5b3fa8); color: var(--paper);
   display: flex; align-items: center; justify-content: center; font-size: 96px;
 }
+.credits { font-size: 14px; line-height: 1.4; opacity: 0.6; max-width: 420px; }

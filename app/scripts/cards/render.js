@@ -89,6 +89,10 @@ async function render(id) {
       Math.sin(elevationAngle) * distance,
       Math.cos(elevationAngle) * distance
     );
+    // near/far theo khoảng cách: model Google Poly có kích thước hàng trăm đơn vị
+    camera.near = distance / 100;
+    camera.far = distance * 10;
+    camera.updateProjectionMatrix();
     camera.lookAt(0, 0, 0);
 
     // Render
