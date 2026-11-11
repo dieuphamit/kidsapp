@@ -57,23 +57,28 @@ async function render(id) {
   try {
     const gltf = await loader.loadAsync(`/models/${id}.glb`);
     const model = gltf.scene;
-    scene.add(model);
+    // pivot: căn tâm model trong pivot, xoay pivot quanh gốc
+    const pivot = new THREE.Group();
+    pivot.add(model);
+    scene.add(pivot);
 
-    // Normalize: fit model to ~80% of frame, centered
     const box = new THREE.Box3().setFromObject(model, true);
     const size = new THREE.Vector3();
     const center = new THREE.Vector3();
     box.getSize(size);
     box.getCenter(center);
-
-    // Move model so center is at origin
     model.position.sub(center);
 
-    // Rotate model ~25° to show face and volume
-    model.rotation.y = THREE.MathUtils.degToRad(25);
+    // Xoay ~25° để thấy mặt và khối; vật dài theo chiều sâu (vd quả chuối) xoay thêm 90° để chiều dài nằm ngang
+    const elongatedZ = size.z > size.x * 1.3;
+    pivot.rotation.y = THREE.MathUtils.degToRad(elongatedZ ? 25 + 90 : 25);
+    pivot.updateMatrixWorld(true);
 
-    // Calculate camera distance for 80% fill
-    const maxDim = Math.max(size.x, size.y, size.z);
+    // Đo lại sau khi xoay; chiều sâu ít ảnh hưởng khung hình nên tính nhẹ hơn
+    const box2 = new THREE.Box3().setFromObject(pivot, true);
+    const size2 = new THREE.Vector3();
+    box2.getSize(size2);
+    const maxDim = Math.max(size2.x, size2.y, size2.z * 0.6);
     const fov = 30 * (Math.PI / 180);
     const distance = (maxDim / 2) / Math.tan(fov / 2) / 0.8;
 
