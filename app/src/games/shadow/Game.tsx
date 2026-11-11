@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
-import { STAGE_W, STAGE_H, clientToStage, stageRect } from '../../ui/Stage';
+import { STAGE_W, STAGE_H, clientToStage } from '../../ui/Stage';
 import { newRound, dropResult, type AnimalId, type Round } from './logic';
 
 const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
@@ -172,7 +172,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
   );
 
   const handleClick = useCallback(
-    (e: React.MouseEvent, id: AnimalId) => {
+    (_e: React.MouseEvent, id: AnimalId) => {
       // Only trigger tap if not dragging
       if (!drag) {
         handleTap(id);
