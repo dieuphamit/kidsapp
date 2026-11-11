@@ -1,3 +1,25 @@
+| elephant.glb | kenney-cube-pets/Models/GLB format/animal-elephant.glb | Kenney | 676 | — (60 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
+| giraffe.glb | kenney-cube-pets/Models/GLB format/animal-giraffe.glb | Kenney | 598 | — (53 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
+| lion.glb | kenney-cube-pets/Models/GLB format/animal-lion.glb | Kenney | 883 | — (64 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
+| tiger.glb | kenney-cube-pets/Models/GLB format/animal-tiger.glb | Kenney | 945 | — (63 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
+| monkey.glb | kenney-cube-pets/Models/GLB format/animal-monkey.glb | Kenney | 910 | — (64 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
+| panda.glb | kenney-cube-pets/Models/GLB format/animal-panda.glb | Kenney | 734 | — (53 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
+| penguin.glb | kenney-cube-pets/Models/GLB format/animal-penguin.glb | Kenney | 558 | — (53 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
+| koala.glb | kenney-cube-pets/Models/GLB format/animal-koala.glb | Kenney | 594 | — (53 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
+| fox.glb | kenney-cube-pets/Models/GLB format/animal-fox.glb | Kenney | 568 | — (58 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
+| bear.glb | kenney-cube-pets/Models/GLB format/animal-polar.glb | Kenney | 522 | — (47 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
+| parrot.glb | kenney-cube-pets/Models/GLB format/animal-parrot.glb | Kenney | 530 | — (63 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
+| fish.glb | kenney-cube-pets/Models/GLB format/animal-fish.glb | Kenney | 414 | — (43 KB) | static, idle, walk, run, eat, dance, gesture-positive, gesture-negative |
+| apple.glb | kenney-food-kit/Models/GLB format/apple.glb | Kenney | 136 | — (20 KB) | không có |
+| banana.glb | kenney-food-kit/Models/GLB format/banana.glb | Kenney | 104 | — (19 KB) | không có |
+| cherries.glb | kenney-food-kit/Models/GLB format/cherries.glb | Kenney | 134 | — (19 KB) | không có |
+| grapes.glb | kenney-food-kit/Models/GLB format/grapes.glb | Kenney | 592 | — (26 KB) | không có |
+| lemon.glb | kenney-food-kit/Models/GLB format/lemon.glb | Kenney | 104 | — (19 KB) | không có |
+| orange.glb | kenney-food-kit/Models/GLB format/orange.glb | Kenney | 120 | — (19 KB) | không có |
+| pear.glb | kenney-food-kit/Models/GLB format/pear.glb | Kenney | 136 | — (20 KB) | không có |
+| pineapple.glb | kenney-food-kit/Models/GLB format/pineapple.glb | Kenney | 196 | — (20 KB) | không có |
+| strawberry.glb | kenney-food-kit/Models/GLB format/strawberry.glb | Kenney | 154 | — (20 KB) | không có |
+| watermelon.glb | kenney-food-kit/Models/GLB format/watermelon.glb | Kenney | 1356 | — (31 KB) | không có |
 # Nguồn model 3D
 
 Mọi model đều là CC0 (Public Domain). Không bắt buộc ghi công, nhưng vẫn ghi lại để biết nguồn.
@@ -32,3 +54,5 @@ Hướng: mọi model nhìn về +Z, đứng trên y=0. Kích thước không đ
   > License: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication https://creativecommons.org/publicdomain/zero/1.0/
 - poly.pizza (vịt của Isa Lousberg, cừu của Quaternius): trang model ghi "Public Domain (CC0)"
   (ghi lại trong `assets-src/polypizza-cc0/SOURCES.txt`).
+
+- Kenney Cube Pets (thú hoang) và Kenney Food Kit 2.0 (trái cây, tải 11/11/2026 từ kenney.nl): License.txt ghi CC0 1.0.
