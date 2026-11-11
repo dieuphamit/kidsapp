@@ -1,0 +1,182 @@
+.container {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(to bottom, var(--sky-top), var(--sky-bottom));
+  overflow: hidden;
+}
+
+.grass {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 45%;
+  background: var(--grass);
+  border-radius: 50% 50% 0 0 / 20% 20% 0 0;
+}
+
+.bushArea {
+  position: absolute;
+  bottom: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.bushContainer {
+  position: relative;
+  width: 200px;
+  height: 220px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.bush {
+  width: 200px;
+  height: 200px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--clay-leaf);
+  box-shadow: var(--shadow-clay);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--dur-press) var(--ease-squish);
+  position: relative;
+  z-index: 10;
+}
+
+.bush:active {
+  transform: scale(0.95);
+}
+
+/* Lắc khi chạm bụi trống */
+@keyframes shake {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  15% { transform: translateX(-8px) rotate(-3deg); }
+  30% { transform: translateX(8px) rotate(3deg); }
+  45% { transform: translateX(-6px) rotate(-2deg); }
+  60% { transform: translateX(6px) rotate(2deg); }
+  75% { transform: translateX(-3px) rotate(-1deg); }
+  90% { transform: translateX(3px) rotate(1deg); }
+}
+
+.shake {
+  animation: shake 400ms ease-out;
+}
+
+/* Rung nhẹ mỗi 3s cho bụi có thú */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-2deg); }
+  75% { transform: rotate(2deg); }
+}
+
+.wiggle {
+  animation: wiggle 400ms ease-in-out;
+}
+
+/* Bụi tách ra khi tìm thấy */
+.split {
+  animation: splitLeft 500ms var(--ease-squish) forwards;
+}
+
+.bushContainer:has(.split)::before {
+  content: '';
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--clay-leaf);
+  box-shadow: var(--shadow-clay);
+  bottom: 0;
+  left: 0;
+  animation: splitLeftPart 500ms var(--ease-squish) forwards;
+  z-index: 5;
+}
+
+.bushContainer:has(.split)::after {
+  content: '';
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--clay-leaf);
+  box-shadow: var(--shadow-clay);
+  bottom: 0;
+  right: 0;
+  animation: splitRightPart 500ms var(--ease-squish) forwards;
+  z-index: 5;
+}
+
+@keyframes splitLeft {
+  0% { opacity: 1; transform: scale(1); }
+  30% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 0; transform: scale(0.3); }
+}
+
+@keyframes splitLeftPart {
+  0% { transform: translateX(50px) scale(0); opacity: 0; }
+  30% { transform: translateX(50px) scale(1); opacity: 1; }
+  100% { transform: translateX(-80px) scale(0.8); opacity: 1; }
+}
+
+@keyframes splitRightPart {
+  0% { transform: translateX(-50px) scale(0); opacity: 0; }
+  30% { transform: translateX(-50px) scale(1); opacity: 1; }
+  100% { transform: translateX(80px) scale(0.8); opacity: 1; }
+}
+
+/* Con vật đằng sau bụi */
+.animal {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  opacity: 0;
+  transition: transform 600ms var(--ease-squish), opacity 300ms;
+}
+
+.animalEmoji {
+  font-size: 120px;
+  display: block;
+  filter: drop-shadow(0 8px 16px rgba(60, 40, 120, 0.3));
+}
+
+/* Thú nhảy lên khi tìm thấy */
+.animalJump {
+  opacity: 1;
+  animation: jump 600ms var(--ease-squish);
+}
+
+@keyframes jump {
+  0% { transform: translateX(-50%) translateY(0) scale(0.5); opacity: 0; }
+  40% { transform: translateX(-50%) translateY(-60px) scale(1.1); opacity: 1; }
+  60% { transform: translateX(-50%) translateY(-50px) scale(1); }
+  80% { transform: translateX(-50%) translateY(-55px) scale(1.05); }
+  100% { transform: translateX(-50%) translateY(-40px) scale(1); opacity: 1; }
+}
+
+/* Gợi ý: phần thú lấp ló */
+.hint {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+  overflow: hidden;
+  height: 40px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.hintEmoji {
+  font-size: 60px;
+  display: block;
+  opacity: 0.85;
+  filter: drop-shadow(0 4px 8px rgba(60, 40, 120, 0.2));
+}
