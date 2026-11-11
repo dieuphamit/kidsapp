@@ -19,18 +19,18 @@ export type WildAnimalData = {
  * Mỗi lần vào game sẽ chọn ngẫu nhiên 6 con từ danh sách này.
  */
 export const WILD_ANIMALS: WildAnimalData[] = [
-  { id: 'elephant', model: 'elephant.glb', height: 1.5 },
-  { id: 'giraffe', model: 'giraffe.glb', height: 1.8 },
-  { id: 'lion', model: 'lion.glb' },
-  { id: 'tiger', model: 'tiger.glb' },
-  { id: 'monkey', model: 'monkey.glb' },
-  { id: 'panda', model: 'panda.glb' },
-  { id: 'penguin', model: 'penguin.glb', gait: 'waddle' },
-  { id: 'koala', model: 'koala.glb' },
-  { id: 'fox', model: 'fox.glb' },
-  { id: 'bear', model: 'bear.glb', height: 1.4 },
-  { id: 'parrot', model: 'parrot.glb', gait: 'hop' },
-  { id: 'fish', model: 'fish.glb', gait: 'swim', canWander: false },
+  { id: 'elephant', model: 'elephant.glb', height: 1.9 },
+  { id: 'giraffe', model: 'giraffe.glb', height: 2.5 },
+  { id: 'lion', model: 'lion.glb', height: 1.1 },
+  { id: 'tiger', model: 'tiger.glb', height: 1.1 },
+  { id: 'monkey', model: 'monkey.glb', height: 1 },
+  { id: 'panda', model: 'panda.glb', height: 1.1 },
+  { id: 'penguin', model: 'penguin.glb', height: 0.9, gait: 'waddle' },
+  { id: 'koala', model: 'koala.glb', height: 0.75 },
+  { id: 'fox', model: 'fox.glb', height: 0.8 },
+  { id: 'bear', model: 'bear.glb', height: 1.5 },
+  { id: 'parrot', model: 'parrot.glb', height: 0.7, gait: 'hop' },
+  { id: 'fish', model: 'fish.glb', height: 0.6, gait: 'swim', canWander: false },
 ];
 
 /**
