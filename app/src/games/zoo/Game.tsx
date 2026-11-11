@@ -151,6 +151,10 @@ export default function Game({ speaker, onExit }: GameProps) {
 
       soundTimeoutRef.current = setTimeout(() => {
         say(`animal.${animalId}-sound`);
+        // Sau tiếng kêu thật, Đậu Đậu nói một câu vui về con vật
+        soundTimeoutRef.current = setTimeout(() => {
+          say(`animal.${animalId}-fact`);
+        }, 2800);
       }, 1300);
     },
     [say, registry]

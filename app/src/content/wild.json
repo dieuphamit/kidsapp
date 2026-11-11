@@ -11,5 +11,17 @@
   { "key": "animal.bear", "vi": "Con gấu", "ja": "くまさん" },
   { "key": "animal.parrot", "vi": "Con vẹt", "ja": "オウムさん" },
   { "key": "animal.fish", "vi": "Con cá", "ja": "おさかなさん" },
-  { "key": "zoo.hello", "vi": "Đến sở thú rồi! Bé chạm vào bạn nào?", "ja": "どうぶつえんに ついたよ!どの こに さわる?" }
+  { "key": "zoo.hello", "vi": "Đến sở thú rồi! Bé chạm vào bạn nào?", "ja": "どうぶつえんに ついたよ!どの こに さわる?" },
+  { "key": "animal.elephant-fact", "vi": "Voi có cái vòi thật dài!", "ja": "ぞうさんは おはなが ながいね!" },
+  { "key": "animal.giraffe-fact", "vi": "Hươu cao cổ cao ơi là cao!", "ja": "きりんさんは せが たかいね!" },
+  { "key": "animal.lion-fact", "vi": "Sư tử gầm: gừ gừ!", "ja": "ライオンさんは ガオー!" },
+  { "key": "animal.tiger-fact", "vi": "Hổ có bộ lông vằn vện!", "ja": "とらさんは しましまだね!" },
+  { "key": "animal.monkey-fact", "vi": "Khỉ kêu: khẹc khẹc!", "ja": "おさるさんは キッキッ!" },
+  { "key": "animal.panda-fact", "vi": "Gấu trúc thích ăn tre!", "ja": "パンダさんは ささが すき!" },
+  { "key": "animal.penguin-fact", "vi": "Chim cánh cụt đi lạch bạch!", "ja": "ペンギンさんは よちよち!" },
+  { "key": "animal.koala-fact", "vi": "Gấu túi ôm cây ngủ khò khò!", "ja": "コアラさんは きに だっこ!" },
+  { "key": "animal.fox-fact", "vi": "Cáo có cái đuôi thật xù!", "ja": "きつねさんは しっぽが ふわふわ!" },
+  { "key": "animal.bear-fact", "vi": "Gấu thích ăn mật ong!", "ja": "くまさんは はちみつが すき!" },
+  { "key": "animal.parrot-fact", "vi": "Vẹt biết nói: xin chào!", "ja": "オウムさんは こんにちは!" },
+  { "key": "animal.fish-fact", "vi": "Cá bơi tung tăng!", "ja": "おさかなさんは すいすい!" }
 ]
