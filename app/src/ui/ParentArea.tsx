@@ -40,7 +40,7 @@ export function ParentArea({ settings, onSave, onUnlock, onClose }: Props) {
         <button type="button" onClick={() => { onSave(s); onUnlock(); onClose(); }}>Lưu và cho bé chơi tiếp</button>
         <button type="button" onClick={onClose}>Đóng</button>
         <small className={styles.credits}>
-          Hình con vật 3D: Poly by Google (CC-BY 3.0, poly.pizza). Trái cây, khối: Kenney (CC0); kiwi: Jarlan Perez, việt quất: sirkitree, đào: jeremy (CC-BY 3.0, poly.pizza), bơ: Quaternius (CC0). Giọng đọc: Microsoft Edge TTS.
+          Ảnh thẻ con vật, trái cây: ảnh chụp từ Wikimedia Commons (CC0, public domain, CC BY, CC BY-SA; tác giả từng ảnh xem cards/CREDITS.md). Hình con vật 3D: Poly by Google (CC-BY 3.0, poly.pizza). Trái cây, khối: Kenney (CC0); kiwi: Jarlan Perez, việt quất: sirkitree, đào: jeremy (CC-BY 3.0, poly.pizza), bơ: Quaternius (CC0). Giọng đọc: Microsoft Edge TTS.
         </small>
       </div>
     </div>

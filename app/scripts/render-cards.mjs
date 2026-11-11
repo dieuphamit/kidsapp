@@ -1,3 +1,6 @@
+// LƯU Ý: thẻ đang dùng (public/cards/*.png) giờ là ảnh chụp thật, sinh bởi photo-cards.mjs
+// (npm run cards:photo). Script này chỉ còn để render lại bản 3D low-poly khi cần so sánh;
+// chạy nó sẽ GHI ĐÈ thẻ ảnh thật — chạy lại npm run cards:photo sau đó.
 import { createServer } from 'vite';
 import { chromium } from '@playwright/test';
 import { writeFileSync, statSync, mkdirSync, existsSync } from 'node:fs';
