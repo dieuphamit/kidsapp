@@ -27,7 +27,8 @@ export function DrawPad({ say, lang }: Props) {
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    const rect = container.getBoundingClientRect();
+    // offsetWidth/offsetHeight: kích thước thật trong khung Stage (getBoundingClientRect bị co giãn/xoay)
+    const rect = { width: container.offsetWidth, height: container.offsetHeight };
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     // Lưu hình cũ nếu có
@@ -86,11 +87,8 @@ export function DrawPad({ say, lang }: Props) {
   const getCanvasPos = (e: React.PointerEvent): { x: number; y: number } => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    };
+    // offsetX/offsetY là toạ độ nội bộ của canvas, đúng cả khi Stage co giãn/xoay
+    return { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY };
   };
 
   const drawDot = (x: number, y: number) => {

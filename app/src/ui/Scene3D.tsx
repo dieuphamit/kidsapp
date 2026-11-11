@@ -31,6 +31,8 @@ export function Scene3D({ children, label, view, shadowScale = 7 }: Props) {
     <div role="img" aria-label={label} style={{ position: 'absolute', inset: 0 }}>
       <Canvas
         flat
+        // đo bằng offsetWidth/Height: Stage co giãn/xoay bằng CSS transform, getBoundingClientRect sẽ sai
+        resize={{ offsetSize: true }}
         dpr={[1, 2]}
         camera={{ position, fov }}
         style={{ touchAction: 'manipulation' }}

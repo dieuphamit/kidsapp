@@ -71,3 +71,49 @@ test.describe('Cài đặt ngôn ngữ', () => {
     await expect(page.getByRole('button', { name: 'まきば' })).toBeVisible();
   });
 });
+
+for (const [name, vw, vh] of [["ngang", 932, 430], ["dọc", 430, 932]] as const) {
+  test.describe("iPhone " + name + ": cảnh 3D và bảng vẽ lấp đúng khung", () => {
+    test.use({ viewport: { width: vw, height: vh }, hasTouch: true, isMobile: true });
+
+    test("canvas Trang trại phủ hết khung", async ({ page }) => {
+      await page.goto("./");
+      await page.getByRole("button", { name: "Trang trại" }).tap();
+      await expect(page.getByTestId("game-animals")).toBeVisible({ timeout: 15_000 });
+      const stage = (await page.getByTestId("stage").boundingBox())!;
+      const canvas = (await page.locator("[data-testid=game-animals] canvas").first().boundingBox())!;
+      expect(Math.abs(canvas.width - stage.width), "rộng").toBeLessThan(4);
+      expect(Math.abs(canvas.height - stage.height), "cao").toBeLessThan(4);
+      await page.screenshot({ path: "test-results/shots/mobile-farm-" + vw + ".png" });
+    });
+  });
+}
+
+test.describe("iPhone dọc: vẽ đúng chỗ ngón tay", () => {
+  test.use({ viewport: { width: 430, height: 932 }, hasTouch: true, isMobile: true });
+
+  test("nét vẽ nằm dưới điểm chạm", async ({ page }) => {
+    await page.goto("./");
+    await page.getByRole("button", { name: "Nhà âm nhạc" }).tap();
+    const paper = page.locator("canvas").first();
+    await expect(paper).toBeVisible({ timeout: 15_000 });
+    await page.waitForTimeout(1000); // chờ canvas khởi tạo xong
+    const b = (await paper.boundingBox())!;
+    const cx = b.x + b.width / 2, cy = b.y + b.height / 2;
+    await page.mouse.move(cx, cy);
+    await page.mouse.down();
+    await page.mouse.move(cx + 3, cy + 3);
+    await page.mouse.up();
+    await page.screenshot({ path: "test-results/shots/mobile-draw-portrait.png" });
+    // pixel ngay dưới điểm chạm (đổi sang toạ độ nội bộ canvas) phải không còn trắng
+    const painted = await paper.evaluate((c: HTMLCanvasElement, pt) => {
+      const r = c.getBoundingClientRect();
+      // canvas xoay 90°: toạ độ nội bộ lấy theo tỉ lệ trên cạnh tương ứng
+      const fx = (pt.y - r.top) / r.height, fy = 1 - (pt.x - r.left) / r.width;
+      const ctx = c.getContext("2d")!;
+      const d = ctx.getImageData(Math.floor(fx * c.width), Math.floor(fy * c.height), 1, 1).data;
+      return d[3] > 0 && !(d[0] > 245 && d[1] > 245 && d[2] > 245);
+    }, { x: cx, y: cy });
+    expect(painted).toBe(true);
+  });
+});

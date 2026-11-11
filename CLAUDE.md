@@ -33,3 +33,15 @@ react, three, @react-three/fiber, @react-three/drei, howler, idb-keyval, @fontso
 
 ## Cấm
 Sửa `ops/`, `git push`, xóa/skip/làm yếu test, sửa file ngoài `scope` của task, đổi `base` trong `vite.config.ts`.
+
+## Khung Stage (iPad, iPhone ngang/dọc)
+
+Cả app nằm trong khung cố định 1194×834 (`src/ui/Stage.tsx`), được co giãn bằng CSS `transform: scale()` và **xoay 90°** khi điện thoại cầm dọc. Hệ quả bắt buộc:
+
+- Thiết kế mọi màn hình theo khung 1194×834 (luật 120px, 24px tính trong khung). Phần tử `position: fixed; inset: 0` tự lấp đúng khung.
+- **Không** dùng `getBoundingClientRect()` hay `clientX/clientY` để đo kích thước hay tính toạ độ trong khung — chúng là toạ độ màn hình đã co giãn/xoay. Thay bằng:
+  - kích thước: `el.offsetWidth` / `el.offsetHeight`;
+  - toạ độ chạm trong chính phần tử nhận sự kiện: `e.nativeEvent.offsetX/offsetY`;
+  - kéo thả qua nhiều phần tử: `clientToStage(e.clientX, e.clientY)` để có điểm trong khung, và `stageRect(el)` để có hình chữ nhật vùng thả trong khung (cả hai export từ `src/ui/Stage.tsx`).
+- `Scene3D` đã đặt `resize={{ offsetSize: true }}`; Canvas 3D tự tạo mới cũng phải đặt như vậy.
+- E2E chạy ở viewport iPad 1194×834 (khung không co giãn); `e2e/mobile.spec.ts` kiểm iPhone ngang/dọc — trò mới có kéo thả nên thêm một test kéo ở `viewport: { width: 430, height: 932 }`.
