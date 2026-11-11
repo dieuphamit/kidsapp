@@ -1,7 +1,7 @@
 .scene {
   position: fixed;
   inset: 0;
-  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 50%, var(--grass) 100%);
+  background: var(--sky-top);
   overflow: hidden;
   font-family: var(--font-kid);
   touch-action: none;
@@ -18,6 +18,7 @@
   justify-content: center;
   gap: 32px;
   max-width: 1000px;
+  z-index: 1;
 }
 
 .fruitSlot {
@@ -72,29 +73,22 @@
   transform: translateX(-50%);
   display: flex;
   gap: 48px;
+  z-index: 1;
 }
 
 .basket {
+  /* vùng thả giữ nguyên 280×200; các lớp vẽ bên trong */
   width: 280px;
   height: 200px;
-  background: var(--clay-butter);
-  border-radius: 40px / 50px;
-  box-shadow: var(--shadow-clay);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  padding-bottom: 24px;
   position: relative;
-  background-image: repeating-linear-gradient(
-    90deg,
-    transparent 0px,
-    transparent 20px,
-    color-mix(in srgb, var(--clay-butter) 70%, var(--ink) 30%) 20px,
-    color-mix(in srgb, var(--clay-butter) 70%, var(--ink) 30%) 22px
-  );
+  --c: var(--learn-red);
+  transform-origin: 50% 100%;
   transition: transform 200ms var(--ease-squish);
 }
+
+.basket[data-color="red"] { --c: var(--learn-red); }
+.basket[data-color="yellow"] { --c: var(--learn-yellow); }
+.basket[data-color="green"] { --c: var(--learn-green); }
 
 .basket[data-bounce] {
   animation: basketBounce 300ms var(--ease-squish);
@@ -102,46 +96,140 @@
 
 @keyframes basketBounce {
   0% { transform: scale(1); }
-  30% { transform: scale(1.05, 0.95); }
-  60% { transform: scale(0.98, 1.02); }
+  30% { transform: scale(1.06, 0.92); }
+  60% { transform: scale(0.98, 1.03); }
   100% { transform: scale(1); }
 }
 
-/* Viền màu giỏ */
-.basket[data-color="red"] {
-  border: 8px solid var(--learn-red);
-}
-.basket[data-color="yellow"] {
-  border: 8px solid var(--learn-yellow);
-}
-.basket[data-color="green"] {
-  border: 8px solid var(--learn-green);
+/* Quai giỏ: dải mây cong phía sau */
+.basketHandle {
+  position: absolute;
+  left: 62px;
+  right: 62px;
+  top: -64px;
+  height: 120px;
+  border: 13px solid var(--scene-wicker);
+  border-bottom: 0;
+  border-radius: 90px 90px 0 0;
+  box-shadow: inset 0 3px 0 var(--scene-wicker-light), 0 3px 0 var(--scene-wicker-dark);
 }
 
-/* Quả mẫu làm gợi ý */
-.basketHint {
+/* Thân giỏ đan: sợi ngang bo tròn (sáng trên, tối dưới) + nan dọc + bóng hình trụ hai bên */
+.basketBody {
   position: absolute;
-  top: 20px;
-  width: 80px;
-  height: 80px;
+  left: 10px;
+  right: 10px;
+  top: 30px;
+  bottom: 0;
+  border-radius: 12px 12px 80px 80px / 12px 12px 44px 44px;
+  background:
+    linear-gradient(90deg,
+      color-mix(in srgb, var(--scene-wicker-dark) 70%, transparent) 0%,
+      transparent 22%, transparent 70%,
+      color-mix(in srgb, var(--scene-wicker-dark) 80%, transparent) 100%),
+    repeating-linear-gradient(90deg,
+      color-mix(in srgb, var(--scene-wicker-dark) 55%, transparent) 0 3px,
+      transparent 3px 26px),
+    repeating-linear-gradient(180deg,
+      var(--scene-wicker-light) 0,
+      var(--scene-wicker) 7px,
+      var(--scene-wicker-dark) 15px,
+      var(--scene-wicker-dark) 17px);
+  box-shadow:
+    inset 0 -14px 18px color-mix(in srgb, var(--scene-bark-dark) 45%, transparent),
+    0 16px 22px color-mix(in srgb, var(--ink) 25%, transparent);
+}
+
+/* Dải ruy băng màu quấn thân giỏ: nhận biết màu giỏ thật rõ */
+.basketBody::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 52px;
+  height: 26px;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--c) 70%, var(--paper)) 0%,
+    var(--c) 40%,
+    color-mix(in srgb, var(--c) 78%, var(--ink)) 100%);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+/* Khăn lót màu ló trên miệng giỏ */
+.basketCloth {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  top: 2px;
+  height: 46px;
+  border-radius: 50% 50% 0 0 / 70% 70% 0 0;
+  background:
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--paper) 35%, transparent) 0 10px, transparent 10px 20px),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--paper) 35%, transparent) 0 10px, transparent 10px 20px),
+    var(--c);
+}
+
+/* Vành giỏ tết chéo */
+.basketRim {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 22px;
+  height: 28px;
+  border-radius: 16px;
+  z-index: 2;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--paper) 30%, transparent), transparent 45%, color-mix(in srgb, var(--scene-bark-dark) 40%, transparent)),
+    repeating-linear-gradient(120deg, var(--scene-wicker-light) 0 9px, var(--scene-wicker) 9px 15px, var(--scene-wicker-dark) 15px 17px);
+  box-shadow: 0 4px 6px color-mix(in srgb, var(--scene-bark-dark) 45%, transparent);
+}
+
+/* Thẻ tròn treo trước giỏ: quả mẫu */
+.basketTag {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  width: 92px;
+  height: 92px;
+  margin-left: -46px;
+  z-index: 3;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 7px solid var(--c);
+  box-sizing: border-box;
+  box-shadow: var(--shadow-clay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.basketHint {
+  width: 62px;
+  height: 62px;
   object-fit: contain;
-  opacity: 0.25;
   pointer-events: none;
 }
 
-/* Quả đã xếp vào giỏ */
+/* Quả đã xếp: nằm trong miệng giỏ, sau vành */
 .basketContent {
+  position: absolute;
+  left: 30px;
+  right: 30px;
+  bottom: 172px;
+  z-index: 1;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: wrap-reverse;
   justify-content: center;
-  gap: 4px;
-  max-width: 240px;
+  align-items: flex-end;
+  gap: 0 2px;
 }
 
 .basketFruit {
-  width: 48px;
-  height: 48px;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 0;
   object-fit: contain;
+  filter: drop-shadow(0 3px 2px color-mix(in srgb, var(--ink) 25%, transparent));
   animation: fruitLand 300ms var(--ease-squish);
 }
 

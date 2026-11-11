@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
+import { Scenery } from '../../ui/Scenery';
 import { clientToStage, stageRect } from '../../ui/Stage';
 import { newRound, drop, isDone, type State, type FruitColor } from './logic';
 import styles from './Game.module.css';
@@ -198,6 +199,9 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
     >
+      {/* Vườn cây ăn quả: đồi, cây trĩu quả */}
+      <Scenery variant="orchard" />
+
       <BackHome onExit={onExit} />
 
       {/* Khu vực quả */}
@@ -265,12 +269,10 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
             data-color={basket.color}
             data-bounce={basket.bounce || undefined}
           >
-            <img
-              src={`${BASE}cards/${HINT_FRUIT[basket.color]}.png`}
-              alt=""
-              className={styles.basketHint}
-              draggable={false}
-            />
+            {/* Giỏ mây đan: quai, khăn lót màu, thân đan, vành tết, thẻ quả mẫu */}
+            <span className={styles.basketHandle} />
+            <span className={styles.basketBody} />
+            <span className={styles.basketCloth} />
             <div className={styles.basketContent}>
               {basket.fruits.map((id, i) => (
                 <img
@@ -282,6 +284,15 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
                 />
               ))}
             </div>
+            <span className={styles.basketRim} />
+            <span className={styles.basketTag}>
+              <img
+                src={`${BASE}cards/${HINT_FRUIT[basket.color]}.png`}
+                alt=""
+                className={styles.basketHint}
+                draggable={false}
+              />
+            </span>
           </div>
         ))}
       </div>

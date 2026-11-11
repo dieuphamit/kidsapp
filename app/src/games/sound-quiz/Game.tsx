@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { GameProps } from '../../core/games';
 import { ClayButton } from '../../ui/ClayButton';
+import { Scenery } from '../../ui/Scenery';
 import { newQuestion, choiceCountForAge, type FarmAnimal, type QuizQuestion } from './logic';
 import styles from './Game.module.css';
 
@@ -148,12 +149,15 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
 
   return (
     <div className={styles.container} data-testid="game-sound-quiz" data-last-say={lastSay}>
+      {/* Sân trại: đồi, kho thóc, hàng rào */}
+      <Scenery variant="farm" />
+
       <ClayButton
         color="lilac"
         label="Về nhà"
         onPress={onExit}
         size={120}
-        style={{ position: 'absolute', top: 24, left: 24 }}
+        style={{ position: 'absolute', top: 24, left: 24, zIndex: 2 }}
       >
         🏠
       </ClayButton>

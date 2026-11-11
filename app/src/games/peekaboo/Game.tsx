@@ -1,66 +1,174 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
+import { Scenery } from '../../ui/Scenery';
 import { bushCountForAge, newRound, tap, type PeekState, type AnimalId } from './logic';
 import styles from './Game.module.css';
 
 const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
-
-// Ảnh emoji cho mỗi con vật - dùng emoji đơn giản cho 2.5D CSS
-const ANIMAL_EMOJI: Record<AnimalId, string> = {
-  // Farm
-  cow: '🐄',
-  chicken: '🐔',
-  duck: '🦆',
-  pig: '🐷',
-  dog: '🐕',
-  sheep: '🐑',
-  horse: '🐴',
-  rabbit: '🐰',
-  // Wild
-  elephant: '🐘',
-  giraffe: '🦒',
-  lion: '🦁',
-  tiger: '🐯',
-  monkey: '🐵',
-  panda: '🐼',
-  penguin: '🐧',
-  koala: '🐨',
-  fox: '🦊',
-  bear: '🐻‍❄️',
-  parrot: '🦜',
-  fish: '🐟',
-};
-
-// Vị trí bụi so le (y offset, x spacing)
-function getBushPositions(count: number): { x: number; y: number }[] {
-  const positions: { x: number; y: number }[] = [];
-  const totalWidth = (count - 1) * 220; // 220px giữa các bụi
-  const startX = -totalWidth / 2;
-
-  for (let i = 0; i < count; i++) {
-    positions.push({
-      x: startX + i * 220,
-      y: i % 2 === 0 ? 0 : 20, // so le nhẹ
-    });
-  }
-  return positions;
-}
+const BASE = import.meta.env.BASE_URL;
 
 type BushState = 'idle' | 'shake' | 'split';
 
+/** Màu SVG lấy từ tokens.css qua style (thuộc tính fill="var()" không chạy mọi nơi). */
+const fill = (token: string, opacity?: number) => ({
+  style: { fill: `var(--${token})`, ...(opacity === undefined ? {} : { fillOpacity: opacity }) },
+});
+const stop = (token: string) => ({ stopColor: `var(--${token})` });
+
+// Bụi cây vẽ trong hệ toạ độ 200×200. Mỗi nửa (trái/phải) là một nhóm để rẽ lá sang hai bên.
+// [cx, cy, r]: cụm lá; vẽ lớp tối phía sau rồi lớp có điểm sáng phía trước → có khối, có chiều sâu.
+const LEFT_BLOBS: [number, number, number][] = [
+  [32, 158, 30],
+  [30, 126, 28],
+  [50, 98, 32],
+  [72, 70, 32],
+  [98, 50, 30],
+  [62, 140, 36],
+  [88, 106, 38],
+  [94, 158, 36],
+];
+const RIGHT_BLOBS: [number, number, number][] = [
+  [168, 158, 30],
+  [170, 126, 28],
+  [150, 96, 32],
+  [128, 68, 32],
+  [104, 84, 34],
+  [138, 140, 36],
+  [118, 112, 38],
+];
+
+// Hoa trắng và quả mọng đỏ điểm xuyết: [x, y]
+const FLOWERS: [number, number][] = [
+  [62, 98],
+  [138, 132],
+  [92, 162],
+];
+const BERRIES: [number, number][] = [
+  [118, 68],
+  [70, 140],
+  [152, 96],
+  [128, 162],
+];
+
+/** Lá nhỏ chĩa ra quanh nửa trên mỗi cụm: mép bụi lởm chởm như lá thật thay vì hình tròn trơn. */
+function blobLeaves([x, y, r]: [number, number, number]): [number, number, number][] {
+  return [-165, -130, -95, -60, -25].map((deg) => {
+    const a = (deg * Math.PI) / 180;
+    return [x + (r - 3) * Math.cos(a), y + (r - 3) * Math.sin(a), deg + 90];
+  });
+}
+
+function Blobs({ blobs, leafUrl }: { blobs: [number, number, number][]; leafUrl: string }) {
+  return (
+    <>
+      {blobs.flatMap(blobLeaves).map(([x, y, rot], i) => (
+        <path
+          key={`e${i}`}
+          d="M0 4 C -7 -2, -6 -12, 0 -18 C 6 -12, 7 -2, 0 4 Z"
+          transform={`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot})`}
+          {...fill(i % 3 ? 'scene-leaf' : 'scene-leaf-dark')}
+        />
+      ))}
+      {blobs.map(([x, y, r]) => (
+        <circle key={`d${x}-${y}`} cx={x + 3} cy={y + 6} r={r + 2} {...fill('scene-leaf-deep')} />
+      ))}
+      {blobs.map(([x, y, r]) => (
+        <circle key={`l${x}-${y}`} cx={x} cy={y} r={r} style={{ fill: leafUrl }} />
+      ))}
+      {/* gân lá sáng phía trên-trái mỗi cụm: bề mặt lá thay vì quả bóng trơn */}
+      {blobs.map(([x, y, r]) => (
+        <path
+          key={`v${x}-${y}`}
+          d={`M${x - r * 0.55} ${y - r * 0.05} q ${r * 0.18} ${-r * 0.42} ${r * 0.5} ${-r * 0.52} M${x - r * 0.1} ${y + r * 0.35} q ${r * 0.2} ${-r * 0.3} ${r * 0.52} ${-r * 0.36}`}
+          className={styles.vein}
+        />
+      ))}
+    </>
+  );
+}
+
+function Flower({ x, y }: { x: number; y: number }) {
+  return (
+    <g>
+      {[0, 72, 144, 216, 288].map((a) => (
+        <circle
+          key={a}
+          cx={x + 5 * Math.cos((a * Math.PI) / 180)}
+          cy={y + 5 * Math.sin((a * Math.PI) / 180)}
+          r={4.4}
+          {...fill('paper')}
+        />
+      ))}
+      <circle cx={x} cy={y} r={3} {...fill('learn-yellow')} />
+    </g>
+  );
+}
+
+function Berry({ x, y }: { x: number; y: number }) {
+  return (
+    <g>
+      <circle cx={x} cy={y} r={6} {...fill('scene-berry')} />
+      <circle cx={x - 2} cy={y - 2} r={1.8} {...fill('paper', 0.8)} />
+    </g>
+  );
+}
+
+function Half({ side, leafUrl }: { side: 'L' | 'R'; leafUrl: string }) {
+  const mine = ([x]: [number, number]) => (side === 'L' ? x <= 100 : x > 100);
+  return (
+    <g className={side === 'L' ? styles.halfL : styles.halfR}>
+      <Blobs blobs={side === 'L' ? LEFT_BLOBS : RIGHT_BLOBS} leafUrl={leafUrl} />
+      {BERRIES.filter(mine).map(([x, y]) => (
+        <Berry key={`${x}-${y}`} x={x} y={y} />
+      ))}
+      {FLOWERS.filter(mine).map(([x, y]) => (
+        <Flower key={`${x}-${y}`} x={x} y={y} />
+      ))}
+    </g>
+  );
+}
+
+/** Bụi cây xum xuê bằng SVG: hai nửa rẽ ra khi tìm thấy thú, rung lá khi chạm. */
+function LushBush() {
+  const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '');
+  const leafUrl = `url(#${uid}-leaf)`;
+  return (
+    <svg className={styles.bushArt} viewBox="0 0 200 200" aria-hidden="true">
+      <defs>
+        <radialGradient id={`${uid}-leaf`} cx="0.36" cy="0.28" r="0.78">
+          <stop offset="0" style={stop('scene-leaf-shine')} />
+          <stop offset="0.3" style={stop('scene-leaf-light')} />
+          <stop offset="0.7" style={stop('scene-leaf')} />
+          <stop offset="1" style={stop('scene-leaf-dark')} />
+        </radialGradient>
+      </defs>
+      <ellipse cx={100} cy={190} rx={94} ry={10} {...fill('scene-tuft', 0.5)} />
+      <Half side="R" leafUrl={leafUrl} />
+      <Half side="L" leafUrl={leafUrl} />
+    </svg>
+  );
+}
+
+// Lá bay ra khi bụi rung / rẽ: [dx, dy, góc]
+const FLY_LEAVES: [number, number, number][] = [
+  [-80, -40, -160],
+  [70, -64, 140],
+  [-26, -96, -70],
+  [90, -10, 210],
+];
+
 interface BushProps {
   index: number;
-  position: { x: number; y: number };
   hasAnimal: boolean;
-  animalEmoji: string;
+  animalId: AnimalId;
   state: BushState;
   showHint: boolean;
   onTap: () => void;
   isWiggling: boolean;
 }
 
-function Bush({ index, position, hasAnimal, animalEmoji, state, showHint, onTap, isWiggling }: BushProps) {
+function Bush({ index, hasAnimal, animalId, state, showHint, onTap, isWiggling }: BushProps) {
   const bushClass = [
     styles.bush,
     state === 'shake' ? styles.shake : '',
@@ -70,19 +178,22 @@ function Bush({ index, position, hasAnimal, animalEmoji, state, showHint, onTap,
     .filter(Boolean)
     .join(' ');
 
-  return (
-    <div
-      className={styles.bushContainer}
-      style={{
-        transform: `translateX(${position.x}px) translateY(${position.y}px)`,
-      }}
-    >
-      {/* Con vật đằng sau */}
-      <div className={`${styles.animal} ${state === 'split' ? styles.animalJump : ''}`}>
-        <span className={styles.animalEmoji}>{animalEmoji}</span>
-      </div>
+  // Thú: trốn sau bụi / ló tai (gợi ý 2 ván đầu) / bật lên khi tìm thấy rồi lại trốn
+  const animalState = state === 'split' ? 'pop' : showHint && state === 'idle' ? 'peek' : 'hidden';
 
-      {/* Bụi cây */}
+  return (
+    <div className={`${styles.bushContainer} ${index % 2 ? styles.back : ''}`}>
+      {hasAnimal && (
+        <img
+          key={animalId}
+          className={styles.animal}
+          data-state={animalState}
+          src={`${BASE}cards/${animalId}.png`}
+          alt=""
+          draggable={false}
+        />
+      )}
+
       <button
         type="button"
         className={bushClass}
@@ -90,13 +201,20 @@ function Bush({ index, position, hasAnimal, animalEmoji, state, showHint, onTap,
         aria-label={`Bụi cây ${index + 1}`}
         onPointerDown={onTap}
       >
-        {/* Gợi ý: phần thú lấp ló (chỉ hiện 2 ván đầu và bụi có thú) */}
-        {showHint && hasAnimal && state === 'idle' && (
-          <div className={styles.hint}>
-            <span className={styles.hintEmoji}>{animalEmoji}</span>
-          </div>
-        )}
+        <LushBush />
       </button>
+
+      {state !== 'idle' && (
+        <div className={styles.flyLeaves} aria-hidden="true">
+          {FLY_LEAVES.map(([dx, dy, r]) => (
+            <span
+              key={`${dx}-${dy}`}
+              className={styles.flyLeaf}
+              style={{ '--dx': `${dx}px`, '--dy': `${dy}px`, '--r': `${r}deg` } as CSSProperties}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -111,7 +229,6 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const bushCount = bushCountForAge(ageMonths);
-  const bushPositions = getBushPositions(bushCount);
 
   const say = useCallback(
     (key: string) => {
@@ -237,19 +354,18 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
       data-last-say={lastSay || undefined}
       className={styles.container}
     >
-      {/* Đồng cỏ */}
-      <div className={styles.grass} />
+      {/* Khu vườn: trời, mây, đồi, cây */}
+      <Scenery variant="garden" />
 
       {/* Khu vực bụi */}
       <div className={styles.bushArea}>
         {gameState &&
-          bushPositions.map((pos, i) => (
+          Array.from({ length: bushCount }, (_, i) => (
             <Bush
               key={i}
               index={i}
-              position={pos}
               hasAnimal={i === gameState.hidingBush}
-              animalEmoji={ANIMAL_EMOJI[gameState.animalId]}
+              animalId={gameState.animalId}
               state={bushStates[i] || 'idle'}
               showHint={showHint && i === gameState.hidingBush}
               onTap={() => handleTap(i)}

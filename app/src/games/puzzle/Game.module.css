@@ -1,7 +1,7 @@
 .scene {
   position: fixed;
   inset: 0;
-  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%);
+  background: var(--scene-wall);
   overflow: hidden;
   font-family: var(--font-kid);
 }
@@ -12,9 +12,15 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  border-radius: var(--radius-clay);
-  box-shadow: var(--shadow-clay);
-  background: var(--clay-butter);
+  z-index: 1;
+  /* khay gỗ: viền gỗ dày vẽ bằng box-shadow để không xê dịch toạ độ mảnh bên trong */
+  border-radius: 10px;
+  background: radial-gradient(circle at 50% 40%, var(--scene-wood-light), var(--scene-wood) 120%);
+  box-shadow:
+    inset 0 6px 14px color-mix(in srgb, var(--scene-wood-dark) 60%, transparent),
+    0 0 0 14px var(--scene-wood),
+    0 0 0 18px var(--scene-wood-dark),
+    0 22px 30px 10px color-mix(in srgb, var(--ink) 25%, transparent);
   overflow: hidden;
 }
 
@@ -24,14 +30,15 @@
   inset: 0;
   background-size: cover;
   background-position: center;
-  opacity: 0.2;
+  opacity: 0.22;
+  filter: grayscale(0.3);
   pointer-events: none;
 }
 
 /* Vùng đích của từng mảnh */
 .slot {
   position: absolute;
-  border: 3px dashed color-mix(in srgb, var(--ink) 30%, transparent 70%);
+  border: 3px dashed color-mix(in srgb, var(--scene-wood-dark) 75%, transparent);
   border-radius: 8px;
   box-sizing: border-box;
 }
@@ -43,6 +50,7 @@
 /* Mảnh puzzle */
 .piece {
   position: absolute;
+  z-index: 2;
   cursor: grab;
   border-radius: 12px;
   box-shadow: var(--shadow-clay);

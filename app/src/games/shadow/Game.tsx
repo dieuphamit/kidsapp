@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
+import { Scenery } from '../../ui/Scenery';
 import { STAGE_W, STAGE_H, clientToStage } from '../../ui/Stage';
 import { newRound, dropResult, type AnimalId, type Round } from './logic';
 
@@ -260,22 +261,12 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'linear-gradient(to bottom, var(--sky-top), var(--sky-bottom))',
+        background: 'var(--sky-top)',
         overflow: 'hidden',
       }}
     >
-      {/* Grass hill background */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: 500,
-          background: 'var(--grass)',
-          borderRadius: '100% 100% 0 0 / 80% 80% 0 0',
-        }}
-      />
+      {/* Đồng cỏ nắng: trời, mây, đồi, cây, hoa */}
+      <Scenery variant="meadow" />
 
       {/* Shadow */}
       <div
@@ -287,12 +278,16 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
           top: SHADOW_Y - SHADOW_SIZE / 2,
           width: SHADOW_SIZE,
           height: SHADOW_SIZE,
-          borderRadius: 32,
-          background: 'rgba(255,255,255,0.4)',
+          borderRadius: 40,
+          // khung kính mờ viền trắng: bóng đen nổi rõ trên trời xanh
+          background: 'color-mix(in srgb, var(--paper) 92%, transparent)',
+          border: '6px solid var(--paper)',
+          boxSizing: 'border-box',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 8px 32px rgba(60, 40, 120, 0.15)',
+          boxShadow: 'var(--shadow-clay)',
+          zIndex: 1,
         }}
       >
         <img
@@ -303,7 +298,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
             width: SHADOW_SIZE - 32,
             height: SHADOW_SIZE - 32,
             objectFit: 'contain',
-            filter: snapped ? 'none' : 'brightness(0) opacity(0.35)',
+            filter: snapped ? 'none' : 'brightness(0) opacity(0.55)',
             transition: 'filter 0.3s',
             pointerEvents: 'none',
           }}

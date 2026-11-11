@@ -28,3 +28,41 @@
   --learn-orange: #ffa45b;
   --learn-purple: #b085ff;
 }
+
+/* Bảng màu phong cảnh (Scenery): đồi, cây, giỏ mây, phòng — ấm, dịu, hợp tông đất sét */
+:root {
+  --scene-sun: #ffd86b;
+  --scene-sun-core: #fff6d6;
+  --scene-sun-edge: #ffb950;
+  --scene-cloud-shade: #dfe4fb;
+  --scene-hill-far: #c4e8cf;
+  --scene-hill-far-dark: #a6d8b6;
+  --scene-hill-mid: #aee49a;
+  --scene-hill-near: #96d982;
+  --scene-hill-shade: #74c46c;
+  --scene-tuft: #5aa95a;
+  --scene-leaf-shine: #d4f7b0;
+  --scene-leaf-light: #98de78;
+  --scene-leaf: #5fc163;
+  --scene-leaf-dark: #3a9550;
+  --scene-leaf-deep: #2c7a44;
+  --scene-bark: #a8774f;
+  --scene-bark-dark: #7a5236;
+  --scene-wicker-light: #f3cf94;
+  --scene-wicker: #dca468;
+  --scene-wicker-dark: #a8703f;
+  --scene-wood-light: #f6dcb8;
+  --scene-wood: #e2b282;
+  --scene-wood-dark: #c08a5c;
+  --scene-barn: #ec7d72;
+  --scene-barn-dark: #c95a55;
+  --scene-roof: #8e6aa8;
+  --scene-fence: #fff6e8;
+  --scene-fence-shade: #e9d5bb;
+  --scene-wall: #fff3e6;
+  --scene-wall-low: #ffe7d6;
+  --scene-wall-dot: #ffd9c4;
+  --scene-pot: #ee9a72;
+  --scene-pot-dark: #cf7854;
+  --scene-berry: #ff5f7e;
+}

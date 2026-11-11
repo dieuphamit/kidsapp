@@ -1,182 +1,225 @@
 .container {
   position: fixed;
   inset: 0;
-  background: linear-gradient(to bottom, var(--sky-top), var(--sky-bottom));
+  background: var(--sky-top);
   overflow: hidden;
 }
 
-.grass {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 45%;
-  background: var(--grass);
-  border-radius: 50% 50% 0 0 / 20% 20% 0 0;
-}
-
+/* Hàng bụi đứng trên đồi gần; bụi lẻ lùi về sau một chút (nhỏ hơn, cao hơn) cho có chiều sâu */
 .bushArea {
   position: absolute;
-  bottom: 25%;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  bottom: 52px;
+  z-index: 1;
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  gap: 24px;
 }
 
 .bushContainer {
   position: relative;
+  flex: none;
   width: 200px;
-  height: 220px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  height: 200px;
+}
+
+.back {
+  transform: translateY(-40px) scale(0.92);
 }
 
 .bush {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
   width: 200px;
   height: 200px;
+  padding: 0;
   border: 0;
-  border-radius: 50%;
-  background: var(--clay-leaf);
-  box-shadow: var(--shadow-clay);
+  background: none;
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  transform-origin: 50% 95%;
   transition: transform var(--dur-press) var(--ease-squish);
-  position: relative;
-  z-index: 10;
 }
 
 .bush:active {
-  transform: scale(0.95);
+  transform: scale(0.95, 0.92);
 }
 
-/* Lắc khi chạm bụi trống */
-@keyframes shake {
-  0%, 100% { transform: translateX(0) rotate(0); }
-  15% { transform: translateX(-8px) rotate(-3deg); }
-  30% { transform: translateX(8px) rotate(3deg); }
-  45% { transform: translateX(-6px) rotate(-2deg); }
-  60% { transform: translateX(6px) rotate(2deg); }
-  75% { transform: translateX(-3px) rotate(-1deg); }
-  90% { transform: translateX(3px) rotate(1deg); }
+.bushArt {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
-.shake {
-  animation: shake 400ms ease-out;
+.vein {
+  fill: none;
+  stroke: var(--scene-leaf-shine);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-opacity: 0.55;
 }
 
-/* Rung nhẹ mỗi 3s cho bụi có thú */
-@keyframes wiggle {
+.halfL,
+.halfR {
+  transform-box: view-box;
+  transition: transform 300ms var(--ease-squish);
+}
+
+.halfL {
+  transform-origin: 30% 95%;
+}
+
+.halfR {
+  transform-origin: 70% 95%;
+}
+
+/* Chạm bụi trống: hai nửa lá xào xạc lệch nhịp nhau */
+.shake .halfL {
+  animation: rustleL 420ms ease-out;
+}
+
+.shake .halfR {
+  animation: rustleR 420ms ease-out;
+}
+
+@keyframes rustleL {
   0%, 100% { transform: rotate(0); }
-  25% { transform: rotate(-2deg); }
-  75% { transform: rotate(2deg); }
+  20% { transform: rotate(-5deg) translateX(-3px); }
+  45% { transform: rotate(4deg); }
+  70% { transform: rotate(-2deg); }
 }
 
-.wiggle {
-  animation: wiggle 400ms ease-in-out;
+@keyframes rustleR {
+  0%, 100% { transform: rotate(0); }
+  15% { transform: rotate(4deg) translateX(3px); }
+  40% { transform: rotate(-5deg); }
+  65% { transform: rotate(2deg); }
 }
 
-/* Bụi tách ra khi tìm thấy */
-.split {
-  animation: splitLeft 500ms var(--ease-squish) forwards;
+/* Bụi có thú khẽ rung mỗi 3s */
+.wiggle .halfL {
+  animation: wiggleL 420ms ease-in-out;
 }
 
-.bushContainer:has(.split)::before {
-  content: '';
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: var(--clay-leaf);
-  box-shadow: var(--shadow-clay);
-  bottom: 0;
-  left: 0;
-  animation: splitLeftPart 500ms var(--ease-squish) forwards;
-  z-index: 5;
+.wiggle .halfR {
+  animation: wiggleR 420ms ease-in-out;
 }
 
-.bushContainer:has(.split)::after {
-  content: '';
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: var(--clay-leaf);
-  box-shadow: var(--shadow-clay);
-  bottom: 0;
-  right: 0;
-  animation: splitRightPart 500ms var(--ease-squish) forwards;
-  z-index: 5;
+@keyframes wiggleL {
+  0%, 100% { transform: rotate(0); }
+  30% { transform: rotate(-3deg); }
+  70% { transform: rotate(2deg); }
 }
 
-@keyframes splitLeft {
-  0% { opacity: 1; transform: scale(1); }
-  30% { opacity: 1; transform: scale(1.05); }
-  100% { opacity: 0; transform: scale(0.3); }
+@keyframes wiggleR {
+  0%, 100% { transform: rotate(0); }
+  30% { transform: rotate(3deg); }
+  70% { transform: rotate(-2deg); }
 }
 
-@keyframes splitLeftPart {
-  0% { transform: translateX(50px) scale(0); opacity: 0; }
-  30% { transform: translateX(50px) scale(1); opacity: 1; }
-  100% { transform: translateX(-80px) scale(0.8); opacity: 1; }
+/* Tìm thấy: lá rẽ sang hai bên, giữ một lúc rồi khép lại khi thú trốn */
+.split .halfL {
+  animation: partL 2400ms var(--ease-squish) forwards;
 }
 
-@keyframes splitRightPart {
-  0% { transform: translateX(-50px) scale(0); opacity: 0; }
-  30% { transform: translateX(-50px) scale(1); opacity: 1; }
-  100% { transform: translateX(80px) scale(0.8); opacity: 1; }
+.split .halfR {
+  animation: partR 2400ms var(--ease-squish) forwards;
 }
 
-/* Con vật đằng sau bụi */
+@keyframes partL {
+  0% { transform: none; }
+  14%, 78% { transform: translateX(-22px) rotate(-12deg); }
+  100% { transform: none; }
+}
+
+@keyframes partR {
+  0% { transform: none; }
+  14%, 78% { transform: translateX(22px) rotate(12deg); }
+  100% { transform: none; }
+}
+
+/* Thú (ảnh thẻ) đứng sau bụi; gốc biến hình ở chân để bật lên có nảy */
 .animal {
   position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
   z-index: 1;
+  left: 5px;
+  bottom: 30px;
+  width: 190px;
+  height: 190px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  transform-origin: 50% 100%;
+  transform: translateY(150px) scale(0.7);
   opacity: 0;
-  transition: transform 600ms var(--ease-squish), opacity 300ms;
+  filter: drop-shadow(0 10px 10px color-mix(in srgb, var(--ink) 25%, transparent));
 }
 
-.animalEmoji {
-  font-size: 120px;
-  display: block;
-  filter: drop-shadow(0 8px 16px rgba(60, 40, 120, 0.3));
-}
-
-/* Thú nhảy lên khi tìm thấy */
-.animalJump {
+/* Gợi ý (2 ván đầu): thú ló đầu sau bụi, nhấp nhô */
+.animal[data-state='peek'] {
   opacity: 1;
-  animation: jump 600ms var(--ease-squish);
+  animation: peekBob 2.6s ease-in-out infinite;
 }
 
-@keyframes jump {
-  0% { transform: translateX(-50%) translateY(0) scale(0.5); opacity: 0; }
-  40% { transform: translateX(-50%) translateY(-60px) scale(1.1); opacity: 1; }
-  60% { transform: translateX(-50%) translateY(-50px) scale(1); }
-  80% { transform: translateX(-50%) translateY(-55px) scale(1.05); }
-  100% { transform: translateX(-50%) translateY(-40px) scale(1); opacity: 1; }
+@keyframes peekBob {
+  0%, 100% { transform: translateY(-58px) scale(0.86); }
+  50% { transform: translateY(-78px) scale(0.86) rotate(-3deg); }
 }
 
-/* Gợi ý: phần thú lấp ló */
-.hint {
+/* Ú òa! bật lên cao, nảy, lắc lư vui rồi thụp xuống trốn */
+.animal[data-state='pop'] {
+  opacity: 1;
+  animation: popUp 2400ms linear forwards;
+}
+
+@keyframes popUp {
+  0% { transform: translateY(150px) scale(0.7); animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1); }
+  14% { transform: translateY(-112px) scale(0.92, 1.1); animation-timing-function: ease-in-out; }
+  22% { transform: translateY(-78px) scale(1.1, 0.9); }
+  30% { transform: translateY(-96px) scale(1); }
+  44% { transform: translateY(-92px) rotate(-4deg); }
+  58% { transform: translateY(-92px) rotate(4deg); }
+  72% { transform: translateY(-94px) rotate(0); animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5); }
+  80% { transform: translateY(-104px) scale(0.98, 1.04); }
+  100% { transform: translateY(150px) scale(0.7); }
+}
+
+/* Lá rơi bay ra khi chạm */
+.flyLeaves {
   position: absolute;
-  top: -30px;
   left: 50%;
-  transform: translateX(-50%);
-  z-index: 8;
-  overflow: hidden;
-  height: 40px;
-  display: flex;
-  align-items: flex-end;
+  top: 40%;
+  z-index: 3;
+  pointer-events: none;
 }
 
-.hintEmoji {
-  font-size: 60px;
-  display: block;
-  opacity: 0.85;
-  filter: drop-shadow(0 4px 8px rgba(60, 40, 120, 0.2));
+.flyLeaf {
+  position: absolute;
+  width: 22px;
+  height: 12px;
+  border-radius: 0 100% 0 100%;
+  background: linear-gradient(135deg, var(--scene-leaf-light), var(--scene-leaf-dark));
+  opacity: 0;
+  animation: leafFly 900ms ease-out forwards;
+}
+
+@keyframes leafFly {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+  60% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), calc(var(--dy) + 70px)) rotate(var(--r)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animal[data-state='peek'] {
+    animation: none;
+    transform: translateY(-68px) scale(0.86);
+  }
+  .flyLeaf {
+    display: none;
+  }
 }

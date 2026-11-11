@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
+import { Scenery } from '../../ui/Scenery';
 import { clientToStage } from '../../ui/Stage';
 import {
   newPuzzle,
@@ -278,6 +279,9 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
     >
+      {/* Phòng ấm cúng của Đậu Đậu: tường chấm bi, cửa sổ, sàn gỗ, thảm */}
+      <Scenery variant="room" />
+
       <BackHome onExit={onExit} />
 
       {/* Khung ghép */}
