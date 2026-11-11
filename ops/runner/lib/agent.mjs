@@ -111,15 +111,35 @@ export function reviewerArgs(settingsPath) {
   return [...CLAUDE_ARGS, '--max-turns', String(MAX_TURNS.review), '--settings', settingsPath];
 }
 
+// Nhiều claude CLI khởi động cùng lúc ghi chung file cấu hình người dùng và có thể chết ngay (writeFileSync).
+// Giãn các lần khởi động >= 10s và thử lại 1 lần nếu chết ngay vì lỗi ghi file.
+const START_GAP_MS = 10_000;
+let nextStartAt = 0;
+async function waitStartTurn() {
+  const now = Date.now();
+  const wait = Math.max(0, nextStartAt - now);
+  nextStartAt = Math.max(now, nextStartAt) + START_GAP_MS;
+  if (wait) await new Promise((r) => setTimeout(r, wait));
+}
+export const isStartupCrash = (r) => r.code !== 0 && !parseJson(r.stdout ?? "") && /writeFileSync|EBUSY|EPERM/.test(`${r.stdout ?? ""}${r.stderr ?? ""}`);
+
 export async function runAgent({ cwd, task, ops, feedback, logFile, slot = 0, timeoutMs = DEFAULT_TIMEOUT_MS, run = realRun }) {
   const roleText = fs.readFileSync(path.join(ops, 'runner', 'prompts', `${roleFor(task.type)}.md`), 'utf8');
-  const r = await run('claude', claudeArgs(task.type, path.join(ops, 'runner', 'agent-settings.json')), {
+  const real = run === realRun;
+  const once = () => run('claude', claudeArgs(task.type, path.join(ops, 'runner', 'agent-settings.json')), {
     cwd,
     input: buildPrompt(roleText, task, feedback),
     env: { E2E_PORT: String(BASE_PORT + slot) },
     timeoutMs,
     logFile,
   });
+  if (real) await waitStartTurn();
+  let r = await once();
+  if (real && isStartupCrash(r)) {
+    await new Promise((res) => setTimeout(res, 15_000));
+    await waitStartTurn();
+    r = await once();
+  }
   const withJson = { ...r, json: parseJson(r.stdout) };
   return { ...withJson, rateLimited: isRateLimited(withJson), authError: isAuthError(withJson), resetAt: resetAt(withJson) };
 }
