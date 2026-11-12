@@ -7,8 +7,8 @@ if (!existsSync(shotsDir)) {
   mkdirSync(shotsDir, { recursive: true });
 }
 
-test('vào game sound-quiz từ picker trang trại và chụp ảnh', async ({ page }) => {
-  await page.goto('./?e2e=1&picker=farm');
+test('vào game sound-quiz từ picker thế giới thú và chụp ảnh', async ({ page }) => {
+  await page.goto('./?e2e=1&picker=zoo');
 
   // Chờ picker xuất hiện
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 5000 });
@@ -29,7 +29,7 @@ test('vào game sound-quiz từ picker trang trại và chụp ảnh', async ({ 
 });
 
 test('chạm thẻ sai thì nghe quiz.again rồi -sound', async ({ page }) => {
-  await page.goto('./?e2e=1&picker=farm');
+  await page.goto('./?e2e=1&picker=zoo');
 
   // Chờ picker xuất hiện
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 5000 });
@@ -74,7 +74,7 @@ test('chạm thẻ sai thì nghe quiz.again rồi -sound', async ({ page }) => {
 });
 
 test('chạm thẻ đúng thì nghe ui.great', async ({ page }) => {
-  await page.goto('./?e2e=1&picker=farm');
+  await page.goto('./?e2e=1&picker=zoo');
 
   // Chờ picker xuất hiện
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 5000 });
@@ -109,7 +109,7 @@ test('chạm thẻ đúng thì nghe ui.great', async ({ page }) => {
 });
 
 test('thẻ ảnh có kích thước ≥ 120px', async ({ page }) => {
-  await page.goto('./?e2e=1&picker=farm');
+  await page.goto('./?e2e=1&picker=zoo');
 
   // Chờ picker xuất hiện
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 5000 });
@@ -133,7 +133,7 @@ test('thẻ ảnh có kích thước ≥ 120px', async ({ page }) => {
 });
 
 test('nút loa có kích thước ≥ 160px và hoạt động', async ({ page }) => {
-  await page.goto('./?e2e=1&picker=farm');
+  await page.goto('./?e2e=1&picker=zoo');
 
   // Chờ picker xuất hiện
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 5000 });
@@ -171,7 +171,7 @@ test('nút loa có kích thước ≥ 160px và hoạt động', async ({ page }
 });
 
 test('nút Về nhà hoạt động', async ({ page }) => {
-  await page.goto('./?e2e=1&picker=farm');
+  await page.goto('./?e2e=1&picker=zoo');
 
   // Chờ picker xuất hiện
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 5000 });
