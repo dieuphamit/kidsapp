@@ -84,10 +84,17 @@ export default function Game({ speaker, onExit }: GameProps) {
       setBeat(b);
       setTick((n) => n + 1);
       const animal = slotsRef.current[b];
-      if (animal) say(`animal.${animal}-sound`);
+      if (!animal) return;
+      // Nốt nhạc: không cắt lời Đậu Đậu, nốt trước tắt dần thay vì bị cắt cụt.
+      if (speaker.note) {
+        speaker.note(`animal-${animal}`);
+        setLastSay(`animal.${animal}-sound`);
+      } else {
+        say(`animal.${animal}-sound`);
+      }
     }, beatMs(tempo));
     return () => clearInterval(id);
-  }, [playing, tempo, say]);
+  }, [playing, tempo, say, speaker]);
 
   useEffect(() => {
     if (playing) return;

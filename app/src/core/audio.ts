@@ -27,11 +27,19 @@ export function speechUrl(key: string, lang: Lang, base = BASE): string {
 export interface Speaker {
   say(key: string): void;
   sfx(name: string): void;
+  /**
+   * Phát một nốt nhạc (file sfx) theo nhịp: không cắt lời đang nói của say(); nốt trước
+   * tắt dần nhanh (NOTE_FADE_MS) để các nốt nối nhau mượt mà không dồn thành tiếng ồn.
+   */
+  note?(name: string): void;
 }
+
+export const NOTE_FADE_MS = 150;
 
 export function createSpeaker(getLang: () => Lang, base = BASE): Speaker {
   const cache = new Map<string, Howl>();
   let current: Howl | null = null;
+  let lastNote: { h: Howl; id: number } | null = null;
   const get = (src: string) => {
     let h = cache.get(src);
     if (!h) {
@@ -48,6 +56,17 @@ export function createSpeaker(getLang: () => Lang, base = BASE): Speaker {
     },
     sfx(name) {
       get(sfxUrl(name, base)).play();
+    },
+    note(name) {
+      if (lastNote) {
+        const { h, id } = lastNote;
+        h.fade(1, 0, NOTE_FADE_MS, id);
+        setTimeout(() => h.stop(id), NOTE_FADE_MS);
+      }
+      const h = get(sfxUrl(name, base));
+      const id = h.play();
+      h.volume(1, id);
+      lastNote = { h, id };
     },
   };
 }
