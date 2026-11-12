@@ -38,8 +38,8 @@ describe('animals data', () => {
 });
 
 describe('animals manifest', () => {
-  it('place là place.zoo', () => {
-    expect(manifest.place).toBe('place.zoo');
+  it('place là place.farm', () => {
+    expect(manifest.place).toBe('place.farm');
   });
 
   it('minAge là 24', () => {

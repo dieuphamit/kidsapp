@@ -17,7 +17,7 @@ test.describe('Puzzle game', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm vào Nhà Đậu Đậu
-    const houseBtn = page.getByLabel('Góc đố');
+    const houseBtn = page.getByLabel('Nhà Đậu Đậu');
     await expect(houseBtn).toBeVisible({ timeout: 5000 });
     await houseBtn.tap();
 
@@ -42,7 +42,7 @@ test.describe('Puzzle game', () => {
 
   test('mảnh ≥120px', async ({ page }) => {
     await page.goto('./?e2e=1');
-    await page.getByLabel('Góc đố').tap();
+    await page.getByLabel('Nhà Đậu Đậu').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 5000 });
     await page.getByLabel('Ghép hình').tap();
     await expect(page.getByTestId('game-puzzle')).toBeVisible({ timeout: 5000 });
@@ -65,7 +65,7 @@ test.describe('Puzzle game', () => {
 
   test('kéo mảnh 1 vào đúng chỗ bằng mouse → mảnh hút vào', async ({ page }) => {
     await page.goto('./?e2e=1');
-    await page.getByLabel('Góc đố').tap();
+    await page.getByLabel('Nhà Đậu Đậu').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 5000 });
     await page.getByLabel('Ghép hình').tap();
     await expect(page.getByTestId('game-puzzle')).toBeVisible({ timeout: 5000 });
@@ -104,7 +104,7 @@ test.describe('Puzzle game', () => {
 
   test('solveOne() hết mảnh → puzzle.done rồi tên hình, chụp T-030-done.png', async ({ page }) => {
     await page.goto('./?e2e=1');
-    await page.getByLabel('Góc đố').tap();
+    await page.getByLabel('Nhà Đậu Đậu').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 5000 });
     await page.getByLabel('Ghép hình').tap();
 
@@ -141,7 +141,7 @@ test.describe('Puzzle game', () => {
 
   test('nút Về nhà trở về home', async ({ page }) => {
     await page.goto('./?e2e=1');
-    await page.getByLabel('Góc đố').tap();
+    await page.getByLabel('Nhà Đậu Đậu').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 5000 });
     await page.getByLabel('Ghép hình').tap();
     await expect(page.getByTestId('game-puzzle')).toBeVisible({ timeout: 5000 });
@@ -165,7 +165,7 @@ test.describe('Puzzle iPhone dọc', () => {
     // Stage đã xoay
     await expect(page.getByTestId('stage')).toHaveAttribute('data-rotated', 'true');
 
-    await page.getByLabel('Góc đố').tap();
+    await page.getByLabel('Nhà Đậu Đậu').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 5000 });
     await page.getByLabel('Ghép hình').tap();
     await expect(page.getByTestId('game-puzzle')).toBeVisible({ timeout: 5000 });

@@ -14,7 +14,7 @@ vi.mock('./WorldMapScene', () => ({
 }));
 
 const game = {
-  id: 'demo', title: { vi: 'Thế giới thú', ja: 'どうぶつ' }, place: 'place.zoo',
+  id: 'demo', title: { vi: 'Nông trại', ja: 'のうじょう' }, place: 'place.farm',
   icon: '🐮', color: 'mint', minAge: 24, maxAge: 60,
 } as unknown as GameManifest;
 
@@ -36,8 +36,8 @@ describe('Home', () => {
     const speaker = { say: vi.fn(), sfx: vi.fn() };
     const onPick = vi.fn();
     const { getByLabelText } = render(<Home games={[game]} lang="ja" speaker={speaker} onPick={onPick} />);
-    fireEvent.pointerDown(getByLabelText('どうぶつの くに'));
-    expect(speaker.say).toHaveBeenCalledWith('place.zoo');
+    fireEvent.pointerDown(getByLabelText('まきば'));
+    expect(speaker.say).toHaveBeenCalledWith('place.farm');
     expect(onPick).not.toHaveBeenCalled();
     vi.advanceTimersByTime(900);
     expect(onPick).toHaveBeenCalledTimes(1);

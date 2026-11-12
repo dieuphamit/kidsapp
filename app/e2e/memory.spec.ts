@@ -17,7 +17,7 @@ test.describe('Memory game - T-025', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm nút Nhà Đậu Đậu
-    const houseBtn = page.getByLabel('Góc đố');
+    const houseBtn = page.getByLabel('Nhà Đậu Đậu');
     await expect(houseBtn).toBeVisible({ timeout: 10000 });
     await houseBtn.click();
     await pickGame(page, 'memory');
@@ -33,7 +33,7 @@ test.describe('Memory game - T-025', () => {
     // Re-navigate để chụp đúng lúc preview
     await page.goto('./?e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
-    await page.getByLabel('Góc đố').click();
+    await page.getByLabel('Nhà Đậu Đậu').click();
     await pickGame(page, 'memory');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
 
@@ -133,7 +133,7 @@ test.describe('Memory game - T-025', () => {
     await page.goto('./?e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
-    const houseBtn = page.getByLabel('Góc đố');
+    const houseBtn = page.getByLabel('Nhà Đậu Đậu');
     await expect(houseBtn).toBeVisible({ timeout: 10000 });
     await houseBtn.click();
     await pickGame(page, 'memory');
@@ -206,7 +206,7 @@ test.describe('Memory game - T-025', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game Memory
-    await page.getByLabel('Góc đố').click();
+    await page.getByLabel('Nhà Đậu Đậu').click();
     await pickGame(page, 'memory');
     await expect(page.getByTestId('game-memory')).toBeVisible({ timeout: 10000 });
 

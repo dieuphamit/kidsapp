@@ -144,7 +144,7 @@ describe('manifest', () => {
     expect(manifest.place).toBe('place.zoo');
     expect(manifest.titleKey).toBe('game.peekaboo');
     expect(manifest.icon).toBe('🌳');
-    expect(manifest.order).toBe(4);
+    expect(manifest.order).toBe(1);
     expect(manifest.minAge).toBe(24);
     expect(manifest.maxAge).toBe(60);
   });

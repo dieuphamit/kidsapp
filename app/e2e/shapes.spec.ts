@@ -1,7 +1,6 @@
 // E2E tests for Shapes game - T-009, T-011, T-018
 import { test, expect } from '@playwright/test';
 import { mkdirSync, existsSync } from 'node:fs';
-import { pickGame } from './pick.js';
 
 // Slot positions from logic.ts (used for coordinate calculation)
 const SLOTS = {
@@ -24,9 +23,8 @@ test.describe('T-018: Hồ nước đẹp hơn', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm nút Hồ nước
-    const pondButton = page.getByLabel('Vườn quả');
+    const pondButton = page.getByLabel('Hồ nước');
     await pondButton.tap();
-    await pickGame(page, 'shapes');
 
     const gameEl = page.getByTestId('game-shapes');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
@@ -42,9 +40,8 @@ test.describe('T-018: Hồ nước đẹp hơn', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
-    const pondButton = page.getByLabel('Vườn quả');
+    const pondButton = page.getByLabel('Hồ nước');
     await pondButton.tap();
-    await pickGame(page, 'shapes');
     const gameEl = page.getByTestId('game-shapes');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
     await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
@@ -82,10 +79,9 @@ test.describe('Shapes game (Màu và hình)', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm nút Hồ nước
-    const pondButton = page.getByLabel('Vườn quả');
+    const pondButton = page.getByLabel('Hồ nước');
     await expect(pondButton).toBeVisible();
     await pondButton.tap();
-    await pickGame(page, 'shapes');
 
     // Đợi game shapes hiện (timeout 10s theo hướng dẫn)
     const gameEl = page.getByTestId('game-shapes');
@@ -104,9 +100,8 @@ test.describe('Shapes game (Màu và hình)', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
-    const pondButton = page.getByLabel('Vườn quả');
+    const pondButton = page.getByLabel('Hồ nước');
     await pondButton.tap();
-    await pickGame(page, 'shapes');
     const gameEl = page.getByTestId('game-shapes');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
 
@@ -130,9 +125,8 @@ test.describe('Shapes game (Màu và hình)', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
-    const pondButton = page.getByLabel('Vườn quả');
+    const pondButton = page.getByLabel('Hồ nước');
     await pondButton.tap();
-    await pickGame(page, 'shapes');
     const gameEl = page.getByTestId('game-shapes');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
 
@@ -160,9 +154,8 @@ test.describe('Shapes game (Màu và hình)', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
-    const pondButton = page.getByLabel('Vườn quả');
+    const pondButton = page.getByLabel('Hồ nước');
     await pondButton.tap();
-    await pickGame(page, 'shapes');
     await expect(page.getByTestId('game-shapes')).toBeVisible({ timeout: 10000 });
 
     // Chạm nút Về nhà
@@ -180,9 +173,8 @@ test.describe('Shapes game (Màu và hình)', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
-    const pondButton = page.getByLabel('Vườn quả');
+    const pondButton = page.getByLabel('Hồ nước');
     await pondButton.tap();
-    await pickGame(page, 'shapes');
     const gameEl = page.getByTestId('game-shapes');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
     await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
@@ -215,9 +207,8 @@ test.describe('Shapes game (Màu và hình)', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
-    const pondButton = page.getByLabel('Vườn quả');
+    const pondButton = page.getByLabel('Hồ nước');
     await pondButton.tap();
-    await pickGame(page, 'shapes');
     const gameEl = page.getByTestId('game-shapes');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
     await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
@@ -246,9 +237,8 @@ test.describe('Shapes game (Màu và hình)', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
-    const pondButton = page.getByLabel('Vườn quả');
+    const pondButton = page.getByLabel('Hồ nước');
     await pondButton.tap();
-    await pickGame(page, 'shapes');
     const gameEl = page.getByTestId('game-shapes');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
     await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
