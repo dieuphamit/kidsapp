@@ -1,0 +1,127 @@
+{
+ "date": "2026-11-12",
+ "minutes": 3,
+ "deadline": "2026-11-12T17:50:00.000Z",
+ "records": [
+  {
+   "id": "T-032",
+   "title": "Ảnh Đậu Đậu 2D, thẻ ảnh chuyện và topping",
+   "type": "asset",
+   "status": "failed",
+   "attempts": 1,
+   "minutes": 3,
+   "reason": "agent lỗi (exit -4058): Error: spawn claude ENOENT",
+   "note": "[agent lỗi (exit -4058): Error: spawn claude ENOENT]"
+  },
+  {
+   "id": "T-033",
+   "title": "Giọng đọc vi/ja cho menu mới và 6 trò phase 3",
+   "type": "tts",
+   "status": "failed",
+   "attempts": 1,
+   "minutes": 3,
+   "reason": "agent lỗi (exit -4058): Error: spawn claude ENOENT",
+   "note": "[agent lỗi (exit -4058): Error: spawn claude ENOENT]"
+  }
+ ],
+ "errors": [],
+ "blocked": [
+  {
+   "id": "T-034",
+   "missing": [],
+   "failed": [
+    "T-032",
+    "T-033"
+   ],
+   "waiting": []
+  },
+  {
+   "id": "T-035",
+   "missing": [],
+   "failed": [],
+   "waiting": [
+    "T-034"
+   ]
+  },
+  {
+   "id": "T-036",
+   "missing": [],
+   "failed": [
+    "T-032",
+    "T-033"
+   ],
+   "waiting": [
+    "T-034"
+   ]
+  },
+  {
+   "id": "T-037",
+   "missing": [],
+   "failed": [
+    "T-033"
+   ],
+   "waiting": [
+    "T-034"
+   ]
+  },
+  {
+   "id": "T-038",
+   "missing": [],
+   "failed": [
+    "T-033"
+   ],
+   "waiting": [
+    "T-034"
+   ]
+  },
+  {
+   "id": "T-039",
+   "missing": [],
+   "failed": [
+    "T-032",
+    "T-033"
+   ],
+   "waiting": [
+    "T-034"
+   ]
+  },
+  {
+   "id": "T-040",
+   "missing": [],
+   "failed": [
+    "T-032",
+    "T-033"
+   ],
+   "waiting": [
+    "T-034"
+   ]
+  },
+  {
+   "id": "T-041",
+   "missing": [],
+   "failed": [
+    "T-032",
+    "T-033"
+   ],
+   "waiting": [
+    "T-034"
+   ]
+  },
+  {
+   "id": "T-042",
+   "missing": [],
+   "failed": [],
+   "waiting": [
+    "T-034",
+    "T-035",
+    "T-036",
+    "T-037",
+    "T-038",
+    "T-039",
+    "T-040",
+    "T-041"
+   ]
+  }
+ ],
+ "alerts": []
+}

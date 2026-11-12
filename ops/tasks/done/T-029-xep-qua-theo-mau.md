@@ -2,14 +2,18 @@
 id: T-029
 title: Xếp quả theo màu
 type: ui
-depends_on: [T-020, T-022, T-023]
+depends_on:
+  - T-020
+  - T-022
+  - T-023
 scope:
   - app/src/games/sort/**
   - app/e2e/sort.spec.ts
 acceptance:
   - npm run verify
-  - "Kéo quả vào giỏ đúng màu → fruit.<id>-color; sai → trôi về; xếp hết → sort.done; ảnh T-029-sort.png, T-029-done.png"
-attempts: 0
+  - Kéo quả vào giỏ đúng màu → fruit.<id>-color; sai → trôi về; xếp hết → sort.done; ảnh T-029-sort.png, T-029-done.png
+attempts: 1
+last_error: npm run verify thất bại
 ---
 ## Mục tiêu
 Phân loại theo màu — nền tảng tư duy toán cho bé 2–3 tuổi.

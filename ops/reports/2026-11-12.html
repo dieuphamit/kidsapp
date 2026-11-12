@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Đêm 2026-11-12</title>
+<style>
+  :root{--bg:#f6f1ff;--ink:#3b2a6b;--card:#fff;--done:#9fe3b0;--review:#ffd76a;--failed:#ff9f8f;--line:#e4dcf7}
+  @media (prefers-color-scheme:dark){:root{--bg:#1d1830;--ink:#efe9ff;--card:#2a2342;--line:#3c3358}}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}
+  main{max-width:1100px;margin:0 auto;padding:24px 16px}
+  .kpi{display:flex;flex-wrap:wrap;gap:12px}.kpi div{background:var(--card);border-radius:16px;padding:12px 18px;border:1px solid var(--line)}
+  .card{background:var(--card);border-radius:16px;padding:14px 18px;margin:12px 0;border-left:8px solid var(--line)}
+  .card.done{border-color:var(--done)}.card.review{border-color:var(--review)}.card.failed,.card.paused{border-color:var(--failed)}
+  .shots{display:flex;gap:10px;overflow-x:auto}.shots img{height:260px;border-radius:12px;border:1px solid var(--line)}
+  pre{background:var(--bg);padding:8px 12px;border-radius:10px;overflow-x:auto}
+  small{opacity:.7;font-weight:400}
+  .alert{background:var(--failed);color:#3b1a12;border-radius:16px;padding:14px 18px;margin:12px 0;font-weight:600;overflow-wrap:anywhere}
+  h3,.note,.reason{overflow-wrap:anywhere}.noshot{opacity:.7;font-style:italic}
+</style></head><body><main>
+<h1>Báo cáo đêm 2026-11-12</h1>
+
+<div class="kpi"><div>✅ Xong: <b>0</b></div><div>👀 Chờ duyệt: <b>0</b></div><div>❌ Lỗi: <b>2</b></div><div>⏸ Để đêm sau: <b>0</b></div><div>⏱ 3 phút</div></div>
+
+
+<h2>❌ Chưa xong</h2>
+  <article class="card failed">
+    <h3>T-032 · Ảnh Đậu Đậu 2D, thẻ ảnh chuyện và topping <small>asset · 3 phút</small></h3>
+    <p class="note">[agent lỗi (exit -4058): Error: spawn claude ENOENT]</p>
+    
+    <p class="reason">agent lỗi (exit -4058): Error: spawn claude ENOENT</p><pre>node ops/runner/task.mjs retry T-032</pre>
+  </article>
+  <article class="card failed">
+    <h3>T-033 · Giọng đọc vi/ja cho menu mới và 6 trò phase 3 <small>tts · 3 phút</small></h3>
+    <p class="note">[agent lỗi (exit -4058): Error: spawn claude ENOENT]</p>
+    
+    <p class="reason">agent lỗi (exit -4058): Error: spawn claude ENOENT</p><pre>node ops/runner/task.mjs retry T-033</pre>
+  </article>
+<h2>⛔ Task todo bị chặn</h2><ul><li><b>T-034</b>: phụ thuộc đã lỗi T-032, T-033 (retry nó trước)</li><li><b>T-035</b>: chờ T-034 xong</li><li><b>T-036</b>: phụ thuộc đã lỗi T-032, T-033 (retry nó trước); chờ T-034 xong</li><li><b>T-037</b>: phụ thuộc đã lỗi T-033 (retry nó trước); chờ T-034 xong</li><li><b>T-038</b>: phụ thuộc đã lỗi T-033 (retry nó trước); chờ T-034 xong</li><li><b>T-039</b>: phụ thuộc đã lỗi T-032, T-033 (retry nó trước); chờ T-034 xong</li><li><b>T-040</b>: phụ thuộc đã lỗi T-032, T-033 (retry nó trước); chờ T-034 xong</li><li><b>T-041</b>: phụ thuộc đã lỗi T-032, T-033 (retry nó trước); chờ T-034 xong</li><li><b>T-042</b>: chờ T-034, T-035, T-036, T-037, T-038, T-039, T-040, T-041 xong</li></ul>
+
+
+<h2>🧐 Nhận xét của reviewer</h2><pre style="white-space:pre-wrap">(reviewer lỗi, bỏ qua: reviewer lỗi (exit -4058): Error: spawn claude ENOENT)</pre>
+</main></body></html>

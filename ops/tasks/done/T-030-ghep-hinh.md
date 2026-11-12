@@ -2,14 +2,18 @@
 id: T-030
 title: Ghép hình 2–4 mảnh
 type: ui
-depends_on: [T-020, T-022, T-023]
+depends_on:
+  - T-020
+  - T-022
+  - T-023
 scope:
   - app/src/games/puzzle/**
   - app/e2e/puzzle.spec.ts
 acceptance:
   - npm run verify
-  - "Ghép đủ mảnh → puzzle.done rồi tên hình; ảnh T-030-start.png, T-030-done.png"
-attempts: 0
+  - Ghép đủ mảnh → puzzle.done rồi tên hình; ảnh T-030-start.png, T-030-done.png
+attempts: 1
+last_error: npm run verify thất bại
 ---
 ## Mục tiêu
 Ghép hình đơn giản cho bé 2 tuổi: ảnh một bạn thú hoặc quả cắt 2 mảnh, rồi tăng dần.
