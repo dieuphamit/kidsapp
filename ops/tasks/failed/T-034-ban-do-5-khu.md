@@ -27,6 +27,8 @@ acceptance:
   - Bản đồ có đúng 5 khu (zoo, house, orchard, puzzle, music) khi có trò; nút 200px, khe ≥24px, nằm trọn khung, không đè cổng phụ huynh
   - Chạm khu mở màn trò sau 400ms; khu 1 trò vào thẳng; nút chơi lại vào thẳng trò vừa chơi
   - Ảnh T-034-map.png, T-034-picker.png, T-034-replay.png
+attempts: 1
+last_error: npm run verify thất bại
 ---
 ## Mục tiêu
 Bé vào trò nhanh hơn, trò xếp theo nghĩa, nhìn bản đồ là biết khu nào có gì. Mockup: `.superpowers/brainstorm/phase-3/menu.html` phương án B.

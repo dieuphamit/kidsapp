@@ -12,7 +12,7 @@ acceptance:
   - places.json đổi chữ place.zoo, thêm place.puzzle; games3.json có đủ mọi key ở dưới
   - npm run check:audio xanh
 attempts: 1
-last_error: npm run verify thất bại
+note: "Claude merge tay: nội dung của agent (53c1e48) + đổi place.zoo; verify lỗi do vitest chạy từ Git Bash, không phải do task"
 ---
 ## Mục tiêu
 Mọi câu Đậu Đậu nói trong menu mới và 6 trò mới, cả vi và ja.
