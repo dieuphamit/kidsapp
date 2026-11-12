@@ -4,6 +4,8 @@ import type { Settings } from '../core/settings';
 
 const LANGS: [Settings['lang'], string][] = [['vi', '🇻🇳 Tiếng Việt'], ['ja', '🇯🇵 日本語']];
 
+const MENUS: [Settings['menuStyle'], string][] = [['map', '🗺️ Bản đồ / ちず'], ['shelf', '🧸 Kệ đồ chơi / たな']];
+
 type Props ={ settings: Settings; onSave(s: Settings): void; onUnlock(): void; onClose(): void };
 
 export function ParentArea({ settings, onSave, onUnlock, onClose }: Props) {
@@ -21,6 +23,24 @@ export function ParentArea({ settings, onSave, onUnlock, onClose }: Props) {
               aria-pressed={s.lang === lang}
               onClick={() => {
                 const next = { ...s, lang };
+                setS(next);
+                onSave(next); // đổi ngay, không cần bấm Lưu
+              }}
+            >
+              {text}
+            </button>
+          ))}
+        </div>
+        <span className={styles.sectionTitle}>Kiểu menu / メニュー</span>
+        <div className={styles.langRow} role="group" aria-label="Kiểu menu">
+          {MENUS.map(([menuStyle, text]) => (
+            <button
+              key={menuStyle}
+              type="button"
+              className={styles.langBtn}
+              aria-pressed={s.menuStyle === menuStyle}
+              onClick={() => {
+                const next = { ...s, menuStyle };
                 setS(next);
                 onSave(next); // đổi ngay, không cần bấm Lưu
               }}
