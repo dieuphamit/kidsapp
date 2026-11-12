@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
+import { pickGame } from './pick.js';
 
 test.beforeAll(() => {
   mkdirSync('test-results/shots', { recursive: true });
@@ -12,6 +13,7 @@ test('vào Nhà âm nhạc hiện game-music', async ({ page }) => {
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await expect(musicBtn).toBeVisible();
   await musicBtn.click();
+  await pickGame(page, 'music');
 
   await expect(page.getByTestId('game-music')).toBeVisible();
 });
@@ -20,6 +22,7 @@ test('chạm màu xanh dương ghi data-last-say', async ({ page }) => {
   await page.goto('./');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
+  await pickGame(page, 'music');
   await expect(page.getByTestId('game-music')).toBeVisible();
 
   const blueBtn = page.getByLabel('Màu xanh dương');
@@ -34,6 +37,7 @@ test('vẽ trên paper tạo pixel không trắng, xóa làm trống', async ({ 
   await page.goto('./');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
+  await pickGame(page, 'music');
   await expect(page.getByTestId('game-music')).toBeVisible();
 
   const paper = page.getByTestId('paper');
@@ -121,6 +125,7 @@ test('7 nút (6 màu + Xóa) đều >= 120x120', async ({ page }) => {
   await page.goto('./');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
+  await pickGame(page, 'music');
   await expect(page.getByTestId('game-music')).toBeVisible();
 
   const colorLabels = ['Màu đỏ', 'Màu vàng', 'Màu xanh lá', 'Màu xanh dương', 'Màu cam', 'Màu tím'];
@@ -146,6 +151,7 @@ test('nút Về nhà đưa về home', async ({ page }) => {
   await page.goto('./');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
+  await pickGame(page, 'music');
   await expect(page.getByTestId('game-music')).toBeVisible();
 
   const backBtn = page.getByLabel('Về nhà');
@@ -159,6 +165,7 @@ test('chạm nút Nhạc hiện 8 phím và 4 trống, tất cả >= 120x120, c�
   await page.goto('./');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
+  await pickGame(page, 'music');
   await expect(page.getByTestId('game-music')).toBeVisible();
 
   // Chuyển sang chế độ nhạc
@@ -226,6 +233,7 @@ test('chạm Phím 3 tăng __osc, không có lỗi console', async ({ page }) =>
   await page.goto('./');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
+  await pickGame(page, 'music');
   await expect(page.getByTestId('game-music')).toBeVisible();
 
   // Chuyển sang chế độ nhạc
@@ -252,6 +260,7 @@ test('chạm Phím 5 rồi chụp ảnh với phím lún và ♪ bay', async ({ 
   await page.goto('./');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
+  await pickGame(page, 'music');
   await expect(page.getByTestId('game-music')).toBeVisible();
 
   // Chuyển sang chế độ nhạc
@@ -281,6 +290,7 @@ test('chạm Vẽ trở lại chế độ vẽ, nét vẽ trước đó vẫn c�
   await page.goto('./');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
+  await pickGame(page, 'music');
   await expect(page.getByTestId('game-music')).toBeVisible();
 
   // Đang ở chế độ vẽ mặc định, vẽ một nét
