@@ -1,6 +1,7 @@
 // E2E màn chọn trò của khu và nút chơi lại (T-034)
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
+import { pickGame } from './pick.js';
 
 mkdirSync('test-results/shots', { recursive: true });
 
@@ -146,6 +147,7 @@ test('vào một trò, về nhà → nút chơi lại hiện icon trò, chạm v
 test('nút chơi lại còn sau khi tải lại trang', async ({ page }) => {
   await page.goto('./');
   await page.getByLabel('Nhà âm nhạc').click();
+  await pickGame(page, 'music');
   await expect(page.getByTestId('game-music')).toBeVisible({ timeout: 10_000 });
   await page.reload();
   await expect(page.getByTestId('replay')).toHaveAttribute('data-game', 'music', { timeout: 5000 });

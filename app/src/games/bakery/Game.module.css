@@ -1,0 +1,391 @@
+.scene {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--scene-wall);
+  font-family: var(--font-kid);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Mái che sọc kẹo phía trên, mép lượn sóng */
+.awning {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 64px;
+  background: repeating-linear-gradient(90deg, var(--clay-peach) 0 60px, var(--paper) 60px 120px);
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--scene-barn-dark) 25%, transparent);
+  z-index: 1;
+}
+
+.awning::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -22px;
+  height: 24px;
+  background: radial-gradient(circle at 30px 0, var(--clay-peach) 0 28px, transparent 29px) 0 0 / 120px 24px repeat-x,
+    radial-gradient(circle at 90px 0, var(--paper) 0 28px, transparent 29px) 0 0 / 120px 24px repeat-x;
+}
+
+/* ---- Kệ gỗ bên trái ---- */
+.shelf {
+  position: absolute;
+  left: 24px;
+  top: 156px;
+  width: 324px;
+  height: 478px;
+  border-radius: 28px;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--scene-wood-dark) 35%, transparent), transparent 12%, transparent 88%, color-mix(in srgb, var(--scene-wood-dark) 35%, transparent)),
+    var(--scene-wood-light);
+  border: 10px solid var(--scene-wood);
+  box-sizing: border-box;
+  box-shadow: var(--shadow-clay);
+  z-index: 2;
+}
+
+.plank {
+  position: absolute;
+  left: 30px;
+  width: 312px;
+  height: 18px;
+  border-radius: 9px;
+  background: linear-gradient(180deg, var(--scene-wood) 0%, var(--scene-wood-dark) 100%);
+  box-shadow: 0 6px 8px color-mix(in srgb, var(--scene-bark-dark) 35%, transparent);
+  z-index: 3;
+}
+
+.shelfItem {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-clay);
+  background: var(--paper);
+  box-shadow: var(--shadow-clay);
+  cursor: grab;
+  touch-action: none;
+  transition: transform var(--dur-press) var(--ease-squish);
+}
+
+.shelfItem[data-pressed] {
+  transform: scale(0.92);
+  box-shadow: var(--shadow-clay-pressed);
+}
+
+.shelfItem[data-wiggle] {
+  animation: wiggle 420ms var(--ease-squish);
+}
+
+@keyframes wiggle {
+  0% { transform: rotate(0) scale(1); }
+  25% { transform: rotate(-10deg) scale(1.08); }
+  55% { transform: rotate(8deg) scale(1.04); }
+  100% { transform: rotate(0) scale(1); }
+}
+
+.shelfImg {
+  width: 104px;
+  height: 104px;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 3px color-mix(in srgb, var(--ink) 22%, transparent));
+}
+
+/* Topping đang kéo: to hơn chút, nổi lên */
+.ghost {
+  position: absolute;
+  z-index: 50;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(1.12);
+  filter: drop-shadow(0 14px 10px color-mix(in srgb, var(--ink) 28%, transparent));
+}
+
+.ghost[data-returning] {
+  transition: left 400ms var(--ease-squish), top 400ms var(--ease-squish), transform 400ms;
+  transform: scale(0.9);
+}
+
+/* ---- Quầy ---- */
+.counter {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 640px;
+  bottom: 0;
+  z-index: 5;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 140px, color-mix(in srgb, var(--scene-barn-dark) 18%, transparent) 140px 146px),
+    linear-gradient(180deg, var(--clay-peach), color-mix(in srgb, var(--clay-peach) 82%, var(--scene-barn-dark)));
+  box-shadow: inset 0 -18px 30px color-mix(in srgb, var(--scene-barn-dark) 25%, transparent);
+}
+
+.counter::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  right: -10px;
+  top: -18px;
+  height: 30px;
+  border-radius: 15px;
+  background: linear-gradient(180deg, var(--scene-wall), var(--scene-wall-dot));
+  box-shadow: 0 8px 12px color-mix(in srgb, var(--scene-barn-dark) 30%, transparent);
+}
+
+/* ---- Khách ---- */
+.customer {
+  position: absolute;
+  left: 900px;
+  top: 340px;
+  width: 260px;
+  height: 260px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, var(--paper), var(--clay-butter));
+  box-shadow: var(--shadow-clay);
+  /* backwards (không giữ khung cuối) để transform của data-near còn tác dụng */
+  animation: arrive 700ms var(--ease-squish) backwards;
+  transition: transform 600ms var(--ease-squish);
+}
+
+.customer[data-near] {
+  transform: translateX(-140px) scale(1.06);
+}
+
+@keyframes arrive {
+  0% { transform: translateX(360px); opacity: 0; }
+  60% { opacity: 1; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+.customerImg {
+  width: 240px;
+  height: 240px;
+  object-fit: contain;
+  pointer-events: none;
+  animation: bob 2.4s ease-in-out infinite;
+}
+
+.customer[data-near] .customerImg {
+  animation: munch 300ms ease-in-out infinite;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes munch {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.04, 0.95); }
+}
+
+/* Bong bóng nghĩ: khách muốn bánh */
+.bubble {
+  position: absolute;
+  top: -96px;
+  right: 6px;
+  width: 104px;
+  height: 92px;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: var(--shadow-clay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52px;
+  line-height: 1;
+  animation: bob 2s ease-in-out infinite;
+}
+
+.bubble::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  bottom: -18px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--paper);
+}
+
+/* ---- Đĩa + bánh ---- */
+.plate {
+  position: absolute;
+  left: 370px;
+  top: 598px;
+  width: 500px;
+  height: 64px;
+  border-radius: 50%;
+  z-index: 6;
+  background: radial-gradient(ellipse at 50% 40%, var(--paper) 55%, var(--scene-cloud-shade) 72%, var(--paper) 80%);
+  box-shadow: 0 10px 16px color-mix(in srgb, var(--scene-barn-dark) 35%, transparent);
+}
+
+.cake {
+  position: absolute;
+  left: 420px;
+  top: 300px;
+  width: 400px;
+  height: 330px;
+  z-index: 7;
+  transform-origin: 50% 100%;
+  animation: cakePop 500ms var(--ease-squish) both;
+}
+
+@keyframes cakePop {
+  0% { transform: scale(0.2); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* "Ăn": bánh nhún rồi thu nhỏ về phía khách */
+.cake[data-eaten] {
+  animation: eat 1400ms ease-in both;
+}
+
+@keyframes eat {
+  0% { transform: translateX(0) scale(1); opacity: 1; }
+  20% { transform: translateX(0) scale(1.06, 0.94); opacity: 1; }
+  100% { transform: translateX(260px) translateY(-60px) scale(0); opacity: 0; }
+}
+
+.tierBottom,
+.tierTop {
+  position: absolute;
+  pointer-events: none;
+  box-shadow: var(--shadow-clay);
+}
+
+.tierBottom {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 176px;
+  border-radius: 48px 48px 40px 40px;
+  background: linear-gradient(180deg, var(--clay-peach) 0%, color-mix(in srgb, var(--clay-peach) 85%, var(--scene-barn-dark)) 100%);
+}
+
+.tierTop {
+  left: 60px;
+  width: 280px;
+  top: 40px;
+  height: 140px;
+  border-radius: 44px 44px 30px 30px;
+  background: linear-gradient(180deg, var(--clay-butter) 0%, color-mix(in srgb, var(--clay-butter) 85%, var(--scene-wood-dark)) 100%);
+}
+
+/* Kem chảy viền trên mỗi tầng */
+.tierBottom::before,
+.tierTop::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 44px;
+  border-radius: 44px 44px 0 0;
+  background:
+    radial-gradient(circle at 20px 30px, var(--paper) 0 18px, transparent 19px) 0 0 / 50px 50px repeat-x,
+    linear-gradient(180deg, var(--paper) 0 26px, transparent 26px);
+}
+
+/* Chấm hoa văn */
+.tierBottom::after {
+  content: '';
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 28px;
+  height: 22px;
+  background: radial-gradient(circle, var(--scene-berry) 0 7px, transparent 8px) 0 0 / 44px 22px repeat-x;
+  opacity: 0.8;
+}
+
+.tierTop::after {
+  content: '';
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 22px;
+  height: 20px;
+  background: radial-gradient(circle, var(--learn-purple) 0 6px, transparent 7px) 0 0 / 40px 20px repeat-x;
+  opacity: 0.7;
+}
+
+/* Topping đã đặt: vùng chạm 120×120, tâm đúng chỗ thả */
+.onCake {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  animation: land 360ms var(--ease-squish);
+}
+
+.onCakeImg {
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 5px 3px color-mix(in srgb, var(--ink) 28%, transparent));
+}
+
+@keyframes land {
+  0% { transform: scale(1.3) translateY(-20px); }
+  55% { transform: scale(0.9, 1.1) translateY(0); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+/* ---- Chuông ---- */
+.bell {
+  position: absolute;
+  right: 40px;
+  bottom: 40px;
+  z-index: 20;
+}
+
+.bell button {
+  background: var(--learn-green) !important;
+}
+
+.bell[data-ring='a'] {
+  animation: ringA 500ms var(--ease-squish);
+}
+
+.bell[data-ring='b'] {
+  animation: ringB 500ms var(--ease-squish);
+}
+
+@keyframes ringA {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-14deg); }
+  45% { transform: rotate(12deg); }
+  70% { transform: rotate(-6deg); }
+}
+
+@keyframes ringB {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-14deg); }
+  45% { transform: rotate(12deg); }
+  70% { transform: rotate(-6deg); }
+}
+
+.bellIcon {
+  font-size: 72px;
+  line-height: 1;
+  pointer-events: none;
+}

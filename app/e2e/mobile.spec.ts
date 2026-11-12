@@ -100,6 +100,7 @@ test.describe("iPhone dọc: vẽ đúng chỗ ngón tay", () => {
   test("nét vẽ nằm dưới điểm chạm", async ({ page }) => {
     await page.goto("./");
     await page.getByRole("button", { name: "Nhà âm nhạc" }).tap();
+    await pickGame(page, 'music');
     const paper = page.locator("canvas").first();
     await expect(paper).toBeVisible({ timeout: 15_000 });
     await page.waitForTimeout(1000); // chờ canvas khởi tạo xong

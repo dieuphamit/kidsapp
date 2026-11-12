@@ -126,12 +126,14 @@ test('chạm khu nhiều trò mở màn chọn trò sau khoảng 400ms', async (
   await expect(page.getByTestId('pick-puzzle')).toBeVisible();
 });
 
-test('chạm khu chỉ có 1 trò thì vào thẳng trò', async ({ page }) => {
+// Phase 3: không còn khu nào chỉ có 1 trò; luật "1 trò thì vào thẳng" kiểm ở WorldMap.test.tsx.
+test('Nhà âm nhạc mở màn chọn trò có Vẽ và nhạc và Ban nhạc thú', async ({ page }) => {
   await page.goto('./');
   await expect(page.getByLabel('Nhà âm nhạc')).toBeVisible();
   await page.getByLabel('Nhà âm nhạc').click();
-  await expect(page.getByTestId('game-music')).toBeVisible({ timeout: 10_000 });
-  await expect(page.getByTestId('game-picker')).toHaveCount(0);
+  await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 1500 });
+  await expect(page.getByTestId('pick-music')).toBeVisible();
+  await expect(page.getByTestId('pick-band')).toBeVisible();
 });
 
 test('bong bóng không giao với mây ở 3 thời điểm', async ({ page }) => {

@@ -1,0 +1,178 @@
+.root {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--sky-top);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+/* Bếp: dải gạch men xanh bạc hà trên tường */
+.tiles {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 236px;
+  height: 400px;
+  background-color: var(--clay-mint);
+  background-image:
+    linear-gradient(var(--paper) 4px, transparent 4px),
+    linear-gradient(90deg, var(--paper) 4px, transparent 4px);
+  background-size: 64px 64px;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.shelf {
+  position: absolute;
+  left: 860px;
+  top: 250px;
+  width: 260px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--scene-wood-dark);
+  box-shadow: var(--shadow-clay);
+  pointer-events: none;
+}
+
+.jar {
+  position: absolute;
+  bottom: 22px;
+  width: 54px;
+  height: 70px;
+  border-radius: 18px 18px 14px 14px;
+  box-shadow: var(--shadow-clay);
+}
+
+/* ---------- đồ vật: khung không tạo stacking context, từng phần có z-index riêng ---------- */
+.thing {
+  position: absolute;
+  pointer-events: none;
+}
+
+.part {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.back {
+  z-index: 2;
+}
+
+.front {
+  z-index: 4;
+}
+
+.trunk {
+  z-index: 1;
+}
+
+.soft {
+  box-shadow: var(--shadow-clay);
+}
+
+.floorShadow {
+  position: absolute;
+  z-index: 1;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ink) 16%, transparent);
+  filter: blur(4px);
+}
+
+.wicker {
+  background-color: var(--scene-wicker);
+  background-image: repeating-linear-gradient(
+      90deg,
+      var(--scene-wicker-light) 0 12px,
+      var(--scene-wicker) 12px 24px
+    ),
+    repeating-linear-gradient(0deg, transparent 0 18px, var(--scene-wicker-dark) 18px 22px);
+  background-blend-mode: multiply;
+}
+
+/* ---------- vùng thả (vô hình, để test và căn chỉnh) ---------- */
+.zone {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* ---------- Đậu Đậu ---------- */
+.daudau {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  touch-action: none;
+  cursor: grab;
+  transition:
+    left 0.45s var(--ease-squish),
+    top 0.45s var(--ease-squish),
+    transform 0.25s var(--ease-squish);
+}
+
+.daudau[data-dragging] {
+  cursor: grabbing;
+  transition: transform 0.1s;
+}
+
+.body {
+  width: 100%;
+  height: 100%;
+  animation: breathe 2.6s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+
+.body img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 6px color-mix(in srgb, var(--ink) 25%, transparent));
+}
+
+.daudau[data-dragging] .body {
+  animation: none;
+}
+
+.body[data-bounce] {
+  animation: hop 0.9s var(--ease-squish);
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.03, 0.97);
+  }
+}
+
+@keyframes hop {
+  0% {
+    transform: scale(1, 1) translateY(0);
+  }
+  20% {
+    transform: scale(1.15, 0.85) translateY(0);
+  }
+  45% {
+    transform: scale(0.92, 1.1) translateY(-46px);
+  }
+  70% {
+    transform: scale(1.1, 0.9) translateY(0);
+  }
+  85% {
+    transform: scale(0.97, 1.04) translateY(-10px);
+  }
+  100% {
+    transform: scale(1, 1) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .body,
+  .body[data-bounce] {
+    animation: none;
+  }
+}

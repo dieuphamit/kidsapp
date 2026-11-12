@@ -1,0 +1,209 @@
+.scene {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--sky-top);
+  font-family: var(--font-kid);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Hàng 3 ô (hoặc 2) phía trên, tránh nút Về nhà (trái) và góc bố mẹ (phải) */
+.slots {
+  position: absolute;
+  top: 160px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 88px;
+  z-index: 2;
+}
+
+.slotCol {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Mũi tên mờ giữa hai ô */
+.arrow {
+  position: absolute;
+  left: -72px;
+  top: 104px;
+  width: 56px;
+  height: 52px;
+  opacity: 0.45;
+  background: var(--ink-soft);
+  clip-path: polygon(0 32%, 52% 32%, 52% 0, 100% 50%, 52% 100%, 52% 68%, 0 68%);
+}
+
+.slot {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  box-sizing: border-box;
+  border-radius: var(--radius-clay);
+  border: 6px dashed color-mix(in srgb, var(--clay-butter) 55%, var(--ink-soft));
+  background: color-mix(in srgb, var(--clay-butter) 45%, var(--paper));
+  box-shadow: inset 0 8px 16px color-mix(in srgb, var(--ink) 14%, transparent);
+  transition: transform 200ms var(--ease-squish);
+}
+
+.slot[data-filled] {
+  border-style: solid;
+  border-color: var(--clay-butter);
+}
+
+/* Lúc kể lại: ô đang được đọc sáng lên và nảy */
+.slot[data-glow] {
+  z-index: 3;
+  box-shadow:
+    0 0 0 10px var(--clay-butter),
+    0 0 48px 12px var(--learn-yellow);
+  animation: glowBounce 700ms var(--ease-squish);
+  transform: scale(1.06);
+}
+
+@keyframes glowBounce {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.12, 0.94); }
+  65% { transform: scale(0.98, 1.08); }
+  100% { transform: scale(1.06); }
+}
+
+.slotCard {
+  position: absolute;
+  inset: 4px;
+  padding: 8px;
+  box-sizing: border-box;
+  border-radius: 30px;
+  background: var(--paper);
+  box-shadow: var(--shadow-clay);
+}
+
+/* Tranh hút vào ô */
+.slotCard[data-landed] {
+  animation: land 400ms var(--ease-squish);
+}
+
+@keyframes land {
+  0% { transform: scale(0.7); opacity: 0.4; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* 1 / 2 / 3 chấm dưới ô, không dùng chữ số */
+.dots {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--clay-peach);
+  box-shadow: var(--shadow-clay-pressed);
+}
+
+/* Khay tranh phía dưới */
+.tray {
+  position: absolute;
+  top: 520px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 64px;
+  z-index: 4;
+}
+
+.traySpot {
+  position: relative;
+  width: 240px;
+  height: 240px;
+}
+
+.card {
+  position: absolute;
+  inset: 0;
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 32px;
+  background: var(--paper);
+  box-shadow: var(--shadow-clay);
+  rotate: var(--tilt, 0deg);
+  cursor: grab;
+  touch-action: none;
+  transition: transform 300ms var(--ease-squish), opacity 100ms;
+}
+
+.card[data-pressed] {
+  transform: scale(0.95);
+  transition-duration: var(--dur-press);
+}
+
+/* Chạm (không kéo): phóng to 1.1 trong 300ms */
+.card[data-zoom] {
+  transform: scale(1.1);
+}
+
+.card[data-hidden] {
+  opacity: 0;
+}
+
+/* Thả sai: tranh trôi từ điểm thả về chỗ cũ trong khay */
+.card[data-returning] {
+  animation: floatBack 500ms var(--ease-squish);
+}
+
+@keyframes floatBack {
+  from { translate: var(--dx) var(--dy); rotate: 0deg; }
+  to { translate: 0 0; rotate: var(--tilt, 0deg); }
+}
+
+/* Tranh đang kéo theo ngón tay */
+.dragging {
+  inset: auto;
+  width: 240px;
+  height: 240px;
+  z-index: 100;
+  rotate: 0deg;
+  transform: scale(1.08);
+  pointer-events: none;
+  cursor: grabbing;
+  box-shadow:
+    var(--shadow-clay),
+    0 24px 40px color-mix(in srgb, var(--ink) 30%, transparent);
+}
+
+.img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 24px;
+  pointer-events: none;
+}
+
+/* Đậu Đậu ngồi góc trái dưới, nảy mỗi lần nói */
+.daudau {
+  position: absolute;
+  left: 32px;
+  bottom: 24px;
+  width: 200px;
+  z-index: 3;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 10px 12px color-mix(in srgb, var(--ink) 25%, transparent));
+  animation: hop 600ms var(--ease-squish);
+}
+
+@keyframes hop {
+  0% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-18px) scale(0.96, 1.05); }
+  60% { transform: translateY(0) scale(1.05, 0.95); }
+  100% { transform: translateY(0) scale(1); }
+}

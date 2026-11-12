@@ -5,6 +5,7 @@ import { ALL_GAMES, gamesForAge, type GameManifest } from './core/games';
 import { startSession, isOver, readLocked, writeLocked } from './core/session';
 import { loadLastGame, saveLastGame } from './core/lastGame';
 import { WorldMap } from './ui/WorldMap';
+import { ShelfMenu } from './ui/ShelfMenu';
 import { GamePicker } from './ui/GamePicker';
 import { SleepScreen } from './ui/SleepScreen';
 import { ParentGate } from './ui/ParentGate';
@@ -20,6 +21,10 @@ export default function App() {
   const [lastGameId, setLastGameId] = useState<string | null>(null);
   const [parentOpen, setParentOpen] = useState(false);
   const [locked, setLocked] = useState(readLocked);
+  const [forceShelf] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('e2e') === '1' && params.get('menu') === 'shelf';
+  });
   const langRef = useRef(settings.lang);
   useEffect(() => { langRef.current = settings.lang; }, [settings.lang]);
   const speaker = useMemo(() => createSpeaker(() => langRef.current), []);
@@ -61,6 +66,8 @@ export default function App() {
   }, [settings.ageMonths]);
 
   const games = gamesForAge(ALL_GAMES, settings.ageMonths);
+  // Móc e2e: ?e2e=1&menu=shelf ép kiểu kệ đồ chơi
+  const menuStyle = forceShelf ? 'shelf' : settings.menuStyle;
 
   return (
     <Stage>
@@ -79,6 +86,8 @@ export default function App() {
           onPick={openGame}
           onBack={() => setPicker(null)}
         />
+      ) : menuStyle === 'shelf' ? (
+        <ShelfMenu games={games} lang={settings.lang} speaker={speaker} onPick={openGame} />
       ) : (
         <WorldMap
           games={games}
