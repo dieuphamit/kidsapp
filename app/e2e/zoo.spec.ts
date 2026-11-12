@@ -14,7 +14,7 @@ test('vào Sở thú từ Home qua picker và chụp ảnh', async ({ page }) =>
   await expect(page.getByTestId('home')).toBeVisible();
 
   // Chờ nút Sở thú hiện
-  const zooBtn = page.getByLabel('Sở thú');
+  const zooBtn = page.getByLabel('Thế giới thú');
   await expect(zooBtn).toBeVisible({ timeout: 10000 });
 
   // Chạm nút Sở thú
@@ -48,7 +48,7 @@ test('chạm thú nghe animal.<id> rồi animal.<id>-sound (via hook)', async ({
   await expect(page.getByTestId('home')).toBeVisible();
 
   // Chờ nút Sở thú hiện
-  const zooBtn = page.getByLabel('Sở thú');
+  const zooBtn = page.getByLabel('Thế giới thú');
   await expect(zooBtn).toBeVisible({ timeout: 10000 });
   await zooBtn.click();
   await pickGame(page, 'zoo3d');
@@ -96,7 +96,7 @@ test('nút Về nhà có kích thước đủ lớn và hoạt động', async (
   await expect(page.getByTestId('home')).toBeVisible();
 
   // Chờ nút Sở thú hiện
-  const zooBtn = page.getByLabel('Sở thú');
+  const zooBtn = page.getByLabel('Thế giới thú');
   await expect(zooBtn).toBeVisible({ timeout: 10000 });
   await zooBtn.click();
   await pickGame(page, 'zoo3d');
@@ -131,7 +131,7 @@ test('thú đi dạo qua lại theo làn, chạm con đang đi thì nó dừng l
   test.setTimeout(120_000); // WebGL phần mềm: vài khung hình/giây
   // seed=5: hươu cao cổ, gấu túi, vẹt (nhảy lò cò) đi dạo; hổ, gấu, cánh cụt đứng yên
   await page.goto('./?e2e=1&seed=5');
-  await page.getByLabel('Sở thú').click();
+  await page.getByLabel('Thế giới thú').click();
   await pickGame(page, 'zoo3d');
   const gameEl = page.getByTestId('game-zoo');
   await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 15000 });

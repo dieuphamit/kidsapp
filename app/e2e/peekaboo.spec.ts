@@ -17,7 +17,7 @@ test.describe('Peekaboo game', () => {
     await expect(page.getByTestId('home')).toBeVisible({ timeout: 10000 });
 
     // Chạm nút Sở thú - vì chỉ có 1 game trong place.zoo, sẽ vào thẳng game
-    const zooBtn = page.getByLabel('Sở thú');
+    const zooBtn = page.getByLabel('Thế giới thú');
     await expect(zooBtn).toBeVisible({ timeout: 10000 });
     await zooBtn.click();
     await pickGame(page, 'peekaboo');
@@ -38,7 +38,7 @@ test.describe('Peekaboo game', () => {
     await expect(page.getByTestId('home')).toBeVisible({ timeout: 10000 });
 
     // Vào Sở thú - vào thẳng game vì chỉ có 1 game
-    await page.getByLabel('Sở thú').click();
+    await page.getByLabel('Thế giới thú').click();
     await pickGame(page, 'peekaboo');
 
     const gameEl = page.getByTestId('game-peekaboo');
@@ -66,7 +66,7 @@ test.describe('Peekaboo game', () => {
     await expect(page.getByTestId('home')).toBeVisible({ timeout: 10000 });
 
     // Vào Sở thú - vào thẳng game vì chỉ có 1 game
-    await page.getByLabel('Sở thú').click();
+    await page.getByLabel('Thế giới thú').click();
     await pickGame(page, 'peekaboo');
 
     const gameEl = page.getByTestId('game-peekaboo');
@@ -118,7 +118,7 @@ test.describe('Peekaboo game', () => {
     await expect(page.getByTestId('home')).toBeVisible({ timeout: 10000 });
 
     // Vào Sở thú - vào thẳng game vì chỉ có 1 game
-    await page.getByLabel('Sở thú').click();
+    await page.getByLabel('Thế giới thú').click();
     await pickGame(page, 'peekaboo');
 
     const gameEl = page.getByTestId('game-peekaboo');
@@ -141,7 +141,7 @@ test.describe('Peekaboo game', () => {
     await expect(page.getByTestId('home')).toBeVisible({ timeout: 10000 });
 
     // Vào Sở thú - vào thẳng game vì chỉ có 1 game
-    await page.getByLabel('Sở thú').click();
+    await page.getByLabel('Thế giới thú').click();
     await pickGame(page, 'peekaboo');
 
     await expect(page.getByTestId('game-peekaboo')).toBeVisible({ timeout: 10000 });

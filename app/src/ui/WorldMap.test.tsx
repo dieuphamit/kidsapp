@@ -76,7 +76,7 @@ describe('WorldMap', () => {
     expect(screen.getByLabelText('いけ')).toBeInTheDocument();
     expect(screen.getByLabelText('かじゅえん')).toBeInTheDocument();
     expect(screen.getByLabelText('おんがくのいえ')).toBeInTheDocument();
-    expect(screen.getByLabelText('どうぶつえん')).toBeInTheDocument();
+    expect(screen.getByLabelText('どうぶつの くに')).toBeInTheDocument();
     expect(screen.getByLabelText('ダウダウのおうち')).toBeInTheDocument();
   });
 
@@ -95,7 +95,7 @@ describe('WorldMap', () => {
     expect(screen.getByLabelText('Hồ nước')).toBeInTheDocument();
     expect(screen.queryByLabelText('Vườn quả')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Nhà âm nhạc')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Sở thú')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Thế giới thú')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Nhà Đậu Đậu')).not.toBeInTheDocument();
   });
 

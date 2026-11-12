@@ -14,7 +14,7 @@ test.describe('T-028: Bóng của ai?', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm Sở thú
-    const zooButton = page.getByLabel('Sở thú');
+    const zooButton = page.getByLabel('Thế giới thú');
     await expect(zooButton).toBeVisible();
     await zooButton.tap();
 
@@ -42,7 +42,7 @@ test.describe('T-028: Bóng của ai?', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shadow
-    await page.getByLabel('Sở thú').tap();
+    await page.getByLabel('Thế giới thú').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10000 });
     await page.getByLabel('Bóng của ai?').tap();
     const gameEl = page.getByTestId('game-shadow');
@@ -99,7 +99,7 @@ test.describe('T-028: Bóng của ai?', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shadow
-    await page.getByLabel('Sở thú').tap();
+    await page.getByLabel('Thế giới thú').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10000 });
     await page.getByLabel('Bóng của ai?').tap();
     const gameEl = page.getByTestId('game-shadow');
@@ -125,7 +125,7 @@ test.describe('T-028: Bóng của ai?', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shadow
-    await page.getByLabel('Sở thú').tap();
+    await page.getByLabel('Thế giới thú').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10000 });
     await page.getByLabel('Bóng của ai?').tap();
     const gameEl = page.getByTestId('game-shadow');
@@ -177,7 +177,7 @@ test.describe('iPhone dọc 430×932: kéo trong game shadow', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shadow
-    await page.getByLabel('Sở thú').tap();
+    await page.getByLabel('Thế giới thú').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10000 });
     await page.getByLabel('Bóng của ai?').tap();
     const gameEl = page.getByTestId('game-shadow');
