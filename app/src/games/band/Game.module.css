@@ -1,0 +1,369 @@
+/* Ban nhạc thú: sân khấu 2.5D trong khung 1194×834 */
+.scene {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  font-family: var(--font-kid);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  background: linear-gradient(180deg, var(--scene-wall) 0%, var(--sky-bottom) 100%);
+}
+
+/* ---------- Phông nền: rèm lilac ---------- */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.spot {
+  position: absolute;
+  left: 50%;
+  top: 60px;
+  width: 980px;
+  height: 520px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, var(--scene-sun-core) 0%, transparent 70%);
+  opacity: 0.9;
+}
+
+.valance {
+  position: absolute;
+  left: -20px;
+  right: -20px;
+  top: 0;
+  height: 118px;
+  background:
+    radial-gradient(circle at 50% 0, var(--clay-lilac) 58%, transparent 60%) 0 70px / 110px 60px repeat-x,
+    linear-gradient(180deg, color-mix(in srgb, var(--clay-lilac) 75%, var(--ink-soft)) 0%, var(--clay-lilac) 100%) 0 0 / 100% 72px no-repeat;
+  filter: drop-shadow(0 8px 6px color-mix(in srgb, var(--ink) 18%, transparent));
+}
+
+.drape {
+  position: absolute;
+  top: 0;
+  width: 150px;
+  height: 560px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--clay-lilac) 0 18px,
+    color-mix(in srgb, var(--clay-lilac) 78%, var(--ink-soft)) 30px,
+    var(--clay-lilac) 42px 50px
+  );
+  box-shadow: var(--shadow-clay);
+}
+
+.drapeLeft {
+  left: -10px;
+  border-bottom-right-radius: 100% 60px;
+  clip-path: polygon(0 0, 100% 0, 62% 100%, 0 100%);
+}
+
+.drapeRight {
+  right: -10px;
+  border-bottom-left-radius: 100% 60px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 38% 100%);
+}
+
+.notes {
+  position: absolute;
+  top: 132px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 220px;
+  font-size: 40px;
+  color: var(--ink-soft);
+  opacity: 0.35;
+}
+
+.notes span {
+  animation: float 3.2s ease-in-out infinite;
+}
+.notes span:nth-child(2) {
+  animation-delay: 0.8s;
+}
+.notes span:nth-child(3) {
+  animation-delay: 1.6s;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-6deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(6deg);
+  }
+}
+
+/* ---------- Nút tempo góc phải trên ----------
+   Chừa góc 120×120 cho vùng "Khu phụ huynh" (z-index 50) + khe 24px. */
+.tempo {
+  position: absolute;
+  top: 24px;
+  right: 144px;
+  display: flex;
+  gap: 24px;
+  z-index: 40;
+}
+
+.tempoWrap {
+  border-radius: calc(var(--radius-clay) + 8px);
+  padding: 0;
+  outline: 0 solid transparent;
+  transition: outline-width var(--dur-press) var(--ease-squish);
+}
+
+.tempoWrap[data-active] {
+  outline: 8px solid var(--learn-yellow);
+  outline-offset: 2px;
+}
+
+/* ---------- Bục gỗ ---------- */
+.podium {
+  position: absolute;
+  left: 50%;
+  top: 368px;
+  width: 1040px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.podiumTop {
+  height: 120px;
+  border-radius: 60px 60px 18px 18px;
+  background: repeating-linear-gradient(
+      90deg,
+      transparent 0 128px,
+      color-mix(in srgb, var(--scene-wood-dark) 45%, transparent) 128px 131px
+    ),
+    linear-gradient(180deg, var(--scene-wood-light) 0%, var(--scene-wood) 100%);
+  box-shadow: var(--shadow-clay);
+}
+
+.podiumFront {
+  height: 46px;
+  margin: -6px 18px 0;
+  border-radius: 0 0 28px 28px;
+  background: linear-gradient(180deg, var(--scene-wood-dark) 0%, var(--scene-bark) 100%);
+  box-shadow: 0 14px 24px color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+/* ---------- 4 ô nhịp ---------- */
+.slots {
+  position: absolute;
+  top: 196px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 32px;
+  z-index: 5;
+}
+
+.slot {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: 44px;
+  background: color-mix(in srgb, var(--paper) 72%, transparent);
+  border: 6px dashed color-mix(in srgb, var(--clay-lilac) 80%, var(--ink-soft));
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 140ms var(--ease-squish),
+    border-color 120ms,
+    box-shadow 120ms;
+}
+
+.slot[data-animal] {
+  border-style: solid;
+  border-color: var(--paper);
+}
+
+.slot[data-active] {
+  border: 10px solid var(--learn-yellow);
+  box-shadow:
+    0 0 0 6px color-mix(in srgb, var(--learn-yellow) 40%, transparent),
+    0 0 36px 8px color-mix(in srgb, var(--learn-yellow) 70%, transparent);
+  transform: translateY(-6px);
+}
+
+.slot[data-over] {
+  border-color: var(--learn-green);
+  border-style: solid;
+  transform: scale(1.06);
+}
+
+.slotDots {
+  position: absolute;
+  bottom: -34px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.slotDots i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ink-soft);
+  opacity: 0.45;
+}
+
+.slot[data-active] .slotDots i {
+  background: var(--learn-yellow);
+  opacity: 1;
+  box-shadow: 0 0 0 2px var(--scene-wood-dark);
+}
+
+.restNote {
+  font-size: 72px;
+  line-height: 1;
+  color: var(--ink-soft);
+  opacity: 0.3;
+}
+
+.onStage {
+  display: flex;
+}
+
+.onStage[data-landed] {
+  animation: land 420ms var(--ease-squish);
+}
+
+@keyframes land {
+  0% {
+    transform: translateY(-40px) scale(0.7);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+.stageImg {
+  width: 136px;
+  height: 136px;
+  object-fit: contain;
+  pointer-events: none;
+  display: block;
+}
+
+.rest {
+  display: block;
+}
+
+.hop {
+  display: block;
+  animation: hop 380ms var(--ease-squish);
+  transform-origin: 50% 100%;
+}
+
+@keyframes hop {
+  0% {
+    transform: translateY(0) scale(1, 1);
+  }
+  25% {
+    transform: translateY(4px) scale(1.12, 0.86);
+  }
+  55% {
+    transform: translateY(-26px) scale(0.94, 1.08);
+  }
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+}
+
+/* ---------- Khay dưới ---------- */
+.tray {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 32px;
+  padding: 24px 32px;
+  border-radius: 56px;
+  background: linear-gradient(180deg, var(--clay-lilac) 0%, color-mix(in srgb, var(--clay-lilac) 80%, var(--ink-soft)) 100%);
+  box-shadow: var(--shadow-clay);
+  z-index: 10;
+}
+
+.trayItem {
+  width: 140px;
+  height: 140px;
+  border-radius: var(--radius-clay);
+  background: var(--paper);
+  box-shadow: var(--shadow-clay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  transition:
+    transform var(--dur-press) var(--ease-squish),
+    opacity 120ms;
+}
+
+.trayItem[data-pressed] {
+  transform: scale(0.92) translateY(4px);
+  box-shadow: var(--shadow-clay-pressed);
+}
+
+.trayItem[data-lifted] {
+  opacity: 0.4;
+}
+
+.trayItem[data-back] {
+  animation: back 460ms var(--ease-squish);
+}
+
+@keyframes back {
+  0% {
+    transform: translateY(-60px) scale(0.8);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+.trayImg {
+  width: 116px;
+  height: 116px;
+  object-fit: contain;
+  pointer-events: none;
+  display: block;
+}
+
+.dragging {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  border-radius: var(--radius-clay);
+  background: var(--paper);
+  box-shadow:
+    var(--shadow-clay),
+    0 18px 30px color-mix(in srgb, var(--ink) 28%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transform: rotate(-6deg) scale(1.05);
+  z-index: 100;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hop,
+  .notes span,
+  .onStage[data-landed],
+  .trayItem[data-back] {
+    animation: none;
+  }
+}
