@@ -6,7 +6,8 @@ import { mkdirSync } from 'node:fs';
 
 test.beforeAll(() => mkdirSync('test-results/shots', { recursive: true }));
 
-const PLACES = ['Trang trại', 'Hồ nước', 'Vườn quả', 'Nhà âm nhạc'];
+// Khu đang có trò (Nhà Đậu Đậu chưa có trò nên bị ẩn)
+const PLACES = ['Thế giới thú', 'Vườn quả', 'Góc đố', 'Nhà âm nhạc'];
 
 async function expectPlacesInside(page: Page, vw: number, vh: number) {
   for (const name of PLACES) {
@@ -28,7 +29,7 @@ test.describe('iPhone ngang 932×430', () => {
     await expect(page.getByTestId('stage')).not.toHaveAttribute('data-rotated', 'true');
     await expectPlacesInside(page, 932, 430);
     await page.screenshot({ path: 'test-results/shots/mobile-landscape.png' });
-    await page.getByRole('button', { name: 'Trang trại' }).tap();
+    await page.getByRole('button', { name: 'Thế giới thú' }).tap();
     await pickGame(page, 'animals');
     await expect(page.getByTestId('game-animals')).toBeVisible({ timeout: 15_000 });
   });
@@ -71,7 +72,7 @@ test.describe('Cài đặt ngôn ngữ', () => {
     await expect(ja).toHaveAttribute('aria-pressed', 'true');
     await page.screenshot({ path: 'test-results/shots/mobile-settings.png' });
     await page.getByRole('button', { name: 'Đóng' }).click();
-    await expect(page.getByRole('button', { name: 'まきば' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'どうぶつの くに'})).toBeVisible();
   });
 });
 
@@ -81,7 +82,7 @@ for (const [name, vw, vh] of [["ngang", 932, 430], ["dọc", 430, 932]] as const
 
     test("canvas Trang trại phủ hết khung", async ({ page }) => {
       await page.goto("./");
-      await page.getByRole("button", { name: "Trang trại" }).tap();
+      await page.getByRole("button", { name: "Thế giới thú" }).tap();
       await pickGame(page, 'animals');
       await expect(page.getByTestId("game-animals")).toBeVisible({ timeout: 15_000 });
       const stage = (await page.getByTestId("stage").boundingBox())!;

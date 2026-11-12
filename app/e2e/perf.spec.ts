@@ -81,7 +81,7 @@ test.describe('Performance tests', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm nút Trang trại
-    const farmBtn = page.getByLabel('Trang trại');
+    const farmBtn = page.getByLabel('Thế giới thú');
     await expect(farmBtn).toBeVisible({ timeout: 10000 });
     await farmBtn.click();
     await pickGame(page, 'animals');
@@ -104,7 +104,7 @@ test.describe('Performance tests', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm nút Hồ nước
-    const pondBtn = page.getByLabel('Hồ nước');
+    const pondBtn = page.getByLabel('Vườn quả');
     await expect(pondBtn).toBeVisible({ timeout: 10000 });
     await pondBtn.click();
     await pickGame(page, 'shapes');
