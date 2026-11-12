@@ -47,7 +47,7 @@ export default function Game({ speaker, onExit }: GameProps) {
   const [ready, setReady] = useState(false);
   const [beat, setBeat] = useState(-1);
   const [tick, setTick] = useState(0);
-  const [lastSay, setLastSay] = useState('');
+  const [lastSay, setLastSay] = useState('band.hello');
   const [drag, setDrag] = useState<Drag | null>(null);
   const [landed, setLanded] = useState<{ slot: number; n: number } | null>(null);
   const [backHome, setBackHome] = useState<{ id: string; n: number } | null>(null);
@@ -69,10 +69,10 @@ export default function Game({ speaker, onExit }: GameProps) {
   }, [slots]);
 
   useEffect(() => {
-    say('band.hello');
+    speaker.say('band.hello');
     const t = setTimeout(() => setReady(true), LOOP_START_MS);
     return () => clearTimeout(t);
-  }, [say]);
+  }, [speaker]);
 
   // Vòng lặp 4 nhịp: chỉ chạy khi có ít nhất một con vật trên sân khấu.
   const playing = ready && hasAnimals(slots);
