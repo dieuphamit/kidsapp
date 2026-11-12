@@ -12,6 +12,8 @@ acceptance:
   - npm run verify
   - Vòng lặp 4 nhịp chạy liên tục; nhịp có con vật thì phát animal.<id>-sound; ô trống là nghỉ; ảnh T-037-band.png
   - Có test kéo thật ở viewport 430×932
+attempts: 1
+last_error: npm run verify thất bại
 ---
 ## Mục tiêu
 Bé sáng tác nhạc không đúng sai bằng cách đặt con vật lên 4 ô nhịp. Mockup: `game-ideas.html` trò 6.

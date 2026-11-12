@@ -11,6 +11,7 @@ scope:
 acceptance:
   - npm run verify
   - Chọn đúng quả tiếp theo → pattern.yay; chọn chưa đúng → quả lăn về, đọc lại chuỗi; ảnh T-038-pattern.png, T-038-level.png
+attempts: 0
 ---
 ## Mục tiêu
 Bé nhìn và nghe ra quy luật rồi chọn quả tiếp theo. Mockup: `game-ideas.html` trò 3.

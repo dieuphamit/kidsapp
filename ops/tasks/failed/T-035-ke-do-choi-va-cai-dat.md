@@ -20,6 +20,8 @@ acceptance:
   - Settings có menuStyle 'map' | 'shelf', mặc định 'map'; bản lưu cũ không có trường này vẫn chạy (ra 'map')
   - Khu bố mẹ đổi kiểu menu ngay khi chạm, không cần bấm Lưu
   - Kệ hiện mọi trò hợp tuổi, thẻ ≥132px, khe ≥24px, trong khung; ảnh T-035-shelf.png, T-035-settings.png
+attempts: 1
+last_error: npm run verify thất bại
 ---
 ## Mục tiêu
 Bố mẹ chọn được kiểu menu: bản đồ 5 khu (mặc định) hoặc kệ đồ chơi một màn (một chạm vào bất kỳ trò nào). Mockup: `.superpowers/brainstorm/phase-3/menu.html` phương án A.

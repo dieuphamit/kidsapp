@@ -13,6 +13,7 @@ acceptance:
   - npm run verify
   - Xếp đúng 3 tranh → đọc lại story.<id>-1..3 liên tiếp rồi story.done; thả sai ô → tranh trôi về; ảnh T-039-story.png, T-039-done.png
   - Có test kéo thật ở viewport 430×932
+attempts: 0
 ---
 ## Mục tiêu
 Bé xếp tranh theo thứ tự và nghe Đậu Đậu kể chuyện bằng "đầu tiên, tiếp theo, cuối cùng". Mockup: `game-ideas.html` trò 2.

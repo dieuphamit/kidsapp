@@ -12,6 +12,7 @@ scope:
 acceptance:
   - npm run verify
   - Mức 1 chạm ô kề để đi; mức 2 xếp ≤4 mũi tên rồi ▶; đụng cây thì dừng và sáng ô lệnh lỗi; ảnh T-041-step.png, T-041-program.png
+attempts: 0
 ---
 ## Mục tiêu
 Tiền lập trình: bé đưa Đậu Đậu về nhà; mức 2 lập kế hoạch trước rồi chạy, thấy lỗi thì sửa đúng bước đó. Mockup: `game-ideas.html` trò 4.

@@ -13,6 +13,7 @@ acceptance:
   - npm run verify
   - Thả Đậu Đậu vào vùng nào thì nói đúng câu hide.<prep>-<obj> của vùng đó; ảnh T-036-room.png, T-036-ask.png
   - Có test kéo thật ở viewport 430×932
+attempts: 0
 ---
 ## Mục tiêu
 Bé kéo Đậu Đậu đi trốn trong phòng và nghe câu đầy đủ có giới từ: "Đậu Đậu ở dưới cái bàn!". Mockup: `game-ideas.html` trò 1.

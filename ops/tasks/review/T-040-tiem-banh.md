@@ -13,6 +13,7 @@ acceptance:
   - npm run verify
   - Thả topping lên bánh → nằm đúng chỗ thả, nói topping.<id>; rung chuông → khách khen theo bánh; ảnh T-040-bakery.png, T-040-served.png
   - Có test kéo thật ở viewport 430×932
+attempts: 0
 ---
 ## Mục tiêu
 Bé tự trang trí bánh cho bạn thú, không có đáp án; nghe tên kèm tính từ và đếm. Mockup: `game-ideas.html` trò 5.
