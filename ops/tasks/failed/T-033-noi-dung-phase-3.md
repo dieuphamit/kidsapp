@@ -12,7 +12,7 @@ acceptance:
   - places.json đổi chữ place.zoo, thêm place.puzzle; games3.json có đủ mọi key ở dưới
   - npm run check:audio xanh
 attempts: 1
-last_error: "agent lỗi (exit -4058): Error: spawn claude ENOENT"
+last_error: npm run verify thất bại
 ---
 ## Mục tiêu
 Mọi câu Đậu Đậu nói trong menu mới và 6 trò mới, cả vi và ja.

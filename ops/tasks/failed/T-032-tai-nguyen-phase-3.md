@@ -18,7 +18,7 @@ acceptance:
   - 18 file public/cards/story/<story>-<n>.png và 2 file public/cards/extra/{candle,chocolate}.png, mỗi file < 120 KB, ghi nguồn trong CREDITS.md
   - public/cards/index.json không đổi
 attempts: 1
-last_error: "agent lỗi (exit -4058): Error: spawn claude ENOENT"
+last_error: agent không thay đổi gì
 ---
 ## Mục tiêu
 Phase 3 cần Đậu Đậu dạng ảnh 2D (để kéo thả và đặt trong màn 2D) và ảnh thật cho 6 chuyện ba tranh, nến và sô-cô-la.
