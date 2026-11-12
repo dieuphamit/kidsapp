@@ -61,7 +61,7 @@ test.describe('Peekaboo game', () => {
     await expect(gameEl).toHaveAttribute('data-last-say', 'peek.empty', { timeout: 3000 });
   });
 
-  test('chạm bụi đúng → peek.found rồi animal.<id>, chụp T-026-found.png', async ({ page }) => {
+  test('chạm bụi đúng → thú phóng to giữa màn hình, nói tên rồi kêu, chụp T-026-found.png', async ({ page }) => {
     await page.goto('./?e2e=1');
     await expect(page.getByTestId('home')).toBeVisible({ timeout: 10000 });
 
@@ -88,13 +88,29 @@ test.describe('Peekaboo game', () => {
     // data-last-say phải là peek.found
     await expect(gameEl).toHaveAttribute('data-last-say', 'peek.found', { timeout: 3000 });
 
-    // Chờ 1.2s, sau đó data-last-say phải là animal.<id>
-    await page.waitForTimeout(1200);
-    const lastSay = await gameEl.getAttribute('data-last-say');
-    expect(lastSay).toMatch(/^animal\./);
+    // Thú phóng to ra giữa màn hình
+    const reveal = page.getByTestId('peek-reveal');
+    await expect(reveal).toBeVisible();
+    const id = await reveal.getAttribute('data-animal');
+    expect(id).toBeTruthy();
 
-    // Chụp ảnh khi thú hiện ra
+    // Sau "Ú òa!" là tên thú
+    await expect(gameEl).toHaveAttribute('data-last-say', `animal.${id}`, { timeout: 3000 });
+
+    // Lúc thú đã to ở giữa: ảnh rộng hơn hẳn bụi (200px) và tâm gần tâm khung 1194×834
+    await page.waitForTimeout(600);
+    const box = await reveal.locator('img').boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.width).toBeGreaterThan(400);
+    expect(Math.abs(box!.x + box!.width / 2 - 597)).toBeLessThan(40);
+    expect(Math.abs(box!.y + box!.height / 2 - 417)).toBeLessThan(60);
     await page.screenshot({ path: join(shotsDir, 'T-026-found.png') });
+
+    // Rồi tới tiếng kêu thật của đúng con thú đó
+    await expect(gameEl).toHaveAttribute('data-last-say', `animal.${id}-sound`, { timeout: 3000 });
+
+    // Thú về lại bụi, sang ván mới
+    await expect(reveal).toBeHidden({ timeout: 5000 });
   });
 
   test('mọi bụi có kích thước >= 120px', async ({ page }) => {

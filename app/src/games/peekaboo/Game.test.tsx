@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Game from './Game';
 import type { Speaker } from '../../core/audio';
@@ -102,6 +102,38 @@ describe('Game component', () => {
     const container = screen.getByTestId('game-peekaboo');
     // Khi vào game, say('peek.hello') được gọi
     expect(container).toHaveAttribute('data-last-say', 'peek.hello');
+  });
+});
+
+describe('tìm thấy thú', () => {
+  it('phóng to thú ra giữa màn hình, nói tên rồi phát tiếng kêu thật, sau đó sang ván mới', () => {
+    vi.useFakeTimers();
+    try {
+      const speaker = createMockSpeaker();
+      render(<Game lang="vi" speaker={speaker} ageMonths={30} onExit={() => {}} />);
+      expect(screen.queryByTestId('peek-reveal')).not.toBeInTheDocument();
+
+      // Chạm lần lượt từng bụi tới khi thấy thú (bụi trống chỉ lắc)
+      for (let i = 0; i < 3 && !screen.queryByTestId('peek-reveal'); i++) {
+        fireEvent.pointerDown(screen.getByTestId(`bush-${i}`));
+      }
+      const reveal = screen.getByTestId('peek-reveal');
+      const id = reveal.getAttribute('data-animal');
+      expect(id).toBeTruthy();
+      expect(speaker.say).toHaveBeenLastCalledWith('peek.found');
+
+      act(() => vi.advanceTimersByTime(900));
+      expect(speaker.say).toHaveBeenLastCalledWith(`animal.${id}`);
+
+      act(() => vi.advanceTimersByTime(1300));
+      expect(speaker.say).toHaveBeenLastCalledWith(`animal.${id}-sound`);
+      expect(screen.getByTestId('peek-reveal')).toBeInTheDocument();
+
+      act(() => vi.advanceTimersByTime(2800));
+      expect(screen.queryByTestId('peek-reveal')).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

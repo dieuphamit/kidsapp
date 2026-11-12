@@ -10,6 +10,17 @@ const BASE = import.meta.env.BASE_URL;
 
 type BushState = 'idle' | 'shake' | 'split';
 
+// Nhịp một lần tìm thấy (ms): "Ú òa!" → tên thú → tiếng kêu thật → ván mới.
+// Thời lượng hoạt cảnh .reveal / .split trong Game.module.css khớp với REVEAL_MS.
+const NAME_AT = 900;
+const SOUND_AT = 2200;
+const REVEAL_MS = 5000;
+
+// Khung bụi: rộng 200px, cách nhau 24px, đáy cách mép dưới 52px (Game.module.css).
+// Dùng để thú bay ra từ đúng bụi lên giữa màn hình mà không cần đo DOM.
+const BUSH_STEP = 224;
+const BUSH_RISE = 834 / 2 - (52 + 100);
+
 /** Màu SVG lấy từ tokens.css qua style (thuộc tính fill="var()" không chạy mọi nơi). */
 const fill = (token: string, opacity?: number) => ({
   style: { fill: `var(--${token})`, ...(opacity === undefined ? {} : { fillOpacity: opacity }) },
@@ -178,8 +189,8 @@ function Bush({ index, hasAnimal, animalId, state, showHint, onTap, isWiggling }
     .filter(Boolean)
     .join(' ');
 
-  // Thú: trốn sau bụi / ló tai (gợi ý 2 ván đầu) / bật lên khi tìm thấy rồi lại trốn
-  const animalState = state === 'split' ? 'pop' : showHint && state === 'idle' ? 'peek' : 'hidden';
+  // Thú: trốn sau bụi / ló tai (gợi ý 2 ván đầu). Khi tìm thấy, thú phóng to ra giữa màn hình (Reveal).
+  const animalState = showHint && state === 'idle' ? 'peek' : 'hidden';
 
   return (
     <div className={`${styles.bushContainer} ${index % 2 ? styles.back : ''}`}>
@@ -219,12 +230,31 @@ function Bush({ index, hasAnimal, animalId, state, showHint, onTap, isWiggling }
   );
 }
 
+/** Thú tìm thấy: bay từ bụi lên giữa màn hình, phóng to, lắc lư khi kêu rồi về lại bụi. */
+function Reveal({ animalId, bushIndex, bushCount }: { animalId: AnimalId; bushIndex: number; bushCount: number }) {
+  const fromX = (bushIndex - (bushCount - 1) / 2) * BUSH_STEP;
+  const fromY = BUSH_RISE + (bushIndex % 2 ? 40 : 0);
+  return (
+    <div className={styles.reveal} data-testid="peek-reveal" data-animal={animalId} aria-hidden="true">
+      <div className={styles.revealGlow} />
+      <img
+        className={styles.revealAnimal}
+        src={`${BASE}cards/${animalId}.png`}
+        alt=""
+        draggable={false}
+        style={{ '--from-x': `${fromX}px`, '--from-y': `${fromY}px` } as CSSProperties}
+      />
+    </div>
+  );
+}
+
 export default function Game({ speaker, ageMonths, onExit }: GameProps) {
   const [lastSay, setLastSay] = useState('');
   const [roundNumber, setRoundNumber] = useState(0);
   const [gameState, setGameState] = useState<PeekState | null>(null);
   const [bushStates, setBushStates] = useState<BushState[]>([]);
   const [wigglingBush, setWigglingBush] = useState<number | null>(null);
+  const [reveal, setReveal] = useState<{ animalId: AnimalId; bushIndex: number } | null>(null);
   const roundRef = useRef(0);
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -252,6 +282,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
       const state = newRound(bushCount, seed, prevId);
       setGameState(state);
       setBushStates(Array(bushCount).fill('idle'));
+      setReveal(null);
       roundRef.current += 1;
       setRoundNumber(roundRef.current);
     },
@@ -308,27 +339,32 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
         // Tìm thấy!
         setGameState((prev) => (prev ? { ...prev, found: true } : null));
 
-        // Bụi tách, thú nhảy lên
+        // Bụi rẽ lá, thú bay ra giữa màn hình và phóng to
         setBushStates((prev) => {
           const next = [...prev];
           next[bushIndex] = 'split';
           return next;
         });
+        setReveal({ animalId: gameState.animalId, bushIndex });
 
-        // Nói "Ú òa!"
+        // Nói "Ú òa!", rồi tên thú, rồi tiếng kêu thật của thú
         say('peek.found');
 
-        // 900ms sau nói tên thú
         const t1 = setTimeout(() => {
           say(`animal.${gameState.animalId}`);
-        }, 900);
+        }, NAME_AT);
         timeoutsRef.current.push(t1);
 
-        // 2.5s sau ván mới
         const t2 = setTimeout(() => {
-          startNewRound(gameState.animalId);
-        }, 2500);
+          say(`animal.${gameState.animalId}-sound`);
+        }, SOUND_AT);
         timeoutsRef.current.push(t2);
+
+        // Thú về lại bụi xong thì sang ván mới
+        const t3 = setTimeout(() => {
+          startNewRound(gameState.animalId);
+        }, REVEAL_MS);
+        timeoutsRef.current.push(t3);
       }
     },
     [gameState, say, startNewRound]
@@ -373,6 +409,15 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
             />
           ))}
       </div>
+
+      {reveal && (
+        <Reveal
+          key={roundNumber}
+          animalId={reveal.animalId}
+          bushIndex={reveal.bushIndex}
+          bushCount={bushCount}
+        />
+      )}
 
       <BackHome onExit={onExit} />
     </div>

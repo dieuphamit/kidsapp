@@ -124,22 +124,22 @@
 
 /* Tìm thấy: lá rẽ sang hai bên, giữ một lúc rồi khép lại khi thú trốn */
 .split .halfL {
-  animation: partL 2400ms var(--ease-squish) forwards;
+  animation: partL 5000ms var(--ease-squish) forwards;
 }
 
 .split .halfR {
-  animation: partR 2400ms var(--ease-squish) forwards;
+  animation: partR 5000ms var(--ease-squish) forwards;
 }
 
 @keyframes partL {
   0% { transform: none; }
-  14%, 78% { transform: translateX(-22px) rotate(-12deg); }
+  6%, 88% { transform: translateX(-22px) rotate(-12deg); }
   100% { transform: none; }
 }
 
 @keyframes partR {
   0% { transform: none; }
-  14%, 78% { transform: translateX(22px) rotate(12deg); }
+  6%, 88% { transform: translateX(22px) rotate(12deg); }
   100% { transform: none; }
 }
 
@@ -171,22 +171,62 @@
   50% { transform: translateY(-78px) scale(0.86) rotate(-3deg); }
 }
 
-/* Ú òa! bật lên cao, nảy, lắc lư vui rồi thụp xuống trốn */
-.animal[data-state='pop'] {
-  opacity: 1;
-  animation: popUp 2400ms linear forwards;
+/* Ú òa! Thú bay từ bụi ra giữa màn hình, phóng to, lắc lư trong lúc kêu rồi về lại bụi.
+   Tổng 5000ms = REVEAL_MS trong Game.tsx. --from-x/--from-y: độ lệch từ tâm màn hình tới bụi. */
+.reveal {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
 }
 
-@keyframes popUp {
-  0% { transform: translateY(150px) scale(0.7); animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1); }
-  14% { transform: translateY(-112px) scale(0.92, 1.1); animation-timing-function: ease-in-out; }
-  22% { transform: translateY(-78px) scale(1.1, 0.9); }
-  30% { transform: translateY(-96px) scale(1); }
-  44% { transform: translateY(-92px) rotate(-4deg); }
-  58% { transform: translateY(-92px) rotate(4deg); }
-  72% { transform: translateY(-94px) rotate(0); animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5); }
-  80% { transform: translateY(-104px) scale(0.98, 1.04); }
-  100% { transform: translateY(150px) scale(0.7); }
+.revealGlow {
+  position: absolute;
+  width: 640px;
+  height: 640px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--paper) 90%, transparent) 0%,
+    color-mix(in srgb, var(--scene-sun) 45%, transparent) 45%,
+    transparent 70%
+  );
+  opacity: 0;
+  animation: glow 5000ms ease-out forwards;
+}
+
+@keyframes glow {
+  0% { opacity: 0; transform: scale(0.3); }
+  14%, 84% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.4); }
+}
+
+.revealAnimal {
+  position: relative;
+  width: 520px;
+  height: 520px;
+  object-fit: contain;
+  user-select: none;
+  filter: drop-shadow(0 18px 18px color-mix(in srgb, var(--ink) 30%, transparent));
+  animation: reveal 5000ms linear forwards;
+}
+
+@keyframes reveal {
+  0% { transform: translate(var(--from-x), var(--from-y)) scale(0.3); opacity: 0; animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1); }
+  4% { opacity: 1; }
+  14% { transform: translate(0, -20px) scale(1.12, 1.06); animation-timing-function: ease-in-out; }
+  20% { transform: translate(0, 10px) scale(0.96, 1.02); }
+  26% { transform: none; }
+  /* 2200ms = tiếng kêu: lắc lư vui */
+  44% { transform: scale(1.06) rotate(-5deg); }
+  52% { transform: scale(1.06) rotate(5deg); }
+  60% { transform: scale(1.06) rotate(-4deg); }
+  68% { transform: scale(1.03) rotate(3deg); }
+  80% { transform: none; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5); }
+  96% { opacity: 1; }
+  100% { transform: translate(var(--from-x), var(--from-y)) scale(0.3); opacity: 0; }
 }
 
 /* Lá rơi bay ra khi chạm */
@@ -222,4 +262,13 @@
   .flyLeaf {
     display: none;
   }
+  .revealAnimal,
+  .revealGlow {
+    animation: revealFade 5000ms linear forwards;
+  }
+}
+
+@keyframes revealFade {
+  0%, 100% { opacity: 0; }
+  6%, 92% { opacity: 1; }
 }
