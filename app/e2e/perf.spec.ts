@@ -150,4 +150,25 @@ test.describe('Performance tests', () => {
 
     await page.screenshot({ path: 'test-results/shots/T-016-orchard-perf.png' });
   });
+
+  test('Ban nhạc thú chạy vòng lặp 10 giây không lỗi trang', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto('./?e2e=1&picker=music');
+    await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10_000 });
+    await page.getByTestId('pick-band').click();
+    const game = page.getByTestId('game-band');
+    await expect(game).toBeVisible({ timeout: 10_000 });
+    await page.waitForFunction(() => !!(window as unknown as { __behocBand?: unknown }).__behocBand);
+    // Đủ 4 ô để mỗi nhịp đều phát tiếng kêu
+    await page.evaluate(() => {
+      const band = (window as unknown as { __behocBand: { put(i: number, id: string): void } }).__behocBand;
+      ['dog', 'cow', 'duck', 'pig'].forEach((id, i) => band.put(i, id));
+    });
+    await expect(game).toHaveAttribute('data-beat', /[0-3]/, { timeout: 5000 });
+    await page.waitForTimeout(10_000);
+    // Vòng lặp vẫn chạy sau 10 giây
+    await expect(game).toHaveAttribute('data-beat', /[0-3]/);
+    expect(errors).toEqual([]);
+  });
 });
