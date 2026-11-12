@@ -62,6 +62,29 @@ const CARDS = {
   coconut: { file: 'Kokosnuss-Coconut.jpg', keep: 'all' },
   blueberry: { file: 'Food Portions (Team Nutrition) (20210902-FNS-UNC-0038).jpg', keep: 'all' },
   peach: { file: 'White-Peaches-Bunch.jpg', keep: 'all' },
+  // Phase 3: thẻ chuyện ba tranh (cards/story/) và topping Tiệm bánh (cards/extra/).
+  // Không nằm trong cards/index.json để Lật hình, Ghép hình không lấy nhầm.
+  // scene: true = ảnh cảnh, không tách nền, chỉ cắt vuông.
+  'story/plant-1': { file: 'Yard long bean seeds.jpg', keep: 'all' },
+  'story/plant-2': { file: 'Radish seedling with three (3) cotyledons (49877392258).jpg' },
+  'story/plant-3': { file: 'Sunflower head 2026 G3.jpg' },
+  'story/chick-1': { file: 'A brown chicken egg on white background.png' },
+  'story/chick-2': { file: 'Brown egg hatching.jpg' },
+  'story/chick-3': { file: 'Yellow Chick.jpg' },
+  'story/butterfly-1': { file: 'Monarch caterpillar (23229).jpg' },
+  'story/butterfly-2': { file: 'Monarch Butterfly Chrysalis (45553422001).jpg' },
+  'story/butterfly-3': { file: 'Danaus plexippus MHNT.jpg', crop: [0, 0, 1, 0.5] },
+  'story/frog-1': { file: 'Tadpoles 10 days.jpg' },
+  'story/frog-2': { file: 'Leptob hasselt T04 080208-4570 clobk.jpg' },
+  'story/frog-3': { file: 'Green treefrog.jpg' },
+  'story/banana-1': { file: 'Bananas. Costa Rica.jpg', keep: 'all' },
+  'story/banana-2': { file: 'Liat Portal for Foodie Disorder - A Single Banana.jpg' },
+  'story/banana-3': { file: 'Banane-A-05 cropped.jpg', keep: 'all' },
+  'story/rain-1': { file: 'White Cumulus Clouds against Blue Sky with Sun Shining.jpg', scene: true },
+  'story/rain-2': { file: 'Moody Raindrops In Dark Blue Puddle (2387754376).jpg', scene: true },
+  'story/rain-3': { file: 'WhereRainbowRises.jpg', scene: true },
+  'extra/candle': { file: 'Birthday candle, Downpatrick, July 2010.JPG' },
+  'extra/chocolate': { file: '2023 Gorzka czekolada.jpg', keep: 'all' },
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -82,6 +105,7 @@ async function get(url) {
 async function fetchPhoto(id, file) {
   const metaPath = join(PHOTOS, `${id}.json`);
   const imgPath = join(PHOTOS, `${id}.jpg`);
+  mkdirSync(dirname(imgPath), { recursive: true });
   if (existsSync(metaPath) && existsSync(imgPath)) {
     const meta = JSON.parse(readFileSync(metaPath, 'utf8'));
     if (meta.file === file) return meta;
@@ -128,6 +152,7 @@ function writeCredits(metas) {
     const lic = m.licenseUrl ? `[${m.license}](${m.licenseUrl})` : m.license;
     lines.push(`| ${m.id} | [${m.file.replace(/\|/g, '\\|')}](${m.page}) | ${m.author.replace(/\|/g, '\\|')} | ${lic} |`);
   }
+  lines.push('', '`daudau.png`: render từ model Đậu Đậu tự làm (`src/ui/DauDau.tsx`) bằng `scripts/render-daudau.mjs`.');
   writeFileSync(join(OUT, 'CREDITS.md'), lines.join('\n') + '\n');
 }
 
@@ -144,7 +169,7 @@ async function main() {
 
   const metas = [];
   for (const id of Object.keys(CARDS)) {
-    // CREDITS.md luôn ghi đủ 37 thẻ; chỉ tải ảnh chưa có.
+    // CREDITS.md luôn ghi đủ mọi thẻ; chỉ tải ảnh chưa có.
     metas.push(await fetchPhoto(id, CARDS[id].file));
   }
   writeCredits(metas);
@@ -152,7 +177,9 @@ async function main() {
   const jobs = ids.map((id) => ({
     id, src: join(PHOTOS, `${id}.jpg`), out: join(OUT, `${id}.png`),
     crop: CARDS[id].crop, keep: CARDS[id].keep ?? 'largest', minPart: CARDS[id].minPart, thresh: CARDS[id].thresh,
+    scene: CARDS[id].scene,
   }));
+  for (const j of jobs) mkdirSync(dirname(j.out), { recursive: true });
   const jobsPath = join(PHOTOS, 'jobs.json');
   writeFileSync(jobsPath, JSON.stringify({ model: MODEL, size: 512, fill: 0.85, jobs }, null, 1));
   const r = spawnSync('uv', [

@@ -95,6 +95,24 @@ def fit(img_rgba, size, fill):
     return canvas
 
 
+def save_small(img, out, method, limit=120 * 1024, dither=Image.Dither.FLOYDSTEINBERG):
+    """Lưu PNG ≤ limit: ảnh chụp nhiều chi tiết (lông, mặt nước) để 32-bit thì quá nặng;
+    bảng 256 màu + dither nhìn gần như không khác, vẫn quá thì giảm dần số màu.
+    Giữ bản nhỏ nhất nếu không bản nào đạt limit."""
+    buf = io.BytesIO()
+    img.save(buf, 'PNG', optimize=True)
+    best = buf.getvalue()
+    for colors in (256, 192, 128, 96, 64, 48, 32):
+        if len(best) <= limit:
+            break
+        buf = io.BytesIO()
+        img.quantize(colors, method=method, dither=dither).save(buf, 'PNG', optimize=True)
+        if buf.tell() < len(best):
+            best = buf.getvalue()
+    with open(out, 'wb') as f:
+        f.write(best)
+
+
 def main():
     cfg = json.load(open(sys.argv[1], encoding='utf-8'))
     sess = None
@@ -111,6 +129,15 @@ def main():
         sc = 1600 / max(img.size)
         if sc < 1:
             img = img.resize((round(img.width * sc), round(img.height * sc)), Image.LANCZOS)
+        if job.get('scene'):
+            # Ảnh cảnh (mây, mưa, cầu vồng): không tách nền, cắt vuông giữa rồi thu nhỏ.
+            s = min(img.size)
+            x, y = (img.width - s) // 2, (img.height - s) // 2
+            card = img.crop((x, y, x + s, y + s)).resize((size, size), Image.LANCZOS)
+            # Ảnh cảnh nhiều nhiễu (mặt nước): dither làm PNG nặng hơn, bỏ dither.
+            save_small(card, job['out'], Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
+            print(job['id'], 'ok (scene)', flush=True)
+            continue
         # Cache mask (chạy model ~1 phút/ảnh trên CPU) theo ảnh gốc + crop.
         key = json.dumps([job['src'], job.get('crop'), img.size])
         cache = job['src'] + '.mask.png'
@@ -142,13 +169,7 @@ def main():
             arr[tiny, 3] = 0
         arr[arr[..., 3] == 0, :3] = 0
         final = Image.fromarray(arr, 'RGBA')
-        buf = io.BytesIO()
-        final.save(buf, 'PNG', optimize=True)
-        if buf.tell() > 120 * 1024:
-            # Ảnh chụp nhiều chi tiết (lông) → PNG 32-bit quá nặng; bảng 256 màu + dither
-            # nhìn gần như không khác mà nhỏ còn ~1/3.
-            final = final.quantize(256, method=Image.Quantize.FASTOCTREE, dither=Image.Dither.FLOYDSTEINBERG)
-        final.save(job['out'], optimize=True)
+        save_small(final, job['out'], Image.Quantize.FASTOCTREE)
         print(job['id'], 'ok', flush=True)
 
 

@@ -43,3 +43,25 @@
 | coconut | [Kokosnuss-Coconut.jpg](https://commons.wikimedia.org/wiki/File:Kokosnuss-Coconut.jpg) | Robert Wetzlmayr | Public domain |
 | blueberry | [Food Portions (Team Nutrition) (20210902-FNS-UNC-0038).jpg](https://commons.wikimedia.org/wiki/File:Food_Portions_(Team_Nutrition)_(20210902-FNS-UNC-0038).jpg) | USDAgov | Public domain |
 | peach | [White-Peaches-Bunch.jpg](https://commons.wikimedia.org/wiki/File:White-Peaches-Bunch.jpg) | Evan-Amos | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| story/plant-1 | [Yard long bean seeds.jpg](https://commons.wikimedia.org/wiki/File:Yard_long_bean_seeds.jpg) | WingkLEE | Public domain |
+| story/plant-2 | [Radish seedling with three (3) cotyledons (49877392258).jpg](https://commons.wikimedia.org/wiki/File:Radish_seedling_with_three_(3)_cotyledons_(49877392258).jpg) | hedera.baltica from Wrocław, Poland | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) |
+| story/plant-3 | [Sunflower head 2026 G3.jpg](https://commons.wikimedia.org/wiki/File:Sunflower_head_2026_G3.jpg) | George Chernilevsky | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
+| story/chick-1 | [A brown chicken egg on white background.png](https://commons.wikimedia.org/wiki/File:A_brown_chicken_egg_on_white_background.png) | Leo219 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| story/chick-2 | [Brown egg hatching.jpg](https://commons.wikimedia.org/wiki/File:Brown_egg_hatching.jpg) | Linsenhejhej | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| story/chick-3 | [Yellow Chick.jpg](https://commons.wikimedia.org/wiki/File:Yellow_Chick.jpg) | Petr Kratochvil | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| story/butterfly-1 | [Monarch caterpillar (23229).jpg](https://commons.wikimedia.org/wiki/File:Monarch_caterpillar_(23229).jpg) | Rhododendrites | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| story/butterfly-2 | [Monarch Butterfly Chrysalis (45553422001).jpg](https://commons.wikimedia.org/wiki/File:Monarch_Butterfly_Chrysalis_(45553422001).jpg) | ShenandoahNPS | Public domain |
+| story/butterfly-3 | [Danaus plexippus MHNT.jpg](https://commons.wikimedia.org/wiki/File:Danaus_plexippus_MHNT.jpg) | Didier Descouens | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| story/frog-1 | [Tadpoles 10 days.jpg](https://commons.wikimedia.org/wiki/File:Tadpoles_10_days.jpg) | The original uploader was Tarquin at English Wikipedia. | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) |
+| story/frog-2 | [Leptob hasselt T04 080208-4570 clobk.jpg](https://commons.wikimedia.org/wiki/File:Leptob_hasselt_T04_080208-4570_clobk.jpg) | W.A. Djatmiko (Wie146) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| story/frog-3 | [Green treefrog.jpg](https://commons.wikimedia.org/wiki/File:Green_treefrog.jpg) | Brian Gratwicke | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) |
+| story/banana-1 | [Bananas. Costa Rica.jpg](https://commons.wikimedia.org/wiki/File:Bananas._Costa_Rica.jpg) | Gail Frederick | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) |
+| story/banana-2 | [Liat Portal for Foodie Disorder - A Single Banana.jpg](https://commons.wikimedia.org/wiki/File:Liat_Portal_for_Foodie_Disorder_-_A_Single_Banana.jpg) | HaJunkiyada | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| story/banana-3 | [Banane-A-05 cropped.jpg](https://commons.wikimedia.org/wiki/File:Banane-A-05_cropped.jpg) | Priwo | Public domain |
+| story/rain-1 | [White Cumulus Clouds against Blue Sky with Sun Shining.jpg](https://commons.wikimedia.org/wiki/File:White_Cumulus_Clouds_against_Blue_Sky_with_Sun_Shining.jpg) | Lance Vanlewen | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| story/rain-2 | [Moody Raindrops In Dark Blue Puddle (2387754376).jpg](https://commons.wikimedia.org/wiki/File:Moody_Raindrops_In_Dark_Blue_Puddle_(2387754376).jpg) | Pink Sherbet Photography from USA | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) |
+| story/rain-3 | [WhereRainbowRises.jpg](https://commons.wikimedia.org/wiki/File:WhereRainbowRises.jpg) | Wing-Chi Poon | [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5) |
+| extra/candle | [Birthday candle, Downpatrick, July 2010.JPG](https://commons.wikimedia.org/wiki/File:Birthday_candle,_Downpatrick,_July_2010.JPG) | Ardfern | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| extra/chocolate | [2023 Gorzka czekolada.jpg](https://commons.wikimedia.org/wiki/File:2023_Gorzka_czekolada.jpg) | Jacek Halicki | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+
+`daudau.png`: render từ model Đậu Đậu tự làm (`src/ui/DauDau.tsx`) bằng `scripts/render-daudau.mjs`.

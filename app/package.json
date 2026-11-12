@@ -12,6 +12,7 @@
     "check:audio": "node scripts/check-audio.mjs",
     "check:size": "node scripts/check-size.mjs",
     "cards:photo": "node scripts/photo-cards.mjs",
+    "cards:daudau": "node scripts/render-daudau.mjs",
     "cards": "node scripts/render-cards.mjs",
     "verify": "tsc -b && oxlint && vitest run && npm run check:audio && playwright test && npm run check:size",
     "model:opt": "gltf-transform optimize",
