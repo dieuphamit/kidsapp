@@ -1,155 +1,152 @@
-// E2E tests for WorldMap component
-import { test, expect } from '@playwright/test';
-import { mkdirSync, existsSync } from 'node:fs';
+// E2E bản đồ 5 khu (T-034)
+import { test, expect, type Page } from '@playwright/test';
+import { mkdirSync } from 'node:fs';
 
-// Đảm bảo thư mục shots tồn tại
-const shotsDir = 'test-results/shots';
-if (!existsSync(shotsDir)) {
-  mkdirSync(shotsDir, { recursive: true });
-}
+mkdirSync('test-results/shots', { recursive: true });
 
-test('WorldMap hiện 4 địa điểm có game, mây và Đậu Đậu', async ({ page }) => {
-  await page.goto('./');
-  await expect(page.getByTestId('home')).toBeVisible();
+type Box = { x: number; y: number; width: number; height: number };
 
-  // 4 nút địa điểm có game (hiện tại chỉ 4 game được đăng ký)
-  await expect(page.getByLabel('Trang trại')).toBeVisible();
-  await expect(page.getByLabel('Hồ nước')).toBeVisible();
-  await expect(page.getByLabel('Vườn quả')).toBeVisible();
-  await expect(page.getByLabel('Nhà âm nhạc')).toBeVisible();
+const STAGE = { width: 1194, height: 834 };
+// 5 khu theo thứ tự; house chưa có trò (phase 3 thêm) nên có thể ẩn
+const PLACE_IDS = ['zoo', 'house', 'orchard', 'puzzle', 'music'];
+const WITH_GAMES = ['zoo', 'orchard', 'puzzle', 'music'];
 
-  // Sở thú, Nhà Đậu Đậu chỉ hiện khi đã có trò (phase 2 thêm dần); không ép ẩn hay hiện ở đây
-
-  // Ít nhất 3 đám mây
-  const clouds = page.locator('[data-testid="cloud"]');
-  await expect(clouds).toHaveCount(await clouds.count());
-  expect(await clouds.count()).toBeGreaterThanOrEqual(3);
-
-  // Đậu Đậu hiện
-  await expect(page.getByRole('img', { name: 'Đậu Đậu' })).toBeVisible();
-});
-
-test('chạm địa điểm có phản hồi trong 100ms và ghi data-last-say', async ({ page }) => {
-  await page.goto('./');
-  await expect(page.getByTestId('home')).toBeVisible();
-
-  const orchardBtn = page.getByLabel('Vườn quả');
-  await expect(orchardBtn).toBeVisible();
-
-  const box = await orchardBtn.boundingBox();
-  expect(box).not.toBeNull();
-
-  await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
-
-  await page.mouse.down();
-
-  // Chờ data-pressed xuất hiện (timeout 100ms đảm bảo phản hồi nhanh theo luật UX)
-  await expect(orchardBtn).toHaveAttribute('data-pressed', '', { timeout: 500 }); // luật UX là 100ms; e2e trên máy tải nặng (3 slot song song) cần biên
-
-  // Gốc home có data-last-say
-  const home = page.getByTestId('home');
-  await expect(home).toHaveAttribute('data-last-say', 'place.orchard', { timeout: 1000 });
-
-  await page.mouse.up();
-});
-
-// Hàm helper kiểm tra 2 bounding box có giao nhau không
-function boxesOverlap(
-  a: { x: number; y: number; width: number; height: number },
-  b: { x: number; y: number; width: number; height: number },
-): boolean {
+function overlap(a: Box, b: Box, gap = 0): boolean {
   return !(
-    a.x + a.width <= b.x ||
-    b.x + b.width <= a.x ||
-    a.y + a.height <= b.y ||
-    b.y + b.height <= a.y
+    a.x + a.width + gap <= b.x ||
+    b.x + b.width + gap <= a.x ||
+    a.y + a.height + gap <= b.y ||
+    b.y + b.height + gap <= a.y
   );
 }
 
-test('các nút địa điểm ≥120×120px và không chồng nhau', async ({ page }) => {
+async function placeButtons(page: Page) {
+  const wrappers = page.locator('[data-testid^="place-"]');
+  const ids = await wrappers.evaluateAll((els) => els.map((e) => e.getAttribute('data-testid')!.slice('place-'.length)));
+  return { ids, buttons: ids.map((id) => page.getByTestId(`place-${id}`).getByRole('button')) };
+}
+
+test('bản đồ có các khu trong 5 khu (zoo, house, orchard, puzzle, music), không còn trang trại / hồ nước', async ({ page }) => {
   await page.goto('./');
   await expect(page.getByTestId('home')).toBeVisible();
+  await expect(page.getByTestId('place-music')).toBeVisible();
 
-  // Lấy tất cả các nút địa điểm hiện có (4 nút với game hiện tại)
-  const placeLabels = ['Trang trại', 'Hồ nước', 'Vườn quả', 'Nhà âm nhạc'];
-  const boxes: { x: number; y: number; width: number; height: number; label: string }[] = [];
+  const { ids } = await placeButtons(page);
+  for (const id of WITH_GAMES) expect(ids, `khu ${id}`).toContain(id);
+  for (const id of ids) expect(PLACE_IDS, `khu lạ ${id}`).toContain(id);
+  // đúng thứ tự PLACES
+  expect(ids).toEqual(PLACE_IDS.filter((id) => ids.includes(id)));
 
-  for (const label of placeLabels) {
-    const btn = page.getByLabel(label);
-    await expect(btn).toBeVisible();
-    const box = await btn.boundingBox();
-    expect(box, `Nút ${label} có bounding box`).not.toBeNull();
-    // Kiểm tra kích thước tối thiểu 120×120
-    expect(box!.width, `Nút ${label} rộng ≥120px`).toBeGreaterThanOrEqual(120);
-    expect(box!.height, `Nút ${label} cao ≥120px`).toBeGreaterThanOrEqual(120);
-    boxes.push({ ...box!, label });
-  }
+  await expect(page.getByLabel('Thế giới thú')).toBeVisible();
+  await expect(page.getByLabel('Vườn quả')).toBeVisible();
+  await expect(page.getByLabel('Góc đố')).toBeVisible();
+  await expect(page.getByLabel('Nhà âm nhạc')).toBeVisible();
+  await expect(page.getByLabel('Trang trại')).toHaveCount(0);
+  await expect(page.getByLabel('Hồ nước')).toHaveCount(0);
 
-  // Kiểm tra không chồng nhau
-  for (let i = 0; i < boxes.length; i++) {
-    for (let j = i + 1; j < boxes.length; j++) {
-      const overlap = boxesOverlap(boxes[i], boxes[j]);
-      expect(overlap, `Nút "${boxes[i].label}" chồng với "${boxes[j].label}"`).toBe(false);
-    }
-  }
+  // dải icon trò: Thế giới thú có 5 trò nhưng chỉ hiện 4 icon đầu
+  await expect(page.getByTestId('place-zoo').getByTestId('strip')).toHaveText('🐄🦁🔊👤');
+  await expect(page.getByTestId('place-orchard').getByTestId('strip')).toHaveText('🍎🧺🔺');
+  await expect(page.getByTestId('place-puzzle').getByTestId('strip')).toHaveText('🃏🧩');
+
+  // chưa chơi trò nào thì không có nút chơi lại
+  await expect(page.getByTestId('replay')).toHaveCount(0);
+
+  const clouds = page.locator('[data-testid="cloud"]');
+  expect(await clouds.count()).toBeGreaterThanOrEqual(3);
+  await expect(page.getByRole('img', { name: 'Đậu Đậu' })).toBeVisible();
 });
 
-test('chụp ảnh WorldMap T-023', async ({ page }) => {
+test('nút khu 200px, cách nhau ≥24px, nằm trọn khung, không đè cổng phụ huynh và Đậu Đậu; chụp T-034-map', async ({ page }) => {
   await page.goto('./');
   await expect(page.getByTestId('home')).toBeVisible();
+  await expect(page.getByTestId('place-music')).toBeVisible();
+  await page.waitForTimeout(800); // chờ hiệu ứng hiện nút xong
 
-  // Đợi 800ms cho mây và Đậu Đậu ổn định
-  await page.waitForTimeout(800);
+  const { ids, buttons } = await placeButtons(page);
+  const boxes: (Box & { id: string })[] = [];
+  for (let i = 0; i < ids.length; i++) {
+    const box = await buttons[i].boundingBox();
+    expect(box, ids[i]).not.toBeNull();
+    expect(box!.width, `${ids[i]} rộng`).toBeCloseTo(200, 0);
+    expect(box!.height, `${ids[i]} cao`).toBeCloseTo(200, 0);
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.y).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(STAGE.width);
+    expect(box!.y + box!.height).toBeLessThanOrEqual(STAGE.height);
+    boxes.push({ ...box!, id: ids[i] });
+  }
 
-  await page.screenshot({ path: 'test-results/shots/T-023-map.png' });
+  const gate = await page.getByLabel('Khu phụ huynh').boundingBox();
+  const mascot = await page.getByRole('img', { name: 'Đậu Đậu' }).boundingBox();
+  const bubble = await page.getByTestId('bubble').boundingBox();
+  for (const b of boxes) {
+    expect(overlap(b, gate!), `${b.id} đè cổng phụ huynh`).toBe(false);
+    expect(overlap(b, mascot!, 24), `${b.id} sát Đậu Đậu`).toBe(false);
+    expect(overlap(b, bubble!), `${b.id} đè bong bóng`).toBe(false);
+  }
+  for (let i = 0; i < boxes.length; i++) {
+    for (let j = i + 1; j < boxes.length; j++) {
+      expect(overlap(boxes[i], boxes[j], 24), `${boxes[i].id} sát ${boxes[j].id}`).toBe(false);
+    }
+  }
+
+  await page.screenshot({ path: 'test-results/shots/T-034-map.png' });
+});
+
+test('chạm khu có phản hồi ngay (data-pressed, nói tên khu)', async ({ page }) => {
+  await page.goto('./');
+  const orchardBtn = page.getByLabel('Vườn quả');
+  await expect(orchardBtn).toBeVisible();
+  // Màn đổi sau 400ms, nên ghi lại phản hồi ngay trong trang thay vì đọc sau
+  await page.evaluate(() => {
+    const w = window as unknown as { seen: { pressed: boolean; say: string | null } };
+    w.seen = { pressed: false, say: null };
+    const home = document.querySelector('[data-testid="home"]')!;
+    const btn = document.querySelector('[aria-label="Vườn quả"]')!;
+    new MutationObserver(() => {
+      if (btn.hasAttribute('data-pressed')) w.seen.pressed = true;
+      w.seen.say ??= home.getAttribute('data-last-say') === 'place.orchard' ? 'place.orchard' : null;
+    }).observe(home, { attributes: true, subtree: true });
+  });
+  const box = (await orchardBtn.boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { seen: unknown }).seen), { timeout: 1000 })
+    .toEqual({ pressed: true, say: 'place.orchard' });
+  await page.mouse.up();
+});
+
+test('chạm khu nhiều trò mở màn chọn trò sau khoảng 400ms', async ({ page }) => {
+  await page.goto('./');
+  await expect(page.getByLabel('Góc đố')).toBeVisible();
+  await page.getByLabel('Góc đố').click();
+  await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 1500 });
+  await expect(page.getByTestId('pick-memory')).toBeVisible();
+  await expect(page.getByTestId('pick-puzzle')).toBeVisible();
+});
+
+test('chạm khu chỉ có 1 trò thì vào thẳng trò', async ({ page }) => {
+  await page.goto('./');
+  await expect(page.getByLabel('Nhà âm nhạc')).toBeVisible();
+  await page.getByLabel('Nhà âm nhạc').click();
+  await expect(page.getByTestId('game-music')).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByTestId('game-picker')).toHaveCount(0);
 });
 
 test('bong bóng không giao với mây ở 3 thời điểm', async ({ page }) => {
   await page.goto('./');
   await expect(page.getByTestId('home')).toBeVisible();
-
   const bubble = page.getByTestId('bubble');
   const clouds = page.locator('[data-testid="cloud"]');
-
-  // Kiểm tra ở 3 thời điểm: 0s, 2s, 4s
-  for (const waitTime of [0, 2000, 2000]) {
-    if (waitTime > 0) {
-      await page.waitForTimeout(waitTime);
-    }
-
+  for (const wait of [0, 2000, 2000]) {
+    if (wait > 0) await page.waitForTimeout(wait);
     const bubbleBox = await bubble.boundingBox();
     expect(bubbleBox).not.toBeNull();
-
-    const cloudCount = await clouds.count();
-    for (let i = 0; i < cloudCount; i++) {
+    const n = await clouds.count();
+    for (let i = 0; i < n; i++) {
       const cloudBox = await clouds.nth(i).boundingBox();
-      expect(cloudBox).not.toBeNull();
-
-      const overlap = boxesOverlap(bubbleBox!, cloudBox!);
-      expect(overlap, `Mây ${i + 1} giao với bong bóng`).toBe(false);
+      expect(overlap(bubbleBox!, cloudBox!), `Mây ${i + 1} giao với bong bóng`).toBe(false);
     }
   }
-});
-
-test('chạm địa điểm có 1 game thì vào thẳng game như cũ', async ({ page }) => {
-  await page.goto('./');
-  await expect(page.getByTestId('home')).toBeVisible();
-
-  const pondBtn = page.getByLabel('Hồ nước');
-  await expect(pondBtn).toBeVisible();
-
-  const box = await pondBtn.boundingBox();
-  expect(box).not.toBeNull();
-
-  await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
-  await page.mouse.down();
-  await page.mouse.up();
-
-  // Chờ 1 giây để game load
-  await page.waitForTimeout(1000);
-
-  // Phải đang trong game (home không còn visible hoặc game-picker không hiện)
-  // Kiểm tra game-picker không hiện (vì chỉ có 1 game)
-  await expect(page.getByTestId('game-picker')).not.toBeVisible();
-  await expect(page.getByTestId('game-shapes')).toBeVisible({ timeout: 10_000 });
 });

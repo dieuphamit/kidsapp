@@ -9,7 +9,7 @@ export const manifest: GameManifest = {
   color: 'leaf',
   minAge: 24,
   maxAge: 72,
-  order: 0,
+  order: 1,
   titleKey: 'game.zoo3d',
   Component: lazy(() => import('./Game')),
 };

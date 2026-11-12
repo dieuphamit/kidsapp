@@ -4,7 +4,7 @@ import type { GameManifest } from '../../core/games';
 export const manifest: GameManifest = {
   id: 'puzzle',
   title: { vi: 'Ghép hình', ja: 'パズル' },
-  place: 'place.house',
+  place: 'place.puzzle',
   icon: '🧩',
   color: 'lilac',
   minAge: 24,

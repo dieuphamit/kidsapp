@@ -4,7 +4,7 @@ import type { GameManifest } from '../../core/games';
 export const manifest: GameManifest = {
   id: 'memory',
   title: { vi: 'Lật hình', ja: 'おなじの さがし' },
-  place: 'place.house',
+  place: 'place.puzzle',
   icon: '🃏',
   color: 'lilac',
   minAge: 24,

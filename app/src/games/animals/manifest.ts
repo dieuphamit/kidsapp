@@ -4,7 +4,7 @@ import type { GameManifest } from '../../core/games';
 export const manifest: GameManifest = {
   id: 'animals',
   title: { vi: 'Con vật', ja: 'どうぶつ' },
-  place: 'place.farm',
+  place: 'place.zoo',
   icon: '🐄',
   color: 'butter',
   minAge: 24,

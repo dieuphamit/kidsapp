@@ -1,3 +1,5 @@
+/* Khung 1194×834 (Stage). Toạ độ px tính trong khung.
+   Hàng trên: 144..344, hàng dưới: 600..800; cổng phụ huynh chiếm góc phải trên 120×120. */
 .world {
   position: fixed;
   inset: 0;
@@ -67,13 +69,6 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .cloud {
-    animation: none;
-    left: var(--cloud-x, 10%);
-  }
-}
-
 .bubble {
   position: fixed;
   top: 16px;
@@ -92,47 +87,104 @@
 
 .mascot {
   position: absolute;
-  width: 300px;
-  height: 400px;
+  width: 280px;
+  height: 460px;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  top: 100px;
+  transform: translateX(-50%);
   z-index: 2;
 }
 
+/* ---- Khu ---- */
 .place {
   position: absolute;
   z-index: 3;
+  animation: pop 420ms var(--ease-squish) both;
 }
 
-.placeTopLeft {
-  left: 10%;
-  top: 26%;
+.topLeft { left: 96px; top: 144px; }
+.topRight { right: 96px; top: 144px; animation-delay: 60ms; }
+.bottomLeft { left: 96px; top: 600px; animation-delay: 120ms; }
+.bottomCenter { left: calc(50% - 100px); top: 600px; animation-delay: 180ms; }
+.bottomRight { right: 96px; top: 600px; animation-delay: 240ms; }
+
+/* Nảy nhẹ khi hiện ra; chỉ đổi độ mờ và vị trí dọc, giữ nguyên kích thước nút */
+@keyframes pop {
+  0% { opacity: 0; translate: 0 24px; }
+  100% { opacity: 1; translate: 0 0; }
 }
 
-.placeBottomLeft {
-  left: 18%;
-  top: 62%;
+.placeIcon {
+  font-size: 64px;
+  line-height: 1;
+  filter: drop-shadow(0 4px 4px rgba(60, 40, 120, 0.18));
 }
 
-.placeTopRight {
-  right: 10%;
-  top: 26%;
+.placeName {
+  font-size: 22px;
+  line-height: 1.15;
+  max-width: 180px;
+  text-align: center;
+  white-space: normal;
 }
 
-.placeBottomRight {
-  right: 18%;
-  top: 62%;
+.strip {
+  display: flex;
+  gap: 4px;
+  padding: 4px 10px;
+  margin-top: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--paper) 62%, transparent);
 }
 
-.placeTopCenter {
-  left: 50%;
-  transform: translateX(-50%);
-  top: 8%;
+.stripIcon {
+  font-size: 24px;
+  line-height: 1.1;
 }
 
-.placeBottomCenter {
-  left: 50%;
-  transform: translateX(-50%);
-  top: 78%;
+/* ---- Nút chơi lại: tròn 132px, ngay bên phải Đậu Đậu ---- */
+.replay {
+  position: absolute;
+  z-index: 3;
+  left: calc(50% + 164px);
+  top: 380px;
+  animation: pop 420ms var(--ease-squish) 300ms both;
+}
+
+.replay > button {
+  background: var(--paper) !important;
+  border: 6px solid var(--learn-yellow);
+  border-radius: 50%;
+  position: relative;
+}
+
+.replayIcon {
+  font-size: 60px;
+  line-height: 1;
+}
+
+.replayBadge {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--learn-yellow);
+  color: var(--ink);
+  font-size: 28px;
+  line-height: 44px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(60, 40, 120, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud {
+    animation: none;
+    left: var(--cloud-x, 10%);
+  }
+  .place,
+  .replay {
+    animation: none;
+  }
 }

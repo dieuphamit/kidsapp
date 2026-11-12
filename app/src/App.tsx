@@ -3,6 +3,7 @@ import { DEFAULT_SETTINGS, loadSettings, saveSettings, type Settings } from './c
 import { createSpeaker, unlockAudioOnFirstGesture } from './core/audio';
 import { ALL_GAMES, gamesForAge, type GameManifest } from './core/games';
 import { startSession, isOver, readLocked, writeLocked } from './core/session';
+import { loadLastGame, saveLastGame } from './core/lastGame';
 import { WorldMap } from './ui/WorldMap';
 import { GamePicker } from './ui/GamePicker';
 import { SleepScreen } from './ui/SleepScreen';
@@ -16,6 +17,7 @@ export default function App() {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [game, setGame] = useState<GameManifest | null>(null);
   const [picker, setPicker] = useState<PickerState>(null);
+  const [lastGameId, setLastGameId] = useState<string | null>(null);
   const [parentOpen, setParentOpen] = useState(false);
   const [locked, setLocked] = useState(readLocked);
   const langRef = useRef(settings.lang);
@@ -27,7 +29,16 @@ export default function App() {
 
   useEffect(() => {
     loadSettings().then((s) => { setSettings(s); setSession(startSession(Date.now(), s.sessionMinutes)); });
+    void loadLastGame().then((id) => { if (id) setLastGameId((cur) => cur ?? id); });
   }, []);
+
+  // Mở trò và nhớ lại để hiện nút chơi lại trên bản đồ
+  const openGame = (g: GameManifest) => {
+    setPicker(null);
+    setGame(g);
+    setLastGameId(g.id);
+    void saveLastGame(g.id);
+  };
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -36,7 +47,7 @@ export default function App() {
     return () => clearInterval(id);
   }, [session, locked]);
 
-  // Hook cho e2e: ?e2e=1&picker=farm → ép mở picker
+  // Hook cho e2e: ?e2e=1&picker=zoo → ép mở picker
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('e2e') === '1' && params.has('picker')) {
@@ -50,11 +61,6 @@ export default function App() {
   }, [settings.ageMonths]);
 
   const games = gamesForAge(ALL_GAMES, settings.ageMonths);
-
-  const handlePickFromPicker = (g: GameManifest) => {
-    setPicker(null);
-    setGame(g);
-  };
 
   return (
     <Stage>
@@ -70,7 +76,7 @@ export default function App() {
           games={picker.placeGames}
           lang={settings.lang}
           speaker={speaker}
-          onPick={handlePickFromPicker}
+          onPick={openGame}
           onBack={() => setPicker(null)}
         />
       ) : (
@@ -78,8 +84,9 @@ export default function App() {
           games={games}
           lang={settings.lang}
           speaker={speaker}
-          onPick={setGame}
+          onPick={openGame}
           onOpenPicker={(placeKey, placeGames) => setPicker({ placeKey, placeGames })}
+          lastGameId={lastGameId}
         />
       )}
       <ParentGate onOpen={() => setParentOpen(true)} />

@@ -9,7 +9,7 @@ export const manifest: GameManifest = {
   color: 'leaf',
   minAge: 24,
   maxAge: 60,
-  order: 1,
+  order: 4,
   titleKey: 'game.peekaboo',
   Component: lazy(() => import('./Game')),
 };
