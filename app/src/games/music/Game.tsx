@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { GameProps } from '../../core/games';
+import { playSetup } from '../../core/variety';
 import { BackHome } from '../../ui/BackHome';
 import { ClayButton } from '../../ui/ClayButton';
 import { DrawPad } from './DrawPad';
@@ -8,17 +9,21 @@ import styles from './Game.module.css';
 
 type Mode = 'draw' | 'play';
 
-export default function Game({ lang, speaker, onExit }: GameProps) {
+export default function Game({ lang, speaker, ageMonths, options, onExit }: GameProps) {
   const [lastSay, setLastSay] = useState('');
   const [mode, setMode] = useState<Mode>('draw');
+  const [{ level }] = useState(() => playSetup(ageMonths, options));
 
-  const say = (key: string) => {
-    speaker.say(key);
-    setLastSay(key);
-  };
+  const say = useCallback(
+    (key: string) => {
+      speaker.say(key);
+      setLastSay(key);
+    },
+    [speaker],
+  );
 
   return (
-    <div className={styles.game} data-testid="game-music" data-last-say={lastSay || undefined}>
+    <div className={styles.game} data-testid="game-music" data-level={level} data-last-say={lastSay || undefined}>
       <BackHome onExit={onExit} />
 
       {/* Nút chuyển chế độ ở giữa mép trên */}
@@ -43,7 +48,7 @@ export default function Game({ lang, speaker, onExit }: GameProps) {
       {/* Instruments: chỉ hiện khi chế độ play */}
       {mode === 'play' && (
         <div className={styles.content}>
-          <Instruments />
+          <Instruments level={level} say={say} />
         </div>
       )}
     </div>

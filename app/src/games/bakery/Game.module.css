@@ -197,9 +197,11 @@
   position: absolute;
   top: -96px;
   right: 6px;
-  width: 104px;
-  height: 92px;
-  border-radius: 50%;
+  min-width: 104px;
+  min-height: 92px;
+  padding: 8px 14px;
+  box-sizing: border-box;
+  border-radius: 46px;
   background: var(--paper);
   box-shadow: var(--shadow-clay);
   display: flex;
@@ -388,4 +390,28 @@
   font-size: 72px;
   line-height: 1;
   pointer-events: none;
+}
+
+/* Điều ước của khách trong bong bóng: món còn thiếu mờ, có rồi thì sáng và nảy */
+.wishList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  max-width: 156px;
+}
+
+.wishImg {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  opacity: 0.4;
+  filter: grayscale(0.6);
+  transition: opacity 200ms, filter 200ms, transform 200ms var(--ease-squish);
+}
+
+.wishImg[data-got] {
+  opacity: 1;
+  filter: none;
+  transform: scale(1.12);
 }

@@ -62,7 +62,10 @@ describe('manifest options', () => {
   it('các trò có logic theo tuổi khai báo difficulty', () => {
     const withDiff = ALL_GAMES.filter((g) => g.options?.difficulty).map((g) => g.id).sort();
     expect(withDiff).toEqual(
-      ['hide', 'memory', 'path', 'pattern', 'peekaboo', 'puzzle', 'shadow', 'sort', 'sound-quiz', 'story'],
+      [
+        'bakery', 'band', 'counting', 'hide', 'memory', 'music', 'path', 'pattern', 'peekaboo', 'puzzle',
+        'shadow', 'shapes', 'sort', 'sound-quiz', 'story',
+      ],
     );
   });
   it('chủ đề khai báo không chứa mix', () => {

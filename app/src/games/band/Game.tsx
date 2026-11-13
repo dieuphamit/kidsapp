@@ -3,7 +3,11 @@ import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
 import { ClayButton } from '../../ui/ClayButton';
 import { clientToStage, stageRect } from '../../ui/Stage';
-import { BAND_ANIMALS, beatMs, emptySlots, hasAnimals, nextBeat, place, remove, type Slots, type Tempo } from './logic';
+import { contentByKey } from '../../core/content';
+import { playSetup } from '../../core/variety';
+import {
+  BAND_LEVELS, STARTER, beatMs, emptySlots, hasAnimals, nextBeat, place, remove, trayFor, type Slots, type Tempo,
+} from './logic';
 import styles from './Game.module.css';
 
 const BASE = import.meta.env.BASE_URL;
@@ -21,6 +25,11 @@ const NAME_VI: Record<string, string> = {
   dog: 'Con chó',
   sheep: 'Con cừu',
 };
+const CONTENT = contentByKey();
+const nameVi = (id: string) => NAME_VI[id] ?? CONTENT.get(`animal.${id}`)?.vi ?? id;
+
+/** Khay lần vào trước, để lần sau đổi bạn (nhất là khách mời ở mức khó). */
+let lastTray: string[] = [];
 
 interface Drag {
   id: string;
@@ -41,8 +50,15 @@ declare global {
   }
 }
 
-export default function Game({ speaker, onExit }: GameProps) {
-  const [slots, setSlots] = useState<Slots>(() => place(emptySlots(), 0, 'dog'));
+export default function Game({ speaker, ageMonths, options, onExit }: GameProps) {
+  const [{ level }] = useState(() => playSetup(ageMonths, options));
+  const rule = BAND_LEVELS[level];
+  const [tray] = useState(() => {
+    const t = trayFor(level, lastTray);
+    lastTray = t;
+    return t;
+  });
+  const [slots, setSlots] = useState<Slots>(() => place(emptySlots(rule.slots), 0, STARTER));
   const [tempo, setTempo] = useState<Tempo>('normal');
   const [ready, setReady] = useState(false);
   const [beat, setBeat] = useState(-1);
@@ -79,7 +95,7 @@ export default function Game({ speaker, onExit }: GameProps) {
   useEffect(() => {
     if (!playing) return;
     const id = setInterval(() => {
-      const b = nextBeat(beatRef.current);
+      const b = nextBeat(beatRef.current, slotsRef.current.length);
       beatRef.current = b;
       setBeat(b);
       setTick((n) => n + 1);
@@ -178,6 +194,7 @@ export default function Game({ speaker, onExit }: GameProps) {
     <div
       className={styles.scene}
       data-testid="game-band"
+      data-level={level}
       data-last-say={lastSay}
       data-beat={showBeat ? beat : undefined}
       data-tempo={tempo}
@@ -246,7 +263,7 @@ export default function Game({ speaker, onExit }: GameProps) {
                   className={styles.onStage}
                   data-landed={landed?.slot === i ? '' : undefined}
                 >
-                  <ClayButton color="butter" size={168} label={`Ô ${i + 1}: ${id}`} onPress={() => takeOff(i)}>
+                  <ClayButton color="butter" size={level === 'hard' ? 128 : 168} label={`Ô ${i + 1}: ${id}`} onPress={() => takeOff(i)}>
                     <span key={active ? `hop-${tick}` : 'rest'} className={active ? styles.hop : styles.rest}>
                       <img src={`${BASE}cards/${id}.png`} alt="" className={styles.stageImg} draggable={false} />
                     </span>
@@ -264,7 +281,7 @@ export default function Game({ speaker, onExit }: GameProps) {
 
       {/* Khay con vật */}
       <div className={styles.tray}>
-        {BAND_ANIMALS.map((id) => {
+        {tray.map((id) => {
           const lifted = drag?.id === id && drag.moved;
           const pressed = drag?.id === id;
           return (
@@ -272,7 +289,7 @@ export default function Game({ speaker, onExit }: GameProps) {
               key={backHome?.id === id ? `back-${backHome.n}` : id}
               className={styles.trayItem}
               data-testid={`tray-${id}`}
-              aria-label={NAME_VI[id]}
+              aria-label={nameVi(id)}
               data-pressed={pressed ? '' : undefined}
               data-lifted={lifted ? '' : undefined}
               data-back={backHome?.id === id ? '' : undefined}

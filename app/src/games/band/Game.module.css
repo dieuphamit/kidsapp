@@ -367,3 +367,33 @@
     animation: none;
   }
 }
+
+/* ---------- Mức khó: 6 ô nhịp, khay 7 bạn (vẫn ≥120px, khe ≥24px) ---------- */
+.scene[data-level='hard'] .podium {
+  width: 1120px;
+}
+.scene[data-level='hard'] .slots {
+  gap: 24px;
+  top: 214px;
+}
+.scene[data-level='hard'] .slot {
+  width: 160px;
+  height: 160px;
+  border-radius: 36px;
+}
+.scene[data-level='hard'] .stageImg {
+  width: 100px;
+  height: 100px;
+}
+.scene[data-level='hard'] .tray {
+  gap: 24px;
+  padding: 20px 24px;
+}
+.scene[data-level='hard'] .trayItem {
+  width: 124px;
+  height: 124px;
+}
+.scene[data-level='hard'] .trayImg {
+  width: 100px;
+  height: 100px;
+}

@@ -6,26 +6,29 @@ import { Scene3D } from '../../ui/Scene3D';
 import { BackHome } from '../../ui/BackHome';
 import type { GameProps } from '../../core/games';
 import { LEARN_HEX, type LearnColor } from '../../core/tokens';
+import { playSetup, type Level } from '../../core/variety';
 import {
-  SHAPES,
-  SLOTS,
-  dealColors,
+  newShapesRound,
   markTapped,
   dropResult,
   markPlaced,
   allPlaced,
   type Shape,
+  type ShapesRound,
   type ShapesState,
+  type Vec3,
 } from './logic';
 
 const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
 
-const SHAPE_POSITIONS: Record<Shape, [number, number, number]> = {
-  circle: [-2.4, 0.8, 0],
-  square: [-0.8, 0.8, 0],
-  triangle: [0.8, 0.8, 0],
-  star: [2.4, 0.8, 0],
-};
+/** Hình của lượt vừa chơi, giữ qua các lần vào trò để lượt sau ra hình khác. */
+let lastShapes: Shape[] = [];
+
+function startRound(level: Level): { round: ShapesRound; state: ShapesState } {
+  const round = newShapesRound(level, lastShapes);
+  lastShapes = round.shapes;
+  return { round, state: { colors: round.colors, tapped: new Set(), placed: new Set(), shapes: round.shapes } };
+}
 
 const POND_COLOR = '#a0e7e5';
 const SHORE_COLOR = '#9be38a';
@@ -53,6 +56,19 @@ function createStarShape(): THREE.Shape {
   shape.closePath();
   return shape;
 }
+
+function createHeartShape(scale = 1): THREE.Shape {
+  const s = scale;
+  const shape = new THREE.Shape();
+  shape.moveTo(0, -0.6 * s);
+  shape.bezierCurveTo(-0.15 * s, -0.42 * s, -0.68 * s, -0.12 * s, -0.66 * s, 0.2 * s);
+  shape.bezierCurveTo(-0.64 * s, 0.52 * s, -0.22 * s, 0.66 * s, 0, 0.36 * s);
+  shape.bezierCurveTo(0.22 * s, 0.66 * s, 0.64 * s, 0.52 * s, 0.66 * s, 0.2 * s);
+  shape.bezierCurveTo(0.68 * s, -0.12 * s, 0.15 * s, -0.42 * s, 0, -0.6 * s);
+  return shape;
+}
+
+const EXTRUDE = { depth: 0.5, bevelEnabled: true, bevelThickness: 0.08, bevelSize: 0.08, bevelSegments: 3 };
 
 // Flat shadow shape for slots
 function createFlatStarShape(): THREE.Shape {
@@ -233,6 +249,45 @@ function ShapeMesh({
             <meshStandardMaterial color={hexColor} roughness={0.55} />
           </mesh>
         );
+      case 'heart':
+        return (
+          <mesh position={[0, 0, -0.25]} onPointerDown={handlePointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}>
+            <extrudeGeometry args={[createHeartShape(), EXTRUDE]} />
+            <meshStandardMaterial color={hexColor} roughness={0.55} />
+          </mesh>
+        );
+      case 'rectangle':
+        return (
+          <RoundedBox
+            args={[1.5, 0.75, 0.75]}
+            radius={0.12}
+            onPointerDown={handlePointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+          >
+            <meshStandardMaterial color={hexColor} roughness={0.55} />
+          </RoundedBox>
+        );
+      case 'oval':
+        return (
+          <mesh scale={[1.3, 0.8, 0.8]} onPointerDown={handlePointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}>
+            <sphereGeometry args={[0.6, 32, 24]} />
+            <meshStandardMaterial color={hexColor} roughness={0.55} />
+          </mesh>
+        );
+      case 'diamond':
+        return (
+          <RoundedBox
+            args={[0.85, 0.85, 0.85]}
+            radius={0.1}
+            rotation={[0, 0, Math.PI / 4]}
+            onPointerDown={handlePointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+          >
+            <meshStandardMaterial color={hexColor} roughness={0.55} />
+          </RoundedBox>
+        );
       case 'star':
         return (
           <mesh
@@ -269,6 +324,7 @@ function ShapeMesh({
 // Shadow slot component
 function ShadowSlot({ shape, position, filled }: { shape: Shape; position: [number, number, number]; filled: boolean }) {
   const flatStarShape = useMemo(() => createFlatStarShape(), []);
+  const flatHeartShape = useMemo(() => createHeartShape(0.9), []);
 
   if (filled) return null;
 
@@ -292,6 +348,34 @@ function ShadowSlot({ shape, position, filled }: { shape: Shape; position: [numb
         return (
           <mesh rotation={[-Math.PI / 2, Math.PI, 0]} position={[position[0], 0.01, position[2]]}>
             <circleGeometry args={[0.65, 3]} />
+            <meshStandardMaterial color={SLOT_COLOR} transparent opacity={0.18} />
+          </mesh>
+        );
+      case 'heart':
+        return (
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[position[0], 0.01, position[2]]}>
+            <shapeGeometry args={[flatHeartShape]} />
+            <meshStandardMaterial color={SLOT_COLOR} transparent opacity={0.18} />
+          </mesh>
+        );
+      case 'rectangle':
+        return (
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[position[0], 0.01, position[2]]}>
+            <planeGeometry args={[1.4, 0.7]} />
+            <meshStandardMaterial color={SLOT_COLOR} transparent opacity={0.18} />
+          </mesh>
+        );
+      case 'oval':
+        return (
+          <mesh rotation={[-Math.PI / 2, 0, 0]} scale={[1.3, 0.8, 1]} position={[position[0], 0.01, position[2]]}>
+            <circleGeometry args={[0.55, 32]} />
+            <meshStandardMaterial color={SLOT_COLOR} transparent opacity={0.18} />
+          </mesh>
+        );
+      case 'diamond':
+        return (
+          <mesh rotation={[-Math.PI / 2, 0, Math.PI / 4]} position={[position[0], 0.01, position[2]]}>
+            <planeGeometry args={[0.8, 0.8]} />
             <meshStandardMaterial color={SLOT_COLOR} transparent opacity={0.18} />
           </mesh>
         );
@@ -455,6 +539,7 @@ function DragPlane({
 }
 
 function ShapesScene({
+  round,
   state,
   bouncingShapes,
   dragState,
@@ -466,6 +551,7 @@ function ShapesScene({
   onDragMove,
   onReady,
 }: {
+  round: ShapesRound;
   state: ShapesState;
   bouncingShapes: Set<Shape>;
   dragState: DragState | null;
@@ -486,21 +572,21 @@ function ShapesScene({
       <Ripple delay={3} />
 
       {/* Shadow slots on shore */}
-      {SHAPES.map((shape) => (
-        <ShadowSlot key={`slot-${shape}`} shape={shape} position={SLOTS[shape]} filled={state.placed.has(shape)} />
+      {round.shapes.map((shape) => (
+        <ShadowSlot key={`slot-${shape}`} shape={shape} position={round.slots[shape]!} filled={state.placed.has(shape)} />
       ))}
 
       {/* Shape meshes */}
-      {SHAPES.map((shape, idx) => (
+      {round.shapes.map((shape, idx) => (
         <ShapeMesh
           key={shape}
           shape={shape}
-          color={state.colors[shape]}
-          position={SHAPE_POSITIONS[shape]}
+          color={state.colors[shape] ?? 'red'}
+          position={round.positions[shape]!}
           phase={(idx * Math.PI) / 2}
           bouncing={bouncingShapes.has(shape)}
           placed={state.placed.has(shape)}
-          slotPosition={state.placed.has(shape) ? SLOTS[shape] : null}
+          slotPosition={state.placed.has(shape) ? round.slots[shape]! : null}
           dragging={dragState?.shape === shape && dragState.isDragging}
           dragPosition={dragState?.shape === shape && dragState.isDragging ? dragState.position : null}
           animatingBack={animateBackState?.shape === shape}
@@ -521,12 +607,11 @@ function ShapesScene({
   );
 }
 
-export default function Game({ speaker, onExit }: GameProps) {
-  const [state, setState] = useState<ShapesState>(() => ({
-    colors: dealColors(),
-    tapped: new Set(),
-    placed: new Set(),
-  }));
+export default function Game({ speaker, ageMonths, options, onExit }: GameProps) {
+  const [{ level }] = useState(() => playSetup(ageMonths, options));
+  const [first] = useState(() => startRound(level));
+  const [round, setRound] = useState<ShapesRound>(first.round);
+  const [state, setState] = useState<ShapesState>(first.state);
   const [lastSay, setLastSay] = useState('');
   const [bouncingShapes, setBouncingShapes] = useState<Set<Shape>>(new Set());
   const [ready, setReady] = useState(false);
@@ -580,7 +665,7 @@ export default function Game({ speaker, onExit }: GameProps) {
       startBounce(shape);
 
       // Say color first (immediate feedback)
-      const color = state.colors[shape];
+      const color = state.colors[shape] ?? 'red';
       say(`color.${color}`);
 
       // Update tapped state
@@ -597,7 +682,7 @@ export default function Game({ speaker, onExit }: GameProps) {
 
   const handleDrop = useCallback(
     (shape: Shape, dropPoint: [number, number, number]) => {
-      const result = dropResult(shape, dropPoint, SLOTS);
+      const result = dropResult(shape, dropPoint, round.slots, round.radius);
 
       if (result === 'snap') {
         // Snap to slot
@@ -611,18 +696,16 @@ export default function Game({ speaker, onExit }: GameProps) {
           // All shapes bounce after short delay
           greatTimeoutRef.current = setTimeout(() => {
             setCelebrating(true);
-            SHAPES.forEach((s, i) => {
+            round.shapes.forEach((s, i) => {
               setTimeout(() => startBounce(s), i * 100);
             });
 
-            // Reset after celebration
+            // Reset after celebration: lượt mới, hình khác
             resetTimeoutRef.current = setTimeout(() => {
               setCelebrating(false);
-              setState({
-                colors: dealColors(),
-                tapped: new Set(),
-                placed: new Set(),
-              });
+              const next = startRound(level);
+              setRound(next.round);
+              setState(next.state);
             }, 2500);
           }, 800);
         }
@@ -658,7 +741,7 @@ export default function Game({ speaker, onExit }: GameProps) {
         }, 16);
       }
     },
-    [state, say, startBounce]
+    [state, round, level, say, startBounce]
   );
 
   const handlePointerDown = useCallback(
@@ -677,7 +760,7 @@ export default function Game({ speaker, onExit }: GameProps) {
       (e.target as HTMLElement)?.setPointerCapture?.(e.pointerId);
 
       // Start potential drag
-      const originalPos = SHAPE_POSITIONS[shape];
+      const originalPos: Vec3 = round.positions[shape] ?? [0, 0.8, 0];
       setDragState({
         shape,
         pointerId: e.pointerId,
@@ -690,7 +773,7 @@ export default function Game({ speaker, onExit }: GameProps) {
 
       // Immediate feedback: bounce and say color
       startBounce(shape);
-      const color = state.colors[shape];
+      const color = state.colors[shape] ?? 'red';
       say(`color.${color}`);
 
       // Schedule shape name (will be cancelled if drag starts)
@@ -698,7 +781,7 @@ export default function Game({ speaker, onExit }: GameProps) {
         say(`shape.${shape}`);
       }, 1000);
     },
-    [dragState, state, handleTap, startBounce, say]
+    [dragState, state, round, handleTap, startBounce, say]
   );
 
   const handlePointerMove = useCallback(
@@ -790,14 +873,16 @@ export default function Game({ speaker, onExit }: GameProps) {
     const win = window as unknown as {
       __behocTap?: (id: string) => void;
       __behocDrag?: (id: string, toX: number, toZ: number) => void;
+      __behocShapes?: () => { shapes: Shape[]; slots: Partial<Record<Shape, Vec3>>; radius: number };
     };
+    win.__behocShapes = () => ({ shapes: [...round.shapes], slots: { ...round.slots }, radius: round.radius });
     win.__behocTap = (id: string) => {
-      if (SHAPES.includes(id as Shape)) {
+      if (round.shapes.includes(id as Shape)) {
         handleTap(id as Shape);
       }
     };
     win.__behocDrag = (id: string, toX: number, toZ: number) => {
-      if (SHAPES.includes(id as Shape)) {
+      if (round.shapes.includes(id as Shape)) {
         const shape = id as Shape;
         if (state.placed.has(shape)) return;
 
@@ -810,8 +895,9 @@ export default function Game({ speaker, onExit }: GameProps) {
     return () => {
       delete win.__behocTap;
       delete win.__behocDrag;
+      delete win.__behocShapes;
     };
-  }, [handleTap, handleDrop, state.placed]);
+  }, [handleTap, handleDrop, state.placed, round]);
 
   const handleReady = useCallback(() => {
     setReady(true);
@@ -820,6 +906,8 @@ export default function Game({ speaker, onExit }: GameProps) {
   return (
     <div
       data-testid="game-shapes"
+      data-level={level}
+      data-shapes={round.shapes.join(' ')}
       data-last-say={lastSay || undefined}
       data-ready={ready ? 'true' : undefined}
       style={{
@@ -830,6 +918,7 @@ export default function Game({ speaker, onExit }: GameProps) {
     >
       <Scene3D label="Hồ nước" view={{ position: [0, 3.2, 10.5], target: [0, 0.3, 1.2], fov: 42 }} shadowScale={12}>
         <ShapesScene
+          round={round}
           state={state}
           bouncingShapes={bouncingShapes}
           dragState={dragState}

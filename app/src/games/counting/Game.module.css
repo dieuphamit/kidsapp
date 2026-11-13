@@ -108,12 +108,92 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 4px;
+  align-content: center;
+  gap: 6px;
   max-width: 320px;
 }
 
+.basket[data-kind='animals'] {
+  background-color: var(--scene-barn);
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 30px,
+    var(--scene-barn-dark) 30px,
+    var(--scene-barn-dark) 34px
+  );
+}
+
+.basket[data-kind='shapes'] {
+  background-color: var(--clay-lilac);
+  background-image: none;
+}
+
+/* Chỗ trống trong giỏ: bé thấy cần bỏ bao nhiêu món */
+.spot {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 4px dashed color-mix(in srgb, var(--ink-soft) 55%, transparent);
+  background: color-mix(in srgb, var(--paper) 55%, transparent);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.basketContent:has(> .spot:nth-child(6)) .spot {
+  width: 44px;
+  height: 44px;
+}
+
+.spot[data-filled] {
+  border-style: solid;
+  border-color: var(--paper);
+  background: var(--paper);
+}
+
+/* Bãi cỏ cho con vật / hình: không có cây */
+.field {
+  position: absolute;
+  top: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+}
+
+.panel {
+  padding: 32px 40px;
+  border-radius: 64px;
+  background: color-mix(in srgb, var(--paper) 55%, transparent);
+  box-shadow: var(--shadow-clay);
+}
+
+.itemImg {
+  object-fit: contain;
+  pointer-events: none;
+  display: block;
+}
+
+.shapeSvg {
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 0 color-mix(in srgb, var(--ink) 25%, transparent));
+}
+
+.fruit[data-wiggle] {
+  animation: wiggle 420ms var(--ease-squish);
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg) scale(1.05); }
+  75% { transform: rotate(10deg) scale(1.05); }
+}
+
 .basketFruit {
-  font-size: 32px;
+  display: flex;
   animation: bounceIn 300ms var(--ease-squish);
 }
 
@@ -134,7 +214,7 @@
 .countDisplay {
   position: absolute;
   bottom: 50px;
-  right: calc(50% - 220px);
+  left: calc(50% + 200px);
   font-size: 72px;
   font-weight: 700;
   color: var(--ink);

@@ -161,8 +161,8 @@ test('nút Về nhà đưa về home', async ({ page }) => {
   await expect(page.getByTestId('home')).toBeVisible();
 });
 
-test('chạm nút Nhạc hiện 8 phím và 4 trống, tất cả >= 120x120, cách nhau >= 24px', async ({ page }) => {
-  await page.goto('./');
+test('chạm nút Nhạc hiện 8 phím và 4 trống (mức vừa), tất cả >= 120x120, cách nhau >= 24px', async ({ page }) => {
+  await page.goto('./?e2e=1&level=medium');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
   await pickGame(page, 'music');
@@ -351,4 +351,77 @@ test('chạm Vẽ trở lại chế độ vẽ, nét vẽ trước đó vẫn c�
     return false;
   });
   expect(hasColorAfter).toBe(true);
+});
+
+/** Vào Nhà âm nhạc → Vẽ và nhạc → chế độ Nhạc. */
+async function openPlay(page: import('@playwright/test').Page, query: string) {
+  await page.goto(`./?${query}&picker=music`);
+  await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10_000 });
+  await page.getByTestId('pick-music').click();
+  await expect(page.getByTestId('game-music')).toBeVisible();
+  await page.getByLabel('Nhạc').click();
+  const box = page.getByTestId('instruments');
+  await expect(box).toBeVisible();
+  return box;
+}
+
+test('E3: mức dễ 5 phím 2 trống; theo phím sáng chơi hết câu nhạc → khen; chụp E3-music.png', async ({ page }) => {
+  const box = await openPlay(page, 'e2e=1');
+  const game = page.getByTestId('game-music');
+  await expect(box).toHaveAttribute('data-level', 'easy');
+  await expect(page.getByLabel('Phím 5', { exact: true })).toBeVisible();
+  await expect(page.getByLabel('Phím 6', { exact: true })).toHaveCount(0);
+  await expect(page.getByLabel('Trống nhỏ', { exact: true })).toHaveCount(0);
+  const song = await box.getAttribute('data-song');
+  await expect(game).toHaveAttribute('data-last-say', `song.${song}`);
+
+  // Mọi nút trong khung ≥120px và cách nhau ≥24px
+  const boxes = await page.locator('button:visible').evaluateAll((els) =>
+    els.map((e) => {
+      const r = e.getBoundingClientRect();
+      return { name: e.getAttribute('aria-label'), x: r.x, y: r.y, w: r.width, h: r.height };
+    }),
+  );
+  for (const b of boxes) {
+    expect(b.w, b.name ?? '').toBeGreaterThanOrEqual(120);
+    expect(b.h, b.name ?? '').toBeGreaterThanOrEqual(120);
+  }
+  for (let i = 0; i < boxes.length; i++) {
+    for (let j = i + 1; j < boxes.length; j++) {
+      const a = boxes[i], b = boxes[j];
+      const gapX = Math.max(0, Math.max(a.x, b.x) - Math.min(a.x + a.w, b.x + b.w));
+      const gapY = Math.max(0, Math.max(a.y, b.y) - Math.min(a.y + a.h, b.y + b.h));
+      expect(Math.max(gapX, gapY), `${a.name} ↔ ${b.name}`).toBeGreaterThanOrEqual(24);
+    }
+  }
+
+  // chơi 2 nốt đầu rồi chụp: phím sáng nhún, chấm tiến trình sáng
+  const length = Number(await box.getAttribute('data-length'));
+  for (let i = 0; i < 2; i++) {
+    const k = Number(await box.getAttribute('data-next-key'));
+    await page.getByLabel(`Phím ${k + 1}`, { exact: true }).click();
+  }
+  await expect(box).toHaveAttribute('data-pos', '2');
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: 'test-results/shots/E3-music.png' });
+
+  for (let i = 2; i < length; i++) {
+    const k = Number(await box.getAttribute('data-next-key'));
+    await page.getByLabel(`Phím ${k + 1}`, { exact: true }).click();
+  }
+  await expect(box).toHaveAttribute('data-cheer', '');
+  await expect(game).toHaveAttribute('data-last-say', 'music.song-done', { timeout: 3000 });
+  // xong thì sang bài khác
+  await expect(box).not.toHaveAttribute('data-song', song!, { timeout: 20_000 });
+});
+
+test('E3: mức khó cả bài dài hơn; nút Bài khác đổi bài', async ({ page }) => {
+  const box = await openPlay(page, 'e2e=1&level=hard');
+  await expect(page.getByLabel('Phím 8', { exact: true })).toBeVisible();
+  expect(Number(await box.getAttribute('data-length'))).toBeGreaterThanOrEqual(12);
+  const song = await box.getAttribute('data-song');
+  await page.getByLabel('Bài khác').click();
+  await expect(box).not.toHaveAttribute('data-song', song!);
+  await expect(page.getByTestId('game-music')).toHaveAttribute('data-last-say', /^song\./);
+  await page.screenshot({ path: 'test-results/shots/E3-music-hard.png' });
 });
