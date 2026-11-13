@@ -23,3 +23,8 @@ Ngày: 2026-11-13. Bố mẹ giao Claude tự quyết chi tiết, tiêu chí: th
 - Các khu: đồng cỏ (sở thú hiện có), ao hồ, rừng, dưới biển, trên trời. Kéo ngang một ngón để qua khu bên cạnh (luật 6: chỉ kéo đơn giản), kèm nút mũi tên lớn ≥120px cho bé chưa biết vuốt.
 - Mỗi khu ≤ ~50k tam giác, 4–6 con; chạm con vật thì nó phản ứng và kêu tiếng thật.
 - Thiết kế chi tiết sau khi có report của agent R.
+
+## E. Đa dạng trò chơi, chỉnh trong cài đặt
+- Khu bố mẹ có mục "Trò chơi": bật/tắt từng trò; độ khó Tự theo tuổi (mặc định)/Dễ/Vừa/Khó (quy ra tuổi giả 24/36/54 tháng truyền vào trò); chủ đề cho trò hợp (Con vật/Trái cây/Hình khối & màu/Trộn).
+- Manifest khai báo tùy chọn trò hỗ trợ; trò nhận `options` qua props. Trò tắt thì ẩn khỏi bản đồ, kệ đồ chơi, tour.
+- Mỗi trò mở rộng kho nội dung từ tài nguyên có sẵn để mỗi lượt một khác (E2–E4 chia nhóm trò).
