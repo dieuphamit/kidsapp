@@ -8,6 +8,7 @@ import {
   pieceTargetPosition,
   cardContentKey,
   cardIdsForTopic,
+  RECENT_PUZZLES,
 } from './logic';
 import { isFruit } from '../../content/fruitIds';
 
@@ -240,7 +241,34 @@ describe('chủ đề', () => {
     for (let seed = 1; seed < 10; seed++) expect(isFruit(nextRound(done, seed, 'fruits').cardId)).toBe(true);
   });
   test('mix và chủ đề không có ảnh dùng mọi ảnh', () => {
-    expect(cardIdsForTopic('mix')).toEqual(cardIdsForTopic('shapes'));
-    expect(cardIdsForTopic('mix').length).toBe(cardIdsForTopic('animals').length + cardIdsForTopic('fruits').length);
+    expect(cardIdsForTopic('mix')).toEqual(cardIdsForTopic('colors'));
+    expect(cardIdsForTopic('mix').length).toBe(
+      cardIdsForTopic('animals').length + cardIdsForTopic('fruits').length + cardIdsForTopic('shapes').length,
+    );
+  });
+  test('hình khối: ảnh SVG mặt cười, đọc shape.<id>', () => {
+    expect(cardIdsForTopic('shapes')).toContain('heart');
+    for (let seed = 1; seed < 20; seed++) {
+      const p = newPuzzle(2, seed, 0, 'shapes');
+      expect(cardContentKey(p.cardId)).toBe(`shape.${p.cardId}`);
+    }
+  });
+  test('kho lớn: con vật ≥ 20, quả ≥ 16, hình ≥ 8', () => {
+    expect(cardIdsForTopic('animals').length).toBeGreaterThanOrEqual(20);
+    expect(cardIdsForTopic('fruits').length).toBeGreaterThanOrEqual(16);
+    expect(cardIdsForTopic('shapes').length).toBeGreaterThanOrEqual(8);
+  });
+  test('không lặp ảnh của vài ván gần nhất', () => {
+    const recent: string[] = [];
+    for (let seed = 1; seed < 40; seed++) {
+      const p = newPuzzle(2, seed, 0, 'shapes', recent);
+      expect(recent).not.toContain(p.cardId);
+      recent.push(p.cardId);
+      if (recent.length > RECENT_PUZZLES) recent.shift();
+    }
+  });
+  test('nextRound mặc định không lặp ảnh vừa ghép', () => {
+    const done = { ...newPuzzle(2, 5, 0, 'shapes'), done: true, winsAtPieceCount: 1 };
+    for (let seed = 1; seed < 20; seed++) expect(nextRound(done, seed, 'shapes').cardId).not.toBe(done.cardId);
   });
 });

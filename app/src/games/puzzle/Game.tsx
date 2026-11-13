@@ -11,11 +11,13 @@ import {
   initialPieceCount,
   pieceTargetPosition,
   cardContentKey,
+  RECENT_PUZZLES,
   type PuzzleState,
 } from './logic';
+import { recentPicks, rememberPicks } from '../../core/gameOptions';
+import { pictureUrl } from '../../content/pictures';
 import styles from './Game.module.css';
 
-const BASE = import.meta.env.BASE_URL;
 const FRAME_SIZE = 360; // px, khung ghép ≥ 360px theo spec
 const PIECE_MIN_SIZE = 120; // luật UX: vùng chạm ≥ 120px
 
@@ -65,9 +67,9 @@ function initialTrayPositions(pieceCount: 2 | 3 | 4): PiecePosition[] {
   return positions;
 }
 
-/** URL ảnh card. */
+/** URL ảnh card (thẻ png hoặc hình khối svg). */
 function cardUrl(cardId: string): string {
-  return `${BASE}cards/${cardId}.png`;
+  return pictureUrl(cardId);
 }
 
 /** Tính background-position cho mảnh (để cắt ảnh). */
@@ -104,9 +106,12 @@ function pieceBackgroundStyle(
 
 export default function Game({ speaker, ageMonths, options, onExit }: GameProps) {
   const topic = options?.topic ?? 'mix';
-  const [state, setState] = useState<PuzzleState>(() =>
-    newPuzzle(initialPieceCount(ageMonths), 0, 0, topic)
-  );
+  const [state, setState] = useState<PuzzleState>(() => {
+    // Trí nhớ ngắn: không ghép lại ảnh của vài ván gần đây (kể cả lần vào trò trước)
+    const first = newPuzzle(initialPieceCount(ageMonths), 0, 0, topic, recentPicks<string>('puzzle'));
+    rememberPicks('puzzle', [first.cardId], RECENT_PUZZLES);
+    return first;
+  });
   const [piecePositions, setPiecePositions] = useState<PiecePosition[]>(() =>
     initialTrayPositions(state.pieceCount)
   );
@@ -183,7 +188,8 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
           setTimeout(() => {
             setShowStars(false);
             setCompleteAnim(false);
-            const next = nextRound(state, 0, topic);
+            const next = nextRound(state, 0, topic, recentPicks<string>('puzzle'));
+            rememberPicks('puzzle', [next.cardId], RECENT_PUZZLES);
             setState(next);
             setPiecePositions(initialTrayPositions(next.pieceCount));
             doneHandled.current = false;

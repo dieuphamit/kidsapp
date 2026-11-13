@@ -2,10 +2,11 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import type { GameProps } from '../../core/games';
 import { ClayButton } from '../../ui/ClayButton';
 import { Scenery } from '../../ui/Scenery';
-import { newQuestion, choiceCountForAge, type FarmAnimal, type QuizQuestion } from './logic';
+import { recentPicks, rememberPicks } from '../../core/gameOptions';
+import { pictureUrl } from '../../content/pictures';
+import { newQuestion, choiceCountForAge, ANSWER_MEMORY, type SoundAnimal, type QuizQuestion } from './logic';
 import styles from './Game.module.css';
 
-const BASE = import.meta.env.BASE_URL;
 
 interface CardState {
   animClass: string;
@@ -15,9 +16,8 @@ interface CardState {
 export default function Game({ speaker, ageMonths, onExit }: GameProps) {
   const [question, setQuestion] = useState<QuizQuestion | null>(null);
   const [lastSay, setLastSay] = useState('');
-  const [cardStates, setCardStates] = useState<Map<FarmAnimal, CardState>>(new Map());
+  const [cardStates, setCardStates] = useState<Map<SoundAnimal, CardState>>(new Map());
   const [locked, setLocked] = useState(false);
-  const prevIdRef = useRef<FarmAnimal | undefined>(undefined);
   const sparkleIdRef = useRef(0);
   const isFirstRef = useRef(true);
   const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e');
@@ -49,10 +49,10 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
 
   const generateNewQuestion = useCallback(() => {
     const count = choiceCountForAge(ageMonths);
-    const seed = Date.now();
-    const q = newQuestion(count, seed, prevIdRef.current);
+    // Trí nhớ ngắn: không ra lại con vật của vài ván gần đây (kể cả lần vào trò trước)
+    const q = newQuestion(count, undefined, recentPicks<SoundAnimal>('sound-quiz'));
+    rememberPicks('sound-quiz', [q.answer], ANSWER_MEMORY);
     setQuestion(q);
-    prevIdRef.current = q.answer;
     setCardStates(new Map());
     setLocked(false);
     return q;
@@ -74,17 +74,19 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleCorrect = useCallback((animal: FarmAnimal, cardEl: HTMLButtonElement) => {
+  const handleCorrect = useCallback((animal: SoundAnimal, cardEl: HTMLButtonElement) => {
     setLocked(true);
 
     // Create sparkles
-    const rect = cardEl.getBoundingClientRect();
+    // Kích thước trong khung Stage (không dùng getBoundingClientRect vì khung bị co giãn/xoay)
+    const w = cardEl.offsetWidth;
+    const h = cardEl.offsetHeight;
     const newSparkles: { id: number; x: number; y: number }[] = [];
     for (let i = 0; i < 4; i++) {
       newSparkles.push({
         id: sparkleIdRef.current++,
-        x: Math.random() * rect.width,
-        y: Math.random() * rect.height,
+        x: Math.random() * w,
+        y: Math.random() * h,
       });
     }
 
@@ -110,7 +112,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
     }, 2000);
   }, [generateNewQuestion, saySpeaker]);
 
-  const handleWrong = useCallback((animal: FarmAnimal) => {
+  const handleWrong = useCallback((animal: SoundAnimal) => {
     setCardStates((prev) => {
       const next = new Map(prev);
       next.set(animal, { animClass: styles.cardShake, sparkles: [] });
@@ -133,7 +135,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
     }, 400);
   }, [saySpeaker, playSoundKey]);
 
-  const handleCardPress = useCallback((animal: FarmAnimal, e: React.PointerEvent<HTMLButtonElement>) => {
+  const handleCardPress = useCallback((animal: SoundAnimal, e: React.PointerEvent<HTMLButtonElement>) => {
     if (locked || !question) return;
 
     const cardEl = e.currentTarget;
@@ -186,7 +188,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
               onPointerDown={(e) => handleCardPress(animal, e)}
             >
               <img
-                src={`${BASE}cards/${animal}.png`}
+                src={pictureUrl(animal)}
                 alt={animal}
                 className={styles.cardImg}
                 draggable={false}

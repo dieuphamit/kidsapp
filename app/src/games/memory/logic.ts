@@ -1,14 +1,22 @@
 import { get, set } from 'idb-keyval';
 import type { Topic } from '../../core/gameOptions';
 
-// Card kinds allowed at each level
-type CardKind = 'farm' | 'fruit' | 'wild';
+import {
+  FARM_ANIMAL_IDS,
+  FRUIT_IDS,
+  SHAPE_IDS,
+  WILD_ANIMAL_IDS,
+} from '../../content/pictures';
 
+// Card kinds allowed at each level
+export type CardKind = 'farm' | 'fruit' | 'wild' | 'shape';
+
+// Trộn: cấp 1–2 thú nuôi + quả; cấp 3–4 thêm thú hoang và hình khối
 const KINDS_BY_LEVEL: Record<number, CardKind[]> = {
   1: ['farm', 'fruit'],
   2: ['farm', 'fruit'],
-  3: ['farm', 'fruit', 'wild'],
-  4: ['farm', 'fruit', 'wild'],
+  3: ['farm', 'fruit', 'wild', 'shape'],
+  4: ['farm', 'fruit', 'wild', 'shape'],
 };
 
 const PAIRS_BY_LEVEL: Record<number, number> = {
@@ -22,7 +30,16 @@ const PAIRS_BY_LEVEL: Record<number, number> = {
 const KINDS_BY_TOPIC: Partial<Record<Topic, CardKind[]>> = {
   animals: ['farm', 'wild'],
   fruits: ['fruit'],
+  shapes: ['shape'],
 };
+
+/** Mọi thẻ của trò: 20 con vật, 16 quả, 8 hình khối (kho trong content/pictures). */
+export const ALL_CARDS: Card[] = [
+  ...FARM_ANIMAL_IDS.map((id) => ({ id, kind: 'farm' as const })),
+  ...WILD_ANIMAL_IDS.map((id) => ({ id, kind: 'wild' as const })),
+  ...FRUIT_IDS.map((id) => ({ id, kind: 'fruit' as const })),
+  ...SHAPE_IDS.map((id) => ({ id, kind: 'shape' as const })),
+];
 
 export interface Card {
   id: string; // e.g. "cow", "apple"
@@ -82,8 +99,15 @@ function pickRandom<T>(arr: T[], n: number, rand: () => number): T[] {
  * @param seed random seed for deterministic shuffling
  * @param allCards all available cards from index.json
  * @param topic chủ đề bố mẹ chọn (mặc định trộn)
+ * @param avoid id thẻ của ván trước: ưu tiên thẻ khác, thiếu mới lấy lại
  */
-export function newRound(level: number, seed: number, allCards: Card[], topic: Topic = 'mix'): GameState {
+export function newRound(
+  level: number,
+  seed: number,
+  allCards: Card[],
+  topic: Topic = 'mix',
+  avoid: readonly string[] = [],
+): GameState {
   const clampedLevel = Math.max(1, Math.min(4, level));
   const pairs = PAIRS_BY_LEVEL[clampedLevel];
   const allowedKinds = KINDS_BY_LEVEL[clampedLevel];
@@ -99,8 +123,12 @@ export function newRound(level: number, seed: number, allCards: Card[], topic: T
     available = inTopic.length >= pairs ? inTopic : allCards.filter((c) => topicKinds.includes(c.kind));
   }
 
-  // Pick random cards for pairs
-  const selected = pickRandom(available, pairs, rand);
+  // Pick random cards for pairs, ưu tiên thẻ không có ở ván trước
+  const fresh = available.filter((c) => !avoid.includes(c.id));
+  const selected =
+    fresh.length >= pairs
+      ? pickRandom(fresh, pairs, rand)
+      : [...fresh, ...pickRandom(available.filter((c) => avoid.includes(c.id)), pairs - fresh.length, rand)];
 
   // Create pairs (each card appears twice)
   const cardStates: CardState[] = [];

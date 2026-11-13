@@ -153,6 +153,12 @@ function writeCredits(metas) {
     lines.push(`| ${m.id} | [${m.file.replace(/\|/g, '\\|')}](${m.page}) | ${m.author.replace(/\|/g, '\\|')} | ${lic} |`);
   }
   lines.push('', '`daudau.png`: render từ model Đậu Đậu tự làm (`src/ui/DauDau.tsx`) bằng `scripts/render-daudau.mjs`.');
+  lines.push(
+    '',
+    '## Hình khối (shapes/*.svg)',
+    '',
+    'Tự vẽ bằng SVG cho dự án (hình đơn giản có mặt cười, màu lấy từ `src/core/tokens.css`), không dùng tài nguyên bên ngoài.',
+  );
   writeFileSync(join(OUT, 'CREDITS.md'), lines.join('\n') + '\n');
 }
 

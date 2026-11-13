@@ -11,16 +11,12 @@ import {
   loadLevel,
   saveLevel,
   progressLevel,
-  type Card,
+  ALL_CARDS,
   type GameState,
 } from './logic';
+import { recentPicks, rememberPicks } from '../../core/gameOptions';
+import { pictureSayKey, pictureUrl } from '../../content/pictures';
 import styles from './Game.module.css';
-
-// Import card index from public
-interface CardData {
-  id: string;
-  kind: 'farm' | 'fruit' | 'wild';
-}
 
 // Grid layout based on number of pairs
 function getLayout(pairs: number): string {
@@ -33,22 +29,14 @@ function getLayout(pairs: number): string {
   }
 }
 
-// Get audio key for card (animal.<id> or fruit.<id>)
-function getAudioKey(card: { id: string; kind: string }): string {
-  if (card.kind === 'fruit') {
-    return `fruit.${card.id}`;
-  }
-  // farm and wild are animals
-  return `animal.${card.id}`;
-}
 
 export default function Game({ speaker, ageMonths, options, onExit }: GameProps) {
   const difficulty = options?.difficulty ?? 'auto';
   const topic = options?.topic ?? 'mix';
-  const [allCards, setAllCards] = useState<Card[]>([]);
   const [state, setState] = useState<GameState | null>(null);
   const [lastSay, setLastSay] = useState('');
-  const [level, setLevel] = useState(1);
+  // null cho tới khi đọc xong cấp đã lưu, để không bày một ván thừa rồi đổi ngay
+  const [level, setLevel] = useState<number | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [showStars, setShowStars] = useState(false);
   const [wins, setWins] = useState(0);
@@ -60,13 +48,6 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
     speaker.say(key);
     setLastSay(key);
   }, [speaker]);
-
-  // Load cards from index.json
-  useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}cards/index.json`)
-      .then(res => res.json())
-      .then((data: CardData[]) => setAllCards(data));
-  }, []);
 
   // Initialize level from storage or age
   useEffect(() => {
@@ -82,9 +63,11 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
 
   // Start new round when level or cards change
   useEffect(() => {
-    if (allCards.length === 0) return;
+    if (level === null) return;
     const seed = Date.now();
-    const newState = newRound(level, seed, allCards, topic);
+    // Trí nhớ ngắn: ưu tiên thẻ khác ván vừa chơi
+    const newState = newRound(level, seed, ALL_CARDS, topic, recentPicks<string>('memory'));
+    rememberPicks('memory', newState.cards.map((c) => c.id), 1);
     newState.wins = wins;
     setState(newState);
     setShowPreview(true);
@@ -100,7 +83,7 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [level, allCards, wins, say, topic]);
+  }, [level, wins, say, topic]);
 
   // Expose reveal function for e2e testing
   useEffect(() => {
@@ -129,7 +112,7 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
     setState({ ...state });
 
     // Say card name
-    say(getAudioKey(card));
+    say(pictureSayKey(card.id));
 
     if (result === 'first') {
       return;
@@ -217,7 +200,7 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
                 <div className={styles.cardFace + ' ' + styles.cardFront}>
                   <img
                     className={styles.cardImage}
-                    src={`${import.meta.env.BASE_URL}cards/${card.id}.png`}
+                    src={pictureUrl(card.id)}
                     alt={card.id}
                     draggable={false}
                   />

@@ -3,25 +3,22 @@
  * Không phụ thuộc React hay DOM.
  */
 
-import { FRUIT_IDS, isFruit } from '../../content/fruitIds';
-import type { Topic } from '../../core/gameOptions';
+import { ANIMAL_IDS, FRUIT_IDS, SHAPE_IDS, pictureSayKey } from '../../content/pictures';
+import { pickFresh, type Topic } from '../../core/gameOptions';
 
 /**
- * Danh sách ID các card (con vật và quả) để dùng làm ảnh ghép.
- * Lấy từ cards/index.json, chỉ dùng farm và fruit để phù hợp với bé nhỏ.
+ * Ảnh ghép: 20 con vật, 16 quả, 8 hình khối có mặt cười (kho trong content/pictures).
  */
-const ANIMAL_IDS = ['cow', 'chicken', 'duck', 'pig', 'dog', 'sheep', 'horse', 'rabbit', 'cat'];
-const CARD_IDS = [
-  // farm animals
-  ...ANIMAL_IDS,
-  // fruits
-  ...FRUIT_IDS,
-];
+const CARD_IDS: readonly string[] = [...ANIMAL_IDS, ...FRUIT_IDS, ...SHAPE_IDS];
+
+/** Số ván gần nhất không ra lại cùng ảnh. */
+export const RECENT_PUZZLES = 4;
 
 /** Ảnh dùng được theo chủ đề bố mẹ chọn; chủ đề không có ảnh thì trộn. */
 export function cardIdsForTopic(topic: Topic = 'mix'): readonly string[] {
   if (topic === 'animals') return ANIMAL_IDS;
   if (topic === 'fruits') return FRUIT_IDS;
+  if (topic === 'shapes') return SHAPE_IDS;
   return CARD_IDS;
 }
 
@@ -68,12 +65,17 @@ function seededRandom(seed: number): () => number {
  * @param seed để chọn card deterministic (test), nếu 0 thì random
  * @param winsAtPieceCount số ván đã thắng ở pieceCount này
  * @param topic chủ đề bố mẹ chọn (mặc định trộn)
+ * @param avoid ảnh của vài ván gần đây, không ra lại ngay
  */
-export function newPuzzle(pieceCount: 2 | 3 | 4, seed = 0, winsAtPieceCount = 0, topic: Topic = 'mix'): PuzzleState {
+export function newPuzzle(
+  pieceCount: 2 | 3 | 4,
+  seed = 0,
+  winsAtPieceCount = 0,
+  topic: Topic = 'mix',
+  avoid: readonly string[] = [],
+): PuzzleState {
   const rand = seed > 0 ? seededRandom(seed) : Math.random;
-  const ids = cardIdsForTopic(topic);
-  const cardIdx = Math.floor(rand() * ids.length);
-  const cardId = ids[cardIdx];
+  const [cardId] = pickFresh(cardIdsForTopic(topic), 1, avoid, rand);
   const pieces: Piece[] = Array.from({ length: pieceCount }, (_, i) => ({ index: i, placed: false }));
   return { cardId, pieceCount, pieces, done: false, winsAtPieceCount };
 }
@@ -155,18 +157,20 @@ export function placePiece(state: PuzzleState, pieceIdx: number): PuzzleState {
 /**
  * Tạo ván tiếp theo sau khi hoàn thành.
  */
-export function nextRound(state: PuzzleState, seed = 0, topic: Topic = 'mix'): PuzzleState {
+export function nextRound(
+  state: PuzzleState,
+  seed = 0,
+  topic: Topic = 'mix',
+  avoid: readonly string[] = [state.cardId],
+): PuzzleState {
   const newCount = nextPieceCount(state.pieceCount, state.winsAtPieceCount);
   const wins = newCount === state.pieceCount ? state.winsAtPieceCount : 0;
-  return newPuzzle(newCount, seed, wins, topic);
+  return newPuzzle(newCount, seed, wins, topic, avoid);
 }
 
 /**
- * Lấy key nội dung để say tên hình (animal.<id> hoặc fruit.<id>).
+ * Lấy key nội dung để say tên hình (animal.<id>, fruit.<id> hoặc shape.<id>).
  */
 export function cardContentKey(cardId: string): string {
-  if (isFruit(cardId)) {
-    return `fruit.${cardId}`;
-  }
-  return `animal.${cardId}`;
+  return pictureSayKey(cardId);
 }

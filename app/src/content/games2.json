@@ -1,7 +1,7 @@
 [
   { "key": "game.farm3d", "vi": "Các bạn ở trang trại", "ja": "まきばの なかま", "en": "Farm friends" },
   { "key": "game.sound-quiz", "vi": "Ai kêu đấy?", "ja": "だれの こえ?", "en": "Who's that sound?" },
-  { "key": "game.sort", "vi": "Xếp quả theo màu", "ja": "いろわけ", "en": "Sort by color" },
+  { "key": "game.sort", "vi": "Xếp vào giỏ", "ja": "なかまわけ", "en": "Sort into baskets" },
   { "key": "game.zoo3d", "vi": "Các bạn ở sở thú", "ja": "どうぶつえんの なかま", "en": "Zoo friends" },
   { "key": "game.peekaboo", "vi": "Ú òa", "ja": "いないいないばあ", "en": "Peekaboo" },
   { "key": "game.shadow", "vi": "Bóng của ai?", "ja": "だれの かげ?", "en": "Whose shadow?" },
@@ -20,5 +20,10 @@
   { "key": "sort.hello", "vi": "Xếp quả vào giỏ cùng màu nhé!", "ja": "おなじ いろの かごに いれてね!", "en": "Put each fruit in the basket of the same color!" },
   { "key": "sort.done", "vi": "Xếp xong rồi!", "ja": "ぜんぶ いれたね!", "en": "All sorted!" },
   { "key": "puzzle.hello", "vi": "Ghép hình nào!", "ja": "パズルを しよう!", "en": "Let's do a puzzle!" },
-  { "key": "puzzle.done", "vi": "Ghép xong rồi!", "ja": "できたね!", "en": "All done!" }
+  { "key": "puzzle.done", "vi": "Ghép xong rồi!", "ja": "できたね!", "en": "All done!" },
+  { "key": "shadow.hello-thing", "vi": "Bóng của cái gì đây?", "ja": "これは なんの かげかな?", "en": "What is this shadow?" },
+  { "key": "sort.hello-kinds", "vi": "Con vật vào giỏ con vật, trái cây vào giỏ trái cây nhé!", "ja": "どうぶつは どうぶつの かごへ、くだものは くだものの かごへ いれてね!", "en": "Animals go in the animal basket, fruits go in the fruit basket!" },
+  { "key": "sort.hello-sizes", "vi": "Con vật to vào giỏ to, con vật nhỏ vào giỏ nhỏ nhé!", "ja": "おおきい どうぶつと ちいさい どうぶつに わけてね!", "en": "Big animals in the big basket, small animals in the small basket!" },
+  { "key": "sort.big", "vi": "To ơi là to!", "ja": "おおきいね!", "en": "So big!" },
+  { "key": "sort.small", "vi": "Nhỏ xíu xiu!", "ja": "ちいさいね!", "en": "So small!" }
 ]

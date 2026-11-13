@@ -65,3 +65,7 @@
 | extra/chocolate | [2023 Gorzka czekolada.jpg](https://commons.wikimedia.org/wiki/File:2023_Gorzka_czekolada.jpg) | Jacek Halicki | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 
 `daudau.png`: render từ model Đậu Đậu tự làm (`src/ui/DauDau.tsx`) bằng `scripts/render-daudau.mjs`.
+
+## Hình khối (shapes/*.svg)
+
+Tự vẽ bằng SVG cho dự án (hình đơn giản có mặt cười, màu lấy từ `src/core/tokens.css`), không dùng tài nguyên bên ngoài.

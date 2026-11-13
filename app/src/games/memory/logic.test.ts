@@ -9,9 +9,12 @@ import {
   loadLevel,
   saveLevel,
   progressLevel,
+  ALL_CARDS,
   type Card,
   type GameState,
 } from './logic';
+import { contentByKey } from '../../core/content';
+import { pictureSayKey } from '../../content/pictures';
 
 // Store for mock
 const mockStore = new Map<string, unknown>();
@@ -322,5 +325,52 @@ describe('newRound theo chủ đề', () => {
   });
   it('mix giữ như cũ', () => {
     expect(newRound(2, 99, mockCards, 'mix')).toEqual(newRound(2, 99, mockCards));
+  });
+});
+
+describe('kho thẻ đầy đủ và trí nhớ ngắn', () => {
+  it('ALL_CARDS có 20 con vật, 16 quả, 8 hình khối, id không trùng', () => {
+    const count = (k: string) => ALL_CARDS.filter((c) => c.kind === k).length;
+    expect(count('farm') + count('wild')).toBe(20);
+    expect(count('fruit')).toBe(16);
+    expect(count('shape')).toBe(8);
+    expect(new Set(ALL_CARDS.map((c) => c.id)).size).toBe(ALL_CARDS.length);
+  });
+
+  it('mọi thẻ có câu đọc tên', () => {
+    const content = contentByKey();
+    for (const c of ALL_CARDS) expect(content.has(pictureSayKey(c.id)), c.id).toBe(true);
+  });
+
+  it('chủ đề hình khối: chỉ thẻ hình, đủ 6 cặp ở cấp 4', () => {
+    const state = newRound(4, 3, ALL_CARDS, 'shapes');
+    expect(state.cards).toHaveLength(12);
+    expect(state.cards.every((c) => c.kind === 'shape')).toBe(true);
+  });
+
+  it('trộn cấp 1–2 không có hình khối, cấp 3–4 có thể có', () => {
+    for (let seed = 1; seed < 30; seed++) {
+      expect(newRound(2, seed, ALL_CARDS).cards.some((c) => c.kind === 'shape')).toBe(false);
+    }
+    let hasShape = false;
+    for (let seed = 1; seed < 60 && !hasShape; seed++) {
+      hasShape = newRound(4, seed, ALL_CARDS).cards.some((c) => c.kind === 'shape');
+    }
+    expect(hasShape).toBe(true);
+  });
+
+  it('ván sau không lặp thẻ của ván trước khi kho đủ', () => {
+    const first = newRound(3, 11, ALL_CARDS, 'animals');
+    const avoid = first.cards.map((c) => c.id);
+    for (let seed = 12; seed < 30; seed++) {
+      const next = newRound(3, seed, ALL_CARDS, 'animals', avoid);
+      for (const c of next.cards) expect(avoid).not.toContain(c.id);
+    }
+  });
+
+  it('kho thiếu thẻ mới thì lấy lại thẻ cũ cho đủ cặp', () => {
+    const first = newRound(4, 5, ALL_CARDS, 'shapes');
+    const next = newRound(4, 6, ALL_CARDS, 'shapes', first.cards.map((c) => c.id));
+    expect(next.cards).toHaveLength(12);
   });
 });

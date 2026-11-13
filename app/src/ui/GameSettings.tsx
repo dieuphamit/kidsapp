@@ -24,6 +24,9 @@ const TOPIC_TEXT: Record<Topic, { icon: string; vi: string; ja: string }> = {
   animals: { icon: '🐶', vi: 'Con vật', ja: 'どうぶつ' },
   fruits: { icon: '🍎', vi: 'Trái cây', ja: 'くだもの' },
   shapes: { icon: '🔺', vi: 'Hình & màu', ja: 'かたち・いろ' },
+  colors: { icon: '🎨', vi: 'Theo màu', ja: 'いろで' },
+  kinds: { icon: '🐾', vi: 'Thú / quả', ja: 'なかま' },
+  sizes: { icon: '🐘', vi: 'To / nhỏ', ja: 'おおきさ' },
 };
 
 type Props = {

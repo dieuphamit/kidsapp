@@ -6,6 +6,11 @@ import {
   sanitizeGameSetting,
   sanitizeGameSettings,
   DEFAULT_GAME_SETTING,
+  pickFresh,
+  pickFreshRemembered,
+  recentPicks,
+  rememberPicks,
+  clearRecentPicks,
 } from './gameOptions';
 import { ALL_GAMES } from './games';
 
@@ -67,5 +72,50 @@ describe('manifest options', () => {
   });
   it('chủ đề khai báo không chứa mix', () => {
     for (const g of ALL_GAMES) expect(g.options?.topics ?? [], g.id).not.toContain('mix');
+  });
+});
+
+describe('xáo trộn có trí nhớ ngắn', () => {
+  it('pickFresh: n món khác nhau, tránh món trong avoid khi đủ', () => {
+    for (let i = 0; i < 30; i++) {
+      const got = pickFresh(['a', 'b', 'c', 'd', 'e'], 3, ['a', 'b']);
+      expect(new Set(got).size).toBe(3);
+      expect(got.sort()).toEqual(['c', 'd', 'e']);
+    }
+  });
+
+  it('pickFresh: thiếu món mới thì lấy thêm món cũ cho đủ', () => {
+    const got = pickFresh(['a', 'b', 'c'], 3, ['a', 'b']);
+    expect(got[0]).toBe('c');
+    expect([...got].sort()).toEqual(['a', 'b', 'c']);
+    expect(pickFresh(['a'], 3)).toEqual(['a']);
+  });
+
+  it('rememberPicks chỉ giữ số lượt gần nhất, theo từng key', () => {
+    clearRecentPicks();
+    rememberPicks('x', ['a'], 2);
+    rememberPicks('x', ['b'], 2);
+    rememberPicks('x', ['c'], 2);
+    rememberPicks('y', ['z']);
+    expect(recentPicks('x')).toEqual(['b', 'c']);
+    expect(recentPicks('y')).toEqual(['z']);
+    clearRecentPicks();
+    expect(recentPicks('x')).toEqual([]);
+  });
+
+  it('pickFreshRemembered không lặp lượt vừa chơi', () => {
+    clearRecentPicks();
+    let prev: string | undefined;
+    for (let i = 0; i < 50; i++) {
+      const [cur] = pickFreshRemembered('k', ['a', 'b', 'c'], 1, 1);
+      expect(cur).not.toBe(prev);
+      prev = cur;
+    }
+  });
+
+  it('mọi chủ đề trò khai báo là chủ đề hợp lệ', () => {
+    for (const g of ALL_GAMES) {
+      for (const t of g.options?.topics ?? []) expect(sanitizeGameSetting({ topic: t }).topic, g.id).toBe(t);
+    }
   });
 });

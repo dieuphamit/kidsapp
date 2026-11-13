@@ -21,6 +21,11 @@
   z-index: 1;
 }
 
+.orchard[data-many] {
+  width: 830px;
+  max-width: none;
+}
+
 .fruitSlot {
   width: 140px;
   height: 140px;
@@ -89,6 +94,12 @@
 .basket[data-color="red"] { --c: var(--learn-red); }
 .basket[data-color="yellow"] { --c: var(--learn-yellow); }
 .basket[data-color="green"] { --c: var(--learn-green); }
+.basket[data-color="orange"] { --c: var(--learn-orange); }
+/* Kiểu con vật / trái cây và to / nhỏ */
+.basket[data-color="animal"] { --c: var(--learn-purple); }
+.basket[data-color="fruit"] { --c: var(--learn-red); }
+.basket[data-color="big"] { --c: var(--learn-blue); }
+.basket[data-color="small"] { --c: var(--learn-yellow); }
 
 .basket[data-bounce] {
   animation: basketBounce 300ms var(--ease-squish);
@@ -208,6 +219,17 @@
   height: 62px;
   object-fit: contain;
   pointer-events: none;
+}
+
+/* Giỏ to: thú mẫu to tràn thẻ; giỏ nhỏ: thú mẫu bé xíu */
+.basket[data-color="big"] .basketHint {
+  width: 78px;
+  height: 78px;
+}
+
+.basket[data-color="small"] .basketHint {
+  width: 34px;
+  height: 34px;
 }
 
 /* Quả đã xếp: nằm trong miệng giỏ, sau vành */

@@ -1,58 +1,74 @@
 import { describe, it, expect } from 'vitest';
-import { newRound, drop, isDone } from './logic';
+import {
+  newRound,
+  drop,
+  isDone,
+  modeForRound,
+  roundSize,
+  itemsForBin,
+  HELLO_KEY,
+  COLOR_BINS,
+  FRUITS_BY_COLOR,
+  SORT_MODES,
+  type BinId,
+} from './logic';
+import { pictureSayKey } from '../../content/pictures';
 import { contentByKey } from '../../core/content';
 
 describe('sort/logic', () => {
   describe('newRound', () => {
-    it('với 2 giỏ tạo 4-6 quả, màu đỏ và vàng', () => {
+    it('với 2 giỏ tạo 4-6 quả, 2 màu khác nhau, quả đúng màu giỏ', () => {
       const state = newRound(2, 12345);
-      expect(state.baskets.length).toBe(2);
-      expect(state.baskets.map((b) => b.color).sort()).toEqual(['red', 'yellow']);
+      const colors = state.baskets.map((b) => b.color);
+      expect(colors.length).toBe(2);
+      expect(new Set(colors).size).toBe(2);
+      for (const c of colors) expect(COLOR_BINS).toContain(c);
       expect(state.fruits.length).toBeGreaterThanOrEqual(4);
       expect(state.fruits.length).toBeLessThanOrEqual(6);
       for (const f of state.fruits) {
-        expect(['red', 'yellow']).toContain(f.color);
+        expect(colors).toContain(f.color);
       }
     });
 
-    it('với 3 giỏ tạo 6 quả, màu đỏ, vàng, xanh lá', () => {
+    it('với 3 giỏ tạo 6 quả, 3 màu khác nhau', () => {
       const state = newRound(3, 12345);
-      expect(state.baskets.length).toBe(3);
-      expect(state.baskets.map((b) => b.color).sort()).toEqual(['green', 'red', 'yellow']);
+      const colors = state.baskets.map((b) => b.color);
+      expect(new Set(colors).size).toBe(3);
       expect(state.fruits.length).toBe(6);
       for (const f of state.fruits) {
-        expect(['red', 'yellow', 'green']).toContain(f.color);
+        expect(colors).toContain(f.color);
       }
+    });
+
+    it('màu giỏ đổi giữa các ván (có trên 2 bộ màu khác nhau)', () => {
+      const sets = new Set<string>();
+      for (let seed = 1; seed < 40; seed++) {
+        sets.add(newRound(2, seed).baskets.map((b) => b.color).sort().join(','));
+      }
+      expect(sets.size).toBeGreaterThan(2);
     });
 
     it('mỗi giỏ có ít nhất 2 quả cùng màu', () => {
       // Test với nhiều seed
       for (const seed of [111, 222, 333, 444, 555]) {
-        const state2 = newRound(2, seed);
-        const redCount2 = state2.fruits.filter((f) => f.color === 'red').length;
-        const yellowCount2 = state2.fruits.filter((f) => f.color === 'yellow').length;
-        expect(redCount2).toBeGreaterThanOrEqual(2);
-        expect(yellowCount2).toBeGreaterThanOrEqual(2);
-
-        const state3 = newRound(3, seed);
-        const redCount3 = state3.fruits.filter((f) => f.color === 'red').length;
-        const yellowCount3 = state3.fruits.filter((f) => f.color === 'yellow').length;
-        const greenCount3 = state3.fruits.filter((f) => f.color === 'green').length;
-        expect(redCount3).toBeGreaterThanOrEqual(2);
-        expect(yellowCount3).toBeGreaterThanOrEqual(2);
-        expect(greenCount3).toBeGreaterThanOrEqual(2);
+        for (const n of [2, 3] as const) {
+          for (const mode of SORT_MODES) {
+            const state = newRound(n, seed, mode);
+            for (const b of state.baskets) {
+              const count = state.fruits.filter((f) => f.color === b.color).length;
+              expect(count, `${mode} ${b.color}`).toBeGreaterThanOrEqual(2);
+            }
+          }
+        }
       }
     });
 
     it('quả là các id hợp lệ', () => {
-      const state = newRound(3, 999);
-      const validRed = ['apple', 'cherries', 'strawberry'];
-      const validYellow = ['banana', 'lemon', 'pineapple'];
-      const validGreen = ['pear', 'watermelon', 'avocado'];
-      for (const f of state.fruits) {
-        if (f.color === 'red') expect(validRed).toContain(f.id);
-        else if (f.color === 'yellow') expect(validYellow).toContain(f.id);
-        else if (f.color === 'green') expect(validGreen).toContain(f.id);
+      for (const seed of [999, 1000, 1001]) {
+        const state = newRound(3, seed);
+        for (const f of state.fruits) {
+          expect(FRUITS_BY_COLOR[f.color as keyof typeof FRUITS_BY_COLOR]).toContain(f.id);
+        }
       }
     });
 
@@ -71,6 +87,50 @@ describe('sort/logic', () => {
     });
   });
 
+  describe('kiểu phân loại', () => {
+    it('kinds: giỏ con vật và giỏ trái cây, hình đúng loại', () => {
+      const state = newRound(2, 5, 'kinds', { itemCount: 8 });
+      expect(state.baskets.map((b) => b.color)).toEqual(['animal', 'fruit']);
+      expect(state.fruits).toHaveLength(8);
+      for (const f of state.fruits) expect(itemsForBin(f.color)).toContain(f.id);
+    });
+
+    it('sizes: giỏ to và giỏ nhỏ, con vật to/nhỏ rõ ràng', () => {
+      const state = newRound(2, 6, 'sizes', { itemCount: 6 });
+      expect(state.baskets.map((b) => b.color)).toEqual(['big', 'small']);
+      for (const f of state.fruits) expect(itemsForBin(f.color)).toContain(f.id);
+      expect(itemsForBin('big').some((id) => itemsForBin('small').includes(id))).toBe(false);
+    });
+
+    it('ưu tiên không lặp hình của ván trước', () => {
+      const first = newRound(2, 7, 'kinds', { itemCount: 6 });
+      const avoid = first.fruits.map((f) => f.id);
+      const second = newRound(2, 8, 'kinds', { itemCount: 6, avoid });
+      for (const f of second.fruits) expect(avoid).not.toContain(f.id);
+    });
+
+    it('chủ đề cố định giữ kiểu; trộn thì đổi kiểu, không lặp kiểu ván trước', () => {
+      expect(modeForRound('colors', 54, 'colors')).toBe('colors');
+      expect(modeForRound('sizes', 24)).toBe('sizes');
+      for (let i = 0; i < 30; i++) {
+        const m = modeForRound('mix', 54, 'kinds');
+        expect(m).not.toBe('kinds');
+      }
+      const young = new Set<string>();
+      for (let i = 0; i < 40; i++) young.add(modeForRound('mix', 24));
+      expect(young.has('sizes')).toBe(false);
+      expect(young.size).toBe(2);
+    });
+
+    it('độ khó: số giỏ/số hình tăng theo tuổi', () => {
+      expect(roundSize('colors', 24)).toEqual({ basketCount: 2 });
+      expect(roundSize('colors', 36)).toEqual({ basketCount: 3 });
+      expect(roundSize('colors', 54)).toEqual({ basketCount: 3, itemCount: 8 });
+      expect(roundSize('kinds', 24).itemCount).toBe(4);
+      expect(roundSize('sizes', 54).itemCount).toBe(8);
+    });
+  });
+
   describe('drop', () => {
     it('drop đúng màu trả về ok và xóa khỏi remaining', () => {
       const state = newRound(2, 100);
@@ -83,11 +143,11 @@ describe('sort/logic', () => {
 
     it('drop sai màu trả về wrong và không xóa', () => {
       const state = newRound(2, 200);
-      // Tìm quả đỏ
-      const redIdx = state.fruits.findIndex((f) => f.color === 'red');
-      const result = drop(state, redIdx, 'yellow');
+      const fruit = state.fruits[0];
+      const other = state.baskets.find((b) => b.color !== fruit.color)!.color;
+      const result = drop(state, 0, other);
       expect(result).toBe('wrong');
-      expect(state.remaining).toContain(redIdx);
+      expect(state.remaining).toContain(0);
     });
 
     it('drop index không hợp lệ trả về wrong', () => {
@@ -120,9 +180,26 @@ describe('sort content keys exist', () => {
     expect(content.has('sort.done')).toBe(true);
   });
 
+  it('câu chào từng kiểu và sort.big/sort.small có đủ vi/ja/en', () => {
+    const content = contentByKey();
+    for (const key of [...Object.values(HELLO_KEY), 'sort.big', 'sort.small']) {
+      const item = content.get(key);
+      expect(item, key).toBeTruthy();
+      expect(item!.vi && item!.ja && item!.en, key).toBeTruthy();
+    }
+  });
+
+  it('mọi hình trong mọi giỏ có câu đọc tên', () => {
+    const content = contentByKey();
+    const bins: BinId[] = [...COLOR_BINS, 'animal', 'fruit', 'big', 'small'];
+    for (const b of bins) {
+      for (const id of itemsForBin(b)) expect(content.has(pictureSayKey(id)), id).toBe(true);
+    }
+  });
+
   it('fruit.<id> and fruit.<id>-color exist for all fruits used', () => {
     const content = contentByKey();
-    const fruitIds = ['apple', 'cherries', 'strawberry', 'banana', 'lemon', 'pineapple', 'pear', 'watermelon'];
+    const fruitIds = Object.values(FRUITS_BY_COLOR).flat();
     for (const id of fruitIds) {
       expect(content.has(`fruit.${id}`), `missing fruit.${id}`).toBe(true);
       expect(content.has(`fruit.${id}-color`), `missing fruit.${id}-color`).toBe(true);
