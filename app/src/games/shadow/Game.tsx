@@ -3,7 +3,12 @@ import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
 import { Scenery } from '../../ui/Scenery';
 import { STAGE_W, STAGE_H, clientToStage } from '../../ui/Stage';
-import { newRound, dropResult, type AnimalId, type Round } from './logic';
+import { recentPicks, rememberPicks } from '../../core/gameOptions';
+import { pictureSayKey, pictureUrl } from '../../content/pictures';
+import { newRound, dropResult, choiceCountForAge, type AnimalId, type Round } from './logic';
+
+// Không ra lại hình của 3 ván gần nhất (nhớ cả khi ra vào trò)
+const RECENT_ROUNDS = 3;
 
 const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
 
@@ -33,11 +38,8 @@ interface CardPos {
   homeY: number;
 }
 
-function getChoiceCount(ageMonths: number): number {
-  return ageMonths < 36 ? 2 : 3;
-}
-
-export default function Game({ speaker, ageMonths, onExit }: GameProps) {
+export default function Game({ speaker, ageMonths, options, onExit }: GameProps) {
+  const topic = options?.topic ?? 'mix';
   const [lastSay, setLastSay] = useState('');
   const [round, setRound] = useState<Round | null>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
@@ -57,9 +59,10 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
 
   // Initialize round
   const startRound = useCallback(
-    (exclude?: AnimalId) => {
-      const choiceCount = getChoiceCount(ageMonths);
-      const r = newRound(choiceCount, Math.random, exclude);
+    () => {
+      const choiceCount = choiceCountForAge(ageMonths);
+      const r = newRound(choiceCount, Math.random, recentPicks<AnimalId>('shadow'), topic);
+      rememberPicks('shadow', [r.answer], RECENT_ROUNDS);
       setRound(r);
       setSnapped(false);
       setDrag(null);
@@ -77,28 +80,35 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
         }))
       );
     },
-    [ageMonths]
+    [ageMonths, topic]
   );
 
-  // Say hello on mount
+  // Bắt đầu ván đầu khi vào trò
   useEffect(() => {
-    say('shadow.hello');
     startRound();
-  }, [say, startRound]);
+  }, [startRound]);
+
+  // Mỗi khi đổi nhóm hình thì hỏi lại: "Bóng của ai?" (con vật) hay "Bóng của cái gì?" (quả, hình)
+  const group = round?.group;
+  useEffect(() => {
+    if (!group) return;
+    say(group === 'animals' ? 'shadow.hello' : 'shadow.hello-thing');
+  }, [group, say]);
 
   // E2E hooks
   useEffect(() => {
     if (IS_E2E && round) {
-      (window as unknown as { __behocShadow: { answer(): string; drop(id: string): void } }).__behocShadow = {
+      (window as unknown as { __behocShadow: { answer(): string; sayKey(): string; drop(id: string): void } }).__behocShadow = {
         answer: () => round.answer,
+        sayKey: () => pictureSayKey(round.answer),
         drop: (id: string) => {
           const animalId = id as AnimalId;
           const result = dropResult(animalId, round.answer, 0, DROP_RADIUS);
           if (result === 'snap') {
             setSnapped(true);
-            say(`animal.${animalId}`);
+            say(pictureSayKey(animalId));
             setTimeout(() => say('ui.great'), 900);
-            setTimeout(() => startRound(round.answer), 3400);
+            setTimeout(() => startRound(), 3400);
           }
         },
       };
@@ -152,9 +162,9 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
 
       if (result === 'snap') {
         setSnapped(true);
-        say(`animal.${drag.id}`);
+        say(pictureSayKey(drag.id));
         setTimeout(() => say('ui.great'), 900);
-        setTimeout(() => startRound(round.answer), 3400);
+        setTimeout(() => startRound(), 3400);
       } else {
         // Return to home - do nothing, animation handles it
       }
@@ -167,7 +177,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
     (id: AnimalId) => {
       if (snapped) return;
       // Tap without drag: say animal name
-      say(`animal.${id}`);
+      say(pictureSayKey(id));
     },
     [say, snapped]
   );
@@ -239,7 +249,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
         }}
       >
         <img
-          src={`${import.meta.env.BASE_URL}cards/${pos.id}.png`}
+          src={pictureUrl(pos.id)}
           alt={pos.id}
           draggable={false}
           style={{
@@ -291,7 +301,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
         }}
       >
         <img
-          src={`${import.meta.env.BASE_URL}cards/${round.answer}.png`}
+          src={pictureUrl(round.answer)}
           alt="shadow"
           draggable={false}
           style={{

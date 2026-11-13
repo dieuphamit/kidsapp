@@ -1,10 +1,13 @@
 /** Độ khó bố mẹ chọn cho một trò; 'auto' là theo tuổi thật của bé. */
 export type Difficulty = 'auto' | 'easy' | 'medium' | 'hard';
-/** Chủ đề nội dung; 'mix' là trộn như mặc định của trò. */
-export type Topic = 'mix' | 'animals' | 'fruits' | 'shapes';
+/**
+ * Chủ đề nội dung; 'mix' là trộn như mặc định của trò.
+ * 'colors' | 'kinds' | 'sizes' là kiểu phân loại (trò Xếp vào giỏ): theo màu, con vật/trái cây, to/nhỏ.
+ */
+export type Topic = 'mix' | 'animals' | 'fruits' | 'shapes' | 'colors' | 'kinds' | 'sizes';
 
 export const DIFFICULTIES: readonly Difficulty[] = ['auto', 'easy', 'medium', 'hard'];
-export const TOPICS: readonly Topic[] = ['mix', 'animals', 'fruits', 'shapes'];
+export const TOPICS: readonly Topic[] = ['mix', 'animals', 'fruits', 'shapes', 'colors', 'kinds', 'sizes'];
 
 /** Tùy chọn bố mẹ chỉnh cho một trò (lưu trong Settings.games). */
 export interface GameSetting {
@@ -80,4 +83,58 @@ export function optionsFor(
   const difficulty = manifest.options?.difficulty ? s.difficulty : 'auto';
   const topic = s.topic !== 'mix' && manifest.options?.topics?.includes(s.topic) ? s.topic : 'mix';
   return { difficulty, topic };
+}
+
+/**
+ * Chọn n món khác nhau trong pool, ưu tiên món không có trong `avoid` (trí nhớ ngắn:
+ * các lượt vừa chơi). Pool không đủ món mới thì lấy thêm món cũ cho đủ.
+ */
+export function pickFresh<T>(pool: readonly T[], n: number, avoid: readonly T[] = [], rand: () => number = Math.random): T[] {
+  const shuffle = (arr: T[]) => {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  };
+  const uniq = [...new Set(pool)];
+  const fresh = shuffle(uniq.filter((x) => !avoid.includes(x)));
+  const picked = fresh.slice(0, n);
+  if (picked.length < n) {
+    const old = shuffle(uniq.filter((x) => !picked.includes(x)));
+    picked.push(...old.slice(0, n - picked.length));
+  }
+  return picked;
+}
+
+// Trí nhớ ngắn theo trò, sống trong phiên chạy app (ra vào trò vẫn nhớ, tải lại trang thì quên)
+const RECENT = new Map<string, unknown[][]>();
+
+/** Những món đã chọn trong vài lượt gần đây của `key` (gộp phẳng). */
+export function recentPicks<T>(key: string): T[] {
+  return (RECENT.get(key) ?? []).flat() as T[];
+}
+
+/** Ghi nhớ món vừa chọn cho `key`; chỉ giữ `rounds` lượt gần nhất. */
+export function rememberPicks<T>(key: string, picked: readonly T[], rounds = 1): void {
+  const list = [...(RECENT.get(key) ?? []), [...picked]];
+  RECENT.set(key, list.slice(-Math.max(1, rounds)));
+}
+
+/** Xóa trí nhớ ngắn (dùng trong test). */
+export function clearRecentPicks(): void {
+  RECENT.clear();
+}
+
+/** pickFresh + nhớ luôn lượt này: món tránh là của `rounds` lượt trước. */
+export function pickFreshRemembered<T>(
+  key: string,
+  pool: readonly T[],
+  n: number,
+  rounds = 1,
+  rand: () => number = Math.random,
+): T[] {
+  const picked = pickFresh(pool, n, recentPicks<T>(key), rand);
+  rememberPicks(key, picked, rounds);
+  return picked;
 }

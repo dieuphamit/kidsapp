@@ -30,7 +30,7 @@ test.describe('T-028: Bóng của ai?', () => {
     await expect(gameEl).toBeVisible({ timeout: 10000 });
 
     // Đợi hello được nói
-    await expect(gameEl).toHaveAttribute('data-last-say', 'shadow.hello', { timeout: 3000 });
+    await expect(gameEl).toHaveAttribute('data-last-say', /^shadow\.hello(-thing)?$/, { timeout: 3000 });
 
     // Chụp ảnh
     await page.waitForTimeout(500);
@@ -47,7 +47,7 @@ test.describe('T-028: Bóng của ai?', () => {
     await page.getByLabel('Bóng của ai?').tap();
     const gameEl = page.getByTestId('game-shadow');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
-    await expect(gameEl).toHaveAttribute('data-last-say', 'shadow.hello', { timeout: 3000 });
+    await expect(gameEl).toHaveAttribute('data-last-say', /^shadow\.hello(-thing)?$/, { timeout: 3000 });
 
     // Lấy answer
     const answer = await page.evaluate(() => {
@@ -104,7 +104,7 @@ test.describe('T-028: Bóng của ai?', () => {
     await page.getByLabel('Bóng của ai?').tap();
     const gameEl = page.getByTestId('game-shadow');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
-    await expect(gameEl).toHaveAttribute('data-last-say', 'shadow.hello', { timeout: 3000 });
+    await expect(gameEl).toHaveAttribute('data-last-say', /^shadow\.hello(-thing)?$/, { timeout: 3000 });
 
     // Sử dụng hook __behocShadow.drop để thả đúng
     await page.evaluate(() => {
@@ -130,7 +130,7 @@ test.describe('T-028: Bóng của ai?', () => {
     await page.getByLabel('Bóng của ai?').tap();
     const gameEl = page.getByTestId('game-shadow');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
-    await expect(gameEl).toHaveAttribute('data-last-say', 'shadow.hello', { timeout: 3000 });
+    await expect(gameEl).toHaveAttribute('data-last-say', /^shadow\.hello(-thing)?$/, { timeout: 3000 });
 
     await page.waitForTimeout(300);
 
@@ -160,8 +160,12 @@ test.describe('T-028: Bóng của ai?', () => {
       await page.mouse.up();
     }
 
-    // Kiểm tra animal.<id> được nói trước
-    await expect(gameEl).toHaveAttribute('data-last-say', `animal.${answer}`, { timeout: 2000 });
+    // Kiểm tra tên hình (animal./fruit./shape.<id>) được nói trước
+    const sayKey = await page.evaluate(() =>
+      (window as unknown as { __behocShadow: { sayKey(): string } }).__behocShadow.sayKey(),
+    );
+    expect(sayKey.endsWith(`.${answer}`)).toBe(true);
+    await expect(gameEl).toHaveAttribute('data-last-say', sayKey, { timeout: 2000 });
 
     // Kiểm tra ui.great được phát (sau 900ms delay)
     await expect(gameEl).toHaveAttribute('data-last-say', 'ui.great', { timeout: 3000 });
@@ -182,7 +186,7 @@ test.describe('iPhone dọc 430×932: kéo trong game shadow', () => {
     await page.getByLabel('Bóng của ai?').tap();
     const gameEl = page.getByTestId('game-shadow');
     await expect(gameEl).toBeVisible({ timeout: 10000 });
-    await expect(gameEl).toHaveAttribute('data-last-say', 'shadow.hello', { timeout: 3000 });
+    await expect(gameEl).toHaveAttribute('data-last-say', /^shadow\.hello(-thing)?$/, { timeout: 3000 });
 
     await page.waitForTimeout(300);
 

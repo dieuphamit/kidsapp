@@ -1,57 +1,59 @@
 // Ai kêu đấy? - logic thuần cho quiz game
+import { ANIMAL_IDS, type AnimalId } from '../../content/pictures';
+import { pickFresh } from '../../core/gameOptions';
 
-/** 8 con vật trang trại */
-export const FARM_ANIMALS = ['cow', 'chicken', 'duck', 'pig', 'dog', 'sheep', 'horse', 'rabbit'] as const;
-export type FarmAnimal = (typeof FARM_ANIMALS)[number];
+/** Mọi con vật có tiếng kêu thật (public/audio/sfx/animal-<id>.mp3). */
+export const SOUND_ANIMALS = ANIMAL_IDS;
+export type SoundAnimal = AnimalId;
+
+/** Số lượt gần nhất không được ra lại làm đáp án. */
+export const ANSWER_MEMORY = 4;
 
 export interface QuizQuestion {
-  answer: FarmAnimal;
-  choices: FarmAnimal[];
+  answer: SoundAnimal;
+  choices: SoundAnimal[];
+}
+
+function makeRandom(seed?: number): () => number {
+  if (seed === undefined) return Math.random;
+  let s = seed;
+  return () => {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    return (s % 1000) / 1000;
+  };
 }
 
 /**
  * Tạo một câu hỏi mới cho quiz.
- * @param choiceCount Số lựa chọn (2 cho bé < 36 tháng, 3 cho bé >= 36 tháng)
- * @param seed Seed để random (hoặc không truyền thì dùng Math.random)
- * @param prevId ID đáp án ván trước để tránh trùng (hoặc undefined)
+ * @param choiceCount Số lựa chọn (2/3/4 theo tuổi, xem choiceCountForAge)
+ * @param seed Seed để random (không truyền thì dùng Math.random)
+ * @param avoid Đáp án các ván vừa rồi (một con hoặc danh sách) để không lặp lại ngay
  */
 export function newQuestion(
-  choiceCount: 2 | 3,
+  choiceCount: 2 | 3 | 4,
   seed?: number,
-  prevId?: FarmAnimal,
+  avoid?: SoundAnimal | readonly SoundAnimal[],
 ): QuizQuestion {
-  // Simple seeded random using local variable
-  let s = seed ?? 0;
-  const random = seed !== undefined
-    ? () => {
-        s = (s * 1103515245 + 12345) & 0x7fffffff;
-        return (s % 1000) / 1000;
-      }
-    : Math.random;
+  const random = makeRandom(seed);
+  const recent: readonly SoundAnimal[] = avoid === undefined ? [] : typeof avoid === 'string' ? [avoid] : avoid;
 
-  // Chọn đáp án không trùng ván trước
-  const availableAnswers = FARM_ANIMALS.filter((a) => a !== prevId);
-  const answerIdx = Math.floor(random() * availableAnswers.length);
-  const answer = availableAnswers[answerIdx];
-
-  // Chọn các lựa chọn nhiễu khác đáp án
-  const others = FARM_ANIMALS.filter((a) => a !== answer);
-  const distractors: FarmAnimal[] = [];
-  const shuffled = [...others].sort(() => random() - 0.5);
-  for (let i = 0; i < choiceCount - 1; i++) {
-    distractors.push(shuffled[i]);
-  }
-
-  // Gộp và xáo trộn vị trí
-  const choices = [answer, ...distractors].sort(() => random() - 0.5);
-
+  const [answer] = pickFresh(SOUND_ANIMALS, 1, recent, random);
+  const distractors = pickFresh(
+    SOUND_ANIMALS.filter((a) => a !== answer),
+    choiceCount - 1,
+    [],
+    random,
+  );
+  const choices = pickFresh([answer, ...distractors], choiceCount, [], random);
   return { answer, choices };
 }
 
 /**
- * Trả về choiceCount phù hợp theo tuổi.
- * @param ageMonths Tuổi bé tính theo tháng
+ * Số lựa chọn theo tuổi (đã quy theo độ khó bố mẹ chọn):
+ * dưới 36 tháng 2 thẻ, 36–47 tháng 3 thẻ, từ 48 tháng 4 thẻ.
  */
-export function choiceCountForAge(ageMonths: number): 2 | 3 {
-  return ageMonths < 36 ? 2 : 3;
+export function choiceCountForAge(ageMonths: number): 2 | 3 | 4 {
+  if (ageMonths < 36) return 2;
+  if (ageMonths < 48) return 3;
+  return 4;
 }

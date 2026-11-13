@@ -3,7 +3,7 @@ import type { GameManifest } from '../../core/games';
 
 export const manifest: GameManifest = {
   id: 'sort',
-  title: { vi: 'Xếp quả theo màu', ja: 'いろわけ', en: 'Sort by color' },
+  title: { vi: 'Xếp vào giỏ', ja: 'なかまわけ', en: 'Sort into baskets' },
   place: 'place.orchard',
   icon: '🧺',
   color: 'leaf',
@@ -11,6 +11,6 @@ export const manifest: GameManifest = {
   maxAge: 72,
   order: 1,
   titleKey: 'game.sort',
-  options: { difficulty: true },
+  options: { difficulty: true, topics: ['colors', 'kinds', 'sizes'] },
   Component: lazy(() => import('./Game')),
 };

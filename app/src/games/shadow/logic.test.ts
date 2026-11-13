@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { ANIMALS, newRound, dropResult, type AnimalId } from './logic';
+import { ANIMALS, POOLS, newRound, dropResult, choiceCountForAge, type AnimalId } from './logic';
+import { pictureSayKey } from '../../content/pictures';
 import { contentByKey } from '../../core/content';
 
 describe('shadow logic', () => {
   describe('ANIMALS', () => {
-    it('có 10 con thú khác nhau', () => {
-      expect(ANIMALS.length).toBe(10);
-      const unique = new Set(ANIMALS);
-      expect(unique.size).toBe(10);
+    it('có ít nhất 20 con thú khác nhau', () => {
+      expect(ANIMALS.length).toBeGreaterThanOrEqual(20);
+      expect(new Set(ANIMALS).size).toBe(ANIMALS.length);
     });
 
     it('mỗi con có animal.<id> trong content', () => {
@@ -68,6 +68,54 @@ describe('shadow logic', () => {
         const round = newRound(3, Math.random, exclude);
         expect(round.answer).not.toBe(exclude);
       }
+    });
+  });
+
+  describe('chủ đề và kho hình', () => {
+    it('mọi hình trong kho có câu đọc tên vi/ja/en', () => {
+      const content = contentByKey();
+      for (const id of [...POOLS.animals, ...POOLS.fruits, ...POOLS.shapes]) {
+        const item = content.get(pictureSayKey(id));
+        expect(item, pictureSayKey(id)).toBeTruthy();
+        expect(item!.en, `${id}.en`).toBeTruthy();
+      }
+    });
+
+    it('chủ đề cố định thì đáp án và lựa chọn đều trong nhóm đó', () => {
+      for (const topic of ['animals', 'fruits', 'shapes'] as const) {
+        for (let t = 0; t < 20; t++) {
+          const r = newRound(4, Math.random, undefined, topic);
+          expect(r.group).toBe(topic);
+          for (const c of r.choices) expect(POOLS[topic]).toContain(c);
+        }
+      }
+    });
+
+    it('trộn: mỗi ván một nhóm, lựa chọn cùng nhóm đáp án, đủ cả 3 nhóm', () => {
+      const groups = new Set<string>();
+      for (let t = 0; t < 60; t++) {
+        const r = newRound(3, Math.random, undefined, 'mix');
+        groups.add(r.group);
+        for (const c of r.choices) expect(POOLS[r.group]).toContain(c);
+      }
+      expect(groups.size).toBe(3);
+    });
+
+    it('không lặp hình của vài ván gần nhất', () => {
+      const recent: AnimalId[] = [];
+      for (let t = 0; t < 40; t++) {
+        const r = newRound(2, Math.random, recent, 'shapes');
+        expect(recent).not.toContain(r.answer);
+        recent.push(r.answer);
+        if (recent.length > 3) recent.shift();
+      }
+    });
+
+    it('số lựa chọn theo tuổi: 2 / 3 / 4', () => {
+      expect(choiceCountForAge(24)).toBe(2);
+      expect(choiceCountForAge(36)).toBe(3);
+      expect(choiceCountForAge(54)).toBe(4);
+      expect(newRound(4, Math.random, undefined, 'fruits').choices).toHaveLength(4);
     });
   });
 

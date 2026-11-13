@@ -3,17 +3,36 @@ import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
 import { Scenery } from '../../ui/Scenery';
 import { clientToStage, stageRect } from '../../ui/Stage';
-import { newRound, drop, isDone, type State, type FruitColor } from './logic';
+import { recentPicks, rememberPicks, type Topic } from '../../core/gameOptions';
+import { pictureSayKey, pictureUrl } from '../../content/pictures';
+import {
+  newRound,
+  drop,
+  isDone,
+  modeForRound,
+  roundSize,
+  HELLO_KEY,
+  type State,
+  type FruitColor,
+  type SortMode,
+} from './logic';
 import styles from './Game.module.css';
 
-const BASE = import.meta.env.BASE_URL;
+/** Ván mới: chọn kiểu phân loại, cỡ ván theo tuổi, tránh hình của ván trước. */
+function makeRound(topic: Topic, ageMonths: number, prevMode?: SortMode): State {
+  const mode = modeForRound(topic, ageMonths, prevMode);
+  const { basketCount, itemCount } = roundSize(mode, ageMonths);
+  const state = newRound(basketCount, Date.now(), mode, { itemCount, avoid: recentPicks<string>('sort') });
+  rememberPicks('sort', state.fruits.map((f) => f.id), 1);
+  return state;
+}
 
-/** Quả mẫu cho mỗi màu giỏ. */
-const HINT_FRUIT: Record<FruitColor, string> = {
-  red: 'apple',
-  yellow: 'banana',
-  green: 'pear',
-};
+/** Câu nói khi thả đúng: màu quả, tên hình, hoặc "to quá / nhỏ xíu". */
+function correctSayKey(state: State, id: string, bin: FruitColor): string {
+  if (state.mode === 'colors') return `fruit.${id}-color`;
+  if (state.mode === 'sizes') return bin === 'big' ? 'sort.big' : 'sort.small';
+  return pictureSayKey(id);
+}
 
 interface DragState {
   fruitIdx: number;
@@ -34,14 +53,17 @@ declare global {
   interface Window {
     __behocSort?: {
       fruits(): { id: string; color: FruitColor }[];
+      baskets(): FruitColor[];
+      mode(): SortMode;
+      sayFor(i: number): string;
       drop(i: number, color: FruitColor): void;
     };
   }
 }
 
-export default function Game({ speaker, ageMonths, onExit }: GameProps) {
-  const basketCount = ageMonths < 36 ? 2 : 3;
-  const [state, setState] = useState<State>(() => newRound(basketCount as 2 | 3));
+export default function Game({ speaker, ageMonths, options, onExit }: GameProps) {
+  const topic = options?.topic ?? 'mix';
+  const [state, setState] = useState<State>(() => makeRound(topic, ageMonths));
   const [lastSay, setLastSay] = useState<string>('');
   const [drag, setDrag] = useState<DragState | null>(null);
   const [basketStates, setBasketStates] = useState<BasketState[]>(() =>
@@ -62,16 +84,19 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
     [speaker]
   );
 
-  // Nói lời chào khi vào game
+  // Nói cách xếp khi vào game và mỗi khi đổi kiểu phân loại
   useEffect(() => {
-    say('sort.hello');
-  }, [say]);
+    say(HELLO_KEY[state.mode]);
+  }, [say, state.mode]);
 
   // E2E API: expose qua ?e2e=1
   useEffect(() => {
     if (new URLSearchParams(location.search).get('e2e') !== '1') return;
     window.__behocSort = {
       fruits: () => state.fruits.map((f) => ({ id: f.id, color: f.color })),
+      baskets: () => state.baskets.map((b) => b.color),
+      mode: () => state.mode,
+      sayFor: (i) => correctSayKey(state, state.fruits[i].id, state.fruits[i].color),
       drop: (i, color) => handleDrop(i, color),
     };
     return () => {
@@ -98,8 +123,8 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
             prev.map((bs) => (bs.color === basketColor ? { ...bs, bounce: false } : bs))
           );
         }, 300);
-        // Nói màu quả
-        say(`fruit.${fruit.id}-color`);
+        // Nói màu quả / tên hình / to-nhỏ
+        say(correctSayKey(state, fruit.id, basketColor));
         // Force re-render để xóa quả khỏi remaining
         setState({ ...state });
       }
@@ -118,14 +143,14 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
         // Reset sau 3s
         setTimeout(() => {
           setShowStars(false);
-          const newState = newRound(basketCount as 2 | 3);
+          const newState = makeRound(topic, ageMonths, state.mode);
           setState(newState);
           setBasketStates(newState.baskets.map((b) => ({ color: b.color, fruits: [], bounce: false })));
           doneHandled.current = false;
         }, 3000);
       }, 500);
     }
-  }, [state, basketCount, say]);
+  }, [state, topic, ageMonths, say]);
 
   // Pointer handlers
   const handlePointerDown = (e: React.PointerEvent, fruitIdx: number) => {
@@ -157,7 +182,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
     // Nếu không di chuyển nhiều, coi như chạm → nói tên quả
     if (!moved) {
       const fruit = state.fruits[drag.fruitIdx];
-      say(`fruit.${fruit.id}`);
+      say(pictureSayKey(fruit.id));
       setDrag(null);
       return;
     }
@@ -205,7 +230,8 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
       <BackHome onExit={onExit} />
 
       {/* Khu vực quả */}
-      <div className={styles.orchard}>
+      {/* Nhiều hình (8) thì xếp 5 + 3 cho gọn hai hàng, không chạm quai giỏ */}
+      <div className={styles.orchard} data-many={state.fruits.length > 6 || undefined}>
         {state.fruits.map((fruit, idx) => {
           const visible = state.remaining.includes(idx);
           if (!visible) return <div key={idx} className={styles.fruitSlot} />;
@@ -227,7 +253,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
                   aria-label={`Quả ${idx + 1}`}
                 >
                   <img
-                    src={`${BASE}cards/${fruit.id}.png`}
+                    src={pictureUrl(fruit.id)}
                     alt={fruit.id}
                     className={styles.fruitImg}
                     draggable={false}
@@ -251,7 +277,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
           }}
         >
           <img
-            src={`${BASE}cards/${state.fruits[drag.fruitIdx].id}.png`}
+            src={pictureUrl(state.fruits[drag.fruitIdx].id)}
             alt=""
             className={styles.fruitImg}
             draggable={false}
@@ -277,7 +303,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
               {basket.fruits.map((id, i) => (
                 <img
                   key={`${id}-${i}`}
-                  src={`${BASE}cards/${id}.png`}
+                  src={pictureUrl(id)}
                   alt=""
                   className={styles.basketFruit}
                   draggable={false}
@@ -287,7 +313,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
             <span className={styles.basketRim} />
             <span className={styles.basketTag}>
               <img
-                src={`${BASE}cards/${HINT_FRUIT[basket.color]}.png`}
+                src={pictureUrl(state.baskets[idx]?.hint ?? '')}
                 alt=""
                 className={styles.basketHint}
                 draggable={false}

@@ -1,13 +1,16 @@
-// E2E tests for Sort game (Xếp quả theo màu) - T-029
+// E2E tests for Sort game (Xếp vào giỏ) - T-029, E2
 import { test, expect } from '@playwright/test';
 import { mkdirSync, existsSync } from 'node:fs';
 
-// Type declaration for E2E hook
-type FruitColor = 'red' | 'yellow' | 'green';
+// Type declaration for E2E hook ("color" là giỏ đúng: màu, animal/fruit hoặc big/small)
+type FruitColor = string;
 declare global {
   interface Window {
     __behocSort?: {
       fruits(): { id: string; color: FruitColor }[];
+      baskets(): FruitColor[];
+      mode(): 'colors' | 'kinds' | 'sizes';
+      sayFor(i: number): string;
       drop(i: number, color: FruitColor): void;
     };
   }
@@ -19,7 +22,7 @@ if (!existsSync(shotsDir)) {
   mkdirSync(shotsDir, { recursive: true });
 }
 
-test.describe('Sort game (Xếp quả theo màu)', () => {
+test.describe('Sort game (Xếp vào giỏ)', () => {
   test('Vườn quả → picker → Xếp quả; chụp T-029-sort.png', async ({ page }) => {
     await page.goto('./?e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
@@ -33,7 +36,7 @@ test.describe('Sort game (Xếp quả theo màu)', () => {
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
 
     // Chạm Xếp quả theo màu
-    const sortBtn = page.getByLabel('Xếp quả theo màu');
+    const sortBtn = page.getByLabel('Xếp vào giỏ');
     await expect(sortBtn).toBeVisible();
     await sortBtn.tap();
 
@@ -55,7 +58,7 @@ test.describe('Sort game (Xếp quả theo màu)', () => {
     // Vào game sort
     await page.getByLabel('Vườn quả').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
-    await page.getByLabel('Xếp quả theo màu').tap();
+    await page.getByLabel('Xếp vào giỏ').tap();
     const gameEl = page.getByTestId('game-sort');
     await expect(gameEl).toBeVisible({ timeout: 5000 });
     await page.waitForTimeout(500);
@@ -63,16 +66,17 @@ test.describe('Sort game (Xếp quả theo màu)', () => {
     // Lấy thông tin quả qua e2e hook
     const fruits = await page.evaluate(() => window.__behocSort!.fruits());
 
-    // Tìm quả đỏ và thử thả vào giỏ vàng
-    const redIdx = fruits.findIndex((f) => f.color === 'red');
-    expect(redIdx).toBeGreaterThanOrEqual(0);
+    // Lấy quả đầu và một giỏ sai của nó
+    const baskets = await page.evaluate(() => window.__behocSort!.baskets());
+    const wrong = baskets.find((c) => c !== fruits[0].color);
+    expect(wrong).toBeTruthy();
 
     const initialCount = fruits.length;
 
     // Thử thả sai
     await page.evaluate(
-      ({ idx }) => window.__behocSort!.drop(idx, 'yellow'),
-      { idx: redIdx }
+      ({ color }) => window.__behocSort!.drop(0, color),
+      { color: wrong! }
     );
 
     // Remaining không đổi
@@ -87,7 +91,7 @@ test.describe('Sort game (Xếp quả theo màu)', () => {
     // Vào game sort
     await page.getByLabel('Vườn quả').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
-    await page.getByLabel('Xếp quả theo màu').tap();
+    await page.getByLabel('Xếp vào giỏ').tap();
     const gameEl = page.getByTestId('game-sort');
     await expect(gameEl).toBeVisible({ timeout: 5000 });
     await page.waitForTimeout(500);
@@ -117,7 +121,7 @@ test.describe('Sort game (Xếp quả theo màu)', () => {
     // Vào game sort
     await page.getByLabel('Vườn quả').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
-    await page.getByLabel('Xếp quả theo màu').tap();
+    await page.getByLabel('Xếp vào giỏ').tap();
     const gameEl = page.getByTestId('game-sort');
     await expect(gameEl).toBeVisible({ timeout: 5000 });
     await page.waitForTimeout(800);
@@ -125,6 +129,8 @@ test.describe('Sort game (Xếp quả theo màu)', () => {
     // Lấy quả đầu tiên và tìm giỏ đúng màu
     const fruits = await page.evaluate(() => window.__behocSort!.fruits());
     const firstFruit = fruits[0];
+    // Câu nói khi thả đúng: fruit.<id>-color (theo màu), tên hình (thú/quả), sort.big/small (to/nhỏ)
+    const expectedSay = await page.evaluate(() => window.__behocSort!.sayFor(0));
 
     // Tìm vị trí quả đầu tiên
     const fruitEl = page.getByLabel('Quả 1');
@@ -157,12 +163,8 @@ test.describe('Sort game (Xếp quả theo màu)', () => {
     }
     await page.mouse.up();
 
-    // Kiểm tra quả đã được xếp (data-last-say là fruit.<id>-color)
-    await expect(gameEl).toHaveAttribute(
-      'data-last-say',
-      `fruit.${firstFruit.id}-color`,
-      { timeout: 2000 }
-    );
+    // Kiểm tra quả đã được xếp (nói câu của thả đúng)
+    await expect(gameEl).toHaveAttribute('data-last-say', expectedSay, { timeout: 2000 });
   });
 
   test('nút Về nhà quay lại home', async ({ page }) => {
@@ -172,7 +174,7 @@ test.describe('Sort game (Xếp quả theo màu)', () => {
     // Vào game sort
     await page.getByLabel('Vườn quả').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
-    await page.getByLabel('Xếp quả theo màu').tap();
+    await page.getByLabel('Xếp vào giỏ').tap();
     await expect(page.getByTestId('game-sort')).toBeVisible({ timeout: 5000 });
 
     // Chạm Về nhà
@@ -191,7 +193,7 @@ test.describe('Sort game (Xếp quả theo màu)', () => {
     // Vào game sort
     await page.getByLabel('Vườn quả').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
-    await page.getByLabel('Xếp quả theo màu').tap();
+    await page.getByLabel('Xếp vào giỏ').tap();
     const gameEl = page.getByTestId('game-sort');
     await expect(gameEl).toBeVisible({ timeout: 5000 });
     await page.waitForTimeout(500);
@@ -222,7 +224,7 @@ test.describe('iPhone dọc: kéo quả', () => {
     // Vào game sort
     await page.getByRole('button', { name: 'Vườn quả' }).tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
-    await page.getByLabel('Xếp quả theo màu').tap();
+    await page.getByLabel('Xếp vào giỏ').tap();
     const gameEl = page.getByTestId('game-sort');
     await expect(gameEl).toBeVisible({ timeout: 5000 });
     await page.waitForTimeout(800);
@@ -230,6 +232,8 @@ test.describe('iPhone dọc: kéo quả', () => {
     // Lấy thông tin quả
     const fruits = await page.evaluate(() => window.__behocSort!.fruits());
     const firstFruit = fruits[0];
+    // Câu nói khi thả đúng: fruit.<id>-color (theo màu), tên hình (thú/quả), sort.big/small (to/nhỏ)
+    const expectedSay = await page.evaluate(() => window.__behocSort!.sayFor(0));
 
     // Tìm vị trí quả đầu tiên
     const fruitEl = page.getByLabel('Quả 1');
@@ -262,11 +266,7 @@ test.describe('iPhone dọc: kéo quả', () => {
     await page.mouse.up();
 
     // Kiểm tra
-    await expect(gameEl).toHaveAttribute(
-      'data-last-say',
-      `fruit.${firstFruit.id}-color`,
-      { timeout: 2000 }
-    );
+    await expect(gameEl).toHaveAttribute('data-last-say', expectedSay, { timeout: 2000 });
 
     await page.screenshot({ path: 'test-results/shots/T-029-mobile-drag.png' });
   });
