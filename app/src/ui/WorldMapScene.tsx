@@ -2,9 +2,10 @@ import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import type { Group } from 'three';
 import { Scene3D } from './Scene3D';
-import { DauDau } from './DauDau';
+import { Buddy } from './Buddy';
+import type { BuddyCharacter } from '../core/tokens';
 
-/** Hướng Đậu Đậu nhìn: -1 trái, 0 giữa, 1 phải (theo cột của khu vừa chạm). */
+/** Hướng bạn đồng hành nhìn: -1 trái, 0 giữa, 1 phải (theo cột của khu vừa chạm). */
 export type Facing = -1 | 0 | 1;
 
 type TurnerProps = {
@@ -44,13 +45,16 @@ function Turner({ facing, children }: TurnerProps) {
 type WorldMapSceneProps = {
   facing: Facing;
   onTapDauDau(): void;
+  /** Con vật đang chọn và tên hiển thị (nhãn cho trình đọc màn hình). */
+  character?: BuddyCharacter;
+  label?: string;
 };
 
-export function WorldMapScene({ facing, onTapDauDau }: WorldMapSceneProps) {
+export function WorldMapScene({ facing, onTapDauDau, character = 'cat', label = 'Đậu Đậu' }: WorldMapSceneProps) {
   return (
-    <Scene3D label="Đậu Đậu">
+    <Scene3D label={label}>
       <Turner facing={facing}>
-        <DauDau onTap={onTapDauDau} />
+        <Buddy character={character} onTap={onTapDauDau} />
       </Turner>
     </Scene3D>
   );

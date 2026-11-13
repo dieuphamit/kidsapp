@@ -10,6 +10,10 @@ cho qua. Đừng sửa chữ trong JSON nữa. Script tự xử lý:
   2. Nếu bị từ chối, thử lại với biến thể chỉ dùng khi tổng hợp: thêm dấu câu cuối
      (。 cho ja, . cho vi/en) và/hoặc lệch tốc độ 1-2% (tai không phân biệt được).
      Chữ hiển thị trong JSON giữ nguyên.
+
+Tên bạn đồng hành: câu có mẫu {name} được sinh cho MỌI tên trong app/src/core/buddyNames.json.
+Tên mặc định (phần tử đầu, "dau") giữ đường dẫn cũ <lang>/<key>.mp3 (được precache);
+tên khác ở <lang>/<key>~<nameId>.mp3 (app chỉ tải khi bố mẹ chọn tên đó, xem src/core/buddyAudio.ts).
 """
 import asyncio
 import hashlib
@@ -32,6 +36,8 @@ ROOT = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
 CONTENT = ROOT / "app" / "src" / "content"
 OUT = ROOT / "app" / "public" / "audio"
 HASHES = OUT / ".hashes.json"
+NAMES = json.loads((ROOT / "app" / "src" / "core" / "buddyNames.json").read_text(encoding="utf-8"))
+NAME_TOKEN = "{name}"
 
 
 def rate_for(text: str) -> str:
@@ -74,6 +80,16 @@ async def synth(text: str, lang: str, voice: str, rate: str, dest: pathlib.Path)
     raise RuntimeError(f"edge-tts không trả âm thanh cho {text!r} ({lang}): {last}")
 
 
+def expand(item: dict):
+    """(tên file không đuôi, câu theo ngôn ngữ) của một item; câu có {name} nhân theo mọi tên."""
+    if not any(NAME_TOKEN in item[lang] for lang in VOICES):
+        yield item["key"], item
+        return
+    for i, name in enumerate(NAMES):
+        stem = item["key"] if i == 0 else f"{item['key']}~{name['id']}"
+        yield stem, {lang: item[lang].replace(NAME_TOKEN, name[lang]) for lang in VOICES}
+
+
 def save_hashes(hashes: dict) -> None:
     HASHES.parent.mkdir(parents=True, exist_ok=True)
     HASHES.write_text(json.dumps(hashes, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
@@ -83,21 +99,22 @@ async def main() -> None:
     hashes = json.loads(HASHES.read_text(encoding="utf-8")) if HASHES.exists() else {}
     made = 0
     for f in sorted(CONTENT.glob("*.json")):
-        for item in json.loads(f.read_text(encoding="utf-8")):
-            for lang, voice in VOICES.items():
-                text = item[lang]
-                rate = rate_for(text)
-                dest = OUT / lang / f"{item['key']}.mp3"
-                h = digest(text, voice, rate)
-                rel = f"{lang}/{item['key']}"
-                if dest.exists() and hashes.get(rel) == h:
-                    continue
-                dest.parent.mkdir(parents=True, exist_ok=True)
-                note = await synth(text, lang, voice, rate, dest)
-                hashes[rel] = h
-                made += 1
-                print("made", rel, rate, note)
-                save_hashes(hashes)  # lưu từng file để lỗi giữa chừng không phải sinh lại từ đầu
+        for raw in json.loads(f.read_text(encoding="utf-8")):
+            for stem, item in expand(raw):
+                for lang, voice in VOICES.items():
+                    text = item[lang]
+                    rate = rate_for(text)
+                    dest = OUT / lang / f"{stem}.mp3"
+                    h = digest(text, voice, rate)
+                    rel = f"{lang}/{stem}"
+                    if dest.exists() and hashes.get(rel) == h:
+                        continue
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    note = await synth(text, lang, voice, rate, dest)
+                    hashes[rel] = h
+                    made += 1
+                    print("made", rel, rate, note)
+                    save_hashes(hashes)  # lưu từng file để lỗi giữa chừng không phải sinh lại từ đầu
     save_hashes(hashes)
     print(f"done: {made} file mới")
 

@@ -1,14 +1,21 @@
-// Trang render ảnh Đậu Đậu 2D (public/cards/daudau.png) cho scripts/render-daudau.mjs.
+// Trang render ảnh 2D bạn đồng hành (?c=cat|dog|bunny|bear) cho scripts/render-daudau.mjs.
 // Ánh sáng giống Scene3D, không ContactShadows để nền trong suốt sạch.
 import { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Canvas, useThree } from '@react-three/fiber';
-import { DauDau } from '../../src/ui/DauDau';
+import { Buddy } from '../../src/ui/Buddy';
+import { BUDDY_CHARACTERS, type BuddyCharacter } from '../../src/core/tokens';
+
+const param = new URLSearchParams(location.search).get('c');
+const character: BuddyCharacter = (BUDDY_CHARACTERS as readonly string[]).includes(param ?? '') ? (param as BuddyCharacter) : 'cat';
+// Thỏ có tai dài: lùi khung lên một chút để không cắt tai (các con khác giữ khung cũ của mèo)
+const AIM_Y = character === 'bunny' ? 1.85 : 1.55;
+const FOV = character === 'bunny' ? 26 : 22;
 
 function Aim() {
   const camera = useThree((s) => s.camera);
   useEffect(() => {
-    camera.lookAt(0, 1.55, 0);
+    camera.lookAt(0, AIM_Y, 0);
     camera.updateProjectionMatrix();
     // Đợi vài khung hình cho model ổn định rồi báo xong
     setTimeout(() => {
@@ -22,7 +29,7 @@ createRoot(document.getElementById('root')!).render(
   <Canvas
     flat
     dpr={1}
-    camera={{ position: [0, 1.75, 9], fov: 22 }}
+    camera={{ position: [0, AIM_Y + 0.2, 9], fov: FOV }}
     gl={{ alpha: true, preserveDrawingBuffer: true, antialias: true }}
     onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
   >
@@ -30,7 +37,7 @@ createRoot(document.getElementById('root')!).render(
     <directionalLight position={[3, 5, 6]} intensity={1.3} color="#fff0dc" />
     <directionalLight position={[-4, 2, 3]} intensity={0.5} color="#efe4ff" />
     <group rotation={[0, -0.25, 0]}>
-      <DauDau onTap={() => {}} />
+      <Buddy character={character} />
     </group>
     <Aim />
   </Canvas>,

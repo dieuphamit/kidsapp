@@ -5,6 +5,10 @@ import { ParentArea } from './ParentArea';
 import { DEFAULT_SETTINGS } from '../core/settings';
 import type { GameManifest } from '../core/games';
 
+/** Bấm thật: chạm xuống rồi nhả (nút trong màn bố mẹ kích hoạt khi nhả tay). */
+const tap = (el: HTMLElement) => { fireEvent.pointerDown(el); fireEvent.pointerUp(el); };
+const speaker = { say: vi.fn(), sfx: vi.fn() };
+
 const g = (id: string, options?: GameManifest['options']) =>
   ({
     id,
@@ -45,12 +49,12 @@ describe('GameSettings', () => {
 
   it('tắt trò, đổi độ khó và chủ đề gọi onChange ngay (lúc chạm xuống)', () => {
     const { onChange } = setup();
-    fireEvent.pointerDown(screen.getByRole('button', { name: 'Trò b: Đang bật' }));
+    tap(screen.getByRole('button', { name: 'Trò b: Đang bật' }));
     expect(onChange).toHaveBeenLastCalledWith({ b: { enabled: false, difficulty: 'auto', topic: 'mix' } });
     expect(screen.getByRole('button', { name: 'Trò b: Đang tắt' })).toHaveAttribute('aria-pressed', 'false');
 
-    fireEvent.pointerDown(screen.getByRole('button', { name: 'Trò a: Khó' }));
-    fireEvent.pointerDown(screen.getByRole('button', { name: 'Trò a: Trái cây' }));
+    tap(screen.getByRole('button', { name: 'Trò a: Khó' }));
+    tap(screen.getByRole('button', { name: 'Trò a: Trái cây' }));
     expect(onChange).toHaveBeenLastCalledWith({
       b: { enabled: false, difficulty: 'auto', topic: 'mix' },
       a: { enabled: true, difficulty: 'hard', topic: 'fruits' },
@@ -62,7 +66,7 @@ describe('GameSettings', () => {
   it('không cho tắt trò cuối cùng còn bật', () => {
     const off = { enabled: false, difficulty: 'auto', topic: 'mix' } as const;
     const { onChange } = setup({ a: off, b: off });
-    fireEvent.pointerDown(screen.getByRole('button', { name: 'Trò c: Đang bật' }));
+    tap(screen.getByRole('button', { name: 'Trò c: Đang bật' }));
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: 'Trò c: Đang bật' })).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('ít nhất một trò');
@@ -71,7 +75,7 @@ describe('GameSettings', () => {
   it('nút chạm ≥120px và nút Xong gọi onClose', () => {
     const { onClose } = setup();
     for (const b of screen.getAllByRole('button')) expect(parseInt(b.style.width, 10)).toBeGreaterThanOrEqual(120);
-    fireEvent.pointerDown(screen.getByRole('button', { name: 'Xong' }));
+    tap(screen.getByRole('button', { name: 'Xong' }));
     expect(onClose).toHaveBeenCalled();
   });
 });
@@ -79,15 +83,15 @@ describe('GameSettings', () => {
 describe('ParentArea → Trò chơi', () => {
   it('mở mục Trò chơi, đổi độ khó thì lưu cả settings', () => {
     const onSave = vi.fn();
-    render(<ParentArea settings={DEFAULT_SETTINGS} onSave={onSave} onUnlock={vi.fn()} onClose={vi.fn()} />);
-    fireEvent.pointerDown(screen.getByRole('button', { name: 'Trò chơi' }));
+    render(<ParentArea settings={DEFAULT_SETTINGS} speaker={speaker} onSave={onSave} onUnlock={vi.fn()} onClose={vi.fn()} />);
+    tap(screen.getByRole('button', { name: 'Trò chơi' }));
     expect(screen.getByTestId('game-settings')).toBeInTheDocument();
-    fireEvent.pointerDown(screen.getByRole('button', { name: 'Lật hình: Khó' }));
+    tap(screen.getByRole('button', { name: 'Lật hình: Khó' }));
     expect(onSave).toHaveBeenLastCalledWith({
       ...DEFAULT_SETTINGS,
       games: { memory: { enabled: true, difficulty: 'hard', topic: 'mix' } },
     });
-    fireEvent.pointerDown(screen.getByRole('button', { name: 'Xong' }));
+    tap(screen.getByRole('button', { name: 'Xong' }));
     expect(screen.getByRole('dialog', { name: 'Cài đặt phụ huynh' })).toBeInTheDocument();
   });
 });

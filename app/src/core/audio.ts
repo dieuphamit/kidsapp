@@ -1,5 +1,7 @@
 import { Howl, Howler } from 'howler';
 import type { Lang } from './i18n';
+import { DEFAULT_NAME_ID } from './buddy';
+import { NAMED_KEYS } from './content';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -11,6 +13,14 @@ export function sfxUrl(name: string, base = BASE): string {
   return `${base}audio/sfx/${name}.mp3`;
 }
 
+/**
+ * Giọng đọc của câu có tên bạn đồng hành ({name}) với tên khác tên mặc định:
+ * `audio/<lang>/<key>~<nameId>.mp3`. Tên mặc định (Đậu Đậu) dùng đường dẫn thường.
+ */
+export function namedAudioUrl(key: string, lang: Lang, nameId: string, base = BASE): string {
+  return nameId === DEFAULT_NAME_ID ? audioUrl(key, lang, base) : `${base}audio/${lang}/${key}~${nameId}.mp3`;
+}
+
 const ANIMAL_SOUND_KEY = /^animal\.([a-z]+)-sound$/;
 
 /**
@@ -19,9 +29,16 @@ const ANIMAL_SOUND_KEY = /^animal\.([a-z]+)-sound$/;
  * Game vẫn gọi say('animal.<id>-sound') nên data-last-say/test giữ nguyên key đó.
  * Nguồn và giấy phép: public/audio/sfx/CREDITS.md; sinh lại bằng scripts/animal-sounds.mjs.
  */
-export function speechUrl(key: string, lang: Lang, base = BASE): string {
+export function speechUrl(
+  key: string,
+  lang: Lang,
+  base = BASE,
+  nameId = DEFAULT_NAME_ID,
+  namedKeys: ReadonlySet<string> = NAMED_KEYS,
+): string {
   const m = ANIMAL_SOUND_KEY.exec(key);
-  return m ? sfxUrl(`animal-${m[1]}`, base) : audioUrl(key, lang, base);
+  if (m) return sfxUrl(`animal-${m[1]}`, base);
+  return namedKeys.has(key) ? namedAudioUrl(key, lang, nameId, base) : audioUrl(key, lang, base);
 }
 
 export interface Speaker {
@@ -36,7 +53,13 @@ export interface Speaker {
 
 export const NOTE_FADE_MS = 150;
 
-export function createSpeaker(getLang: () => Lang, base = BASE): Speaker {
+/** getName: id tên bạn đồng hành đang dùng; câu có {name} phát file của tên đó. */
+export function createSpeaker(
+  getLang: () => Lang,
+  base = BASE,
+  getName: () => string = () => DEFAULT_NAME_ID,
+  namedKeys: ReadonlySet<string> = NAMED_KEYS,
+): Speaker {
   const cache = new Map<string, Howl>();
   let current: Howl | null = null;
   let lastNote: { h: Howl; id: number } | null = null;
@@ -51,7 +74,7 @@ export function createSpeaker(getLang: () => Lang, base = BASE): Speaker {
   return {
     say(key) {
       current?.stop();
-      current = get(speechUrl(key, getLang(), base));
+      current = get(speechUrl(key, getLang(), base, getName(), namedKeys));
       current.play();
     },
     sfx(name) {

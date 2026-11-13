@@ -20,4 +20,11 @@ describe('validateContent', () => {
   it('báo lỗi key sai định dạng', () => {
     expect(() => validateContent([{ key: 'Bad Key', vi: 'A', ja: 'B', en: 'C' }], 'x.json')).toThrow(/key/);
   });
+  it('câu có {name} phải có mẫu ở cả vi, ja, en', () => {
+    const ok = validateContent([{ key: 'a.b', vi: '{name} ở đây', ja: '{name}は ここ', en: '{name} is here' }], 'x.json');
+    expect(ok[0].ja).toBe('{name}は ここ');
+    expect(() => validateContent([{ key: 'a.b', vi: '{name} ở đây', ja: 'ダウダウは ここ', en: '{name} is here' }], 'x.json'))
+      .toThrow(/x.json.*a.b.*\{name\}.*ja/);
+    expect(() => validateContent([{ key: 'a.b', vi: 'Đậu Đậu', ja: 'ダウダウ', en: '{name}' }], 'x.json')).toThrow(/vi, ja/);
+  });
 });

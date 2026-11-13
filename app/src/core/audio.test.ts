@@ -68,6 +68,24 @@ describe('audio', () => {
     expect(Howl).toHaveBeenCalledWith({ src: ['/b/audio/sfx/animal-lion.mp3'] });
     expect(play).toHaveBeenCalledTimes(2);
   });
+  it('câu có {name} phát file của tên đang chọn; câu thường và tên mặc định giữ đường dẫn cũ', () => {
+    const named = new Set(['hide.hello']);
+    expect(speechUrl('hide.hello', 'vi', '/b/', 'dau', named)).toBe('/b/audio/vi/hide.hello.mp3');
+    expect(speechUrl('hide.hello', 'ja', '/b/', 'mimi', named)).toBe('/b/audio/ja/hide.hello~mimi.mp3');
+    expect(speechUrl('ui.great', 'vi', '/b/', 'mimi', named)).toBe('/b/audio/vi/ui.great.mp3');
+    expect(speechUrl('animal.cow-sound', 'vi', '/b/', 'mimi', named)).toBe('/b/audio/sfx/animal-cow.mp3');
+    // mặc định lấy danh sách câu có tên từ content
+    expect(speechUrl('ui.sleep', 'en', '/b/', 'tom')).toBe('/b/audio/en/ui.sleep~tom.mp3');
+    let name = 'dau';
+    const sp = createSpeaker(() => 'vi', '/b/', () => name);
+    sp.say('hide.hello');
+    expect(Howl).toHaveBeenLastCalledWith({ src: ['/b/audio/vi/hide.hello.mp3'] });
+    name = 'kiki';
+    sp.say('hide.hello');
+    expect(Howl).toHaveBeenLastCalledWith({ src: ['/b/audio/vi/hide.hello~kiki.mp3'] });
+    sp.say('ui.great');
+    expect(Howl).toHaveBeenLastCalledWith({ src: ['/b/audio/vi/ui.great.mp3'] });
+  });
   it('say() dừng câu đang nói trước khi nói câu mới', () => {
     const sp = createSpeaker(() => 'vi', '/b/');
     sp.say('ui.hello');

@@ -4,7 +4,7 @@ import { ParentArea } from './ParentArea';
 import { DEFAULT_SETTINGS } from '../core/settings';
 
 function renderArea(settings = DEFAULT_SETTINGS) {
-  const props = { settings, onSave: vi.fn(), onUnlock: vi.fn(), onClose: vi.fn() };
+  const props = { settings, speaker: { say: vi.fn(), sfx: vi.fn() }, onSave: vi.fn(), onUnlock: vi.fn(), onClose: vi.fn() };
   render(<ParentArea {...props} />);
   return props;
 }

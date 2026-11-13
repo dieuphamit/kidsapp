@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Poin
 import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
 import { Scenery } from '../../ui/Scenery';
+import { useBuddyLook } from '../../ui/buddyContext';
 import { clientToStage, stageRect } from '../../ui/Stage';
 import { canDrop, newRound, type Round, type StoryId } from './logic';
 import styles from './Game.module.css';
@@ -39,7 +40,8 @@ interface Back {
 
 const img = (story: StoryId, step: number) => `${BASE}cards/story/${story}-${step}.png`;
 
-export default function Game({ speaker, ageMonths, onExit }: GameProps) {
+export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
+  const buddy = useBuddyLook(lang);
   const [round, setRound] = useState<Round>(() => newRound(Date.now(), null, ageMonths));
   /** Bước của tranh trong từng ô (null = ô trống). Ô 1 có sẵn tranh đầu. */
   const [slots, setSlots] = useState<(number | null)[]>(() => round.steps.map((s, i) => (i === 0 ? s : null)));
@@ -315,7 +317,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
       )}
 
       {/* Đậu Đậu nảy nhẹ mỗi lần nói (key đổi → chạy lại animation) */}
-      <img key={lastSay} src={`${BASE}cards/daudau.png`} alt="" draggable={false} className={styles.daudau} />
+      <img key={lastSay} src={buddy.img} alt="" draggable={false} className={styles.daudau} />
     </div>
   );
 }

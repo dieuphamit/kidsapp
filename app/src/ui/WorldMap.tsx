@@ -3,6 +3,8 @@ import styles from './WorldMap.module.css';
 import { WorldMapScene, type Facing } from './WorldMapScene';
 import { ClayButton } from './ClayButton';
 import { contentByKey } from '../core/content';
+import { buddyName } from '../core/buddy';
+import { useBuddy, useFillName } from './buddyContext';
 import { gamesByPlace, type GameManifest } from '../core/games';
 import { PLACES } from '../core/places';
 import type { Lang } from '../core/i18n';
@@ -38,6 +40,8 @@ type Props = {
 export function WorldMap({ games, lang, speaker, onPick, onOpenPicker, lastGameId }: Props) {
   const [lastSay, setLastSay] = useState('');
   const [facing, setFacing] = useState<Facing>(0);
+  const buddy = useBuddy();
+  const fill = useFillName();
   const [locked, setLocked] = useState(false);
   const pendingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -98,9 +102,14 @@ export function WorldMap({ games, lang, speaker, onPick, onOpenPicker, lastGameI
         {content.get('ui.where')?.[lang]}
       </div>
 
-      {/* Đậu Đậu */}
-      <div className={styles.mascot}>
-        <WorldMapScene facing={facing} onTapDauDau={() => say('ui.hello')} />
+      {/* Bạn đồng hành đang chọn */}
+      <div className={styles.mascot} data-testid="buddy" data-character={buddy.character} data-name={buddy.name}>
+        <WorldMapScene
+          facing={facing}
+          onTapDauDau={() => say('ui.hello')}
+          character={buddy.character}
+          label={buddyName(buddy.name, lang)}
+        />
       </div>
 
       {/* Nút chơi lại trò vừa chơi */}
@@ -109,7 +118,7 @@ export function WorldMap({ games, lang, speaker, onPick, onOpenPicker, lastGameI
           <ClayButton
             color="butter"
             size={132}
-            label={lastGame.title[lang]}
+            label={fill(lastGame.title[lang], lang)}
             onPress={() => handleReplay(lastGame)}
             style={{ borderRadius: '50%' }}
           >
@@ -121,7 +130,7 @@ export function WorldMap({ games, lang, speaker, onPick, onOpenPicker, lastGameI
 
       {/* Các khu */}
       {visiblePlaces.map((p) => {
-        const name = content.get(p.key)?.[lang] ?? '';
+        const name = fill(content.get(p.key)?.[lang] ?? '', lang);
         const placeGames = gamesMap.get(p.key) ?? [];
         return (
           <div key={p.key} className={`${styles.place} ${LAYOUT[p.key]?.posClass ?? ''}`} data-testid={`place-${p.key.slice('place.'.length)}`}>

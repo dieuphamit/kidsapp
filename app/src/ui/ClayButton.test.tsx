@@ -32,4 +32,32 @@ describe('ClayButton', () => {
     render(<ClayButton color="peach" label="Rộng" size={50} onPress={() => {}} style={{ width: '10px' }}>x</ClayButton>);
     expect(screen.getByRole('button', { name: 'Rộng' }).style.width).toBe('120px');
   });
+  it("activateOn='release': lún ngay khi chạm, chỉ kích hoạt khi nhả tay", () => {
+    const onPress = vi.fn();
+    render(<ClayButton color="mint" label="Tên" activateOn="release" onPress={onPress}>x</ClayButton>);
+    const b = screen.getByRole('button', { name: 'Tên' });
+    fireEvent.pointerDown(b, { clientX: 10, clientY: 10 });
+    expect(b).toHaveAttribute('data-pressed');
+    expect(onPress).not.toHaveBeenCalled();
+    fireEvent.pointerUp(b);
+    expect(onPress).toHaveBeenCalledTimes(1);
+  });
+  it("activateOn='release': kéo (cuộn) hoặc pointercancel thì không bấm", () => {
+    const onPress = vi.fn();
+    render(<ClayButton color="mint" label="Tên" activateOn="release" onPress={onPress}>x</ClayButton>);
+    const b = screen.getByRole('button', { name: 'Tên' });
+    fireEvent.pointerDown(b, { clientX: 10, clientY: 10 });
+    fireEvent.pointerMove(b, { clientX: 10, clientY: 60 });
+    expect(b).not.toHaveAttribute('data-pressed');
+    fireEvent.pointerUp(b);
+    fireEvent.pointerDown(b, { clientX: 10, clientY: 10 });
+    fireEvent.pointerCancel(b);
+    fireEvent.pointerUp(b);
+    expect(onPress).not.toHaveBeenCalled();
+    // xê dịch nhỏ (tay run) vẫn tính là bấm
+    fireEvent.pointerDown(b, { clientX: 10, clientY: 10 });
+    fireEvent.pointerMove(b, { clientX: 14, clientY: 13 });
+    fireEvent.pointerUp(b);
+    expect(onPress).toHaveBeenCalledTimes(1);
+  });
 });

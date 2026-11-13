@@ -4,6 +4,6 @@
   { "key": "place.orchard", "vi": "Vườn quả", "ja": "かじゅえん", "en": "The orchard" },
   { "key": "place.music", "vi": "Nhà âm nhạc", "ja": "おんがくのいえ", "en": "Music house" },
   { "key": "place.zoo", "vi": "Thế giới thú", "ja": "どうぶつの くに", "en": "Animal world" },
-  { "key": "place.house", "vi": "Nhà Đậu Đậu", "ja": "ダウダウのおうち", "en": "Dau Dau's house" },
+  { "key": "place.house", "vi": "Nhà {name}", "ja": "{name}のおうち", "en": "{name}'s house" },
   { "key": "place.puzzle", "vi": "Góc đố", "ja": "なぞなぞ コーナー", "en": "Puzzle corner" }
 ]

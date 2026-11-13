@@ -3,6 +3,7 @@ import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
 import { ClayButton } from '../../ui/ClayButton';
 import { Scenery } from '../../ui/Scenery';
+import { useBuddyLook } from '../../ui/buddyContext';
 import { clientToStage } from '../../ui/Stage';
 import { newRound, nextLevel, STREAK_TO_LEVEL_UP, type Level, type Round } from './logic';
 import { chainLayout, choiceCenter, BEAD, CHOICE } from './layout';
@@ -40,7 +41,8 @@ type Motion =
   | { kind: 'fly'; id: string; dx: number; dy: number }
   | { kind: 'roll'; id: string };
 
-export default function Game({ speaker, ageMonths, onExit }: GameProps) {
+export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
+  const buddy = useBuddyLook(lang);
   const [level, setLevel] = useState<Level>('AB');
   const [streak, setStreak] = useState(0);
   const [roundNo, setRoundNo] = useState(1);
@@ -280,7 +282,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
       <img
         key={sayCount}
         className={styles.mascot}
-        src={`${BASE}cards/daudau.png`}
+        src={buddy.img}
         alt=""
         draggable={false}
         data-talking={sayCount > 0 ? '' : undefined}
