@@ -134,9 +134,9 @@ test.describe('Puzzle game', () => {
     // Chụp ảnh lúc hoàn thành
     await page.screenshot({ path: 'test-results/shots/T-030-done.png' });
 
-    // Sau đó sẽ nói tên hình (animal.xxx hoặc fruit.xxx)
+    // Sau đó sẽ nói tên hình (animal.xxx, fruit.xxx hoặc shape.xxx: chủ đề hình khối thêm ở E3)
     const lastSay = await gameRoot.getAttribute('data-last-say');
-    expect(lastSay).toMatch(/^(animal\.|fruit\.)/);
+    expect(lastSay).toMatch(/^(animal\.|fruit\.|shape\.)/);
   });
 
   test('nút Về nhà trở về home', async ({ page }) => {
