@@ -46,9 +46,11 @@ export function chainLayout(count: number): ChainLayout {
   };
 }
 
-/** Tâm nút lựa chọn thứ k (3 nút, giữa đáy khung). */
+/** Tâm nút lựa chọn thứ k (giữa đáy khung; 4 nút thì lệch phải tránh bạn đồng hành). */
 export function choiceCenter(k: number, count = 3): Point {
   const total = count * CHOICE + (count - 1) * CHOICE_GAP;
-  const left = STAGE_W / 2 - total / 2;
+  // 4 hạt: lệch sang phải để không đè lên bạn đồng hành ngồi góc trái dưới (rộng ~230px)
+  const center = count >= 4 ? STAGE_W / 2 + 70 : STAGE_W / 2;
+  const left = center - total / 2;
   return { x: left + k * (CHOICE + CHOICE_GAP) + CHOICE / 2, y: STAGE_H - CHOICE_BOTTOM - CHOICE / 2 };
 }

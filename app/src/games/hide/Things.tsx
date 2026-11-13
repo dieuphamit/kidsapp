@@ -92,6 +92,52 @@ const DRAW: Record<ObjId, () => P[]> = {
     { cls: 'front', s: { left: 22, top: 98, width: 52, height: 52, borderRadius: ROUND, background: v('ink'), border: `10px solid ${v('scene-cloud-shade')}` } },
     { cls: 'front', s: { left: 136, top: 98, width: 52, height: 52, borderRadius: ROUND, background: v('ink'), border: `10px solid ${v('scene-cloud-shade')}` } },
   ],
+  slide: () => [
+    { s: { left: 8, top: 40, width: 14, height: 210, borderRadius: 7, background: v('scene-wood-dark') } },
+    { s: { left: 52, top: 40, width: 14, height: 210, borderRadius: 7, background: v('scene-wood-dark') } },
+    ...[90, 140, 190].map((y) => ({ s: { left: 14, top: y, width: 46, height: 10, borderRadius: 5, background: v('scene-wood') } })),
+    { soft: true, s: { left: 0, top: 30, width: 86, height: 22, borderRadius: 11, background: v('scene-wood-light') } },
+    { cls: 'front', soft: true, s: { left: 70, top: 34, width: 262, height: 34, borderRadius: 17, background: v('learn-orange'), transform: 'rotate(54deg)', transformOrigin: '0 50%' } },
+    { cls: 'front', s: { left: 74, top: 30, width: 262, height: 10, borderRadius: 5, background: v('clay-peach'), transform: 'rotate(54deg)', transformOrigin: '0 50%' } },
+  ],
+  bench: () => [
+    { soft: true, s: { left: 10, top: 0, width: 190, height: 44, borderRadius: 14, background: v('scene-wood') } },
+    { s: { left: 30, top: 40, width: 14, height: 24, background: v('scene-wood-dark') } },
+    { s: { left: 166, top: 40, width: 14, height: 24, background: v('scene-wood-dark') } },
+    { cls: 'front', soft: true, s: { left: 0, top: 56, width: 210, height: 30, borderRadius: 14, background: v('scene-wood-light') } },
+    { cls: 'front', soft: true, s: { left: 18, top: 80, width: 22, height: 120, borderRadius: 10, background: v('scene-wood-dark') } },
+    { cls: 'front', soft: true, s: { left: 170, top: 80, width: 22, height: 120, borderRadius: 10, background: v('scene-wood-dark') } },
+  ],
+  tent: () => [
+    { s: { left: 0, top: 0, width: 210, height: 230, background: v('clay-peach'), clipPath: 'polygon(50% 0, 100% 100%, 0 100%)' } },
+    { s: { left: 40, top: 46, width: 130, height: 184, background: v('scene-barn-dark'), clipPath: 'polygon(50% 0, 100% 100%, 0 100%)' } },
+    { cls: 'front', s: { left: 0, top: 0, width: 210, height: 230, background: v('learn-orange'), clipPath: 'polygon(50% 0, 47% 22%, 26% 100%, 0 100%)' } },
+    { cls: 'front', s: { left: 0, top: 0, width: 210, height: 230, background: v('learn-orange'), clipPath: 'polygon(50% 0, 100% 100%, 74% 100%, 53% 22%)' } },
+    { cls: 'front', s: { left: 96, top: -14, width: 18, height: 26, borderRadius: 6, background: v('learn-red') } },
+  ],
+  umbrella: () => [
+    { s: { left: 100, top: 60, width: 12, height: 270, borderRadius: 6, background: v('ink-soft') } },
+    {
+      cls: 'front',
+      soft: true,
+      s: {
+        left: -14,
+        top: 0,
+        width: 238,
+        height: 104,
+        borderRadius: '119px 119px 18px 18px',
+        background: `repeating-linear-gradient(90deg, ${v('learn-red')} 0 40px, ${v('paper')} 40px 80px)`,
+      },
+    },
+    { cls: 'front', s: { left: 96, top: -16, width: 20, height: 20, borderRadius: ROUND, background: v('learn-yellow'), boxShadow: v('shadow-clay') } },
+  ],
+  boat: () => [
+    { s: { left: 98, top: -150, width: 12, height: 170, borderRadius: 6, background: v('scene-wood-dark') } },
+    { soft: true, s: { left: 112, top: -140, width: 86, height: 120, background: v('paper'), clipPath: 'polygon(0 0, 100% 100%, 0 100%)' } },
+    { s: { left: 0, top: 0, width: 210, height: 40, borderRadius: ROUND, background: v('scene-wood-dark') } },
+    { cls: 'front', soft: true, s: { left: 0, top: 20, width: 210, height: 110, borderRadius: '12px 12px 90px 90px', background: v('learn-blue') } },
+    { cls: 'front', s: { left: 0, top: 20, width: 210, height: 20, borderRadius: 10, background: v('paper'), boxShadow: v('shadow-clay') } },
+  ],
 };
 
 export function Thing({ obj }: { obj: RoomObject }) {

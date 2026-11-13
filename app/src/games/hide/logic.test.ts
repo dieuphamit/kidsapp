@@ -1,14 +1,27 @@
 import { describe, it, expect } from 'vitest';
-import { ROOMS, roomZones, zoneAt, nextAsk, askPairs, pairKey, OBJECT_PREPS, type Pair } from './logic';
+import { ROOMS, roomZones, zoneAt, nextAsk, askPairs, pairKey, OBJECT_PREPS, paceForAge, roomOrder, type Pair } from './logic';
 import { contentByKey } from '../../core/content';
 
 describe('hide: ROOMS', () => {
-  it('3 phòng, mỗi phòng đúng 3 đồ vật theo đề', () => {
+  it('5 phòng (3 phòng gốc + công viên, bãi biển), mỗi phòng đúng 3 đồ vật', () => {
     expect(ROOMS.map((r) => r.objects.map((o) => o.id))).toEqual([
       ['table', 'box', 'bed'],
       ['chair', 'pot', 'basket'],
       ['tree', 'bucket', 'car'],
+      ['slide', 'bench', 'tent'],
+      ['umbrella', 'boat', 'bucket'],
     ]);
+  });
+
+  it('mọi câu của vùng thả có cả en', () => {
+    const content = contentByKey();
+    for (const r of ROOMS) {
+      for (const z of roomZones(r)) {
+        for (const key of [`hide.${z.prep}-${z.obj}`, `hide.ask-${z.prep}-${z.obj}`]) {
+          expect(content.get(key)?.en, key).toBeTruthy();
+        }
+      }
+    }
   });
 
   it('mọi vùng thả có câu hide.<prep>-<obj> và hide.ask-… (vi, ja)', () => {
@@ -125,5 +138,47 @@ describe('hide: bộ hỏi theo tuổi', () => {
 
   it('từ 36 tháng có cả beside', () => {
     expect(askPairs(ROOMS[0], 48).some((p) => p.prep === 'beside')).toBe(true);
+  });
+});
+
+/** PRNG có seed cho test. */
+function seeded(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a * 1664525 + 1013904223) >>> 0;
+    return a / 4294967296;
+  };
+}
+
+describe('hide: roomOrder', () => {
+  it('mỗi lượt đi qua đủ 5 phòng, không lặp phòng', () => {
+    for (let seed = 1; seed <= 50; seed++) {
+      const order = roomOrder(seeded(seed));
+      expect([...order].sort()).toEqual([0, 1, 2, 3, 4]);
+    }
+  });
+
+  it('phòng đầu khác phòng vừa chơi lần trước', () => {
+    for (let seed = 1; seed <= 50; seed++) {
+      for (const r of ROOMS) expect(ROOMS[roomOrder(seeded(seed), r.id)[0]].id).not.toBe(r.id);
+    }
+  });
+
+  it('xáo trộn thật: phòng đầu thay đổi theo seed', () => {
+    const firsts = new Set(Array.from({ length: 60 }, (_, i) => roomOrder(seeded(i + 1))[0]));
+    expect(firsts.size).toBeGreaterThanOrEqual(4);
+  });
+});
+
+describe('hide: paceForAge (độ khó)', () => {
+  it('Dễ (< 36 tháng): 3 lần thả tự do, vùng được nhờ sáng lên', () => {
+    expect(paceForAge(24)).toEqual({ freeDrops: 3, winsPerRoom: 3, glowTarget: true });
+  });
+  it('Vừa (36–53 tháng): không gợi ý vùng', () => {
+    expect(paceForAge(36)).toEqual({ freeDrops: 3, winsPerRoom: 3, glowTarget: false });
+    expect(paceForAge(48).glowTarget).toBe(false);
+  });
+  it('Khó (≥ 54 tháng): nhờ ngay sau 1 lần thả, 4 lần đúng mới sang phòng', () => {
+    expect(paceForAge(54)).toEqual({ freeDrops: 1, winsPerRoom: 4, glowTarget: false });
   });
 });

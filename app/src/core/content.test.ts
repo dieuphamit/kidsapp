@@ -28,6 +28,6 @@ describe('content', () => {
       expect(NAMED_KEYS.has(key), key).toBe(true);
     }
     expect(NAMED_KEYS.has('ui.great')).toBe(false);
-    expect(NAMED_KEYS.size).toBe(57);
+    expect(NAMED_KEYS.size).toBe(93);
   });
 });

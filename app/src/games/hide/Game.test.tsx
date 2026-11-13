@@ -15,6 +15,8 @@ beforeAll(() => {
 });
 
 function setup(ageMonths = 48) {
+  // Math.random gần 1: thứ tự phòng không bị xáo (phòng khách trước)
+  vi.spyOn(Math, 'random').mockReturnValue(0.99);
   const speaker: Speaker = { say: vi.fn(), sfx: vi.fn() } as unknown as Speaker;
   render(<Game lang="vi" speaker={speaker} ageMonths={ageMonths} onExit={() => {}} />);
   return speaker;

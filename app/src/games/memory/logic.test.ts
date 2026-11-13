@@ -329,9 +329,9 @@ describe('newRound theo chủ đề', () => {
 });
 
 describe('kho thẻ đầy đủ và trí nhớ ngắn', () => {
-  it('ALL_CARDS có 20 con vật, 16 quả, 8 hình khối, id không trùng', () => {
+  it('ALL_CARDS có 28 con vật, 16 quả, 8 hình khối, id không trùng', () => {
     const count = (k: string) => ALL_CARDS.filter((c) => c.kind === k).length;
-    expect(count('farm') + count('wild')).toBe(20);
+    expect(count('farm') + count('wild')).toBe(28);
     expect(count('fruit')).toBe(16);
     expect(count('shape')).toBe(8);
     expect(new Set(ALL_CARDS.map((c) => c.id)).size).toBe(ALL_CARDS.length);

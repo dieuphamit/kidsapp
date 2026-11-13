@@ -12,6 +12,8 @@ export type FruitId = (typeof FRUIT_IDS)[number];
 export const FARM_ANIMAL_IDS = ['cow', 'chicken', 'duck', 'pig', 'dog', 'sheep', 'horse', 'rabbit'] as const;
 export const WILD_ANIMAL_IDS = [
   'elephant', 'giraffe', 'lion', 'tiger', 'monkey', 'panda', 'penguin', 'koala', 'fox', 'bear', 'parrot', 'fish',
+  // thẻ ảnh thêm ở E4 (Ú òa) cho thú của thế giới 5 khu
+  'zebra', 'deer', 'raccoon', 'frog', 'bee', 'pigeon', 'dolphin', 'whale',
 ] as const;
 /** Mọi con vật có thẻ hình, tên đọc và tiếng kêu thật. */
 export const ANIMAL_IDS = [...FARM_ANIMAL_IDS, ...WILD_ANIMAL_IDS] as const;

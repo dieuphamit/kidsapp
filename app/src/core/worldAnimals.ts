@@ -66,7 +66,6 @@ export const WORLD_ANIMALS: Record<string, WorldAnimal> = {
   manta: { id: 'manta', model: W + 'manta.glb', habitat: 'sea', height: 0.4, len: 4.2, band: [0, 0.35], motion: 'swim', clips: ['Swim'], anchor: { Swim: 1 }, speed: 0.4, tris: 696 },
   clownfish: { id: 'clownfish', model: W + 'clownfish.glb', habitat: 'sea', height: 0.42, len: 1.64, motion: 'school', clips: ['Swim', 'Run', 'Jump'], anchor: { Swim: 1.6, Run: 3.2 }, speed: 0.55, tris: 1528 },
   puffer: { id: 'puffer', model: W + 'puffer.glb', habitat: 'sea', height: 0.45, len: 1.46, motion: 'school', clips: ['Swim', 'Run', 'Jump'], anchor: { Swim: 1.4, Run: 2.8 }, speed: 0.45, tris: 2138 },
-  'blue-tang': { id: 'blue-tang', model: W + 'blue-tang.glb', habitat: 'sea', height: 0.45, len: 1.63, motion: 'school', clips: ['Swim', 'Run', 'Jump'], anchor: { Swim: 1.6, Run: 3.2 }, speed: 0.55, tris: 1334 },
   'yellow-tang': { id: 'yellow-tang', model: W + 'yellow-tang.glb', habitat: 'sea', height: 0.45, len: 1.56, motion: 'school', clips: ['Swim', 'Run', 'Jump'], anchor: { Swim: 1.6, Run: 3.2 }, speed: 0.55, tris: 1336 },
   crab: { id: 'crab', model: W + 'crab.glb', habitat: 'sea', height: 0.5, len: 1.66, motion: 'walk', clips: ['Idle', 'Walk', 'Jump', 'Happy'], anchor: { Walk: 1.14 }, speed: 0.35, tris: 3592 },
   // Ao hồ
@@ -78,7 +77,6 @@ export const WORLD_ANIMALS: Record<string, WorldAnimal> = {
   deer: { id: 'deer', model: W + 'deer.glb', habitat: 'forest', height: 1.0, len: 1.03, motion: 'walk', clips: ['Idle', 'Walk', 'Run', 'Eat', 'Jump'], anchor: { Walk: 0.79, Run: 2.5 }, speed: 0.6, canEat: true, tris: 2098 },
   stag: { id: 'stag', model: W + 'stag.glb', habitat: 'forest', height: 1.2, len: 0.9, motion: 'walk', clips: ['Idle', 'Walk', 'Run', 'Eat', 'Jump'], anchor: { Walk: 0.62, Run: 2 }, speed: 0.6, canEat: true, tris: 3670 },
   fox: { id: 'fox', model: W + 'fox.glb', habitat: 'forest', height: 0.65, len: 2.1, motion: 'walk', clips: ['Idle', 'Walk', 'Run', 'Eat', 'Jump'], anchor: { Walk: 1.06, Run: 3.4 }, speed: 0.5, canEat: true, tris: 1848 },
-  wolf: { id: 'wolf', model: W + 'wolf.glb', habitat: 'forest', height: 0.7, len: 1.97, motion: 'walk', clips: ['Idle', 'Walk', 'Run', 'Eat', 'Jump'], anchor: { Walk: 1.06, Run: 3.4 }, speed: 0.55, canEat: true, tris: 1962 },
   raccoon: { id: 'raccoon', model: W + 'raccoon.glb', habitat: 'forest', height: 0.6, len: 2.31, motion: 'walk', clips: ['Idle', 'Walk', 'Run', 'Eat', 'Jump'], anchor: { Walk: 1.42, Run: 2.3 }, speed: 0.45, canEat: true, tris: 2698 },
   bear: { id: 'bear', model: 'bear.glb', habitat: 'forest', height: 0.95, len: 1.54, motion: 'walk', clips: [], fake: 'walk', speed: 0.4, canEat: true, tris: 568 },
   // Trời

@@ -6,8 +6,17 @@ import {
   ALL_ANIMALS,
   FARM_ANIMALS,
   WILD_ANIMALS,
+  NEW_ANIMALS,
+  COVERS,
+  animalsFor,
+  coverOf,
+  hintRoundsForAge,
+  wiggleMsForAge,
   type AnimalId,
 } from './logic';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { contentByKey } from '../../core/content';
 
 describe('bushCountForAge', () => {
   it('trả về 3 bụi cho bé < 36 tháng', () => {
@@ -111,8 +120,11 @@ describe('animal lists', () => {
     expect(WILD_ANIMALS).toHaveLength(12);
   });
 
-  it('ALL_ANIMALS = FARM + WILD', () => {
-    expect(ALL_ANIMALS).toHaveLength(FARM_ANIMALS.length + WILD_ANIMALS.length);
+  it('ALL_ANIMALS = FARM + WILD + NEW', () => {
+    expect(ALL_ANIMALS).toHaveLength(FARM_ANIMALS.length + WILD_ANIMALS.length + NEW_ANIMALS.length);
+    for (const animal of NEW_ANIMALS) {
+      expect(ALL_ANIMALS).toContain(animal);
+    }
     for (const animal of FARM_ANIMALS) {
       expect(ALL_ANIMALS).toContain(animal);
     }
@@ -124,5 +136,58 @@ describe('animal lists', () => {
   it('không có id trùng trong ALL_ANIMALS', () => {
     const unique = new Set(ALL_ANIMALS);
     expect(unique.size).toBe(ALL_ANIMALS.length);
+  });
+});
+
+describe('chỗ núp và thú mới', () => {
+  it('mỗi chỗ núp (bụi, mây, sóng) có ít nhất 3 bạn thú', () => {
+    for (const c of COVERS) expect(animalsFor(c).length, c).toBeGreaterThanOrEqual(3);
+  });
+
+  it('chim/ong núp sau mây, thú biển núp sau sóng', () => {
+    expect(coverOf('parrot')).toBe('cloud');
+    expect(coverOf('bee')).toBe('cloud');
+    expect(coverOf('whale')).toBe('wave');
+    expect(coverOf('dolphin')).toBe('wave');
+    expect(coverOf('zebra')).toBe('bush');
+  });
+
+  it('ván mới: thú hợp chỗ núp của ván, đủ cả 3 chỗ núp qua nhiều ván', () => {
+    const covers = new Set<string>();
+    for (let seed = 1; seed <= 200; seed++) {
+      const s = newRound(4, seed);
+      expect(coverOf(s.animalId)).toBe(s.cover);
+      covers.add(s.cover);
+    }
+    expect(covers.size).toBe(3);
+  });
+
+  it('mọi thú có ảnh thẻ, tên vi/ja/en và tiếng kêu thật', () => {
+    const content = contentByKey();
+    const pub = join(import.meta.dirname, '../../../public');
+    for (const id of ALL_ANIMALS) {
+      expect(existsSync(join(pub, 'cards', `${id}.png`)), `cards/${id}.png`).toBe(true);
+      expect(existsSync(join(pub, 'audio', 'sfx', `animal-${id}.mp3`)), `sfx ${id}`).toBe(true);
+      const item = content.get(`animal.${id}`);
+      expect(item?.vi && item.ja && item.en, id).toBeTruthy();
+    }
+  });
+
+  it('không lặp thú vừa chơi, với mọi thú', () => {
+    for (const prev of ALL_ANIMALS) {
+      for (let seed = 1; seed <= 30; seed++) expect(newRound(3, seed, prev).animalId).not.toBe(prev);
+    }
+  });
+});
+
+describe('độ khó: gợi ý', () => {
+  it('bé nhỏ được ló tai gợi ý nhiều ván hơn', () => {
+    expect(hintRoundsForAge(24)).toBe(3);
+    expect(hintRoundsForAge(40)).toBe(2);
+    expect(hintRoundsForAge(54)).toBe(1);
+  });
+  it('bé lớn: bụi có thú rung thưa hơn', () => {
+    expect(wiggleMsForAge(30)).toBe(3000);
+    expect(wiggleMsForAge(54)).toBe(5000);
   });
 });

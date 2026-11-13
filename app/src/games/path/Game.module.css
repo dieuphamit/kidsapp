@@ -331,3 +331,174 @@
   fill: var(--ink);
   pointer-events: none;
 }
+
+/* ---------- E4: chủ đề bản đồ (biển, tổ chim, hang thỏ, bông hoa) ---------- */
+.scene[data-theme='sea'] {
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 40%, var(--world-sea-top) 41%, var(--world-sea-deep) 100%);
+}
+
+.board[data-theme='sea'] {
+  background: var(--world-sand-dark);
+}
+
+.board[data-theme='sea'] .cell {
+  background: var(--world-sand);
+  box-shadow: inset 0 -8px 0 var(--world-sand-dark), inset 0 6px 0 var(--paper);
+}
+
+/* Người đi là ảnh thẻ thú (cá, vẹt, thỏ, ong) */
+.dau[data-walker]:not([data-walker='buddy']) {
+  filter: drop-shadow(0 4px 3px color-mix(in srgb, var(--ink) 30%, transparent));
+}
+
+/* Tảng đá */
+.rock {
+  position: absolute;
+  left: 14px;
+  top: 34px;
+  width: 92px;
+  height: 70px;
+  border-radius: 46% 54% 40% 44% / 60% 58% 42% 40%;
+  background: var(--world-rock);
+  box-shadow: inset -10px -12px 0 color-mix(in srgb, var(--ink) 22%, var(--world-rock)), inset 8px 8px 0 color-mix(in srgb, var(--paper) 30%, var(--world-rock));
+}
+
+.rockSmall {
+  position: absolute;
+  left: 72px;
+  top: 74px;
+  width: 38px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--world-rock);
+  box-shadow: inset -6px -6px 0 color-mix(in srgb, var(--ink) 22%, var(--world-rock));
+}
+
+/* Biển: ô nước có sóng */
+.sea {
+  position: absolute;
+  inset: 8px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, var(--world-water-light), var(--world-sea-top) 45%, var(--world-sea-deep));
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.wave {
+  position: absolute;
+  left: -10px;
+  width: 124px;
+  height: 18px;
+  border-radius: 50%;
+  border-top: 6px solid var(--paper);
+  opacity: 0.85;
+  animation: waveBob 1.6s ease-in-out infinite alternate;
+}
+
+.wave:nth-child(1) {
+  top: 22px;
+}
+
+.wave:nth-child(2) {
+  top: 58px;
+  animation-delay: -0.8s;
+}
+
+@keyframes waveBob {
+  from { translate: -6px 0; }
+  to { translate: 6px 0; }
+}
+
+/* Tổ chim có trứng */
+.nest {
+  position: absolute;
+  left: 10px;
+  top: 34px;
+  width: 100px;
+  height: 70px;
+  pointer-events: none;
+}
+
+.nestBowl {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100px;
+  height: 44px;
+  border-radius: 10px 10px 50px 50px;
+  background: repeating-linear-gradient(160deg, var(--scene-wicker) 0 8px, var(--scene-wicker-dark) 8px 12px);
+  box-shadow: inset 0 6px 0 var(--scene-wicker-light);
+}
+
+.egg {
+  position: absolute;
+  bottom: 30px;
+  width: 26px;
+  height: 34px;
+  border-radius: 50% 50% 46% 46% / 60% 60% 40% 40%;
+  background: var(--paper);
+  box-shadow: inset -4px -4px 0 var(--scene-cloud-shade);
+}
+
+.egg:nth-child(1) {
+  left: 18px;
+}
+
+.egg:nth-child(2) {
+  left: 38px;
+  bottom: 34px;
+}
+
+.egg:nth-child(3) {
+  left: 58px;
+}
+
+/* Hang thỏ: ụ đất có lỗ, cà rốt bên cạnh */
+.burrow {
+  position: absolute;
+  left: 8px;
+  top: 30px;
+  width: 104px;
+  height: 80px;
+  border-radius: 52px 52px 18px 18px;
+  background: var(--scene-bark);
+  box-shadow: inset -8px -8px 0 var(--scene-bark-dark);
+  pointer-events: none;
+}
+
+.hole {
+  position: absolute;
+  left: 24px;
+  bottom: 8px;
+  width: 52px;
+  height: 40px;
+  border-radius: 26px 26px 8px 8px;
+  background: var(--ink);
+}
+
+.carrot {
+  position: absolute;
+  right: -2px;
+  top: -14px;
+  width: 22px;
+  height: 46px;
+  background: var(--learn-orange);
+  clip-path: polygon(0 18%, 100% 18%, 50% 100%);
+  rotate: 24deg;
+}
+
+/* Bông hoa (ảnh hướng dương của Chuyện ba tranh) */
+.flower {
+  position: absolute;
+  inset: 6px;
+  width: 108px;
+  height: 108px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave {
+    animation: none;
+  }
+}

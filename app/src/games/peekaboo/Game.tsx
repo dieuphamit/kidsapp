@@ -2,10 +2,25 @@ import { useCallback, useEffect, useId, useRef, useState, type CSSProperties } f
 import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
 import { Scenery } from '../../ui/Scenery';
-import { bushCountForAge, newRound, tap, type PeekState, type AnimalId } from './logic';
+import {
+  bushCountForAge,
+  hintRoundsForAge,
+  newRound,
+  tap,
+  wiggleMsForAge,
+  type AnimalId,
+  type Cover,
+  type PeekState,
+} from './logic';
 import styles from './Game.module.css';
 
 const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
+/** e2e: ép chỗ núp bằng ?pcover=bush|cloud|wave. */
+const FORCE_COVER: Cover | undefined = (() => {
+  if (!IS_E2E) return undefined;
+  const c = new URLSearchParams(window.location.search).get('pcover');
+  return c === 'bush' || c === 'cloud' || c === 'wave' ? c : undefined;
+})();
 const BASE = import.meta.env.BASE_URL;
 
 type BushState = 'idle' | 'shake' | 'split';
@@ -161,6 +176,59 @@ function LushBush() {
   );
 }
 
+/** Đám mây bồng bềnh (trời): hai nửa tách ra như bụi. */
+function CloudArt() {
+  const puffs = (side: 'L' | 'R'): [number, number, number][] =>
+    side === 'L'
+      ? [[38, 128, 34], [70, 96, 42], [96, 128, 40], [60, 146, 30]]
+      : [[132, 92, 40], [164, 126, 34], [118, 136, 38], [148, 148, 28]];
+  return (
+    <svg className={styles.bushArt} viewBox="0 0 200 200" aria-hidden="true">
+      {(['R', 'L'] as const).map((side) => (
+        <g key={side} className={side === 'L' ? styles.halfL : styles.halfR}>
+          {puffs(side).map(([x, y, r]) => (
+            <circle key={`s${x}`} cx={x + 2} cy={y + 8} r={r} {...fill('scene-cloud-shade')} />
+          ))}
+          {puffs(side).map(([x, y, r]) => (
+            <circle key={`c${x}`} cx={x} cy={y} r={r} {...fill('world-cloud')} />
+          ))}
+          {puffs(side).slice(0, 2).map(([x, y, r]) => (
+            <circle key={`h${x}`} cx={x - r * 0.3} cy={y - r * 0.35} r={r * 0.35} {...fill('paper', 0.9)} />
+          ))}
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+/** Con sóng có bọt trắng (biển): hai ngọn sóng rẽ ra hai bên. */
+function WaveArt() {
+  const wave = (x0: number) =>
+    `M${x0} 200 L${x0} 120 Q${x0 + 10} 60 ${x0 + 56} 64 Q${x0 + 96} 68 ${x0 + 92} 104 Q${x0 + 74} 92 ${x0 + 66} 110 Q${x0 + 96} 120 ${x0 + 104} 160 L${x0 + 104} 200 Z`;
+  return (
+    <svg className={styles.bushArt} viewBox="0 0 200 200" aria-hidden="true">
+      {(['R', 'L'] as const).map((side) => {
+        const x0 = side === 'L' ? -4 : 96;
+        return (
+          <g key={side} className={side === 'L' ? styles.halfL : styles.halfR}>
+            <path d={wave(x0 + 4)} transform="translate(0 8)" {...fill('world-sea-deep')} />
+            <path d={wave(x0)} {...fill('world-sea-top')} />
+            <path d={`M${x0 + 14} 96 Q${x0 + 24} 70 ${x0 + 56} 72 Q${x0 + 84} 74 ${x0 + 86} 98`} className={styles.foam} />
+            <circle cx={x0 + 90} cy={100} r={7} {...fill('paper')} />
+            <circle cx={x0 + 78} cy={112} r={5} {...fill('world-bubble')} />
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function CoverArt({ cover }: { cover: Cover }) {
+  if (cover === 'cloud') return <CloudArt />;
+  if (cover === 'wave') return <WaveArt />;
+  return <LushBush />;
+}
+
 // Lá bay ra khi bụi rung / rẽ: [dx, dy, góc]
 const FLY_LEAVES: [number, number, number][] = [
   [-80, -40, -160],
@@ -171,6 +239,7 @@ const FLY_LEAVES: [number, number, number][] = [
 
 interface BushProps {
   index: number;
+  cover: Cover;
   hasAnimal: boolean;
   animalId: AnimalId;
   state: BushState;
@@ -179,7 +248,7 @@ interface BushProps {
   isWiggling: boolean;
 }
 
-function Bush({ index, hasAnimal, animalId, state, showHint, onTap, isWiggling }: BushProps) {
+function Bush({ index, cover, hasAnimal, animalId, state, showHint, onTap, isWiggling }: BushProps) {
   const bushClass = [
     styles.bush,
     state === 'shake' ? styles.shake : '',
@@ -193,7 +262,7 @@ function Bush({ index, hasAnimal, animalId, state, showHint, onTap, isWiggling }
   const animalState = showHint && state === 'idle' ? 'peek' : 'hidden';
 
   return (
-    <div className={`${styles.bushContainer} ${index % 2 ? styles.back : ''}`}>
+    <div className={`${styles.bushContainer} ${index % 2 ? styles.back : ''}`} data-cover={cover}>
       {hasAnimal && (
         <img
           key={animalId}
@@ -212,7 +281,7 @@ function Bush({ index, hasAnimal, animalId, state, showHint, onTap, isWiggling }
         aria-label={`Bụi cây ${index + 1}`}
         onPointerDown={onTap}
       >
-        <LushBush />
+        <CoverArt cover={cover} />
       </button>
 
       {state !== 'idle' && (
@@ -259,6 +328,8 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const bushCount = bushCountForAge(ageMonths);
+  const hintRounds = hintRoundsForAge(ageMonths);
+  const wiggleMs = wiggleMsForAge(ageMonths);
 
   const say = useCallback(
     (key: string) => {
@@ -279,7 +350,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
   const startNewRound = useCallback(
     (prevId?: AnimalId) => {
       const seed = Date.now();
-      const state = newRound(bushCount, seed, prevId);
+      const state = newRound(bushCount, seed, prevId, FORCE_COVER);
       setGameState(state);
       setBushStates(Array(bushCount).fill('idle'));
       setReveal(null);
@@ -307,9 +378,9 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
       }
     };
 
-    const interval = setInterval(wiggle, 3000);
+    const interval = setInterval(wiggle, wiggleMs);
     return () => clearInterval(interval);
-  }, [gameState]);
+  }, [gameState, wiggleMs]);
 
   // Handle bush tap
   const handleTap = useCallback(
@@ -382,24 +453,38 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
     }
   }, [gameState]);
 
-  const showHint = roundNumber <= 2; // 2 ván đầu có gợi ý
+  const showHint = roundNumber <= hintRounds; // vài ván đầu thú ló tai gợi ý (bé nhỏ được lâu hơn)
+  const cover = gameState?.cover ?? 'bush';
 
   return (
     <div
       data-testid="game-peekaboo"
       data-last-say={lastSay || undefined}
+      data-cover={cover}
       className={styles.container}
     >
-      {/* Khu vườn: trời, mây, đồi, cây */}
-      <Scenery variant="garden" />
+      {/* Khu vườn (bụi), bầu trời (mây) hoặc biển (sóng) */}
+      {cover === 'bush' && <Scenery variant="garden" />}
+      {cover === 'cloud' && (
+        <div className={styles.skyScene} aria-hidden="true">
+          <span className={styles.skySun} />
+        </div>
+      )}
+      {cover === 'wave' && (
+        <div className={styles.seaScene} aria-hidden="true">
+          <span className={styles.skySun} />
+          <span className={styles.seaWater} />
+        </div>
+      )}
 
-      {/* Khu vực bụi */}
-      <div className={styles.bushArea}>
+      {/* Khu vực chỗ núp */}
+      <div className={styles.bushArea} data-cover={cover}>
         {gameState &&
           Array.from({ length: bushCount }, (_, i) => (
             <Bush
               key={i}
               index={i}
+              cover={gameState.cover}
               hasAnimal={i === gameState.hidingBush}
               animalId={gameState.animalId}
               state={bushStates[i] || 'idle'}

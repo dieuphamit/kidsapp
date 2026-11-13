@@ -1,5 +1,21 @@
 import { describe, it, expect } from 'vitest';
-import { newRound, nextLevel, levelsForAge, FRUITS, LEVELS, type Level } from './logic';
+import {
+  newRound,
+  nextLevel,
+  levelsForAge,
+  choiceCountForAge,
+  kindsForTopic,
+  nextKey,
+  pickKind,
+  sayKey,
+  startLevel,
+  FRUITS,
+  ITEMS,
+  KINDS,
+  LEVELS,
+  type Level,
+} from './logic';
+import { contentByKey } from '../../core/content';
 
 const UNIT: Record<Level, number[]> = {
   AB: [0, 1],
@@ -106,5 +122,76 @@ describe('levelsForAge', () => {
   it('≥ 36 tháng: đủ 4 mức', () => {
     expect(levelsForAge(36)).toEqual(['AB', 'AAB', 'ABB', 'ABC']);
     expect(levelsForAge(72)).toEqual(['AB', 'AAB', 'ABB', 'ABC']);
+  });
+});
+
+describe('loại hạt (quả, con vật, tiếng kêu, màu, hình)', () => {
+  for (const kind of KINDS) {
+    it(`${kind}: chuỗi đúng quy luật, chỉ dùng hạt của loại đó, lựa chọn 2–4 không trùng`, () => {
+      for (const level of LEVELS) {
+        for (const choices of [2, 3, 4]) {
+          for (let seed = 1; seed <= 60; seed++) {
+            const r = newRound(level, seed, { kind, choices });
+            const full = [...r.shown, r.answer];
+            const unit = UNIT[level];
+            expect(shape(full)).toBe(full.map((_, i) => 'ABC'[unit[i % unit.length]]).join(''));
+            for (const id of [...full, ...r.choices]) expect(ITEMS[kind]).toContain(id);
+            expect(r.choices).toHaveLength(choices);
+            expect(new Set(r.choices).size).toBe(choices);
+            expect(r.choices).toContain(r.answer);
+            expect(r.choices.some((c) => c !== r.answer && r.shown.includes(c))).toBe(true);
+          }
+        }
+      }
+    });
+  }
+
+  it('mọi hạt và câu hỏi đều có câu đọc (tiếng kêu là ghi âm thật, key animal.<id>-sound)', () => {
+    const content = contentByKey();
+    for (const kind of KINDS) {
+      expect(content.has(nextKey(kind)), nextKey(kind)).toBe(true);
+      for (const id of ITEMS[kind]) {
+        const key = sayKey(kind, id);
+        if (kind === 'sound') expect(key).toBe(`animal.${id}-sound`);
+        else expect(content.has(key), key).toBe(true);
+      }
+    }
+    // thú dùng cho tiếng kêu đều có tên (check:audio buộc có tiếng kêu thật)
+    for (const id of ITEMS.sound) expect(content.has(`animal.${id}`), id).toBe(true);
+  });
+
+  it('chủ đề quyết định loại hạt', () => {
+    expect(kindsForTopic('mix')).toEqual(KINDS);
+    expect(kindsForTopic('fruits')).toEqual(['fruit']);
+    expect(kindsForTopic('animals')).toEqual(['animal', 'sound']);
+    expect(kindsForTopic('shapes')).toEqual(['color', 'shape']);
+  });
+
+  it('ván kế đổi loại hạt (không lặp loại vừa chơi) và đi qua đủ loại', () => {
+    let last = pickKind(KINDS, null, 1);
+    const seen = new Set([last]);
+    for (let seed = 2; seed < 80; seed++) {
+      const k = pickKind(KINDS, last, seed);
+      expect(k).not.toBe(last);
+      seen.add(k);
+      last = k;
+    }
+    expect(seen.size).toBe(KINDS.length);
+    expect(pickKind(['fruit'], 'fruit', 5)).toBe('fruit');
+  });
+});
+
+describe('độ khó', () => {
+  it('số lựa chọn: Dễ 2, Vừa 3, Khó 4', () => {
+    expect(choiceCountForAge(30)).toBe(2);
+    expect(choiceCountForAge(36)).toBe(3);
+    expect(choiceCountForAge(53)).toBe(3);
+    expect(choiceCountForAge(54)).toBe(4);
+  });
+
+  it('mức bắt đầu: Khó vào thẳng AAB', () => {
+    expect(startLevel(30)).toBe('AB');
+    expect(startLevel(48)).toBe('AB');
+    expect(startLevel(54)).toBe('AAB');
   });
 });

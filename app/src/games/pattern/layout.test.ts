@@ -32,3 +32,12 @@ describe('choiceCenter', () => {
     expect(c[0].y + CHOICE / 2).toBeLessThanOrEqual(STAGE_H - 24);
   });
 });
+
+describe('choiceCenter (4 hạt, mức Khó)', () => {
+  it('nằm trong khung, cách nhau ≥ 24px và không đè bạn đồng hành góc trái (x < 240)', () => {
+    const c = [0, 1, 2, 3].map((k) => choiceCenter(k, 4));
+    expect(c[0].x - CHOICE / 2).toBeGreaterThanOrEqual(240);
+    expect(c[3].x + CHOICE / 2).toBeLessThanOrEqual(STAGE_W);
+    for (let i = 1; i < 4; i++) expect(c[i].x - c[i - 1].x - CHOICE).toBeGreaterThanOrEqual(24);
+  });
+});

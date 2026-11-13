@@ -4,12 +4,14 @@ import { BackHome } from '../../ui/BackHome';
 import { Scenery } from '../../ui/Scenery';
 import { useBuddyLook } from '../../ui/buddyContext';
 import { clientToStage, stageRect } from '../../ui/Stage';
-import { canDrop, newRound, type Round, type StoryId } from './logic';
+import { canDrop, isPhoto, newRound, STORIES, type Round, type StoryId } from './logic';
+import { Picture } from './Picture';
 import styles from './Game.module.css';
 
-const BASE = import.meta.env.BASE_URL;
 /** Thời gian chờ một câu đọc xong trước câu sau (Speaker không báo hết câu). */
 const LINE_MS = 2200;
+/** Câu của chuyện có bạn đồng hành dài hơn ("Mặt trời mọc, … thức dậy."). */
+const LINE_LONG_MS = 3000;
 const RETURN_MS = 500;
 const ZOOM_MS = 300;
 const NEXT_ROUND_MS = 3000;
@@ -38,11 +40,17 @@ interface Back {
   dy: number;
 }
 
-const img = (story: StoryId, step: number) => `${BASE}cards/story/${story}-${step}.png`;
+/** Chuyện đầu tiên: e2e có thể ép bằng ?story=<id>. */
+function forcedStory(): StoryId | undefined {
+  const q = new URLSearchParams(location.search);
+  const id = q.get('e2e') === '1' ? q.get('story') : null;
+  return (STORIES as readonly string[]).includes(id ?? '') ? (id as StoryId) : undefined;
+}
 
 export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
   const buddy = useBuddyLook(lang);
-  const [round, setRound] = useState<Round>(() => newRound(Date.now(), null, ageMonths));
+  const [round, setRound] = useState<Round>(() => newRound(Date.now(), null, ageMonths, forcedStory()));
+  const lineMs = isPhoto(round.story) ? LINE_MS : LINE_LONG_MS;
   /** Bước của tranh trong từng ô (null = ô trống). Ô 1 có sẵn tranh đầu. */
   const [slots, setSlots] = useState<(number | null)[]>(() => round.steps.map((s, i) => (i === 0 ? s : null)));
   const [lastSay, setLastSay] = useState('');
@@ -74,7 +82,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
 
   /** Nói lần lượt các câu, mỗi câu chờ câu trước xong; `then` chạy sau câu cuối. */
   const sayChain = useCallback(
-    (lines: { key: string; act?: () => void }[], then?: () => void) => {
+    (lines: { key: string; act?: () => void }[], then?: () => void, gap = LINE_MS) => {
       speech.current.forEach(clearTimeout);
       speech.current = [];
       lines.forEach((l, i) => {
@@ -83,9 +91,9 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
           say(l.key);
         };
         if (i === 0) run();
-        else speech.current.push(window.setTimeout(run, i * LINE_MS));
+        else speech.current.push(window.setTimeout(run, i * gap));
       });
-      if (then) speech.current.push(window.setTimeout(then, lines.length * LINE_MS));
+      if (then) speech.current.push(window.setTimeout(then, lines.length * gap));
     },
     [say],
   );
@@ -105,7 +113,8 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
       setGlow(null);
       setRetelling(false);
       const lines = [{ key: `story.${r.story}-1` }, { key: 'story.next' }];
-      sayChain(hello ? [{ key: 'story.hello' }, ...lines] : lines);
+      const gap = isPhoto(r.story) ? LINE_MS : LINE_LONG_MS;
+      sayChain(hello ? [{ key: 'story.hello' }, ...lines] : lines, undefined, gap);
     },
     [sayChain],
   );
@@ -119,12 +128,17 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
   const retell = useCallback(
     (r: Round) => {
       setRetelling(true);
+      const gap = isPhoto(r.story) ? LINE_MS : LINE_LONG_MS;
       const lines = r.steps.map((step, i) => ({ key: `story.${r.story}-${step}`, act: () => setGlow(i) }));
       later(() => {
-        sayChain([...lines, { key: 'story.done', act: () => setGlow(null) }], () => {
-          later(() => startRound(newRound(Date.now(), r.story, ageMonths), false), NEXT_ROUND_MS - LINE_MS);
-        });
-      }, LINE_MS);
+        sayChain(
+          [...lines, { key: 'story.done', act: () => setGlow(null) }],
+          () => {
+            later(() => startRound(newRound(Date.now(), r.story, ageMonths), false), Math.max(400, NEXT_ROUND_MS - gap));
+          },
+          gap,
+        );
+      }, gap);
     },
     [later, sayChain, startRound, ageMonths],
   );
@@ -155,19 +169,19 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
         later(() => setLanded((l) => (l === slotIndex ? null : l)), 400);
         const key = `story.${round.story}-${step}`;
         if (next.every((s) => s !== null)) {
-          sayChain([{ key }]);
+          sayChain([{ key }], undefined, lineMs);
           retell(round);
         } else {
-          sayChain([{ key }, { key: 'story.next' }]);
+          sayChain([{ key }, { key: 'story.next' }], undefined, lineMs);
         }
         return;
       }
       floatBack(step, at);
       // nhắc lại câu của ô đã xếp gần nhất, rồi hỏi tiếp
       const prev = [...slots].reverse().find((s) => s !== null) ?? round.steps[0];
-      sayChain([{ key: `story.${round.story}-${prev}` }, { key: 'story.next' }]);
+      sayChain([{ key: `story.${round.story}-${prev}` }, { key: 'story.next' }], undefined, lineMs);
     },
-    [retelling, slots, round, later, sayChain, retell, floatBack],
+    [retelling, slots, round, later, sayChain, retell, floatBack, lineMs],
   );
 
   // E2E: ?e2e=1 → window.__behocStory; drop(step) thả vào ô trống đầu tiên
@@ -240,7 +254,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
       <Scenery variant="room" />
       <BackHome onExit={onExit} />
 
-      <div className={styles.slots}>
+      <div className={styles.slots} data-count={round.steps.length}>
         {round.steps.map((_, i) => {
           const step = slots[i];
           return (
@@ -257,7 +271,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
               >
                 {step !== null && (
                   <div className={styles.slotCard} data-landed={landed === i || undefined}>
-                    <img src={img(round.story, step)} alt="" draggable={false} className={styles.img} />
+                    <Picture story={round.story} step={step} buddyImg={buddy.img} />
                   </div>
                 )}
               </div>
@@ -271,7 +285,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
         })}
       </div>
 
-      <div className={styles.tray}>
+      <div className={styles.tray} data-count={trayCards.length}>
         {trayCards.map((step, i) => {
           const isBack = back?.step === step;
           const style = {
@@ -299,7 +313,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
                 data-returning={isBack || undefined}
                 onPointerDown={(e) => onCardDown(e, step)}
               >
-                <img src={img(round.story, step)} alt="" draggable={false} className={styles.img} />
+                <Picture story={round.story} step={step} buddyImg={buddy.img} />
               </div>
             </div>
           );
@@ -312,7 +326,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
           style={{ left: dragging.x - CARD / 2, top: dragging.y - CARD / 2 }}
           aria-hidden="true"
         >
-          <img src={img(round.story, dragging.step)} alt="" draggable={false} className={styles.img} />
+          <Picture story={round.story} step={dragging.step} buddyImg={buddy.img} />
         </div>
       )}
 

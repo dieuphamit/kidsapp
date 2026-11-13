@@ -12,14 +12,19 @@ import {
   dirTo,
   inGrid,
   isTree,
-  levelFor,
+  levelsFor,
+  modeFor,
   neighbors,
+  nextLevelIdx,
+  nextTheme,
+  THEMES,
   run,
   samePos,
   shortestPath,
   step,
   type Dir,
   type Pos,
+  type Theme,
 } from './logic';
 import styles from './Game.module.css';
 
@@ -56,20 +61,69 @@ function Arrow({ dir, size = 64 }: { dir: Dir; size?: number }) {
   );
 }
 
-function randomOther(n: number, cur: number): number {
-  return (cur + 1 + Math.floor(Math.random() * (n - 1))) % n;
+const BASE = import.meta.env.BASE_URL;
+
+/** Chủ đề đầu tiên: e2e có thể ép bằng ?ptheme=<id>. */
+function firstTheme(isE2E: boolean, forced: string | null): Theme {
+  const t = isE2E ? THEMES.find((x) => x.id === forced) : undefined;
+  return t ?? nextTheme(null, Math.random());
 }
 
-export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
+/** Ô đích theo chủ đề. */
+function GoalArt({ theme }: { theme: Theme }) {
+  switch (theme.goal) {
+    case 'house':
+      return (
+        <span className={styles.house}>
+          <span className={styles.roof} />
+          <span className={styles.wall}>
+            <span className={styles.window} />
+            <span className={styles.door} />
+          </span>
+        </span>
+      );
+    case 'sea':
+      return (
+        <span className={styles.sea}>
+          <span className={styles.wave} />
+          <span className={styles.wave} />
+        </span>
+      );
+    case 'nest':
+      return (
+        <span className={styles.nest}>
+          <span className={styles.egg} />
+          <span className={styles.egg} />
+          <span className={styles.egg} />
+          <span className={styles.nestBowl} />
+        </span>
+      );
+    case 'burrow':
+      return (
+        <span className={styles.burrow}>
+          <span className={styles.hole} />
+          <span className={styles.carrot} />
+        </span>
+      );
+    case 'flower':
+      return <img className={styles.flower} src={`${BASE}cards/story/plant-3.png`} alt="" draggable={false} />;
+  }
+}
+
+export default function Game({ lang, speaker, ageMonths, options, onExit }: GameProps) {
   const buddy = useBuddyLook(lang);
   const params = new URLSearchParams(window.location.search);
   const isE2E = params.get('e2e') === '1';
   const forceProgram = isE2E && params.get('path') === 'program';
+  const forcedTheme = isE2E ? params.get('ptheme') : null;
+  const difficulty = options?.difficulty ?? 'auto';
 
   const [wins, setWins] = useState(0);
-  const mode = forceProgram || levelFor(ageMonths, wins) === 2 ? 'program' : 'step';
+  const mode = forceProgram || modeFor(difficulty, ageMonths, wins) === 'program' ? 'program' : 'step';
 
-  const [mapIdx, setMapIdx] = useState(() => Math.floor(Math.random() * LEVELS.length));
+  const [pool] = useState(() => levelsFor(difficulty));
+  const [theme, setTheme] = useState<Theme>(() => firstTheme(isE2E, forcedTheme));
+  const [mapIdx, setMapIdx] = useState(() => nextLevelIdx(pool, null, Math.random()));
   const map = LEVELS[mapIdx];
   const [pos, setPos] = useState<Pos>(map.start);
   const [hop, setHop] = useState(0);
@@ -80,7 +134,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
   const [scratch, setScratch] = useState(false);
   const [shake, setShake] = useState<string | null>(null);
   const [homeGlow, setHomeGlow] = useState(false);
-  const [lastSay, setLastSay] = useState('path.hello');
+  const [lastSay, setLastSay] = useState(theme.hello);
 
   const timers = useRef<number[]>([]);
   const later = useCallback((fn: () => void, ms: number) => {
@@ -96,9 +150,10 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
     [speaker],
   );
 
-  // Lời chào khi vào game (data-last-say đã khởi tạo là path.hello)
+  // Lời chào khi vào game (data-last-say đã khởi tạo là câu chào của chủ đề)
+  const firstHello = useRef(theme.hello);
   useEffect(() => {
-    speaker.say('path.hello');
+    speaker.say(firstHello.current);
   }, [speaker]);
 
   const moveTo = (p: Pos) => {
@@ -107,7 +162,13 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
   };
 
   const nextMap = () => {
-    const idx = randomOther(LEVELS.length, mapIdx);
+    const idx = nextLevelIdx(pool, mapIdx, Math.random());
+    // chủ đề mới mỗi bản đồ (e2e ép chủ đề thì giữ nguyên), rồi giới thiệu đích mới
+    const t = forcedTheme && THEMES.some((x) => x.id === forcedTheme) ? theme : nextTheme(theme.id, Math.random());
+    if (t.id !== theme.id) {
+      setTheme(t);
+      say(t.hello);
+    }
     setMapIdx(idx);
     setPos(LEVELS[idx].start);
     setProgram([]);
@@ -121,7 +182,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
   const goHome = () => {
     setActiveIdx(null);
     setHomeGlow(true);
-    say('path.home');
+    say(theme.home);
     later(() => {
       setWins((w) => w + 1);
       nextMap();
@@ -168,7 +229,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
   const play = () => {
     if (busy) return;
     if (program.length === 0) {
-      say('path.hello');
+      say(theme.hello);
       return;
     }
     const cmds = program;
@@ -199,7 +260,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
         setActiveIdx(null);
         setBumpIdx(at);
         setScratch(true);
-        if (hitTree) say('path.bump');
+        if (hitTree) say(theme.bump);
         backToStart();
       }, STEP_MS * (at + 1));
     } else if (res.home) {
@@ -262,27 +323,26 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
           aria-label={kind === 'tree' ? 'Cây' : kind === 'home' ? 'Nhà' : `Ô ${r + 1}-${c + 1}`}
           onPointerDown={() => tapCell(p)}
         >
-          {kind === 'tree' && (
+          {kind === 'tree' && theme.obstacle === 'tree' && (
             <span className={styles.tree}>
               <span className={styles.trunk} />
               <span className={styles.canopy} />
               <span className={styles.canopyTop} />
             </span>
           )}
-          {kind === 'home' && (
-            <span className={styles.house}>
-              <span className={styles.roof} />
-              <span className={styles.wall}>
-                <span className={styles.window} />
-                <span className={styles.door} />
-              </span>
+          {kind === 'tree' && theme.obstacle === 'rock' && (
+            <span className={styles.tree}>
+              <span className={styles.rock} />
+              <span className={styles.rockSmall} />
             </span>
           )}
+          {kind === 'home' && <GoalArt theme={theme} />}
           {hasDau && (
             <img
               key={hop}
-              src={buddy.img}
-              alt={buddy.name}
+              src={theme.walker === 'buddy' ? buddy.img : `${BASE}cards/${theme.walker}.png`}
+              alt={theme.walker === 'buddy' ? buddy.name : ''}
+              data-walker={theme.walker}
               data-testid="daudau"
               data-scratch={scratch ? 'true' : undefined}
               className={styles.dau}
@@ -300,6 +360,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
       data-testid="game-path"
       data-last-say={lastSay}
       data-mode={mode}
+      data-theme={theme.id}
       data-busy={busy ? 'true' : undefined}
     >
       <span className={styles.sun} />
@@ -307,7 +368,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
       <span className={`${styles.cloud} ${styles.cloudB}`} />
       <BackHome onExit={onExit} />
 
-      <div className={styles.board} data-mode={mode}>
+      <div className={styles.board} data-mode={mode} data-theme={theme.id}>
         <div className={styles.grid}>{cells}</div>
       </div>
 

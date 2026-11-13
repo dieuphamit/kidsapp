@@ -17,5 +17,75 @@
   { "key": "song.london", "vi": "Cây cầu London", "ja": "ロンドンばし", "en": "London Bridge" },
   { "key": "song.chocho", "vi": "Bướm ơi bướm", "ja": "ちょうちょう", "en": "The Butterfly Song" },
   { "key": "bakery.wish", "vi": "Tớ muốn bánh có cái này!", "ja": "これが のった ケーキが いいな!", "en": "I'd like a cake with this!" },
-  { "key": "bakery.yum-wish", "vi": "Đúng cái bánh tớ thích! Cảm ơn bé!", "ja": "ほしかった ケーキだ! ありがとう!", "en": "Just the cake I wanted! Thank you!" }
+  { "key": "bakery.yum-wish", "vi": "Đúng cái bánh tớ thích! Cảm ơn bé!", "ja": "ほしかった ケーキだ! ありがとう!", "en": "Just the cake I wanted! Thank you!" },
+  { "key": "story.party-1", "vi": "Đầu tiên, {name} làm một cái bánh.", "ja": "はじめに {name}が ケーキを つくったよ。", "en": "First, {name} makes a cake." },
+  { "key": "story.party-2", "vi": "Tiếp theo, cắm một cây nến.", "ja": "つぎに ろうそくを たてたよ。", "en": "Next, a candle goes on top." },
+  { "key": "story.party-3", "vi": "Rồi các bạn đến chơi.", "ja": "それから おともだちが きたよ。", "en": "Then friends come to play." },
+  { "key": "story.party-4", "vi": "Cuối cùng, mọi người cùng mừng sinh nhật!", "ja": "さいごに みんなで おたんじょうび おめでとう!", "en": "Last, everyone says happy birthday!" },
+
+  { "key": "story.day-1", "vi": "Mặt trời mọc, {name} thức dậy.", "ja": "おひさまが でたよ。{name} おはよう!", "en": "The sun is up. Good morning, {name}!" },
+  { "key": "story.day-2", "vi": "Tiếp theo, {name} ăn sáng.", "ja": "つぎに {name}は あさごはん。", "en": "Next, {name} eats breakfast." },
+  { "key": "story.day-3", "vi": "Buổi chiều, {name} chơi với cún.", "ja": "ごごは {name}が いぬさんと あそぶよ。", "en": "In the afternoon, {name} plays with the dog." },
+  { "key": "story.day-4", "vi": "Cuối cùng, trăng lên, {name} đi ngủ.", "ja": "さいごに おつきさま。{name} おやすみ。", "en": "Last, the moon is out. Good night, {name}." },
+
+  { "key": "story.share-1", "vi": "Đầu tiên, {name} hái ba quả táo.", "ja": "はじめに {name}が りんごを みっつ とったよ。", "en": "First, {name} picks three apples." },
+  { "key": "story.share-2", "vi": "Tiếp theo, {name} cho thỏ một quả.", "ja": "つぎに {name}が うさぎさんに ひとつ あげたよ。", "en": "Next, {name} gives one to the rabbit." },
+  { "key": "story.share-3", "vi": "Cuối cùng, ai cũng có táo!", "ja": "さいごに みんな りんごを もったよ!", "en": "Last, everyone has an apple!" },
+
+  { "key": "story.duckling-1", "vi": "Đầu tiên, vịt con bị lạc mẹ.", "ja": "はじめに あひるの こが まいごに なったよ。", "en": "First, a little duckling is lost." },
+  { "key": "story.duckling-2", "vi": "Tiếp theo, {name} gặp vịt con.", "ja": "つぎに {name}が あひるの こに あったよ。", "en": "Next, {name} meets the duckling." },
+  { "key": "story.duckling-3", "vi": "Rồi {name} dẫn vịt con đi tìm mẹ.", "ja": "それから {name}と いっしょに ママを さがしたよ。", "en": "Then {name} helps look for its mom." },
+  { "key": "story.duckling-4", "vi": "Cuối cùng, vịt con gặp mẹ rồi!", "ja": "さいごに ママに あえたよ!", "en": "Last, the duckling finds its mom!" },
+
+  { "key": "story.garden-1", "vi": "Đầu tiên, {name} gieo hạt.", "ja": "はじめに {name}が たねを まいたよ。", "en": "First, {name} plants some seeds." },
+  { "key": "story.garden-2", "vi": "Tiếp theo, {name} tưới nước.", "ja": "つぎに {name}が おみずを あげたよ。", "en": "Next, {name} waters them." },
+  { "key": "story.garden-3", "vi": "Rồi cây nảy mầm.", "ja": "それから めが でたよ。", "en": "Then a little sprout comes up." },
+  { "key": "story.garden-4", "vi": "Cuối cùng, hoa nở, ong bay đến!", "ja": "さいごに はなが さいて、はちさんが きたよ!", "en": "Last, a flower blooms and a bee comes!" },
+
+  { "key": "story.sea-1", "vi": "Đầu tiên, {name} ra biển chơi.", "ja": "はじめに {name}は うみに きたよ。", "en": "First, {name} goes to the sea." },
+  { "key": "story.sea-2", "vi": "Tiếp theo, cá heo nhảy lên chào.", "ja": "つぎに イルカさんが ジャンプして こんにちは。", "en": "Next, a dolphin jumps up to say hello." },
+  { "key": "story.sea-3", "vi": "Cuối cùng, cá voi cũng đến chơi!", "ja": "さいごに クジラさんも きたよ!", "en": "Last, a whale comes to play too!" },
+
+  { "key": "hide.on-slide", "vi": "{name} ở trên cầu trượt!", "ja": "{name}は すべりだいの うえ!", "en": "{name} is on the slide!" },
+  { "key": "hide.ask-on-slide", "vi": "Bé đặt {name} lên cầu trượt nhé!", "ja": "{name}を すべりだいの うえに おいてね!", "en": "Put {name} on the slide!" },
+  { "key": "hide.under-slide", "vi": "{name} ở dưới cầu trượt!", "ja": "{name}は すべりだいの した!", "en": "{name} is under the slide!" },
+  { "key": "hide.ask-under-slide", "vi": "Bé đặt {name} xuống dưới cầu trượt nhé!", "ja": "{name}を すべりだいの したに おいてね!", "en": "Put {name} under the slide!" },
+  { "key": "hide.beside-slide", "vi": "{name} ở cạnh cầu trượt!", "ja": "{name}は すべりだいの よこ!", "en": "{name} is next to the slide!" },
+  { "key": "hide.ask-beside-slide", "vi": "Bé đặt {name} cạnh cầu trượt nhé!", "ja": "{name}を すべりだいの よこに おいてね!", "en": "Put {name} next to the slide!" },
+
+  { "key": "hide.on-bench", "vi": "{name} ở trên ghế dài!", "ja": "{name}は ベンチの うえ!", "en": "{name} is on the bench!" },
+  { "key": "hide.ask-on-bench", "vi": "Bé đặt {name} lên ghế dài nhé!", "ja": "{name}を ベンチの うえに おいてね!", "en": "Put {name} on the bench!" },
+  { "key": "hide.under-bench", "vi": "{name} ở dưới ghế dài!", "ja": "{name}は ベンチの した!", "en": "{name} is under the bench!" },
+  { "key": "hide.ask-under-bench", "vi": "Bé đặt {name} xuống dưới ghế dài nhé!", "ja": "{name}を ベンチの したに おいてね!", "en": "Put {name} under the bench!" },
+  { "key": "hide.beside-bench", "vi": "{name} ở cạnh ghế dài!", "ja": "{name}は ベンチの よこ!", "en": "{name} is next to the bench!" },
+  { "key": "hide.ask-beside-bench", "vi": "Bé đặt {name} cạnh ghế dài nhé!", "ja": "{name}を ベンチの よこに おいてね!", "en": "Put {name} next to the bench!" },
+
+  { "key": "hide.in-tent", "vi": "{name} ở trong cái lều!", "ja": "{name}は テントの なか!", "en": "{name} is in the tent!" },
+  { "key": "hide.ask-in-tent", "vi": "Bé đặt {name} vào trong cái lều nhé!", "ja": "{name}を テントの なかに おいてね!", "en": "Put {name} in the tent!" },
+  { "key": "hide.beside-tent", "vi": "{name} ở cạnh cái lều!", "ja": "{name}は テントの よこ!", "en": "{name} is next to the tent!" },
+  { "key": "hide.ask-beside-tent", "vi": "Bé đặt {name} cạnh cái lều nhé!", "ja": "{name}を テントの よこに おいてね!", "en": "Put {name} next to the tent!" },
+
+  { "key": "hide.under-umbrella", "vi": "{name} ở dưới cái dù!", "ja": "{name}は パラソルの した!", "en": "{name} is under the umbrella!" },
+  { "key": "hide.ask-under-umbrella", "vi": "Bé đặt {name} xuống dưới cái dù nhé!", "ja": "{name}を パラソルの したに おいてね!", "en": "Put {name} under the umbrella!" },
+  { "key": "hide.beside-umbrella", "vi": "{name} ở cạnh cái dù!", "ja": "{name}は パラソルの よこ!", "en": "{name} is next to the umbrella!" },
+  { "key": "hide.ask-beside-umbrella", "vi": "Bé đặt {name} cạnh cái dù nhé!", "ja": "{name}を パラソルの よこに おいてね!", "en": "Put {name} next to the umbrella!" },
+
+  { "key": "hide.in-boat", "vi": "{name} ở trong con thuyền!", "ja": "{name}は ボートの なか!", "en": "{name} is in the boat!" },
+  { "key": "hide.ask-in-boat", "vi": "Bé đặt {name} vào trong con thuyền nhé!", "ja": "{name}を ボートの なかに おいてね!", "en": "Put {name} in the boat!" },
+  { "key": "hide.beside-boat", "vi": "{name} ở cạnh con thuyền!", "ja": "{name}は ボートの よこ!", "en": "{name} is next to the boat!" },
+  { "key": "hide.ask-beside-boat", "vi": "Bé đặt {name} cạnh con thuyền nhé!", "ja": "{name}を ボートの よこに おいてね!", "en": "Put {name} next to the boat!" },
+
+  { "key": "path.hello-sea", "vi": "Bé đưa bạn cá về biển nhé!", "ja": "おさかなを うみに つれて いってね!", "en": "Let's take the fish to the sea!" },
+  { "key": "path.home-sea", "vi": "Cá về tới biển rồi!", "ja": "うみに ついた!", "en": "The fish is back in the sea!" },
+  { "key": "path.hello-nest", "vi": "Bé đưa chim vẹt về tổ nhé!", "ja": "とりさんを すに つれて いってね!", "en": "Let's take the parrot to its nest!" },
+  { "key": "path.home-nest", "vi": "Chim về tới tổ rồi!", "ja": "すに ついた!", "en": "The bird is home in its nest!" },
+  { "key": "path.hello-burrow", "vi": "Bé đưa thỏ con về hang nhé!", "ja": "うさぎさんを あなに つれて いってね!", "en": "Let's take the bunny to its burrow!" },
+  { "key": "path.home-burrow", "vi": "Thỏ về tới hang rồi!", "ja": "あなに ついた!", "en": "The bunny is home!" },
+  { "key": "path.hello-flower", "vi": "Bé đưa ong đến bông hoa nhé!", "ja": "はちさんを おはなに つれて いってね!", "en": "Let's take the bee to the flower!" },
+  { "key": "path.home-flower", "vi": "Ong tìm được hoa rồi!", "ja": "おはなに ついた!", "en": "The bee found the flower!" },
+  { "key": "path.bump-rock", "vi": "Ối, có tảng đá! Mình đổi đường nhé.", "ja": "あっ、いしが あるよ。ちがう みちに しよう。", "en": "Oops, a rock! Let's try another way." },
+
+  { "key": "pattern.next-animal", "vi": "Tiếp theo là con gì?", "ja": "つぎは どの どうぶつかな?", "en": "Which animal comes next?" },
+  { "key": "pattern.next-color", "vi": "Tiếp theo là màu gì?", "ja": "つぎは なにいろかな?", "en": "Which color comes next?" },
+  { "key": "pattern.next-shape", "vi": "Tiếp theo là hình gì?", "ja": "つぎは どの かたちかな?", "en": "Which shape comes next?" }
 ]

@@ -38,7 +38,6 @@ export const WORLD_MODELS = [
   { id: 'manta', src: `${PP}/manta.glb`, clips: { Swim: 'Swim' } },
   { id: 'clownfish', src: `${PP}/clownfish.glb`, clips: FISH },
   { id: 'puffer', src: `${PP}/puffer.glb`, clips: FISH },
-  { id: 'blue-tang', src: `${PP}/blue-tang.glb`, clips: FISH },
   { id: 'yellow-tang', src: `${PP}/yellow-tang.glb`, clips: FISH },
   { id: 'crab', src: `${PP}/crab-enemy.glb`, clips: { Idle: 'Idle', Walk: 'Walk', Jump: 'Jump', Dance: 'Happy' } },
   { id: 'koi', src: `${PP}/koi.glb`, clips: FISH },
@@ -53,7 +52,6 @@ export const WORLD_MODELS = [
   { id: 'deer', src: `${UA}/Deer.gltf`, clips: DEER },
   { id: 'stag', src: `${UA}/Stag.gltf`, clips: DEER },
   { id: 'fox', src: `${UA}/Fox.gltf`, clips: DEER },
-  { id: 'wolf', src: `${UA}/Wolf.gltf`, clips: DEER },
 ];
 
 const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({ 'meshopt.decoder': MeshoptDecoder });

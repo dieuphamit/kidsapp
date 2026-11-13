@@ -176,3 +176,60 @@
     animation: none;
   }
 }
+
+/* Bé nhỏ: vùng được nhờ sáng nhẹ lên làm gợi ý */
+.zone[data-hint] {
+  border-radius: 32px;
+  background: color-mix(in srgb, var(--scene-sun) 30%, transparent);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--scene-sun) 55%, transparent);
+  animation: zoneHint 1400ms ease-in-out infinite;
+}
+
+@keyframes zoneHint {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.9; }
+}
+
+/* Bãi biển: trời, biển, cát (sàn đồ vật ở y = 700) */
+.beach {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, var(--world-sky-high) 0%, var(--sky-top) 40%, var(--sky-bottom) 100%);
+}
+
+.beachSun {
+  position: absolute;
+  top: 60px;
+  left: 520px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, var(--scene-sun-core), var(--scene-sun) 60%, var(--scene-sun-edge));
+}
+
+.beachSea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 360px;
+  height: 260px;
+  background: linear-gradient(180deg, var(--world-sea-top), var(--world-water));
+}
+
+.beachSand {
+  position: absolute;
+  left: -40px;
+  right: -40px;
+  top: 560px;
+  bottom: 0;
+  border-radius: 50% 50% 0 0 / 60px 60px 0 0;
+  background: linear-gradient(180deg, var(--world-sand) 0%, var(--world-sand-dark) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zone[data-hint] {
+    animation: none;
+    opacity: 0.6;
+  }
+}
