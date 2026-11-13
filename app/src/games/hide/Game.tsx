@@ -7,12 +7,22 @@ import { useBuddyLook } from '../../ui/buddyContext';
 import { STAGE_W, STAGE_H, clientToStage, stageRect } from '../../ui/Stage';
 import styles from './Game.module.css';
 import { Thing } from './Things';
-import { DAUDAU_SIZE, ROOMS, nextAsk, pairKey, roomZones, zoneAt, type Pair, type Prep, type ObjId } from './logic';
+import {
+  DAUDAU_SIZE,
+  ROOMS,
+  nextAsk,
+  paceForAge,
+  pairKey,
+  roomOrder,
+  roomZones,
+  zoneAt,
+  type Pair,
+  type Prep,
+  type ObjId,
+} from './logic';
 
 const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
 
-const FREE_DROPS = 3; // số lần thả tự do mỗi phòng
-const WINS_PER_ROOM = 3; // số lần đúng để sang phòng kế
 const HOME = { x: 1060, y: 250 }; // chỗ Đậu Đậu đứng chờ đầu mỗi phòng
 const HALF = DAUDAU_SIZE / 2;
 
@@ -27,17 +37,29 @@ interface HideHook {
 const rand = () => Math.floor(Math.random() * 1000);
 const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
 
+/** Thứ tự phòng: xáo trộn mỗi lượt; e2e ép phòng đầu bằng ?hroom=<id> rồi đi theo thứ tự danh sách. */
+function startOrder(): number[] {
+  const forced = IS_E2E ? new URLSearchParams(window.location.search).get('hroom') : null;
+  const at = ROOMS.findIndex((r) => r.id === forced);
+  if (at >= 0) return ROOMS.map((_, i) => (at + i) % ROOMS.length);
+  return roomOrder(Math.random);
+}
+
 export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
   const buddy = useBuddyLook(lang);
+  const pace = paceForAge(ageMonths);
+  const FREE_DROPS = pace.freeDrops; // số lần thả tự do mỗi phòng
+  const WINS_PER_ROOM = pace.winsPerRoom; // số lần đúng để sang phòng kế
+  const [order] = useState(startOrder);
   const [lastSay, setLastSay] = useState('hide.hello');
-  const [roomIdx, setRoomIdx] = useState(0);
+  const [roomIdx, setRoomIdx] = useState(order[0]);
   const [ask, setAsk] = useState<Pair | null>(null);
   const [cat, setCat] = useState<Cat>({ ...HOME, scale: 1, hidden: false });
   const [dragging, setDragging] = useState(false);
   const [bounce, setBounce] = useState(0);
 
   // trạng thái logic dùng trong timer/handler (tránh closure cũ)
-  const st = useRef({ roomIdx: 0, drops: 0, wins: 0, ask: null as Pair | null });
+  const st = useRef({ roomIdx: order[0], step: 0, drops: 0, wins: 0, ask: null as Pair | null });
   const follow = useRef<number | undefined>(undefined);
   const grab = useRef<{ dx: number; dy: number; x: number; y: number } | null>(null);
 
@@ -109,7 +131,8 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
         s.wins += 1;
         if (s.wins >= WINS_PER_ROOM) {
           later(2400, () => {
-            const next = (s.roomIdx + 1) % ROOMS.length;
+            s.step += 1;
+            const next = order[s.step % order.length];
             s.roomIdx = next;
             s.drops = 0;
             s.wins = 0;
@@ -129,7 +152,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
       if (zone) say(`hide.${pairKey(zone)}`);
       later(1200, sayAsk);
     },
-    [ageMonths, later, say, sayAsk],
+    [ageMonths, later, say, sayAsk, FREE_DROPS, WINS_PER_ROOM, order],
   );
 
   // hook cho e2e
@@ -193,7 +216,15 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
       data-mode={ask ? 'ask' : 'free'}
       data-ask={askKey || undefined}
     >
-      <Scenery variant={room.id === 'garden' ? 'garden' : 'room'} />
+      {room.id === 'beach' ? (
+        <div className={styles.beach} aria-hidden="true">
+          <span className={styles.beachSun} />
+          <span className={styles.beachSea} />
+          <span className={styles.beachSand} />
+        </div>
+      ) : (
+        <Scenery variant={room.id === 'garden' ? 'garden' : room.id === 'park' ? 'meadow' : 'room'} />
+      )}
       {room.id === 'kitchen' && (
         <>
           <div className={styles.tiles} />
@@ -214,6 +245,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
           key={pairKey(z)}
           className={styles.zone}
           data-testid={`zone-${pairKey(z)}`}
+          data-hint={pace.glowTarget && ask && pairKey(ask) === pairKey(z) ? '' : undefined}
           style={{ left: z.left, top: z.top, width: z.right - z.left, height: z.bottom - z.top }}
         />
       ))}

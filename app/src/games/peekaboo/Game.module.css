@@ -272,3 +272,78 @@
   0%, 100% { opacity: 0; }
   6%, 92% { opacity: 1; }
 }
+
+/* ---------- E4: trời mây và biển sóng ---------- */
+.skyScene,
+.seaScene {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, var(--world-sky-high) 0%, var(--sky-top) 55%, var(--sky-bottom) 100%);
+}
+
+.skySun {
+  position: absolute;
+  top: 60px;
+  left: 150px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, var(--scene-sun-core), var(--scene-sun) 60%, var(--scene-sun-edge));
+}
+
+.seaWater {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 430px;
+  bottom: 0;
+  background: linear-gradient(180deg, var(--world-sea-top) 0%, var(--world-sea-deep) 100%);
+}
+
+/* Mây lơ lửng giữa trời; sóng nhô lên khỏi mặt biển */
+.bushArea[data-cover='cloud'] {
+  bottom: 230px;
+}
+
+.bushArea[data-cover='wave'] {
+  bottom: 120px;
+}
+
+.bushContainer[data-cover='cloud'] .bushArt {
+  animation: cloudFloat 4s ease-in-out infinite alternate;
+}
+
+@keyframes cloudFloat {
+  from { translate: 0 -6px; }
+  to { translate: 0 6px; }
+}
+
+.foam {
+  fill: none;
+  stroke: var(--paper);
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-opacity: 0.85;
+}
+
+/* Hạt bay ra khi chạm: mây → bông mây, sóng → giọt nước */
+.bushContainer[data-cover='cloud'] .flyLeaf {
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  background: var(--world-cloud);
+}
+
+.bushContainer[data-cover='wave'] .flyLeaf {
+  border-radius: 50% 50% 50% 0;
+  width: 14px;
+  height: 14px;
+  background: var(--world-water-light);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bushContainer[data-cover='cloud'] .bushArt {
+    animation: none;
+  }
+}

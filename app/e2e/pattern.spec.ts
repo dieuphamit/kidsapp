@@ -40,7 +40,8 @@ async function setAge(page: Page, ageMonths: number) {
 
 async function openPattern(page: Page, ageMonths = 48) {
   await setAge(page, ageMonths);
-  await page.goto('./?e2e=1');
+  // Các test dưới đây đọc chuỗi quả (fruit.*): ép loại hạt quả; loại khác có test riêng
+  await page.goto('./?e2e=1&pkind=fruit');
   await expect(page.getByTestId('home')).toBeVisible();
   await page.getByRole('button', { name: 'Vườn quả' }).tap();
   await pickGame(page, 'pattern');
@@ -164,3 +165,67 @@ async function dragTo(page: Page, from: ReturnType<Page['locator']>, to: ReturnT
   }
   await page.mouse.up();
 }
+
+test.describe('E4: loại hạt mới và độ khó', () => {
+  async function open(page: Page, query: string, settings: Record<string, unknown>) {
+    await page.goto('./?e2e=1');
+    await page.evaluate(async (s) => {
+      await new Promise<void>((resolve, reject) => {
+        const request = indexedDB.open('keyval-store', 1);
+        request.onupgradeneeded = () => request.result.createObjectStore('keyval');
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => {
+          const db = request.result;
+          const tx = db.transaction('keyval', 'readwrite');
+          tx.objectStore('keyval').put({ lang: 'vi', sessionMinutes: 15, ...s }, 'behoc.settings');
+          tx.oncomplete = () => {
+            db.close();
+            resolve();
+          };
+          tx.onerror = () => reject(tx.error);
+        };
+      });
+    }, settings);
+    // vào thẳng bảng chọn trò (2D), không qua bản đồ 3D
+    await page.goto(`./?e2e=1&picker=orchard${query}`);
+    await pickGame(page, 'pattern');
+    const game = page.getByTestId('game-pattern');
+    await expect(game).toBeVisible({ timeout: 10_000 });
+    return game;
+  }
+
+  test('hạt màu: đọc tên màu, hỏi "màu gì?", chọn đúng → pattern.yay; chụp E4-pattern.png', async ({ page }) => {
+    const game = await open(page, '&pkind=color', { ageMonths: 48 });
+    await expect(game).toHaveAttribute('data-kind', 'color');
+    await expect(game).toHaveAttribute('data-last-say', /^color\./, { timeout: 5000 });
+    await expect(game).toHaveAttribute('data-last-say', 'pattern.next-color', { timeout: 8000 });
+    await page.screenshot({ path: 'test-results/shots/E4-pattern.png' });
+    const answer = await page.evaluate(() => window.__behocPattern!.answer());
+    await page.locator(`[data-choice="${answer}"] button`).tap();
+    await expect(game).toHaveAttribute('data-last-say', 'pattern.yay', { timeout: 3000 });
+  });
+
+  test('chuỗi tiếng kêu: đọc bằng tiếng kêu thật, hỏi "con gì?"', async ({ page }) => {
+    const game = await open(page, '&pkind=sound', { ageMonths: 48 });
+    await expect(game).toHaveAttribute('data-last-say', /^animal\.[a-z]+-sound$/, { timeout: 5000 });
+    await expect(game).toHaveAttribute('data-last-say', 'pattern.next-animal', { timeout: 15000 });
+  });
+
+  test('Khó + chủ đề Hình khối: bắt đầu AAB, 4 lựa chọn, hạt màu/hình; chụp E4-pattern-hard.png', async ({ page }) => {
+    const game = await open(page, '', { ageMonths: 40, games: { pattern: { enabled: true, difficulty: 'hard', topic: 'shapes' } } });
+    await expect(game).toHaveAttribute('data-level', 'AAB');
+    await expect(game).toHaveAttribute('data-kind', /^(color|shape)$/);
+    await expect(page.locator('[data-choice] button')).toHaveCount(4);
+    const boxes = await page.locator('[data-choice] button').evaluateAll((els) => els.map((e) => e.getBoundingClientRect()));
+    for (const b of boxes) expect(b.width).toBeGreaterThanOrEqual(120);
+    for (let i = 1; i < boxes.length; i++) expect(boxes[i].x - (boxes[i - 1].x + boxes[i - 1].width)).toBeGreaterThanOrEqual(24);
+    await page.waitForTimeout(800);
+    await page.screenshot({ path: 'test-results/shots/E4-pattern-hard.png' });
+  });
+
+  test('Dễ: 2 lựa chọn', async ({ page }) => {
+    const game = await open(page, '&pkind=fruit', { ageMonths: 48, games: { pattern: { enabled: true, difficulty: 'easy', topic: 'mix' } } });
+    await expect(game).toHaveAttribute('data-level', 'AB');
+    await expect(page.locator('[data-choice] button')).toHaveCount(2);
+  });
+});

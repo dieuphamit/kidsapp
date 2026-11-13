@@ -207,3 +207,98 @@
   60% { transform: translateY(0) scale(1.05, 0.95); }
   100% { transform: translateY(0) scale(1); }
 }
+
+/* ---------- Chuyện 4 tranh (mức Khó): ô nhỏ hơn cho vừa khung ---------- */
+.slots[data-count='4'] {
+  gap: 64px;
+}
+
+.slots[data-count='4'] .slot {
+  width: 220px;
+  height: 220px;
+}
+
+.slots[data-count='4'] .arrow {
+  left: -60px;
+  top: 84px;
+  width: 52px;
+}
+
+.tray[data-count='3'] {
+  gap: 40px;
+}
+
+/* ---------- Tranh ghép: bạn đồng hành và các bạn thú ---------- */
+.scenePic {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 24px;
+  pointer-events: none;
+  background: linear-gradient(180deg, var(--sky-top) 0 62%, var(--grass) 62% 100%);
+}
+
+.scenePic[data-bg='room'] {
+  background: linear-gradient(180deg, var(--scene-wall) 0 64%, var(--scene-wood-light) 64% 100%);
+}
+
+.scenePic[data-bg='party'] {
+  background:
+    radial-gradient(circle at 20% 30%, var(--clay-lilac) 0 4%, transparent 5%),
+    radial-gradient(circle at 70% 52%, var(--clay-mint) 0 4%, transparent 5%),
+    radial-gradient(circle at 40% 70%, var(--clay-peach) 0 4%, transparent 5%),
+    linear-gradient(180deg, var(--clay-butter) 0 64%, var(--scene-wood-light) 64% 100%);
+}
+
+.scenePic[data-bg='day'] {
+  background: linear-gradient(180deg, var(--world-sky-high) 0%, var(--sky-top) 50%, var(--grass) 66% 100%);
+}
+
+.scenePic[data-bg='night'] {
+  background: linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 64%, var(--scene-hill-far-dark) 64% 100%);
+}
+
+.scenePic[data-bg='pond'] {
+  background:
+    radial-gradient(ellipse 60% 22% at 55% 76%, var(--world-water) 0 96%, transparent 100%),
+    linear-gradient(180deg, var(--sky-top) 0 56%, var(--scene-hill-mid) 56% 100%);
+}
+
+.scenePic[data-bg='garden'] {
+  background: linear-gradient(180deg, var(--sky-bottom) 0 58%, var(--scene-hill-near) 58% 100%);
+}
+
+.scenePic[data-bg='sea'] {
+  background: linear-gradient(180deg, var(--sky-top) 0 40%, var(--world-sea-top) 40% 74%, var(--world-sand) 74% 100%);
+}
+
+.sprite {
+  position: absolute;
+  display: block;
+  height: auto;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  filter: drop-shadow(0 4px 4px color-mix(in srgb, var(--ink) 22%, transparent));
+}
+
+.sprite > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.balloonString {
+  fill: none;
+  stroke: var(--ink-soft);
+  stroke-width: 3;
+}
+
+.zzz {
+  fill: none;
+  stroke: var(--paper);
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

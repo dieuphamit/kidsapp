@@ -10,8 +10,16 @@ import {
   step,
   isTree,
   samePos,
+  levelsFor,
+  modeFor,
+  nextLevelIdx,
+  nextTheme,
+  THEMES,
   type PathMap,
 } from './logic';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { contentByKey } from '../../core/content';
 
 const MAP: PathMap = {
   start: { r: 1, c: 0 },
@@ -135,5 +143,63 @@ describe('shortestPath', () => {
 
   test('đang đứng ở nhà thì lời giải rỗng', () => {
     expect(shortestPath(MAP, MAP.home)).toEqual([]);
+  });
+});
+
+describe('chủ đề bản đồ', () => {
+  test('đủ câu chào / về đích / đụng vật cản (vi, ja, en); ảnh người đi có thật', () => {
+    const content = contentByKey();
+    const pub = join(import.meta.dirname, '../../../public');
+    for (const t of THEMES) {
+      for (const key of [t.hello, t.home, t.bump]) {
+        const item = content.get(key);
+        expect(item?.vi && item.ja && item.en, key).toBeTruthy();
+      }
+      if (t.walker !== 'buddy') expect(existsSync(join(pub, 'cards', `${t.walker}.png`)), t.walker).toBe(true);
+    }
+    expect(THEMES.length).toBeGreaterThanOrEqual(5);
+  });
+
+  test('chủ đề kế khác chủ đề vừa chơi', () => {
+    for (const t of THEMES) {
+      for (let i = 0; i < 20; i++) expect(nextTheme(t.id, i / 20).id).not.toBe(t.id);
+    }
+    const seen = new Set(Array.from({ length: 50 }, (_, i) => nextTheme(null, i / 50).id));
+    expect(seen.size).toBe(THEMES.length);
+  });
+});
+
+describe('độ khó', () => {
+  const len = (i: number) => shortestPath(LEVELS[i], LEVELS[i].start)!.length;
+
+  test('Dễ: chỉ đường ≤ 3 bước; Khó: chỉ đường ≥ 3 bước, có đường 4 bước', () => {
+    const easy = levelsFor('easy');
+    const hard = levelsFor('hard');
+    expect(easy.length).toBeGreaterThanOrEqual(5);
+    expect(hard.length).toBeGreaterThanOrEqual(5);
+    for (const i of easy) expect(len(i)).toBeLessThanOrEqual(3);
+    for (const i of hard) expect(len(i)).toBeGreaterThanOrEqual(3);
+    expect(hard.some((i) => len(i) === 4)).toBe(true);
+    expect(levelsFor('auto')).toHaveLength(LEVELS.length);
+  });
+
+  test('bản đồ kế khác bản đồ vừa chơi, trong kho của độ khó', () => {
+    const pool = levelsFor('hard');
+    for (const last of pool) {
+      for (let i = 0; i < 10; i++) {
+        const n = nextLevelIdx(pool, last, i / 10);
+        expect(n).not.toBe(last);
+        expect(pool).toContain(n);
+      }
+    }
+  });
+
+  test('chế độ: Dễ luôn đi từng bước, Khó xếp lệnh ngay, Vừa lên xếp lệnh sau 4 lần', () => {
+    expect(modeFor('easy', 72, 20)).toBe('step');
+    expect(modeFor('hard', 36, 0)).toBe('program');
+    expect(modeFor('medium', 36, 3)).toBe('step');
+    expect(modeFor('medium', 36, 4)).toBe('program');
+    expect(modeFor('auto', 40, 0)).toBe('step');
+    expect(modeFor('auto', 48, 0)).toBe('program');
   });
 });

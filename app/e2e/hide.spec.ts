@@ -17,7 +17,8 @@ const askOf = (page: Page) => page.evaluate(() => (window as unknown as { __beho
 
 async function openHide(page: Page) {
   // mở thẳng bảng chọn trò của Nhà Đậu Đậu (bản đồ 3D nặng, nút còn đang nảy)
-  await page.goto('./?e2e=1&picker=house');
+  // phòng đầu cố định là phòng khách (bình thường thứ tự phòng được xáo trộn)
+  await page.goto('./?e2e=1&picker=house&hroom=living');
   await pickGame(page, 'hide');
   const game = page.getByTestId('game-hide');
   await expect(game).toBeVisible({ timeout: 10000 });
@@ -113,5 +114,44 @@ test.describe('iPhone dọc 430×932: kéo trong Trốn ở đâu', () => {
     await dragDaudauTo(page, 'zone-in-box');
     await expect(game).toHaveAttribute('data-last-say', 'hide.in-box', { timeout: 2000 });
     await page.screenshot({ path: 'test-results/shots/T-036-mobile-portrait.png' });
+  });
+});
+
+test.describe('E4: phòng mới', () => {
+  test('công viên: cầu trượt, ghế dài, lều; bé nhỏ có vùng gợi ý; chụp E4-hide.png', async ({ page }) => {
+    await page.goto('./?e2e=1&picker=house&hroom=park');
+    await pickGame(page, 'hide');
+    const game = page.getByTestId('game-hide');
+    await expect(game).toHaveAttribute('data-room', 'park', { timeout: 10000 });
+    for (const o of ['slide', 'bench', 'tent']) await expect(page.getByTestId(`obj-${o}`)).toBeVisible();
+    await page.waitForTimeout(400);
+    await dragDaudauTo(page, 'zone-under-slide');
+    await expect(game).toHaveAttribute('data-last-say', 'hide.under-slide', { timeout: 2000 });
+    await drop(page, 'on', 'bench');
+    await expect(game).toHaveAttribute('data-last-say', 'hide.on-bench');
+    await drop(page, 'in', 'tent');
+    await expect(game).toHaveAttribute('data-last-say', 'hide.in-tent');
+    // tuổi mặc định 28 tháng (Dễ): nhờ một chỗ, vùng đó sáng lên, không hỏi "cạnh"
+    await expect(game).toHaveAttribute('data-mode', 'ask');
+    const ask = (await askOf(page))!;
+    expect(ask).toMatch(/^hide\.ask-(on|in|under)-(slide|bench|tent)$/);
+    await expect(page.locator('[data-hint]')).toHaveCount(1);
+    await expect(page.getByTestId(`zone-${ask.replace('hide.ask-', '')}`)).toHaveAttribute('data-hint', '');
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: 'test-results/shots/E4-hide.png' });
+  });
+
+  test('bãi biển: dù, thuyền, xô; chụp E4-hide-beach.png', async ({ page }) => {
+    await page.goto('./?e2e=1&picker=house&hroom=beach');
+    await pickGame(page, 'hide');
+    const game = page.getByTestId('game-hide');
+    await expect(game).toHaveAttribute('data-room', 'beach', { timeout: 10000 });
+    await page.waitForTimeout(400);
+    await dragDaudauTo(page, 'zone-in-boat');
+    await expect(game).toHaveAttribute('data-last-say', 'hide.in-boat', { timeout: 2000 });
+    await drop(page, 'under', 'umbrella');
+    await expect(game).toHaveAttribute('data-last-say', 'hide.under-umbrella');
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: 'test-results/shots/E4-hide-beach.png' });
   });
 });

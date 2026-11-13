@@ -62,6 +62,15 @@ const CARDS = {
   coconut: { file: 'Kokosnuss-Coconut.jpg', keep: 'all' },
   blueberry: { file: 'Food Portions (Team Nutrition) (20210902-FNS-UNC-0038).jpg', keep: 'all' },
   peach: { file: 'White-Peaches-Bunch.jpg', keep: 'all' },
+  // E4: thú có tiếng kêu thật cho Ú òa / Đường về nhà. Không nằm trong cards/index.json (Lật hình, Ghép hình giữ nguyên).
+  zebra: { file: 'Plains zebra standing close up - DPLA - 5a17abfc936af2a7cad34115b462e9a3.jpg' },
+  deer: { file: 'White-tailed Deer - Odocoileus virginianus (51360828067).jpg', crop: [0.05, 0.05, 0.85, 1] },
+  raccoon: { file: 'Raccoon in Central Park (35264).jpg' },
+  frog: { file: 'Green treefrog.jpg' },
+  bee: { file: 'European honey bee extracts nectar.jpg', keep: 'all' },
+  pigeon: { file: 'Common pigeon at Waterlow Park, London 01.jpg' },
+  dolphin: { file: '010 Atlantic bottlenose dolphin jumping at Pelican point Photo by Giles Laurent.jpg' },
+  whale: { file: '001 Humpback whale breaching in Ballena Marine National Park Photo by Giles Laurent.jpg' },
   // Phase 3: thẻ chuyện ba tranh (cards/story/) và topping Tiệm bánh (cards/extra/).
   // Không nằm trong cards/index.json để Lật hình, Ghép hình không lấy nhầm.
   // scene: true = ảnh cảnh, không tách nền, chỉ cắt vuông.

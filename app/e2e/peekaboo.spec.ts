@@ -155,3 +155,30 @@ test.describe('Peekaboo game', () => {
     await expect(page.getByTestId('home')).toBeVisible({ timeout: 5000 });
   });
 });
+
+test.describe('E4: chỗ núp mới (mây, sóng) và thú mới', () => {
+  for (const [cover, shot] of [['cloud', 'E4-peekaboo'], ['wave', 'E4-peekaboo-sea']] as const) {
+    test(`?pcover=${cover}: tìm thấy thú, nói tên rồi tiếng kêu thật; chụp ${shot}.png`, async ({ page }) => {
+      // vào thẳng bảng chọn trò (2D), không qua bản đồ 3D
+      await page.goto(`./?e2e=1&picker=zoo&pcover=${cover}`);
+      await pickGame(page, 'peekaboo');
+      const gameEl = page.getByTestId('game-peekaboo');
+      await expect(gameEl).toHaveAttribute('data-cover', cover, { timeout: 10000 });
+      await expect(page.locator(`[data-cover="${cover}"] [data-testid^="bush-"]`)).toHaveCount(3);
+      await page.waitForTimeout(800);
+      await page.screenshot({ path: join(shotsDir, `${shot}.png`) });
+
+      const answer = await page.evaluate(() => (window as Window & { __behocPeek?: { answer(): number } }).__behocPeek!.answer());
+      await page.getByTestId(`bush-${answer}`).click();
+      const reveal = page.getByTestId('peek-reveal');
+      await expect(reveal).toBeVisible();
+      const id = await reveal.getAttribute('data-animal');
+      const want = cover === 'cloud' ? ['parrot', 'pigeon', 'bee'] : ['fish', 'penguin', 'dolphin', 'whale'];
+      expect(want).toContain(id);
+      await expect(gameEl).toHaveAttribute('data-last-say', `animal.${id}`, { timeout: 3000 });
+      await page.waitForTimeout(500);
+      await page.screenshot({ path: join(shotsDir, `${shot}-found.png`) });
+      await expect(gameEl).toHaveAttribute('data-last-say', `animal.${id}-sound`, { timeout: 3000 });
+    });
+  }
+});

@@ -367,21 +367,6 @@
    "gap": 0.15
   },
   {
-   "id": "wolf",
-   "title": "File:Wolf howls.ogg",
-   "page": "https://commons.wikimedia.org/wiki/File:Wolf_howls.ogg",
-   "url": "https://upload.wikimedia.org/wikipedia/commons/8/87/Wolf_howls.ogg",
-   "author": "U.S. Fish and Wildlife Service",
-   "license": "Public domain",
-   "what": "sói tru",
-   "segments": [
-    [
-     1.0,
-     3.6
-    ]
-   ]
-  },
-  {
    "id": "bee",
    "title": "File:Bee buzzing sound (animal noises).opus",
    "page": "https://commons.wikimedia.org/wiki/File:Bee_buzzing_sound_(animal_noises).opus",
@@ -558,21 +543,6 @@
     [
      7.0,
      8.6
-    ]
-   ]
-  },
-  {
-   "id": "bluetang",
-   "title": "File:Toberbreedia water bubbling.opus",
-   "page": "https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus",
-   "url": "https://upload.wikimedia.org/wikipedia/commons/c/cd/Toberbreedia_water_bubbling.opus",
-   "author": "A.-K. D.",
-   "license": "CC0",
-   "what": "tiếng nước sủi bọt lục bục (cá đuôi gai xanh không kêu)",
-   "segments": [
-    [
-     0.2,
-     1.6
     ]
    ]
   },

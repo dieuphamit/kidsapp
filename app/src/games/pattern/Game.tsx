@@ -5,13 +5,30 @@ import { ClayButton } from '../../ui/ClayButton';
 import { Scenery } from '../../ui/Scenery';
 import { useBuddyLook } from '../../ui/buddyContext';
 import { clientToStage } from '../../ui/Stage';
-import { newRound, nextLevel, STREAK_TO_LEVEL_UP, type Level, type Round } from './logic';
+import {
+  choiceCountForAge,
+  kindsForTopic,
+  newRound,
+  nextKey,
+  nextLevel,
+  pickKind,
+  sayKey,
+  startLevel,
+  STREAK_TO_LEVEL_UP,
+  KINDS,
+  type Kind,
+  type Level,
+  type Round,
+} from './logic';
 import { chainLayout, choiceCenter, BEAD, CHOICE } from './layout';
 import styles from './Game.module.css';
 
 const BASE = import.meta.env.BASE_URL;
 const BEAT_FIRST = 600; // ms giữa hai hạt khi đọc chuỗi
 const BEAT_SLOW = 800; // đọc lại chậm hơn sau khi chọn chưa đúng
+// Chuỗi tiếng kêu: mỗi tiếng ghi âm dài ~1.5–2s nên đọc thưa hơn
+const BEAT_SOUND = 1700;
+const BEAT_SOUND_SLOW = 1900;
 const FLY_MS = 450;
 const ROLL_MS = 700;
 const NEXT_ROUND_MS = 2500;
@@ -28,6 +45,33 @@ declare global {
 
 const randomSeed = () => Math.floor(Math.random() * 2 ** 31);
 
+/** Các loại hạt được chơi: theo chủ đề; e2e có thể ép một loại bằng ?pkind=<loại>. */
+function playKinds(topic: string): Kind[] {
+  const params = new URLSearchParams(location.search);
+  const forced = params.get('e2e') === '1' ? params.get('pkind') : null;
+  if (forced && (KINDS as string[]).includes(forced)) return [forced as Kind];
+  return kindsForTopic(topic);
+}
+
+const beat = (kind: Kind, slow: boolean) => (kind === 'sound' ? (slow ? BEAT_SOUND_SLOW : BEAT_SOUND) : slow ? BEAT_SLOW : BEAT_FIRST);
+
+/** Hình trong hạt: ảnh thẻ (quả, thú), hạt màu, hoặc hình khối. */
+function BeadArt({ kind, id, big }: { kind: Kind; id: string; big?: boolean }) {
+  const cls = big ? styles.choiceImg : styles.beadImg;
+  if (kind === 'color') return <span className={`${cls} ${styles.colorDot}`} style={{ background: `var(--learn-${id})` }} />;
+  if (kind === 'shape') {
+    return (
+      <svg className={`${cls} ${styles.shapeArt}`} viewBox="0 0 100 100" aria-hidden="true">
+        {id === 'circle' && <circle cx={50} cy={50} r={42} />}
+        {id === 'square' && <rect x={10} y={10} width={80} height={80} rx={10} />}
+        {id === 'triangle' && <path d="M50 8 L94 88 H6 Z" strokeLinejoin="round" />}
+        {id === 'star' && <path d="M50 4 L62 37 L97 38 L69 59 L79 93 L50 73 L21 93 L31 59 L3 38 L38 37 Z" />}
+      </svg>
+    );
+  }
+  return <img className={cls} src={`${BASE}cards/${id}.png`} alt="" draggable={false} />;
+}
+
 interface Drag {
   id: string;
   sx: number;
@@ -41,12 +85,15 @@ type Motion =
   | { kind: 'fly'; id: string; dx: number; dy: number }
   | { kind: 'roll'; id: string };
 
-export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
+export default function Game({ lang, speaker, ageMonths, options, onExit }: GameProps) {
   const buddy = useBuddyLook(lang);
-  const [level, setLevel] = useState<Level>('AB');
+  const [kinds] = useState(() => playKinds(options?.topic ?? 'mix'));
+  const choiceCount = choiceCountForAge(ageMonths);
+  const [level, setLevel] = useState<Level>(() => startLevel(ageMonths));
   const [streak, setStreak] = useState(0);
   const [roundNo, setRoundNo] = useState(1);
-  const [round, setRound] = useState<Round>(() => newRound('AB', randomSeed()));
+  const [kind, setKind] = useState<Kind>(() => pickKind(kinds, null, randomSeed()));
+  const [round, setRound] = useState<Round>(() => newRound(level, randomSeed(), { kind, choices: choiceCount }));
   const [lastSay, setLastSay] = useState('');
   const [sayCount, setSayCount] = useState(0);
   const [active, setActive] = useState<number | null>(null);
@@ -76,18 +123,19 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
 
   /** Đậu Đậu đọc chuỗi theo nhịp (hạt đang đọc nảy lên) rồi hỏi "Tiếp theo là quả gì?". */
   const readChain = useCallback(
-    (r: Round, beat: number, delay: number) => {
+    (r: Round, k: Kind, slow: boolean, delay: number) => {
       setAsking(false);
+      const b = beat(k, slow);
       r.shown.forEach((id, i) => {
-        later(delay + i * beat, () => {
+        later(delay + i * b, () => {
           setActive(i);
-          say(`fruit.${id}`);
+          say(sayKey(k, id));
         });
       });
-      later(delay + r.shown.length * beat, () => {
+      later(delay + r.shown.length * b, () => {
         setActive(null);
         setAsking(true);
-        say('pattern.next');
+        say(nextKey(k));
       });
     },
     [say],
@@ -96,20 +144,22 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
   // Vào game: chào rồi đọc chuỗi đầu tiên
   useEffect(() => {
     say('pattern.hello');
-    readChain(round, BEAT_FIRST, 1800);
+    readChain(round, kind, false, 1800);
     return clearTimers;
     // chỉ chạy lúc vào game
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const startRound = (lvl: Level) => {
-    const r = newRound(lvl, randomSeed());
+    const k = pickKind(kinds, kind, randomSeed());
+    const r = newRound(lvl, randomSeed(), { kind: k, choices: choiceCount });
+    setKind(k);
     setRound(r);
     setRoundNo((n) => n + 1);
     setFilled(null);
     setMotion(null);
     setMistake(false);
-    readChain(r, BEAT_FIRST, 400);
+    readChain(r, k, false, 400);
   };
 
   const busy = filled !== null || motion?.kind === 'fly';
@@ -124,7 +174,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
     setAsking(false);
     if (id === round.answer) {
       // Hạt bay vào ô ?
-      const c = choiceCenter(round.choices.indexOf(id));
+      const c = choiceCenter(round.choices.indexOf(id), round.choices.length);
       setMotion({ kind: 'fly', id, dx: slot.x - c.x, dy: slot.y - c.y });
       const s = mistake ? 0 : streak + 1;
       const lvl = nextLevel(level, s, ageMonths);
@@ -145,7 +195,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
       setStreak(0);
       setMotion({ kind: 'roll', id });
       later(ROLL_MS, () => setMotion(null));
-      readChain(round, BEAT_SLOW, ROLL_MS);
+      readChain(round, kind, true, ROLL_MS);
     }
   };
 
@@ -228,6 +278,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
       data-testid="game-pattern"
       data-last-say={lastSay}
       data-level={level}
+      data-kind={kind}
       data-round={roundNo}
       onPointerMove={onMove}
       onPointerUp={onUp}
@@ -258,7 +309,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
               data-active={active === i ? '' : undefined}
               style={{ left: b.x - BEAD / 2, top: b.y - BEAD / 2, animationDelay: `${i * 70}ms` }}
             >
-              <img className={styles.beadImg} src={`${BASE}cards/${id}.png`} alt="" draggable={false} />
+              <BeadArt kind={kind} id={id} />
             </div>
           );
         })}
@@ -271,7 +322,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
           style={{ left: slot.x - BEAD / 2, top: slot.y - BEAD / 2, animationDelay: `${slotIndex * 70}ms` }}
         >
           {filled ? (
-            <img className={styles.beadImg} src={`${BASE}cards/${filled}.png`} alt="" draggable={false} />
+            <BeadArt kind={kind} id={filled} />
           ) : (
             <span className={styles.question}>?</span>
           )}
@@ -290,7 +341,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
 
       {/* 3 lựa chọn */}
       {round.choices.map((id, k) => {
-        const c = choiceCenter(k);
+        const c = choiceCenter(k, round.choices.length);
         const gone = filled === id;
         return (
           <div
@@ -307,7 +358,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
             onPointerDown={(e) => onChoiceDown(e, id)}
           >
             <ClayButton color="butter" size={CHOICE} label={id} onPress={() => undefined} style={{ borderRadius: '50%' }}>
-              <img className={styles.choiceImg} src={`${BASE}cards/${id}.png`} alt="" draggable={false} />
+              <BeadArt kind={kind} id={id} big />
             </ClayButton>
           </div>
         );

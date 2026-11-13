@@ -10,6 +10,14 @@ declare global {
 
 /** Đặt tuổi bé vào idb (settings) rồi mở lại app. */
 async function openWithAge(page: Page, ageMonths: number) {
+  await openWithAgeOnly(page, ageMonths);
+  // chuyện đầu tiên là chuyện ảnh 3 tranh; chuyện có bạn đồng hành có test riêng
+  await page.goto('./?e2e=1&story=plant');
+  await expect(page.getByTestId('home')).toBeVisible({ timeout: 10_000 });
+}
+
+/** Chỉ ghi tuổi bé vào idb (settings). */
+async function openWithAgeOnly(page: Page, ageMonths: number) {
   await page.goto('./?e2e=1');
   await page.evaluate(
     (age) =>
@@ -30,8 +38,18 @@ async function openWithAge(page: Page, ageMonths: number) {
       }),
     ageMonths,
   );
-  await page.goto('./?e2e=1');
-  await expect(page.getByTestId('home')).toBeVisible({ timeout: 10_000 });
+}
+
+/** E4: đặt tuổi rồi vào thẳng bảng chọn trò Nhà Đậu Đậu (2D, không qua bản đồ 3D), chuyện đầu là `story`. */
+async function openDirect(page: Page, ageMonths: number, story: string): Promise<{ game: Locator; story: string }> {
+  await openWithAgeOnly(page, ageMonths);
+  await page.goto(`./?e2e=1&picker=house&story=${story}`);
+  await pickGame(page, 'story');
+  const game = page.getByTestId('game-story');
+  await expect(game).toBeVisible({ timeout: 10_000 });
+  await expect(game).toHaveAttribute('data-last-say', `story.${story}-1`, { timeout: 8_000 });
+  await expect(game).toHaveAttribute('data-last-say', 'story.next', { timeout: 8_000 });
+  return { game, story };
 }
 
 /** Nhà Đậu Đậu → Chuyện ba tranh; chờ Đậu Đậu đọc tranh 1 rồi hỏi "tiếp theo". */
@@ -157,5 +175,56 @@ test.describe('iPhone dọc 430×932: kéo tranh', () => {
     await expect(page.getByTestId('story-slot-1')).toHaveAttribute('data-filled', '2');
     await expect(game).toHaveAttribute('data-last-say', `story.${story}-2`);
     await page.screenshot({ path: 'test-results/shots/T-039-mobile-drag.png' });
+  });
+});
+
+test.describe('E4: chuyện có bạn đồng hành', () => {
+  test('Khó (54 tháng): chuyện 4 tranh "sinh nhật", xếp đủ → kể lại 1..4; chụp E4-story.png', async ({ page }) => {
+    test.setTimeout(90_000);
+    const { game, story } = await openDirect(page, 54, 'party');
+    expect(story).toBe('party');
+    // 4 ô, khay có tranh 2, 3, 4; tranh ghép (không phải ảnh chụp)
+    await expect(page.locator('[data-testid^="story-slot-"]')).toHaveCount(4);
+    for (const n of [2, 3, 4]) await expect(page.getByTestId(`story-card-${n}`)).toBeVisible();
+    await expect(page.getByTestId('story-slot-0').locator('[data-bg]')).toHaveCount(1);
+    for (const id of ['story-card-2', 'story-slot-3']) {
+      const box = await page.getByTestId(id).boundingBox();
+      expect(box!.width, id).toBeGreaterThanOrEqual(120);
+      expect(box!.x + box!.width, id).toBeLessThanOrEqual(1194);
+    }
+
+    // Kéo thật tranh 2 vào ô 2
+    await dragTo(page, page.getByTestId('story-card-2'), page.getByTestId('story-slot-1'));
+    await expect(page.getByTestId('story-slot-1')).toHaveAttribute('data-filled', '2');
+    await expect(game).toHaveAttribute('data-last-say', 'story.party-2');
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: 'test-results/shots/E4-story.png' });
+
+    // Tranh 4 trước tranh 3: trôi về, không âm sai
+    await page.evaluate(() => window.__behocStory!.drop(4));
+    await expect(page.getByTestId('story-slot-2')).not.toHaveAttribute('data-filled', /.*/);
+    await page.evaluate(() => window.__behocStory!.drop(3));
+    await expect(page.getByTestId('story-slot-2')).toHaveAttribute('data-filled', '3');
+    await page.evaluate(() => window.__behocStory!.drop(4));
+    await expect(page.getByTestId('story-slot-3')).toHaveAttribute('data-filled', '4');
+    for (let n = 1; n <= 4; n++) {
+      await expect(game).toHaveAttribute('data-last-say', `story.party-${n}`, { timeout: 7_000 });
+    }
+    await expect(game).toHaveAttribute('data-last-say', 'story.done', { timeout: 7_000 });
+    await page.screenshot({ path: 'test-results/shots/E4-story-done.png' });
+    // chuyện mới cũng là chuyện 4 tranh, khác chuyện vừa rồi
+    await expect(game).not.toHaveAttribute('data-story', 'party', { timeout: 8_000 });
+    await expect(page.locator('[data-testid^="story-slot-"]')).toHaveCount(4);
+  });
+
+  test('Vừa (40 tháng): chuyện "vịt con" 4 tranh chỉ xếp tranh 1, 2, 4', async ({ page }) => {
+    test.setTimeout(60_000);
+    const { game } = await openDirect(page, 40, 'duckling');
+    await expect(page.locator('[data-testid^="story-slot-"]')).toHaveCount(3);
+    await expect(page.getByTestId('story-card-3')).toHaveCount(0);
+    await page.evaluate(() => window.__behocStory!.drop(2));
+    await page.evaluate(() => window.__behocStory!.drop(4));
+    await expect(page.getByTestId('story-slot-2')).toHaveAttribute('data-filled', '4');
+    await expect(game).toHaveAttribute('data-last-say', 'story.duckling-4');
   });
 });

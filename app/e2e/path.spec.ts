@@ -47,7 +47,8 @@ async function openPath(page: Page, query = '', ageMonths = 40) {
       };
     });
   }, ageMonths);
-  await page.goto(`./?e2e=1${query}`);
+  // chủ đề 'home' (Đậu Đậu về nhà) cố định cho các test cũ; chủ đề khác có test riêng
+  await page.goto(`./?e2e=1&ptheme=home${query}`);
   await expect(page.getByTestId('home')).toBeVisible();
   await page.getByLabel('Góc đố').click();
   await pickGame(page, 'path');
@@ -241,5 +242,76 @@ test.describe('iPhone dọc 430×932', () => {
     await page.getByRole('button', { name: 'Xóa lệnh 1' }).tap();
     await expect(page.getByTestId('slot-0')).toHaveAttribute('data-cmd', 'right');
     await expect(page.getByTestId('slot-1')).not.toHaveAttribute('data-cmd');
+  });
+});
+
+/** E4: ghi cài đặt (tuổi + tùy chọn trò) vào idb-keyval rồi mới vào app. */
+async function seedSettings(page: Page, settings: Record<string, unknown>) {
+  await page.goto('./?e2e=1');
+  await page.evaluate(
+    (s) =>
+      new Promise<void>((resolve, reject) => {
+        const req = indexedDB.open('keyval-store', 1);
+        req.onupgradeneeded = () => req.result.createObjectStore('keyval');
+        req.onerror = () => reject(req.error);
+        req.onsuccess = () => {
+          const db = req.result;
+          const tx = db.transaction('keyval', 'readwrite');
+          tx.objectStore('keyval').put({ lang: 'vi', sessionMinutes: 15, ...s }, 'behoc.settings');
+          tx.oncomplete = () => {
+            db.close();
+            resolve();
+          };
+          tx.onerror = () => reject(tx.error);
+        };
+      }),
+    settings,
+  );
+}
+
+test.describe('E4: chủ đề mới và độ khó', () => {
+  test('?ptheme=sea: đưa cá về biển → path.home-sea; chụp E4-path.png', async ({ page }) => {
+    await seedSettings(page, { ageMonths: 40 });
+    // vào thẳng bảng chọn trò (2D), không qua bản đồ 3D
+    await page.goto('./?e2e=1&picker=puzzle&ptheme=sea');
+    await pickGame(page, 'path');
+    const game = page.getByTestId('game-path');
+    await expect(game).toBeVisible({ timeout: 10_000 });
+    await expect(game).toHaveAttribute('data-theme', 'sea');
+    await expect(game).toHaveAttribute('data-last-say', 'path.hello-sea');
+    await expect(page.getByTestId('daudau')).toHaveAttribute('data-walker', 'fish');
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: 'test-results/shots/E4-path.png' });
+
+    const sol = (await page.evaluate(() => window.__behocPath!.solution())) as Dir[];
+    let pos = await dauPos(page);
+    for (const d of sol) {
+      pos = move(pos, d);
+      await page.getByTestId(`cell-${pos.r}-${pos.c}`).click();
+      await expect.poll(() => dauPos(page)).toEqual(pos);
+    }
+    await expect(game).toHaveAttribute('data-last-say', 'path.home-sea', { timeout: 3000 });
+    // bản đồ mới đổi chủ đề? ép chủ đề thì giữ biển
+    await expect(page.locator('[data-kind="home"]')).not.toHaveAttribute('data-glow', 'true', { timeout: 4000 });
+    await expect(game).toHaveAttribute('data-theme', 'sea');
+  });
+
+  test('Khó: bé 40 tháng vào thẳng xếp lệnh, đường ≥ 3 bước; Dễ: luôn đi từng bước', async ({ page }) => {
+    await seedSettings(page, { ageMonths: 40, games: { path: { enabled: true, difficulty: 'hard', topic: 'mix' } } });
+    await page.goto('./?e2e=1&picker=puzzle&ptheme=nest');
+    await pickGame(page, 'path');
+    const game = page.getByTestId('game-path');
+    await expect(game).toHaveAttribute('data-mode', 'program', { timeout: 10_000 });
+    await expect(game).toHaveAttribute('data-last-say', 'path.hello-nest');
+    const sol = (await page.evaluate(() => window.__behocPath!.solution())) as string[];
+    expect(sol.length).toBeGreaterThanOrEqual(3);
+    await page.screenshot({ path: 'test-results/shots/E4-path-hard.png' });
+
+    await seedSettings(page, { ageMonths: 72, games: { path: { enabled: true, difficulty: 'easy', topic: 'mix' } } });
+    await page.goto('./?e2e=1&picker=puzzle&ptheme=burrow');
+    await pickGame(page, 'path');
+    await expect(game).toHaveAttribute('data-mode', 'step', { timeout: 10_000 });
+    const sol2 = (await page.evaluate(() => window.__behocPath!.solution())) as string[];
+    expect(sol2.length).toBeLessThanOrEqual(3);
   });
 });

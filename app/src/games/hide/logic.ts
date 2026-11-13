@@ -1,8 +1,22 @@
 /** Logic thuần của trò "Đậu Đậu trốn ở đâu?": phòng, đồ vật, vùng thả, chọn câu nhờ. */
 
 export type Prep = 'on' | 'under' | 'in' | 'beside';
-export type ObjId = 'table' | 'box' | 'bed' | 'chair' | 'pot' | 'basket' | 'tree' | 'bucket' | 'car';
-export type RoomId = 'living' | 'kitchen' | 'garden';
+export type ObjId =
+  | 'table'
+  | 'box'
+  | 'bed'
+  | 'chair'
+  | 'pot'
+  | 'basket'
+  | 'tree'
+  | 'bucket'
+  | 'car'
+  | 'slide'
+  | 'bench'
+  | 'tent'
+  | 'umbrella'
+  | 'boat';
+export type RoomId = 'living' | 'kitchen' | 'garden' | 'park' | 'beach';
 
 export interface Pair {
   prep: Prep;
@@ -53,6 +67,11 @@ export const OBJECT_PREPS: Record<ObjId, Prep[]> = {
   tree: ['on', 'under', 'beside'],
   bucket: ['in', 'beside'],
   car: ['in', 'on', 'beside'],
+  slide: ['on', 'under', 'beside'],
+  bench: ['on', 'under', 'beside'],
+  tent: ['in', 'beside'],
+  umbrella: ['under', 'beside'],
+  boat: ['in', 'beside'],
 };
 
 const SHAPES: Record<ObjId, { height: number; surface: number; gapTop: number }> = {
@@ -65,6 +84,11 @@ const SHAPES: Record<ObjId, { height: number; surface: number; gapTop: number }>
   tree: { height: 380, surface: 0, gapTop: 230 },
   bucket: { height: 150, surface: 0, gapTop: 0 },
   car: { height: 150, surface: 30, gapTop: 0 },
+  slide: { height: 250, surface: 40, gapTop: 96 },
+  bench: { height: 200, surface: 60, gapTop: 80 },
+  tent: { height: 230, surface: 90, gapTop: 0 },
+  umbrella: { height: 330, surface: 0, gapTop: 120 },
+  boat: { height: 130, surface: 0, gapTop: 0 },
 };
 
 function room(id: RoomId, objs: [ObjId, ObjId, ObjId]): Room {
@@ -78,7 +102,37 @@ export const ROOMS: Room[] = [
   room('living', ['table', 'box', 'bed']),
   room('kitchen', ['chair', 'pot', 'basket']),
   room('garden', ['tree', 'bucket', 'car']),
+  room('park', ['slide', 'bench', 'tent']),
+  room('beach', ['umbrella', 'boat', 'bucket']),
 ];
+
+/**
+ * Thứ tự phòng của một lượt chơi: xáo trộn, phòng đầu khác phòng `avoid` (phòng vừa chơi lần trước).
+ * `rand` trả về số trong [0, 1).
+ */
+export function roomOrder(rand: () => number, avoid: RoomId | null = null): number[] {
+  const order = ROOMS.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  if (avoid && ROOMS[order[0]].id === avoid && order.length > 1) [order[0], order[1]] = [order[1], order[0]];
+  return order;
+}
+
+/** Nhịp chơi theo tuổi: số lần thả tự do, số lần đúng để sang phòng, có gợi ý vùng cần thả không. */
+export interface HidePace {
+  freeDrops: number;
+  winsPerRoom: number;
+  /** Bé nhỏ: vùng được nhờ sáng nhẹ lên. */
+  glowTarget: boolean;
+}
+
+export function paceForAge(ageMonths: number): HidePace {
+  if (ageMonths < 36) return { freeDrops: 3, winsPerRoom: 3, glowTarget: true };
+  if (ageMonths < 54) return { freeDrops: 3, winsPerRoom: 3, glowTarget: false };
+  return { freeDrops: 1, winsPerRoom: 4, glowTarget: false };
+}
 
 /** Đậu Đậu cao 160px; tỉ lệ theo giới từ. */
 export const DAUDAU_SIZE = 160;

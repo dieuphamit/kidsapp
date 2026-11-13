@@ -97,7 +97,6 @@ https://quaternius.com/packs/ultimateanimatedanimals.html (`assets-src/quaterniu
 | world/manta.glb | manta.glb (Mantaray) | https://poly.pizza/m/yzD8b7ZHZm | Quaternius | CC0 1.0 | 696 | Swim |
 | world/clownfish.glb | clownfish.glb | https://poly.pizza/m/769fHo3eEB | Quaternius | CC0 1.0 | 1528 | Swim ← Swimming_Normal, Run ← Swimming_Fast, Jump ← Swimming_Impulse |
 | world/puffer.glb | puffer.glb | https://poly.pizza/m/UKHtgpxTOk | Quaternius | CC0 1.0 | 2138 | Swim, Run, Jump (như cá hề) |
-| world/blue-tang.glb | blue-tang.glb | https://poly.pizza/m/TQaMo8GTJl | Quaternius | CC0 1.0 | 1334 | Swim, Run, Jump (như cá hề) |
 | world/yellow-tang.glb | yellow-tang.glb | https://poly.pizza/m/CrDlkPLon0 | Quaternius | CC0 1.0 | 1336 | Swim, Run, Jump (như cá hề) |
 | world/crab.glb | crab-enemy.glb | https://poly.pizza/m/Gs3yfsV5lB | Quaternius | CC0 1.0 | 3592 | Idle, Walk, Jump, Happy ← Dance |
 | world/koi.glb | koi.glb | https://poly.pizza/m/qyGtRmhgzl | Quaternius | CC0 1.0 | 1490 | Swim, Run, Jump (như cá hề) |
@@ -112,7 +111,6 @@ https://quaternius.com/packs/ultimateanimatedanimals.html (`assets-src/quaterniu
 | world/deer.glb | glTF/Deer.gltf | (gói Ultimate Animated Animals) | Quaternius | CC0 1.0 | 2098 | Idle, Walk, Run ← Gallop, Eat ← Eating, Jump ← Jump_toIdle |
 | world/stag.glb | glTF/Stag.gltf | (gói Ultimate Animated Animals) | Quaternius | CC0 1.0 | 3670 | Idle, Walk, Run ← Gallop, Eat ← Eating, Jump ← Jump_toIdle |
 | world/fox.glb | glTF/Fox.gltf | (gói Ultimate Animated Animals) | Quaternius | CC0 1.0 | 1848 | Idle, Walk, Run ← Gallop, Eat ← Eating, Jump ← Jump_ToIdle |
-| world/wolf.glb | glTF/Wolf.gltf | (gói Ultimate Animated Animals) | Quaternius | CC0 1.0 | 1962 | Idle, Walk, Run ← Gallop, Eat ← Eating, Jump ← Jump_ToIdle |
 
 Tổng tam giác mỗi khu (kể cả đàn cá, model tĩnh Poly dùng lại): đồng cỏ 6874, ao hồ 13568, rừng 12844,
 biển 23569, trời 9019 (test `src/core/worldAnimals.test.ts` kiểm ≤ 50k từ file thật).
