@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import styles from './ShelfMenu.module.css';
 import { ClayButton } from './ClayButton';
 import { contentByKey } from '../core/content';
+import { buddyImageUrl } from '../core/buddy';
+import { useBuddy, useFillName } from './buddyContext';
 import { placeByKey, placeOrder } from '../core/places';
 import type { GameManifest } from '../core/games';
 import type { Lang } from '../core/i18n';
@@ -34,6 +36,8 @@ type Props = {
 /** Menu kiểu kệ đồ chơi: mọi trò hợp tuổi trên một màn, một chạm là vào. */
 export function ShelfMenu({ games, lang, speaker, onPick }: Props) {
   const [lastSay, setLastSay] = useState('');
+  const buddy = useBuddy();
+  const fill = useFillName();
   const locked = useRef(false);
   const pending = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -72,9 +76,9 @@ export function ShelfMenu({ games, lang, speaker, onPick }: Props) {
       data-last-say={lastSay || undefined}
       style={{ '--card': `${size}px`, '--cols': cols } as CSSProperties}
     >
-      {/* Đậu Đậu góc trên trái hỏi "Bé chơi trò nào?" */}
+      {/* Bạn đồng hành góc trên trái hỏi "Bé chơi trò nào?" */}
       <div className={styles.mascot} aria-hidden="true">
-        <img className={styles.mascotImg} src={`${import.meta.env.BASE_URL}cards/daudau.png`} alt="" draggable={false} />
+        <img className={styles.mascotImg} src={buddyImageUrl(buddy.character)} alt="" draggable={false} />
         <div className={styles.ask}>{content.get('ui.pick-game')?.[lang]}</div>
       </div>
 
@@ -93,7 +97,7 @@ export function ShelfMenu({ games, lang, speaker, onPick }: Props) {
                   <ClayButton
                     color={placeByKey(g.place)?.color ?? g.color}
                     size={size}
-                    label={g.title[lang]}
+                    label={fill(g.title[lang], lang)}
                     onPress={() => press(g)}
                   >
                     <span className={styles.icon} aria-hidden="true">{g.icon}</span>

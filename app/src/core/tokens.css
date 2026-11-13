@@ -66,3 +66,21 @@
   --scene-pot-dark: #cf7854;
   --scene-berry: #ff5f7e;
 }
+
+/* Bạn đồng hành đất sét (tokens.ts BUDDY_HEX): lông, bụng/mõm, điểm nhấn từng con */
+:root {
+  --buddy-cat-fur: #f6c27a;
+  --buddy-cat-belly: #fff3e0;
+  --buddy-cat-accent: #ff9fb2;
+  --buddy-dog-fur: #f2d2a9;
+  --buddy-dog-belly: #fff3e0;
+  --buddy-dog-accent: #b07a52;
+  --buddy-bunny-fur: #fbeef6;
+  --buddy-bunny-belly: #ffffff;
+  --buddy-bunny-accent: #ffb3c9;
+  --buddy-bear-fur: #c8916a;
+  --buddy-bear-belly: #f6dfc4;
+  --buddy-bear-accent: #8d5c40;
+  --buddy-ink: #3a2a40;
+  --buddy-cheek: #ff9fb2;
+}

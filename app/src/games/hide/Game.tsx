@@ -3,6 +3,7 @@ import type { GameProps } from '../../core/games';
 import { synth } from '../../core/synth';
 import { BackHome } from '../../ui/BackHome';
 import { Scenery } from '../../ui/Scenery';
+import { useBuddyLook } from '../../ui/buddyContext';
 import { STAGE_W, STAGE_H, clientToStage, stageRect } from '../../ui/Stage';
 import styles from './Game.module.css';
 import { Thing } from './Things';
@@ -26,7 +27,8 @@ interface HideHook {
 const rand = () => Math.floor(Math.random() * 1000);
 const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
 
-export default function Game({ speaker, ageMonths, onExit }: GameProps) {
+export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
+  const buddy = useBuddyLook(lang);
   const [lastSay, setLastSay] = useState('hide.hello');
   const [roomIdx, setRoomIdx] = useState(0);
   const [ask, setAsk] = useState<Pair | null>(null);
@@ -232,7 +234,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
         }}
       >
         <div key={bounce} className={styles.body} data-bounce={bounce > 0 ? '' : undefined}>
-          <img src={`${import.meta.env.BASE_URL}cards/daudau.png`} alt="" draggable={false} />
+          <img src={buddy.img} alt="" draggable={false} />
         </div>
       </div>
 

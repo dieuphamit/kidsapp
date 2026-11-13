@@ -1,0 +1,79 @@
+/* Khung 1194×834. Cổng phụ huynh ở góc phải trên (120×120): mọi nút cách mép phải ≥144px. */
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%);
+  color: var(--ink);
+  font-family: var(--font-kid);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--touch-gap);
+  padding: 24px 144px 12px 24px;
+}
+
+.title { margin: 0; font-size: 36px; }
+.hint { margin: 0; font-size: 20px; color: var(--ink-soft); }
+
+.body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: var(--touch-gap);
+  padding: 12px 144px 24px 24px;
+}
+
+/* Xem trước 3D: thẻ giấy bên trái, bảng tên dưới chân nhân vật */
+.preview {
+  position: relative;
+  width: 300px;
+  flex-shrink: 0;
+  background: var(--paper);
+  border-radius: var(--radius-clay);
+  box-shadow: var(--shadow-clay);
+  overflow: hidden;
+}
+
+.nameTag {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  padding: 4px 24px;
+  border-radius: var(--radius-bubble);
+  background: var(--clay-butter);
+  font-size: 32px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.groupLabel { font-size: 22px; color: var(--ink-soft); }
+
+.group { display: flex; flex-wrap: wrap; gap: var(--touch-gap); margin-bottom: 12px; }
+.names { width: calc(4 * 150px + 3 * var(--touch-gap)); }
+
+.choices .opt {
+  font-size: 22px;
+  line-height: 1.1;
+  text-align: center;
+  border: 4px solid transparent;
+  flex-shrink: 0;
+}
+.choices .opt[aria-pressed='true'] { border-color: var(--ink); }
+.choices .opt small { font-size: 16px; color: var(--ink-soft); }
+
+.charImg { width: 84px; height: 84px; object-fit: contain; pointer-events: none; }
+.nameVi { font-size: 32px; }

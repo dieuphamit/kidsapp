@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
 import { ClayButton } from '../../ui/ClayButton';
+import { useBuddyLook } from '../../ui/buddyContext';
 import type { ClayColor } from '../../core/tokens';
 import {
   COLS,
@@ -22,7 +23,6 @@ import {
 } from './logic';
 import styles from './Game.module.css';
 
-const BASE = import.meta.env.BASE_URL;
 const MAX_CMDS = 4;
 const STEP_MS = 500;
 const BUMP_RESET_MS = 1500;
@@ -60,7 +60,8 @@ function randomOther(n: number, cur: number): number {
   return (cur + 1 + Math.floor(Math.random() * (n - 1))) % n;
 }
 
-export default function Game({ speaker, ageMonths, onExit }: GameProps) {
+export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
+  const buddy = useBuddyLook(lang);
   const params = new URLSearchParams(window.location.search);
   const isE2E = params.get('e2e') === '1';
   const forceProgram = isE2E && params.get('path') === 'program';
@@ -280,8 +281,8 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
           {hasDau && (
             <img
               key={hop}
-              src={`${BASE}cards/daudau.png`}
-              alt="Đậu Đậu"
+              src={buddy.img}
+              alt={buddy.name}
               data-testid="daudau"
               data-scratch={scratch ? 'true' : undefined}
               className={styles.dau}

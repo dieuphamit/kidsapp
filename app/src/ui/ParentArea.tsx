@@ -4,16 +4,30 @@ import type { Settings } from '../core/settings';
 import { ALL_GAMES } from '../core/games';
 import { ClayButton } from './ClayButton';
 import { GameSettings } from './GameSettings';
+import { BuddySettings } from './BuddySettings';
+import type { Speaker } from '../core/audio';
 
 const LANGS: [Settings['lang'], string][] = [['vi', '🇻🇳 Tiếng Việt'], ['ja', '🇯🇵 日本語'], ['en', '🇬🇧 English']];
 
 const MENUS: [Settings['menuStyle'], string][] = [['map', '🗺️ Bản đồ / ちず'], ['shelf', '🧸 Kệ đồ chơi / たな']];
 
-type Props ={ settings: Settings; onSave(s: Settings): void; onUnlock(): void; onClose(): void };
+type Props = { settings: Settings; speaker: Speaker; onSave(s: Settings): void; onUnlock(): void; onClose(): void };
 
-export function ParentArea({ settings, onSave, onUnlock, onClose }: Props) {
+export function ParentArea({ settings, speaker, onSave, onUnlock, onClose }: Props) {
   const [s, setS] = useState(settings);
   const [gamesOpen, setGamesOpen] = useState(false);
+  const [buddyOpen, setBuddyOpen] = useState(false);
+  if (buddyOpen) {
+    return (
+      <BuddySettings
+        value={s.buddy}
+        lang={s.lang}
+        speaker={speaker}
+        onChange={(buddy) => { const next = { ...s, buddy }; setS(next); onSave(next); }}
+        onClose={() => setBuddyOpen(false)}
+      />
+    );
+  }
   if (gamesOpen) {
     return (
       <GameSettings
@@ -64,9 +78,14 @@ export function ParentArea({ settings, onSave, onUnlock, onClose }: Props) {
           ))}
         </div>
         <div className={styles.langRow}>
+          <div className={styles.clayRow}>
           <ClayButton color="lilac" label="Trò chơi" size={120} caption="Trò chơi / ゲーム" onPress={() => setGamesOpen(true)}>
             🎮
           </ClayButton>
+          <ClayButton color="peach" label="Bạn đồng hành" size={120} caption="Bạn / ともだち" onPress={() => setBuddyOpen(true)}>
+            🐾
+          </ClayButton>
+          </div>
           <div className={styles.parentFields}>
             <label>Tuổi (tháng){' '}
               <input aria-label="Tuổi (tháng)" type="number" min={18} max={84} value={s.ageMonths}

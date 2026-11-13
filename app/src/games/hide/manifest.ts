@@ -3,7 +3,8 @@ import type { GameManifest } from '../../core/games';
 
 export const manifest: GameManifest = {
   id: 'hide',
-  title: { vi: 'Đậu Đậu trốn ở đâu?', ja: 'ダウダウ どこかな?', en: 'Where is Dau Dau?' },
+  // {name}: tên bạn đồng hành đang chọn (màn hiển thị thay bằng fillName)
+  title: { vi: '{name} trốn ở đâu?', ja: '{name} どこかな?', en: 'Where is {name}?' },
   place: 'place.house',
   icon: '📦',
   color: 'butter',

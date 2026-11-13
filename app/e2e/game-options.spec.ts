@@ -25,6 +25,7 @@ async function openGameSettings(page: Page) {
 
 async function closeAll(page: Page) {
   await page.getByRole('button', { name: 'Xong' }).dispatchEvent('pointerdown');
+  await page.getByRole('button', { name: 'Xong' }).dispatchEvent('pointerup'); // nút màn Trò chơi kích hoạt khi nhả tay
   await page.getByRole('dialog', { name: 'Cài đặt phụ huynh' }).getByRole('button', { name: 'Đóng' }).click();
   await expect(page.getByRole('dialog', { name: 'Cài đặt phụ huynh' })).toHaveCount(0);
 }
@@ -53,6 +54,7 @@ test('khu bố mẹ: tắt Ú òa thì trò biến mất khỏi bản đồ, k�
   const toggle = page.getByRole('button', { name: 'Ú òa: Đang bật' });
   await toggle.scrollIntoViewIfNeeded();
   await toggle.dispatchEvent('pointerdown');
+  await toggle.dispatchEvent('pointerup'); // nút màn Trò chơi kích hoạt khi nhả tay
   await expect(page.getByRole('button', { name: 'Ú òa: Đang tắt' })).toHaveAttribute('aria-pressed', 'false');
   await page.getByTestId('opt-peekaboo').screenshot({ path: 'test-results/shots/opts-off.png' });
   await closeAll(page);
@@ -87,6 +89,7 @@ test('đặt Khó cho Lật hình thì bé 28 tháng nhận 6 thẻ thay vì 4',
   const hard = page.getByRole('button', { name: 'Lật hình: Khó' });
   await hard.scrollIntoViewIfNeeded();
   await hard.dispatchEvent('pointerdown');
+  await hard.dispatchEvent('pointerup'); // nút màn Trò chơi kích hoạt khi nhả tay
   await expect(hard).toHaveAttribute('aria-pressed', 'true');
   await page.getByTestId('opt-memory').screenshot({ path: 'test-results/shots/opts-hard.png' });
   await closeAll(page);

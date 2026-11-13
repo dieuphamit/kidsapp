@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { TOUCH_MIN_PX, TOUCH_GAP_PX, CLAY_COLORS, LEARN_COLORS, LEARN_HEX } from './tokens';
+import { TOUCH_MIN_PX, TOUCH_GAP_PX, CLAY_COLORS, LEARN_COLORS, LEARN_HEX, BUDDY_CHARACTERS, BUDDY_HEX, BUDDY_INK, BUDDY_CHEEK } from './tokens';
 import { contentByKey } from './content';
 
 const tokensCss = readFileSync(join(import.meta.dirname, 'tokens.css'), 'utf-8');
@@ -43,5 +43,15 @@ describe('tokens', () => {
         expect(tokensCss).toMatch(pattern);
       }
     });
+  });
+  it('màu bạn đồng hành trong tokens.css khớp BUDDY_HEX', () => {
+    expect(BUDDY_CHARACTERS).toEqual(['cat', 'dog', 'bunny', 'bear']);
+    for (const c of BUDDY_CHARACTERS) {
+      for (const part of ['fur', 'belly', 'accent'] as const) {
+        expect(tokensCss).toMatch(new RegExp(`--buddy-${c}-${part}:\\s*${BUDDY_HEX[c][part]}`, 'i'));
+      }
+    }
+    expect(tokensCss).toMatch(new RegExp(`--buddy-ink:\\s*${BUDDY_INK}`, 'i'));
+    expect(tokensCss).toMatch(new RegExp(`--buddy-cheek:\\s*${BUDDY_CHEEK}`, 'i'));
   });
 });

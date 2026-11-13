@@ -1,6 +1,8 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULT_SETTINGS, loadSettings, saveSettings, type Settings } from './core/settings';
 import { createSpeaker, unlockAudioOnFirstGesture } from './core/audio';
+import { cacheBuddyAudio } from './core/buddyAudio';
+import { BuddyContext } from './ui/buddyContext';
 import { ALL_GAMES, visibleGames, type GameManifest } from './core/games';
 import { effectiveAge, gameSetting, optionsFor } from './core/gameOptions';
 import { startSession, isOver, readLocked, writeLocked } from './core/session';
@@ -27,14 +29,20 @@ export default function App() {
     return params.get('e2e') === '1' && params.get('menu') === 'shelf';
   });
   const langRef = useRef(settings.lang);
+  const nameRef = useRef(settings.buddy.name);
   useEffect(() => { langRef.current = settings.lang; }, [settings.lang]);
-  const speaker = useMemo(() => createSpeaker(() => langRef.current), []);
+  useEffect(() => { nameRef.current = settings.buddy.name; }, [settings.buddy.name]);
+  const speaker = useMemo(() => createSpeaker(() => langRef.current, undefined, () => nameRef.current), []);
+  // Giọng đọc có tên của tên đang chọn: nạp sẵn vào cache để chạy offline (tên mặc định đã precache)
+  // (chỉ sau khi đọc xong settings: chạy với mặc định trước sẽ xoá mất bộ của tên đã chọn)
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => { if (loaded) void cacheBuddyAudio(settings.buddy.name); }, [loaded, settings.buddy.name]);
   const [session, setSession] = useState(() => startSession(Date.now(), DEFAULT_SETTINGS.sessionMinutes));
 
   useEffect(() => unlockAudioOnFirstGesture(), []);
 
   useEffect(() => {
-    loadSettings().then((s) => { setSettings(s); setSession(startSession(Date.now(), s.sessionMinutes)); });
+    loadSettings().then((s) => { setSettings(s); setSession(startSession(Date.now(), s.sessionMinutes)); setLoaded(true); });
     void loadLastGame().then((id) => { if (id) setLastGameId((cur) => cur ?? id); });
   }, []);
 
@@ -72,6 +80,7 @@ export default function App() {
   const menuStyle = forceShelf ? 'shelf' : settings.menuStyle;
 
   return (
+    <BuddyContext value={settings.buddy}>
     <Stage>
       {locked ? (
         <SleepScreen speaker={speaker} />
@@ -110,11 +119,19 @@ export default function App() {
       {parentOpen && (
         <ParentArea
           settings={settings}
-          onSave={(s) => { setSettings(s); void saveSettings(s); }}
+          speaker={speaker}
+          onSave={(s) => {
+            // cập nhật ngay (không chờ effect) để câu chào thử trong BuddySettings đọc đúng tên/ngôn ngữ mới
+            langRef.current = s.lang;
+            nameRef.current = s.buddy.name;
+            setSettings(s);
+            void saveSettings(s);
+          }}
           onUnlock={() => { writeLocked(false); setLocked(false); setSession(startSession(Date.now(), settings.sessionMinutes)); }}
           onClose={() => setParentOpen(false)}
         />
       )}
     </Stage>
+    </BuddyContext>
   );
 }

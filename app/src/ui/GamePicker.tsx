@@ -3,6 +3,8 @@ import styles from './GamePicker.module.css';
 import { ClayButton } from './ClayButton';
 import { BackHome } from './BackHome';
 import { contentByKey } from '../core/content';
+import { buddyImageUrl } from '../core/buddy';
+import { useBuddy, useFillName } from './buddyContext';
 import { placeByKey } from '../core/places';
 import type { GameManifest } from '../core/games';
 import type { Lang } from '../core/i18n';
@@ -27,6 +29,8 @@ type Props = {
 export function GamePicker({ placeKey, games, lang, speaker, onPick, onBack }: Props) {
   const [lastSay, setLastSay] = useState('');
   const [locked, setLocked] = useState(false);
+  const buddy = useBuddy();
+  const fill = useFillName();
   const pendingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const say = (key: string) => {
@@ -43,7 +47,7 @@ export function GamePicker({ placeKey, games, lang, speaker, onPick, onBack }: P
   }, []);
 
   const place = placeByKey(placeKey);
-  const placeText = content.get(placeKey)?.[lang] ?? '';
+  const placeText = fill(content.get(placeKey)?.[lang] ?? '', lang);
   const color = place?.color ?? 'lilac';
 
   const handleGamePress = (g: GameManifest) => {
@@ -80,22 +84,22 @@ export function GamePicker({ placeKey, games, lang, speaker, onPick, onBack }: P
             data-testid={`pick-${g.id}`}
             style={{ animationDelay: `${i * 60}ms` }}
           >
-            <ClayButton color={g.color} size={180} label={g.title[lang]} onPress={() => handleGamePress(g)}>
+            <ClayButton color={g.color} size={180} label={fill(g.title[lang], lang)} onPress={() => handleGamePress(g)}>
               <span className={styles.cardIcon} aria-hidden="true">{g.icon}</span>
-              <span className={styles.cardName} aria-hidden="true">{g.title[lang]}</span>
+              <span className={styles.cardName} aria-hidden="true">{fill(g.title[lang], lang)}</span>
             </ClayButton>
           </div>
         ))}
       </div>
 
-      {/* Đậu Đậu hỏi "Bé chơi trò nào?" */}
+      {/* Bạn đồng hành hỏi "Bé chơi trò nào?" */}
       <div className={styles.mascot} aria-hidden="true">
-        <img className={styles.mascotImg} src={`${import.meta.env.BASE_URL}cards/daudau.png`} alt="" draggable={false} />
+        <img className={styles.mascotImg} src={buddyImageUrl(buddy.character)} alt="" draggable={false} />
         <div className={styles.ask}>{content.get('ui.pick-game')?.[lang]}</div>
       </div>
 
       {/* Nút quay lại */}
-      <BackHome onExit={onBack} label={content.get('ui.mascot-name')?.[lang]} />
+      <BackHome onExit={onBack} label={fill(content.get('ui.mascot-name')?.[lang] ?? '', lang)} />
     </div>
   );
 }
