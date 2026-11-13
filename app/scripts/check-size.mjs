@@ -29,8 +29,26 @@ function walkDir(dir) {
 
 walkDir(targetDir);
 
-// Tính tổng dung lượng
-const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+// Tính "bundle offline" (spec: < 60MB) = những gì iPad giữ để chạy không mạng.
+// Giọng đọc có tên bạn đồng hành (audio/<lang>/<key>~<tên>.mp3) không precache: app chỉ nạp
+// bộ của tên đang chọn (src/core/buddyAudio.ts). Nên tính mọi file khác + bộ của tên nặng nhất.
+const NAME_VARIANT = /[\\/]audio[\\/][a-z]+[\\/][^\\/]+~([a-z0-9]+)\.mp3$/;
+const perName = new Map();
+let baseSize = 0;
+for (const f of files) {
+  const m = NAME_VARIANT.exec(f.path);
+  if (m) perName.set(m[1], (perName.get(m[1]) ?? 0) + f.size);
+  else baseSize += f.size;
+}
+const [heaviestName, heaviestSize] = [...perName.entries()].sort((a, b) => b[1] - a[1])[0] ?? ['', 0];
+const totalSize = baseSize + heaviestSize;
+const distSize = files.reduce((sum, f) => sum + f.size, 0);
+if (perName.size > 0) {
+  console.log(
+    `check-size: dist ${(distSize / 1024 / 1024).toFixed(2)} MB; offline = ${(baseSize / 1024 / 1024).toFixed(2)} MB` +
+      ` + giọng tên "${heaviestName}" ${(heaviestSize / 1024 / 1024).toFixed(2)} MB (nặng nhất trong ${perName.size} tên)`,
+  );
+}
 
 // Kiểm tra các file model .glb trong thư mục models
 const modelsDir = path.join(targetDir, 'models');
