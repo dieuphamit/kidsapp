@@ -1,4 +1,5 @@
 import { get, set } from 'idb-keyval';
+import type { Topic } from '../../core/gameOptions';
 
 // Card kinds allowed at each level
 type CardKind = 'farm' | 'fruit' | 'wild';
@@ -15,6 +16,12 @@ const PAIRS_BY_LEVEL: Record<number, number> = {
   2: 3,
   3: 4,
   4: 6,
+};
+
+// Loại thẻ theo chủ đề bố mẹ chọn; 'mix' (và chủ đề không có thẻ) giữ như cũ
+const KINDS_BY_TOPIC: Partial<Record<Topic, CardKind[]>> = {
+  animals: ['farm', 'wild'],
+  fruits: ['fruit'],
 };
 
 export interface Card {
@@ -74,8 +81,9 @@ function pickRandom<T>(arr: T[], n: number, rand: () => number): T[] {
  * @param level 1-4
  * @param seed random seed for deterministic shuffling
  * @param allCards all available cards from index.json
+ * @param topic chủ đề bố mẹ chọn (mặc định trộn)
  */
-export function newRound(level: number, seed: number, allCards: Card[]): GameState {
+export function newRound(level: number, seed: number, allCards: Card[], topic: Topic = 'mix'): GameState {
   const clampedLevel = Math.max(1, Math.min(4, level));
   const pairs = PAIRS_BY_LEVEL[clampedLevel];
   const allowedKinds = KINDS_BY_LEVEL[clampedLevel];
@@ -83,7 +91,13 @@ export function newRound(level: number, seed: number, allCards: Card[]): GameSta
   const rand = mulberry32(seed);
 
   // Filter cards by allowed kinds
-  const available = allCards.filter((c) => allowedKinds.includes(c.kind));
+  let available = allCards.filter((c) => allowedKinds.includes(c.kind));
+  const topicKinds = KINDS_BY_TOPIC[topic];
+  if (topicKinds) {
+    const inTopic = available.filter((c) => topicKinds.includes(c.kind));
+    // Ít thẻ quá ở cấp này thì lấy mọi thẻ của chủ đề
+    available = inTopic.length >= pairs ? inTopic : allCards.filter((c) => topicKinds.includes(c.kind));
+  }
 
   // Pick random cards for pairs
   const selected = pickRandom(available, pairs, rand);

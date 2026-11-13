@@ -1,0 +1,60 @@
+/* Khung 1194×834. Cổng phụ huynh ở góc phải trên (120×120): mọi nút cách mép phải ≥144px. */
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%);
+  color: var(--ink);
+  font-family: var(--font-kid);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--touch-gap);
+  padding: 24px 144px 12px 24px;
+}
+
+.title { margin: 0; font-size: 36px; }
+
+.hint { margin: 0; font-size: 20px; color: var(--ink-soft); }
+
+/* Danh sách dài thì cuộn dọc; chừa lề phải 144px cho cổng phụ huynh */
+.list {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 144px 48px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--touch-gap);
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--touch-gap);
+  padding: 20px;
+  background: var(--paper);
+  border-radius: var(--radius-clay);
+  box-shadow: var(--shadow-clay);
+}
+
+.line { display: flex; align-items: center; gap: var(--touch-gap); }
+
+/* Phần tên trò không phải nút: bố mẹ chạm vào đây để cuộn */
+.name { width: 200px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.icon { font-size: 56px; line-height: 1; }
+.names { display: flex; flex-direction: column; font-size: 22px; line-height: 1.2; }
+.names small { font-size: 16px; color: var(--ink-soft); }
+
+.group { display: flex; gap: var(--touch-gap); }
+.groupLabel { width: 200px; flex-shrink: 0; font-size: 20px; color: var(--ink-soft); }
+
+.row .opt { font-size: 20px; line-height: 1.15; text-align: center; border: 4px solid transparent; }
+.row .opt[aria-pressed='true'] { border-color: var(--ink); }
+.optIcon { font-size: 32px; }
+
+.off { opacity: 0.55; }

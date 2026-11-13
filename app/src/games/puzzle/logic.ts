@@ -4,17 +4,26 @@
  */
 
 import { FRUIT_IDS, isFruit } from '../../content/fruitIds';
+import type { Topic } from '../../core/gameOptions';
 
 /**
  * Danh sách ID các card (con vật và quả) để dùng làm ảnh ghép.
  * Lấy từ cards/index.json, chỉ dùng farm và fruit để phù hợp với bé nhỏ.
  */
+const ANIMAL_IDS = ['cow', 'chicken', 'duck', 'pig', 'dog', 'sheep', 'horse', 'rabbit', 'cat'];
 const CARD_IDS = [
   // farm animals
-  'cow', 'chicken', 'duck', 'pig', 'dog', 'sheep', 'horse', 'rabbit', 'cat',
+  ...ANIMAL_IDS,
   // fruits
   ...FRUIT_IDS,
 ];
+
+/** Ảnh dùng được theo chủ đề bố mẹ chọn; chủ đề không có ảnh thì trộn. */
+export function cardIdsForTopic(topic: Topic = 'mix'): readonly string[] {
+  if (topic === 'animals') return ANIMAL_IDS;
+  if (topic === 'fruits') return FRUIT_IDS;
+  return CARD_IDS;
+}
 
 export interface Piece {
   index: number;
@@ -58,11 +67,13 @@ function seededRandom(seed: number): () => number {
  * @param pieceCount số mảnh (2, 3, hoặc 4)
  * @param seed để chọn card deterministic (test), nếu 0 thì random
  * @param winsAtPieceCount số ván đã thắng ở pieceCount này
+ * @param topic chủ đề bố mẹ chọn (mặc định trộn)
  */
-export function newPuzzle(pieceCount: 2 | 3 | 4, seed = 0, winsAtPieceCount = 0): PuzzleState {
+export function newPuzzle(pieceCount: 2 | 3 | 4, seed = 0, winsAtPieceCount = 0, topic: Topic = 'mix'): PuzzleState {
   const rand = seed > 0 ? seededRandom(seed) : Math.random;
-  const cardIdx = Math.floor(rand() * CARD_IDS.length);
-  const cardId = CARD_IDS[cardIdx];
+  const ids = cardIdsForTopic(topic);
+  const cardIdx = Math.floor(rand() * ids.length);
+  const cardId = ids[cardIdx];
   const pieces: Piece[] = Array.from({ length: pieceCount }, (_, i) => ({ index: i, placed: false }));
   return { cardId, pieceCount, pieces, done: false, winsAtPieceCount };
 }
@@ -144,10 +155,10 @@ export function placePiece(state: PuzzleState, pieceIdx: number): PuzzleState {
 /**
  * Tạo ván tiếp theo sau khi hoàn thành.
  */
-export function nextRound(state: PuzzleState, seed = 0): PuzzleState {
+export function nextRound(state: PuzzleState, seed = 0, topic: Topic = 'mix'): PuzzleState {
   const newCount = nextPieceCount(state.pieceCount, state.winsAtPieceCount);
   const wins = newCount === state.pieceCount ? state.winsAtPieceCount : 0;
-  return newPuzzle(newCount, seed, wins);
+  return newPuzzle(newCount, seed, wins, topic);
 }
 
 /**

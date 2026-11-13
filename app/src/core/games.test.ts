@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { gamesForAge, gamesByPlace, type GameManifest } from './games';
+import { gamesForAge, gamesByPlace, visibleGames, type GameManifest } from './games';
 
 const g = (id: string, minAge: number, maxAge: number, place?: string, order?: number) =>
   ({
@@ -54,5 +54,22 @@ describe('gamesByPlace', () => {
     ];
     const map = gamesByPlace(list);
     expect(map.get('place.farm')?.map((x) => x.id)).toEqual(['a', 'c', 'b']);
+  });
+});
+
+describe('visibleGames', () => {
+  const list = [g('a', 24, 72, 'place.x'), g('b', 24, 72, 'place.y'), g('c', 36, 72, 'place.y')];
+  const off = { enabled: false, difficulty: 'auto', topic: 'mix' } as const;
+
+  it('không có tùy chọn thì như gamesForAge', () => {
+    expect(visibleGames(list, 28, undefined).map((x) => x.id)).toEqual(['a', 'b']);
+  });
+  it('ẩn trò bị tắt; khu không còn trò thì gamesByPlace không có khu đó', () => {
+    const shown = visibleGames(list, 28, { b: off });
+    expect(shown.map((x) => x.id)).toEqual(['a']);
+    expect(gamesByPlace(shown).has('place.y')).toBe(false);
+  });
+  it('tắt hết trò hợp tuổi thì vẫn hiện trò hợp tuổi, không để menu trống', () => {
+    expect(visibleGames(list, 28, { a: off, b: off }).map((x) => x.id)).toEqual(['a', 'b']);
   });
 });

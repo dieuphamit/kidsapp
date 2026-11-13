@@ -7,7 +7,9 @@ import {
   initialPieceCount,
   pieceTargetPosition,
   cardContentKey,
+  cardIdsForTopic,
 } from './logic';
+import { isFruit } from '../../content/fruitIds';
 
 describe('initialPieceCount', () => {
   test('bé < 42 tháng → 2 mảnh', () => {
@@ -223,5 +225,22 @@ describe('cardContentKey', () => {
   test('fruit card → fruit.xxx', () => {
     expect(cardContentKey('apple')).toBe('fruit.apple');
     expect(cardContentKey('banana')).toBe('fruit.banana');
+  });
+});
+
+describe('chủ đề', () => {
+  test('con vật: chỉ ảnh con vật; trái cây: chỉ ảnh quả', () => {
+    for (let seed = 1; seed < 30; seed++) {
+      expect(isFruit(newPuzzle(2, seed, 0, 'animals').cardId)).toBe(false);
+      expect(isFruit(newPuzzle(2, seed, 0, 'fruits').cardId)).toBe(true);
+    }
+  });
+  test('ván sau giữ chủ đề', () => {
+    const done = { ...newPuzzle(2, 5, 0, 'fruits'), done: true, winsAtPieceCount: 1 };
+    for (let seed = 1; seed < 10; seed++) expect(isFruit(nextRound(done, seed, 'fruits').cardId)).toBe(true);
+  });
+  test('mix và chủ đề không có ảnh dùng mọi ảnh', () => {
+    expect(cardIdsForTopic('mix')).toEqual(cardIdsForTopic('shapes'));
+    expect(cardIdsForTopic('mix').length).toBe(cardIdsForTopic('animals').length + cardIdsForTopic('fruits').length);
   });
 });

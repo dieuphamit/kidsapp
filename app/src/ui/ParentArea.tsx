@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import styles from './screens.module.css';
 import type { Settings } from '../core/settings';
+import { ALL_GAMES } from '../core/games';
+import { ClayButton } from './ClayButton';
+import { GameSettings } from './GameSettings';
 
 const LANGS: [Settings['lang'], string][] = [['vi', '🇻🇳 Tiếng Việt'], ['ja', '🇯🇵 日本語'], ['en', '🇬🇧 English']];
 
@@ -10,6 +13,17 @@ type Props ={ settings: Settings; onSave(s: Settings): void; onUnlock(): void; o
 
 export function ParentArea({ settings, onSave, onUnlock, onClose }: Props) {
   const [s, setS] = useState(settings);
+  const [gamesOpen, setGamesOpen] = useState(false);
+  if (gamesOpen) {
+    return (
+      <GameSettings
+        games={ALL_GAMES}
+        value={s.games}
+        onChange={(games) => { const next = { ...s, games }; setS(next); onSave(next); }}
+        onClose={() => setGamesOpen(false)}
+      />
+    );
+  }
   return (
     <div className={styles.dialog} role="dialog" aria-label="Cài đặt phụ huynh">
       <div className={styles.card}>
@@ -49,14 +63,21 @@ export function ParentArea({ settings, onSave, onUnlock, onClose }: Props) {
             </button>
           ))}
         </div>
-        <label>Tuổi (tháng){' '}
-          <input aria-label="Tuổi (tháng)" type="number" min={18} max={84} value={s.ageMonths}
-            onChange={(e) => setS({ ...s, ageMonths: Number(e.target.value) })} />
-        </label>
-        <label>Phút mỗi phiên{' '}
-          <input aria-label="Phút mỗi phiên" type="number" min={5} max={60} value={s.sessionMinutes}
-            onChange={(e) => setS({ ...s, sessionMinutes: Number(e.target.value) })} />
-        </label>
+        <div className={styles.langRow}>
+          <ClayButton color="lilac" label="Trò chơi" size={120} caption="Trò chơi / ゲーム" onPress={() => setGamesOpen(true)}>
+            🎮
+          </ClayButton>
+          <div className={styles.parentFields}>
+            <label>Tuổi (tháng){' '}
+              <input aria-label="Tuổi (tháng)" type="number" min={18} max={84} value={s.ageMonths}
+                onChange={(e) => setS({ ...s, ageMonths: Number(e.target.value) })} />
+            </label>
+            <label>Phút mỗi phiên{' '}
+              <input aria-label="Phút mỗi phiên" type="number" min={5} max={60} value={s.sessionMinutes}
+                onChange={(e) => setS({ ...s, sessionMinutes: Number(e.target.value) })} />
+            </label>
+          </div>
+        </div>
         <button type="button" onClick={() => { onSave(s); onUnlock(); onClose(); }}>Lưu và cho bé chơi tiếp</button>
         <button type="button" onClick={onClose}>Đóng</button>
         <small className={styles.credits}>

@@ -305,3 +305,22 @@ describe('storage', () => {
     expect(level).toBe(3);
   });
 });
+
+describe('newRound theo chủ đề', () => {
+  it('chủ đề con vật chỉ có thẻ con vật, mọi cấp', () => {
+    for (const level of [1, 2, 3, 4]) {
+      for (const seed of [1, 2, 3]) {
+        const state = newRound(level, seed, mockCards, 'animals');
+        expect(state.cards.every((c) => c.kind === 'farm' || c.kind === 'wild')).toBe(true);
+      }
+    }
+  });
+  it('chủ đề trái cây chỉ có thẻ trái cây, đủ số cặp nếu kho đủ', () => {
+    const state = newRound(3, 7, mockCards, 'fruits');
+    expect(state.cards.every((c) => c.kind === 'fruit')).toBe(true);
+    expect(state.cards).toHaveLength(8);
+  });
+  it('mix giữ như cũ', () => {
+    expect(newRound(2, 99, mockCards, 'mix')).toEqual(newRound(2, 99, mockCards));
+  });
+});

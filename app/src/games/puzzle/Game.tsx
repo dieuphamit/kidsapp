@@ -102,9 +102,10 @@ function pieceBackgroundStyle(
   };
 }
 
-export default function Game({ speaker, ageMonths, onExit }: GameProps) {
+export default function Game({ speaker, ageMonths, options, onExit }: GameProps) {
+  const topic = options?.topic ?? 'mix';
   const [state, setState] = useState<PuzzleState>(() =>
-    newPuzzle(initialPieceCount(ageMonths))
+    newPuzzle(initialPieceCount(ageMonths), 0, 0, topic)
   );
   const [piecePositions, setPiecePositions] = useState<PiecePosition[]>(() =>
     initialTrayPositions(state.pieceCount)
@@ -182,7 +183,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
           setTimeout(() => {
             setShowStars(false);
             setCompleteAnim(false);
-            const next = nextRound(state);
+            const next = nextRound(state, 0, topic);
             setState(next);
             setPiecePositions(initialTrayPositions(next.pieceCount));
             doneHandled.current = false;
@@ -191,7 +192,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
         }, 1500);
       }, 500);
     }
-  }, [state, say]);
+  }, [state, say, topic]);
 
   // Pointer handlers
   const handlePointerDown = useCallback(

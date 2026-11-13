@@ -11,5 +11,6 @@ export const manifest: GameManifest = {
   maxAge: 72,
   order: 1,
   titleKey: 'game.sort',
+  options: { difficulty: true },
   Component: lazy(() => import('./Game')),
 };
