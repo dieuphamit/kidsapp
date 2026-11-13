@@ -15,7 +15,11 @@ export async function wanderSnap(page: Page): Promise<WanderSnap> {
  * x đổi, z giữ nguyên (đi đúng làn), con đứng yên không rời chỗ, không con nào ra khỏi vùng nhìn thấy.
  * Trả về các ảnh chụp vị trí để test kiểm tra thêm.
  */
-export async function expectAnimalsWander(page: Page, gameEl: Locator, shotPrefix: string, minWalkers: number) {
+/**
+ * `bandDepth`: Sở thú dùng steering (đi chéo trong dải độ sâu của mình) thay vì làn thẳng; truyền độ sâu dải
+ * để kiểm tra con vật không rời dải (|Δz| ≤ bandDepth). Bỏ trống: đi đúng làn (z không đổi).
+ */
+export async function expectAnimalsWander(page: Page, gameEl: Locator, shotPrefix: string, minWalkers: number, bandDepth = 0) {
   const snaps: WanderSnap[] = [];
   for (let i = 0; i < 3; i++) {
     if (i > 0) await page.waitForTimeout(2000);
@@ -29,9 +33,9 @@ export async function expectAnimalsWander(page: Page, gameEl: Locator, shotPrefi
 
   let walkers = 0;
   for (const id of ids) {
-    const moved = Math.abs(c[id].x - a[id].x);
-    // Đi đúng làn: z không đổi
-    expect(Math.abs(c[id].z - a[id].z), `${id} giữ làn`).toBeLessThan(1e-6);
+    const moved = Math.hypot(c[id].x - a[id].x, c[id].z - a[id].z);
+    // Đi đúng làn (z không đổi) hoặc trong dải độ sâu của mình
+    expect(Math.abs(c[id].z - a[id].z), `${id} giữ làn/dải`).toBeLessThan(bandDepth + 1e-6);
     if (a[id].mode === 'idle') {
       expect(moved, `${id} đứng yên`).toBeLessThan(1e-6);
     } else if (moved > 0.15) {

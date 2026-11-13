@@ -75,3 +75,44 @@ Hướng: mọi model nhìn về +Z, đứng trên y=0. Kích thước không đ
 | coconut.glb | https://poly.pizza/m/fY5jzVAVuCl | Poly by Google | CC-BY 3.0 |
 | blueberry.glb | https://poly.pizza/m/ecQMbKzX7Mo | sirkitree | CC-BY 3.0 |
 | peach.glb | https://poly.pizza/m/0cVeALx2mxi | jeremy | CC-BY 3.0 |
+
+## Thú cử động thật (`world/*.glb`): Quaternius, CC0 1.0
+
+Dùng cho "thế giới thú" và Sở thú (`src/core/worldAnimals.ts`, `src/ui/AnimatedAnimal.tsx`). Tải 13/11/2026.
+Xử lý bằng `node scripts/world-models.mjs` (trong `app/`): bỏ mọi clip không dùng và clip đáng sợ/thua
+(Attack, Bite, Headbutt, Death, HitReact/HitRecieve, Out_Of_Water, Punch, Weapon, No; luật UX 3), đổi tên clip
+gọn, đặt metalness 0.4 → 0 (không có env map nên kim loại làm model tối), roughness ≥ 0.8, rồi
+`gltf-transform optimize --compress meshopt` (giống `npm run model:opt`). Tốc độ neo của clip đo bằng
+`node scripts/measure-gait.mjs public/models/world/<id>.glb`. Đã render kiểm tra 13/11/2026
+(`e2e/anim.spec.ts`, ảnh `test-results/shots/anim-<khu>.png`). Tất cả nhìn về +Z, đứng trên y = 0.
+
+Nguồn poly.pizza (bản GLB poly.pizza chuyển từ gói Quaternius; trang model ghi "CC0 1.0"), file gốc trong
+`assets-src/polypizza-quaternius-animated/` (`SOURCES.json`). Nguồn Ultimate Animated Animals:
+https://quaternius.com/packs/ultimateanimatedanimals.html (`assets-src/quaternius-ultimate-animated-animals/glTF/`).
+
+| File | Nguồn | URL | Tác giả | Giấy phép | Tam giác | Clip (tên gọn ← tên gốc) |
+|---|---|---|---|---|---|---|
+| world/whale.glb | whale.glb | https://poly.pizza/m/JGFwp6xWgk | Quaternius | CC0 1.0 | 447 | Swim |
+| world/dolphin.glb | dolphin.glb | https://poly.pizza/m/3LzFgI3GLO | Quaternius | CC0 1.0 | 436 | Swim |
+| world/manta.glb | manta.glb (Mantaray) | https://poly.pizza/m/yzD8b7ZHZm | Quaternius | CC0 1.0 | 696 | Swim |
+| world/clownfish.glb | clownfish.glb | https://poly.pizza/m/769fHo3eEB | Quaternius | CC0 1.0 | 1528 | Swim ← Swimming_Normal, Run ← Swimming_Fast, Jump ← Swimming_Impulse |
+| world/puffer.glb | puffer.glb | https://poly.pizza/m/UKHtgpxTOk | Quaternius | CC0 1.0 | 2138 | Swim, Run, Jump (như cá hề) |
+| world/blue-tang.glb | blue-tang.glb | https://poly.pizza/m/TQaMo8GTJl | Quaternius | CC0 1.0 | 1334 | Swim, Run, Jump (như cá hề) |
+| world/yellow-tang.glb | yellow-tang.glb | https://poly.pizza/m/CrDlkPLon0 | Quaternius | CC0 1.0 | 1336 | Swim, Run, Jump (như cá hề) |
+| world/crab.glb | crab-enemy.glb | https://poly.pizza/m/Gs3yfsV5lB | Quaternius | CC0 1.0 | 3592 | Idle, Walk, Jump, Happy ← Dance |
+| world/koi.glb | koi.glb | https://poly.pizza/m/qyGtRmhgzl | Quaternius | CC0 1.0 | 1490 | Swim, Run, Jump (như cá hề) |
+| world/goldfish.glb | goldfish.glb | https://poly.pizza/m/qS6CgsWFAh | Quaternius | CC0 1.0 | 1586 | Swim, Run, Jump (như cá hề) |
+| world/frog.glb | frog-b.glb | https://poly.pizza/m/9Z2V8fpazF | Quaternius | CC0 1.0 | 4920 | Idle ← Frog_Idle, Jump ← Frog_Jump |
+| world/raccoon.glb | raccoon.glb | https://poly.pizza/m/xMmx6VQP3r | Quaternius | CC0 1.0 | 2698 | Idle, Walk, Run, Eat ← Idle_Eating, Jump ← Jump_Loop |
+| world/horse.glb | horse.glb | https://poly.pizza/m/D3hAeqeDBE | Quaternius | CC0 1.0 | 2244 | Idle, Walk, Run, Eat ← Idle_Eating, Jump ← Jump_Loop |
+| world/zebra.glb | zebra.glb | https://poly.pizza/m/iclPBR6SBZ | Quaternius | CC0 1.0 | 1354 | Idle, Walk, Run, Jump |
+| world/bee.glb | bee-enemy.glb | https://poly.pizza/m/6HsU6GQt3a | Quaternius | CC0 1.0 | 2996 | Fly ← Flying |
+| world/bat.glb | bat.glb | https://poly.pizza/m/hNO9XvjlKa | Quaternius | CC0 1.0 | 1046 | Fly ← Bat_Flying |
+| world/pigeon.glb | pigeon.glb | https://poly.pizza/m/9NGlBTpDEr | Quaternius | CC0 1.0 | 2164 | Idle, Walk, Jump, Happy ← Dance (không có clip bay) |
+| world/deer.glb | glTF/Deer.gltf | (gói Ultimate Animated Animals) | Quaternius | CC0 1.0 | 2098 | Idle, Walk, Run ← Gallop, Eat ← Eating, Jump ← Jump_toIdle |
+| world/stag.glb | glTF/Stag.gltf | (gói Ultimate Animated Animals) | Quaternius | CC0 1.0 | 3670 | Idle, Walk, Run ← Gallop, Eat ← Eating, Jump ← Jump_toIdle |
+| world/fox.glb | glTF/Fox.gltf | (gói Ultimate Animated Animals) | Quaternius | CC0 1.0 | 1848 | Idle, Walk, Run ← Gallop, Eat ← Eating, Jump ← Jump_ToIdle |
+| world/wolf.glb | glTF/Wolf.gltf | (gói Ultimate Animated Animals) | Quaternius | CC0 1.0 | 1962 | Idle, Walk, Run ← Gallop, Eat ← Eating, Jump ← Jump_ToIdle |
+
+Tổng tam giác mỗi khu (kể cả đàn cá, model tĩnh Poly dùng lại): đồng cỏ 6874, ao hồ 13568, rừng 12844,
+biển 23569, trời 9019 (test `src/core/worldAnimals.test.ts` kiểm ≤ 50k từ file thật).

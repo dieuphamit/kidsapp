@@ -1,10 +1,11 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Scene3D } from '../../ui/Scene3D';
-import { WanderAnimal, WanderProbe, type WanderRegistry } from '../../ui/WanderAnimal';
-import { startReact } from '../../ui/wander';
+import { AgentProbe, AnimalHerd } from '../../ui/AnimatedAnimal';
+import { createAgent, startReact, type Agent } from '../../core/steer';
+import type { Herd } from '../../core/herd';
 import { BackHome } from '../../ui/BackHome';
 import type { GameProps } from '../../core/games';
-import { pickSixAnimals, placeZooAnimals } from './wildAnimals';
+import { pickSixAnimals, placeZooAnimals, zooDef } from './wildAnimals';
 
 const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
 /** e2e: `?e2e=1&seed=N` chọn cố định 6 con để ảnh chụp/test lặp lại được */
@@ -123,11 +124,32 @@ export default function Game({ speaker, onExit }: GameProps) {
   const ready = loadedCount >= 6;
   const soundTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Trạng thái đi lại của từng con (đọc/ghi trong useFrame, không gây render lại)
-  const [registry] = useState<WanderRegistry>(() => new Map());
 
   // Chọn ngẫu nhiên 6 con khi mount, giữ ổn định trong suốt game; 3 con đi dạo, 3 con đứng yên
   const animals = useMemo(() => pickSixAnimals(E2E_SEED), []);
   const placed = useMemo(() => placeZooAnimals(animals), [animals]);
+  // hạt giống ngẫu nhiên cho đường đi (cố định khi e2e)
+  const [walkSeed] = useState(() => E2E_SEED ?? Math.floor(Math.random() * 1e6));
+  // Mỗi con một Agent (steering): 3 con đi dạo trong dải của mình, 3 con đứng một chỗ lắc lư
+  const herd = useMemo<Herd>(() => {
+    const members = placed.map((p, i) => {
+      const def = zooDef(p.data);
+      const agent = createAgent({
+        id: p.data.id,
+        motion: 'walk',
+        area: p.area ?? { xMin: p.pos[0], xMax: p.pos[0], zMin: p.pos[2], zMax: p.pos[2] },
+        pos: p.pos,
+        fixed: !p.area,
+        restYaw: p.rotY,
+        seed: walkSeed * 7 + i,
+        maxSpeed: def.speed,
+        radius: def.radius,
+      });
+      return { key: p.data.id, def, agent };
+    });
+    return { members, agents: members.map((m) => m.agent) };
+  }, [placed, walkSeed]);
+  const registry = useMemo(() => new Map<string, Agent>(herd.agents.map((a) => [a.id, a])), [herd]);
 
   const say = useCallback(
     (key: string) => {
@@ -146,7 +168,7 @@ export default function Game({ speaker, onExit }: GameProps) {
 
       // Con vật dừng lại, ngoảnh về bé và nhảy (vẽ trong useFrame)
       const st = registry.get(animalId);
-      if (st) startReact(st);
+      if (st && st.mode !== 'react') startReact(st);
       say(`animal.${animalId}`);
 
       soundTimeoutRef.current = setTimeout(() => {
@@ -200,24 +222,9 @@ export default function Game({ speaker, onExit }: GameProps) {
       <Scene3D label="Sở thú" shadowScale={18} view={{ position: [0, 4.2, 10], target: [0, 0.5, -0.2], fov: 45 }}>
         <Suspense fallback={<ZooGround />}>
           <ZooGround />
-          {placed.map((p, i) => (
-            <WanderAnimal
-              key={p.data.id}
-              id={p.data.id}
-              model={p.data.model}
-              height={p.data.height}
-              pos={p.pos}
-              rotY={p.rotY}
-              lane={p.lane}
-              gait={p.data.gait}
-              phase={i * 0.8}
-              registry={registry}
-              onTap={() => handleTap(p.data.id)}
-              onLoaded={handleAnimalLoaded}
-            />
-          ))}
+          <AnimalHerd herd={herd} onTap={handleTap} onLoaded={handleAnimalLoaded} />
         </Suspense>
-        <WanderProbe registry={registry} />
+        <AgentProbe agents={herd.agents} />
       </Scene3D>
       <BackHome onExit={onExit} />
     </div>

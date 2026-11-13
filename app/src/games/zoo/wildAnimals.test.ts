@@ -67,18 +67,43 @@ describe('pickSixAnimals', () => {
 });
 
 describe('placeZooAnimals', () => {
-  it('3 con đi dạo ở 3 làn khác độ sâu, cá không đi dạo, con cao đi làn sau', async () => {
+  it('3 con đi dạo ở 3 dải khác độ sâu (không chồng nhau), cá không đi dạo, con cao đi dải sau', async () => {
     const { placeZooAnimals } = await import('./wildAnimals');
     for (let seed = 1; seed < 60; seed++) {
       const placed = placeZooAnimals(pickSixAnimals(seed));
       expect(placed).toHaveLength(6);
-      const walkers = placed.filter((p) => p.lane);
+      const walkers = placed.filter((p) => p.area);
       expect(walkers).toHaveLength(3);
       expect(new Set(walkers.map((p) => p.pos[2])).size).toBe(3);
+      // dải sau nằm hẳn sau dải giữa, dải giữa nằm hẳn sau dải trước; vị trí đầu nằm trong dải của mình
+      for (let i = 0; i < 3; i++) {
+        const a = walkers[i].area!;
+        expect(walkers[i].pos[2]).toBeGreaterThanOrEqual(a.zMin);
+        expect(walkers[i].pos[2]).toBeLessThanOrEqual(a.zMax);
+        if (i > 0) expect(a.zMin).toBeGreaterThan(walkers[i - 1].area!.zMax);
+      }
+      // con đứng yên không có vùng đi dạo
+      expect(placed.filter((p) => !p.area)).toHaveLength(3);
       expect(walkers.some((p) => p.data.id === 'fish')).toBe(false);
       const h = walkers.map((p) => p.data.height ?? 1.2);
       expect(h[0]).toBeGreaterThanOrEqual(h[1]);
       expect(h[1]).toBeGreaterThanOrEqual(h[2]);
+    }
+  });
+});
+
+describe('zooDef', () => {
+  it('cáo dùng model cử động thật (có clip), các con khác là model tĩnh với dáng giả', async () => {
+    const { zooDef } = await import('./wildAnimals');
+    for (const a of WILD_ANIMALS) {
+      const d = zooDef(a);
+      expect(d.id).toBe(a.id);
+      expect(d.height).toBe(a.height ?? 1.2);
+      if (a.id === 'fox') {
+        expect(d.model).toBe('world/fox.glb');
+        expect(d.clips).toContain('Walk');
+      } else expect(d.clips).toHaveLength(0);
+      expect(existsSync(join(import.meta.dirname, '../../../public/models', d.model)), d.model).toBe(true);
     }
   });
 });

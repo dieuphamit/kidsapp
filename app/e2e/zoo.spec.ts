@@ -137,7 +137,7 @@ test('thú đi dạo qua lại theo làn, chạm con đang đi thì nó dừng l
   await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 15000 });
   await expect(gameEl).toHaveAttribute('data-visible-animals', 'parrot,giraffe,koala,tiger,bear,penguin');
 
-  const [first] = await expectAnimalsWander(page, gameEl, 'wander-zoo', 2);
+  const [first] = await expectAnimalsWander(page, gameEl, 'wander-zoo', 2, 1.0);
   expect(first.giraffe.z, 'con cao nhất đi làn sau cùng').toBeLessThan(first.koala.z);
 
   await expectTapStopsWalker(page, gameEl);
