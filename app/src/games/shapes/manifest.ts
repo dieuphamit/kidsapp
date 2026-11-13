@@ -3,7 +3,7 @@ import type { GameManifest } from '../../core/games';
 
 export const manifest: GameManifest = {
   id: 'shapes',
-  title: { vi: 'Màu và hình', ja: 'いろとかたち' },
+  title: { vi: 'Màu và hình', ja: 'いろとかたち', en: 'Colors and shapes' },
   place: 'place.orchard',
   icon: '🔺',
   color: 'mint',

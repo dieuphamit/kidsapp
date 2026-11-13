@@ -8,4 +8,9 @@ describe('content', () => {
     expect(new Set(keys).size).toBe(keys.length);
     expect(keys).toContain('ui.mascot-name');
   });
+  it('mọi câu có tiếng Anh, linh vật tên Dau Dau', () => {
+    const items = allContent();
+    for (const item of items) expect(item.en.trim(), item.key).not.toBe('');
+    expect(items.find((i) => i.key === 'ui.mascot-name')?.en).toBe('Dau Dau');
+  });
 });

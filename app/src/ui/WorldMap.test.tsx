@@ -21,7 +21,7 @@ const DummyGame = () => <div>Game</div>;
 function makeGame(id: string, place: string, extra: Partial<GameManifest> = {}): GameManifest {
   return {
     id,
-    title: { vi: 'Trò ' + id, ja: 'ゲーム' + id },
+    title: { vi: 'Trò ' + id, ja: 'ゲーム' + id, en: 'Game ' + id },
     place,
     icon: '🎮',
     color: 'mint',

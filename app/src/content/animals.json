@@ -1,11 +1,11 @@
 [
-  { "key": "animal.cow", "vi": "Con bò", "ja": "うしさん" },
-  { "key": "animal.chicken", "vi": "Con gà", "ja": "にわとりさん" },
-  { "key": "animal.duck", "vi": "Con vịt", "ja": "あひるさん" },
-  { "key": "animal.pig", "vi": "Con heo", "ja": "ぶたさん" },
-  { "key": "animal.dog", "vi": "Con chó", "ja": "いぬさん" },
-  { "key": "animal.sheep", "vi": "Con cừu", "ja": "ひつじさん" },
-  { "key": "animal.horse", "vi": "Con ngựa", "ja": "うまさん" },
-  { "key": "animal.rabbit", "vi": "Con thỏ", "ja": "うさぎさん" },
-  { "key": "farm.hello", "vi": "Đến trang trại rồi! Bé chạm vào bạn nào?", "ja": "まきばに ついたよ!どの こに さわる?" }
+  { "key": "animal.cow", "vi": "Con bò", "ja": "うしさん", "en": "Cow" },
+  { "key": "animal.chicken", "vi": "Con gà", "ja": "にわとりさん", "en": "Chicken" },
+  { "key": "animal.duck", "vi": "Con vịt", "ja": "あひるさん", "en": "Duck" },
+  { "key": "animal.pig", "vi": "Con heo", "ja": "ぶたさん", "en": "Pig" },
+  { "key": "animal.dog", "vi": "Con chó", "ja": "いぬさん", "en": "Dog" },
+  { "key": "animal.sheep", "vi": "Con cừu", "ja": "ひつじさん", "en": "Sheep" },
+  { "key": "animal.horse", "vi": "Con ngựa", "ja": "うまさん", "en": "Horse" },
+  { "key": "animal.rabbit", "vi": "Con thỏ", "ja": "うさぎさん", "en": "Rabbit" },
+  { "key": "farm.hello", "vi": "Đến trang trại rồi! Bé chạm vào bạn nào?", "ja": "まきばに ついたよ!どの こに さわる?", "en": "Welcome to the farm! Which friend will you touch?" }
 ]

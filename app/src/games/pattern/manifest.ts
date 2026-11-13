@@ -3,7 +3,7 @@ import type { GameManifest } from '../../core/games';
 
 export const manifest: GameManifest = {
   id: 'pattern',
-  title: { vi: 'Chuỗi hạt', ja: 'じゅんばん ビーズ' },
+  title: { vi: 'Chuỗi hạt', ja: 'じゅんばん ビーズ', en: 'Bead pattern' },
   place: 'place.orchard',
   icon: '📿',
   color: 'leaf',

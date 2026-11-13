@@ -43,7 +43,7 @@ test('màn hình chính đạt luật UX', async ({ page }) => {
 });
 
 test('chạy offline sau lần tải đầu', async ({ page, context }) => {
-  test.setTimeout(90_000); // precache nhiều model/mp3, máy chạy song song nên chậm
+  test.setTimeout(180_000); // precache nhiều model/mp3 (vi/ja/en), máy chạy song song nên chậm
   await page.goto('./');
   await page.evaluate(() => navigator.serviceWorker.ready);
   await page.reload();

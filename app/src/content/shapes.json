@@ -1,9 +1,9 @@
 [
-  { "key": "shape.circle", "vi": "Hình tròn", "ja": "まる" },
-  { "key": "shape.square", "vi": "Hình vuông", "ja": "しかく" },
-  { "key": "shape.triangle", "vi": "Hình tam giác", "ja": "さんかく" },
-  { "key": "shape.star", "vi": "Ngôi sao", "ja": "ほし" },
-  { "key": "pond.hello", "vi": "Hồ nước có nhiều khối màu. Bé chạm thử nhé!", "ja": "いけに いろんな かたちが あるよ。さわってみて!" },
-  { "key": "pond.drag-hint", "vi": "Bé kéo khối vào cái bóng giống nó nhé!", "ja": "おなじ かげに いれてみよう!" },
-  { "key": "pond.try-again", "vi": "Ồ, thử cái bóng khác xem nào!", "ja": "あれれ、ほかの かげかな?" }
+  { "key": "shape.circle", "vi": "Hình tròn", "ja": "まる", "en": "Circle" },
+  { "key": "shape.square", "vi": "Hình vuông", "ja": "しかく", "en": "Square" },
+  { "key": "shape.triangle", "vi": "Hình tam giác", "ja": "さんかく", "en": "Triangle" },
+  { "key": "shape.star", "vi": "Ngôi sao", "ja": "ほし", "en": "Star" },
+  { "key": "pond.hello", "vi": "Hồ nước có nhiều khối màu. Bé chạm thử nhé!", "ja": "いけに いろんな かたちが あるよ。さわってみて!", "en": "The pond has lots of colorful shapes. Try touching one!" },
+  { "key": "pond.drag-hint", "vi": "Bé kéo khối vào cái bóng giống nó nhé!", "ja": "おなじ かげに いれてみよう!", "en": "Drag the shape into the shadow that matches!" },
+  { "key": "pond.try-again", "vi": "Ồ, thử cái bóng khác xem nào!", "ja": "あれれ、ほかの かげかな?", "en": "Oh, let's try another shadow!" }
 ]

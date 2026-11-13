@@ -1,9 +1,9 @@
 [
-  { "key": "place.farm", "vi": "Trang trại", "ja": "まきば" },
-  { "key": "place.pond", "vi": "Hồ nước", "ja": "いけ" },
-  { "key": "place.orchard", "vi": "Vườn quả", "ja": "かじゅえん" },
-  { "key": "place.music", "vi": "Nhà âm nhạc", "ja": "おんがくのいえ" },
-  { "key": "place.zoo", "vi": "Thế giới thú", "ja": "どうぶつの くに" },
-  { "key": "place.house", "vi": "Nhà Đậu Đậu", "ja": "ダウダウのおうち" },
-  { "key": "place.puzzle", "vi": "Góc đố", "ja": "なぞなぞ コーナー" }
+  { "key": "place.farm", "vi": "Trang trại", "ja": "まきば", "en": "The farm" },
+  { "key": "place.pond", "vi": "Hồ nước", "ja": "いけ", "en": "The pond" },
+  { "key": "place.orchard", "vi": "Vườn quả", "ja": "かじゅえん", "en": "The orchard" },
+  { "key": "place.music", "vi": "Nhà âm nhạc", "ja": "おんがくのいえ", "en": "Music house" },
+  { "key": "place.zoo", "vi": "Thế giới thú", "ja": "どうぶつの くに", "en": "Animal world" },
+  { "key": "place.house", "vi": "Nhà Đậu Đậu", "ja": "ダウダウのおうち", "en": "Dau Dau's house" },
+  { "key": "place.puzzle", "vi": "Góc đố", "ja": "なぞなぞ コーナー", "en": "Puzzle corner" }
 ]

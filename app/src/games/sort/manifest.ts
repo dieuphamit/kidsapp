@@ -3,7 +3,7 @@ import type { GameManifest } from '../../core/games';
 
 export const manifest: GameManifest = {
   id: 'sort',
-  title: { vi: 'Xếp quả theo màu', ja: 'いろわけ' },
+  title: { vi: 'Xếp quả theo màu', ja: 'いろわけ', en: 'Sort by color' },
   place: 'place.orchard',
   icon: '🧺',
   color: 'leaf',

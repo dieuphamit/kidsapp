@@ -3,7 +3,7 @@ import type { GameManifest } from '../../core/games';
 
 export const manifest: GameManifest = {
   id: 'shadow',
-  title: { vi: 'Bóng của ai?', ja: 'だれの かげ?' },
+  title: { vi: 'Bóng của ai?', ja: 'だれの かげ?', en: 'Whose shadow?' },
   place: 'place.zoo',
   icon: '👤',
   color: 'lilac',

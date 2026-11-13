@@ -1,8 +1,8 @@
 [
-  { "key": "color.red", "vi": "Màu đỏ", "ja": "あか" },
-  { "key": "color.yellow", "vi": "Màu vàng", "ja": "きいろ" },
-  { "key": "color.green", "vi": "Màu xanh lá", "ja": "みどり" },
-  { "key": "color.blue", "vi": "Màu xanh dương", "ja": "あお" },
-  { "key": "color.orange", "vi": "Màu cam", "ja": "オレンジ" },
-  { "key": "color.purple", "vi": "Màu tím", "ja": "むらさき" }
+  { "key": "color.red", "vi": "Màu đỏ", "ja": "あか", "en": "Red" },
+  { "key": "color.yellow", "vi": "Màu vàng", "ja": "きいろ", "en": "Yellow" },
+  { "key": "color.green", "vi": "Màu xanh lá", "ja": "みどり", "en": "Green" },
+  { "key": "color.blue", "vi": "Màu xanh dương", "ja": "あお", "en": "Blue" },
+  { "key": "color.orange", "vi": "Màu cam", "ja": "オレンジ", "en": "Orange" },
+  { "key": "color.purple", "vi": "Màu tím", "ja": "むらさき", "en": "Purple" }
 ]

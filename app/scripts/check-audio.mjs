@@ -7,7 +7,7 @@ const missing = [];
 const animalIds = new Set();
 for (const f of fs.readdirSync(contentDir).filter((f) => f.endsWith('.json'))) {
   for (const item of JSON.parse(fs.readFileSync(path.join(contentDir, f), 'utf8'))) {
-    for (const lang of ['vi', 'ja']) {
+    for (const lang of ['vi', 'ja', 'en']) {
       const mp3 = path.join(root, 'public', 'audio', lang, `${item.key}.mp3`);
       if (!fs.existsSync(mp3)) missing.push(`${lang}/${item.key}.mp3`);
     }
@@ -27,4 +27,4 @@ if (missingSfx.length) {
   console.error(`Thiếu ${missingSfx.length} tiếng kêu con vật:\n  ${missingSfx.join('\n  ')}\nChạy: node scripts/animal-sounds.mjs`);
 }
 if (missing.length || missingSfx.length) process.exit(1);
-console.log(`check-audio: đủ âm thanh vi/ja và ${animalIds.size} tiếng kêu con vật`);
+console.log(`check-audio: đủ âm thanh vi/ja/en và ${animalIds.size} tiếng kêu con vật`);

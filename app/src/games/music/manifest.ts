@@ -3,7 +3,7 @@ import type { GameManifest } from '../../core/games';
 
 export const manifest: GameManifest = {
   id: 'music',
-  title: { vi: 'Vẽ và nhạc', ja: 'おえかきとおんがく' },
+  title: { vi: 'Vẽ và nhạc', ja: 'おえかきとおんがく', en: 'Drawing and music' },
   place: 'place.music',
   icon: '🎵',
   color: 'lilac',
