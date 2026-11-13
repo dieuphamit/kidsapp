@@ -611,7 +611,14 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
   const [{ level }] = useState(() => playSetup(ageMonths, options));
   const [first] = useState(() => startRound(level));
   const [round, setRound] = useState<ShapesRound>(first.round);
-  const [state, setState] = useState<ShapesState>(first.state);
+  const [state, setStateRaw] = useState<ShapesState>(first.state);
+  // Trạng thái mới nhất, không chờ render lại: hai lần thả liền nhau (máy chậm) vẫn thấy hình đã đặt
+  // trước đó, nên lượt luôn được tính là xong và sang lượt mới.
+  const stateRef = useRef<ShapesState>(first.state);
+  const setState = useCallback((s: ShapesState) => {
+    stateRef.current = s;
+    setStateRaw(s);
+  }, []);
   const [lastSay, setLastSay] = useState('');
   const [bouncingShapes, setBouncingShapes] = useState<Set<Shape>>(new Set());
   const [ready, setReady] = useState(false);
@@ -669,7 +676,7 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
       say(`color.${color}`);
 
       // Update tapped state
-      const newState = markTapped(state, shape);
+      const newState = markTapped(stateRef.current, shape);
       setState(newState);
 
       // Say shape after 1000ms
@@ -677,7 +684,7 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
         say(`shape.${shape}`);
       }, 1000);
     },
-    [state, say, cancelPendingSpeech, startBounce]
+    [state, say, cancelPendingSpeech, startBounce, setState]
   );
 
   const handleDrop = useCallback(
@@ -686,7 +693,8 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
 
       if (result === 'snap') {
         // Snap to slot
-        const newState = markPlaced(state, shape);
+        if (stateRef.current.placed.has(shape)) return;
+        const newState = markPlaced(stateRef.current, shape);
         setState(newState);
         startBounce(shape);
         say('ui.great');
@@ -741,7 +749,7 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
         }, 16);
       }
     },
-    [state, round, level, say, startBounce]
+    [round, level, say, startBounce, setState]
   );
 
   const handlePointerDown = useCallback(
@@ -884,7 +892,7 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
     win.__behocDrag = (id: string, toX: number, toZ: number) => {
       if (round.shapes.includes(id as Shape)) {
         const shape = id as Shape;
-        if (state.placed.has(shape)) return;
+        if (stateRef.current.placed.has(shape)) return;
 
         // Simulate drag and drop
         const dropPoint: [number, number, number] = [toX, DRAG_Y, toZ];
