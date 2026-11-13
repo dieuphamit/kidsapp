@@ -1,6 +1,6 @@
 # Bé Học: luật cho agent
 
-App PWA học và chơi cho bé 2–5 tuổi trên iPad. Spec: `docs/superpowers/specs/2026-11-10-be-hoc-design.md`. Linh vật: mèo Đậu Đậu (ja: ダウダウ).
+App PWA học và chơi cho bé 2–5 tuổi trên iPad. Spec: `docs/superpowers/specs/2026-11-10-be-hoc-design.md`. Linh vật: mèo Đậu Đậu (ja: ダウダウ, en: Dau Dau).
 
 ## Lệnh
 - Trong `app/`: `npm run verify` (= `tsc -b && oxlint && vitest run && npm run check:audio && playwright test`). Task chỉ được tính là xong khi lệnh này qua.
@@ -19,7 +19,7 @@ App PWA học và chơi cho bé 2–5 tuổi trên iPad. Spec: `docs/superpowers
 1. Vùng chạm ≥120×120px, cách nhau ≥24px. Dùng `ClayButton` (đã ép sàn 120px kể cả khi truyền `style`, và đặt `data-pressed` lúc pointerdown), không tự viết nút.
 2. Mọi lần chạm đều có phản hồi trong 100ms (`onPointerDown`, âm thanh hoặc chuyển động).
 3. Không âm báo sai, không điểm số, không thua.
-4. Không cần biết đọc: mọi chỉ dẫn qua `speaker.say(key)`; mọi câu nói phải có trong `src/content/*.json` với cả `vi` và `ja`. iOS mở khóa âm thanh ở lần chạm đầu bằng `unlockAudioOnFirstGesture()` (`src/core/audio.ts`, đã nối sẵn trong App), đừng tự làm lại.
+4. Không cần biết đọc: mọi chỉ dẫn qua `speaker.say(key)`; mọi câu nói phải có trong `src/content/*.json` với cả `vi`, `ja` và `en`. iOS mở khóa âm thanh ở lần chạm đầu bằng `unlockAudioOnFirstGesture()` (`src/core/audio.ts`, đã nối sẵn trong App), đừng tự làm lại.
 5. Không link ra ngoài, không gọi mạng lúc chạy, không thu thập dữ liệu.
 6. Chỉ chạm và kéo đơn giản. Không vuốt nhiều ngón, không chạm đúp.
 7. Chỉ dùng màu và bóng từ `src/core/tokens.css`. Scene 3D dùng lại `Scene3D` (`src/ui/Scene3D.tsx`, prop `view` tùy chỉnh camera): màu phẳng, ánh sáng ấm, chỉ ContactShadows; không thêm shadow map. Model chỉ lấy từ gói CC0 (Kenney, Quaternius) và ghi nguồn vào `app/public/models/CREDITS.md`.

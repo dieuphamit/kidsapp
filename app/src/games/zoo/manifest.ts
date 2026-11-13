@@ -3,7 +3,7 @@ import type { GameManifest } from '../../core/games';
 
 export const manifest: GameManifest = {
   id: 'zoo3d',
-  title: { vi: 'Sở thú', ja: 'どうぶつえん' },
+  title: { vi: 'Sở thú', ja: 'どうぶつえん', en: 'Zoo' },
   place: 'place.zoo',
   icon: '🦁',
   color: 'leaf',

@@ -43,4 +43,17 @@ describe('ParentArea', () => {
     fireEvent.click(screen.getByRole('button', { name: /日本語/ }));
     expect(onSave).toHaveBeenCalledWith({ ...DEFAULT_SETTINGS, lang: 'ja' });
   });
+
+  it('có 3 ngôn ngữ; chạm English thì lưu ngay lang en và đánh dấu đang chọn', () => {
+    const { onSave, onClose } = renderArea();
+    const group = screen.getByRole('group', { name: 'Ngôn ngữ' });
+    expect(group.querySelectorAll('button')).toHaveLength(3);
+    const en = screen.getByRole('button', { name: /English/ });
+    expect(en).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(en);
+    expect(onSave).toHaveBeenCalledWith({ ...DEFAULT_SETTINGS, lang: 'en' });
+    expect(en).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /Tiếng Việt/ })).toHaveAttribute('aria-pressed', 'false');
+    expect(onClose).not.toHaveBeenCalled();
+  });
 });

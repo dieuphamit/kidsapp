@@ -1,10 +1,11 @@
-export type Lang = 'vi' | 'ja';
-export const LANGS: Lang[] = ['vi', 'ja'];
+export type Lang = 'vi' | 'ja' | 'en';
+export const LANGS: Lang[] = ['vi', 'ja', 'en'];
 
 export interface ContentItem {
   key: string;
   vi: string;
   ja: string;
+  en: string;
 }
 
 const KEY_RE = /^[a-z0-9]+(\.[a-z0-9-]+)+$/;
@@ -17,7 +18,7 @@ export function validateContent(raw: unknown, source: string): ContentItem[] {
     for (const lang of LANGS) {
       if (!item[lang] || !String(item[lang]).trim()) throw new Error(`${source}: ${item.key} thiếu ${lang}`);
     }
-    return { key: item.key, vi: item.vi!, ja: item.ja! };
+    return { key: item.key, vi: item.vi!, ja: item.ja!, en: item.en! };
   });
 }
 

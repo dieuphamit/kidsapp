@@ -1,4 +1,4 @@
-"""Sinh mp3 vi/ja từ app/src/content/*.json bằng edge-tts.
+"""Sinh mp3 vi/ja/en từ app/src/content/*.json bằng edge-tts.
 
 Chạy từ thư mục gốc dự án:
   uv run --python C:/Users/tdqua/AppData/Local/Programs/Python/Python312/python.exe --with edge-tts tools/tts/generate.py
@@ -8,7 +8,7 @@ Từ ngắn (いち, に, Một, Ba...): edge-tts đôi khi trả NoAudioReceive
 cho qua. Đừng sửa chữ trong JSON nữa. Script tự xử lý:
   1. Từ ngắn đọc chậm hơn (SHORT_RATE) cho rõ và đủ dài để bé nghe.
   2. Nếu bị từ chối, thử lại với biến thể chỉ dùng khi tổng hợp: thêm dấu câu cuối
-     (。 cho ja, . cho vi) và/hoặc lệch tốc độ 1-2% (tai không phân biệt được).
+     (。 cho ja, . cho vi/en) và/hoặc lệch tốc độ 1-2% (tai không phân biệt được).
      Chữ hiển thị trong JSON giữ nguyên.
 """
 import asyncio
@@ -18,15 +18,16 @@ import pathlib
 import re
 import sys
 
+import aiohttp
 import edge_tts
 
 sys.stdout.reconfigure(encoding="utf-8")  # console Windows có thể là cp932
 
-VOICES = {"vi": "vi-VN-HoaiMyNeural", "ja": "ja-JP-NanamiNeural"}
+VOICES = {"vi": "vi-VN-HoaiMyNeural", "ja": "ja-JP-NanamiNeural", "en": "en-US-AnaNeural"}
 RATE = "-10%"  # chậm hơn một chút cho bé
 SHORT_RATE = "-30%"  # từ rất ngắn (số đếm) đọc chậm hơn nữa
 SHORT_LEN = 4  # số ký tự (bỏ dấu câu, khoảng trắng) để coi là từ ngắn
-END_PUNCT = {"vi": ".", "ja": "。"}
+END_PUNCT = {"vi": ".", "ja": "。", "en": "."}
 ROOT = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
 CONTENT = ROOT / "app" / "src" / "content"
 OUT = ROOT / "app" / "public" / "audio"
@@ -65,8 +66,17 @@ async def synth(text: str, lang: str, voice: str, rate: str, dest: pathlib.Path)
                 return "" if (t, r) == (text, rate) else f"(biến thể {t!r} {r})"
             except edge_tts.exceptions.NoAudioReceived as e:
                 last = e
+            except aiohttp.ClientError as e:
+                # dịch vụ thỉnh thoảng trả 503 khi gọi dồn: nghỉ rồi thử lại đúng câu đó
+                last = e
+                await asyncio.sleep(10)
         await asyncio.sleep(5 * (round_ + 1))
     raise RuntimeError(f"edge-tts không trả âm thanh cho {text!r} ({lang}): {last}")
+
+
+def save_hashes(hashes: dict) -> None:
+    HASHES.parent.mkdir(parents=True, exist_ok=True)
+    HASHES.write_text(json.dumps(hashes, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
 
 
 async def main() -> None:
@@ -87,8 +97,8 @@ async def main() -> None:
                 hashes[rel] = h
                 made += 1
                 print("made", rel, rate, note)
-    HASHES.parent.mkdir(parents=True, exist_ok=True)
-    HASHES.write_text(json.dumps(hashes, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
+                save_hashes(hashes)  # lưu từng file để lỗi giữa chừng không phải sinh lại từ đầu
+    save_hashes(hashes)
     print(f"done: {made} file mới")
 
 

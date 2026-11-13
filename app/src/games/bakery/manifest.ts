@@ -3,7 +3,7 @@ import type { GameManifest } from '../../core/games';
 
 export const manifest: GameManifest = {
   id: 'bakery',
-  title: { vi: 'Tiệm bánh', ja: 'ケーキやさん' },
+  title: { vi: 'Tiệm bánh', ja: 'ケーキやさん', en: 'Bakery' },
   place: 'place.house',
   icon: '🎂',
   color: 'butter',

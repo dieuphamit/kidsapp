@@ -3,7 +3,7 @@ import type { GameManifest } from '../../core/games';
 
 export const manifest: GameManifest = {
   id: 'peekaboo',
-  title: { vi: 'Ú òa', ja: 'いないいないばあ' },
+  title: { vi: 'Ú òa', ja: 'いないいないばあ', en: 'Peekaboo' },
   place: 'place.zoo',
   icon: '🌳',
   color: 'leaf',

@@ -13,7 +13,7 @@ const DummyGame = () => <div>Game</div>;
 function makeGame(id: string, place: string, order = 0, titleKey?: string): GameManifest {
   return {
     id,
-    title: { vi: `Trò ${id}`, ja: `ゲーム ${id}` },
+    title: { vi: `Trò ${id}`, ja: `ゲーム ${id}`, en: `Game ${id}` },
     place,
     icon: '🎮',
     color: 'mint',

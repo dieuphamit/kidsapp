@@ -2,7 +2,7 @@ import { useState } from 'react';
 import styles from './screens.module.css';
 import type { Settings } from '../core/settings';
 
-const LANGS: [Settings['lang'], string][] = [['vi', '🇻🇳 Tiếng Việt'], ['ja', '🇯🇵 日本語']];
+const LANGS: [Settings['lang'], string][] = [['vi', '🇻🇳 Tiếng Việt'], ['ja', '🇯🇵 日本語'], ['en', '🇬🇧 English']];
 
 const MENUS: [Settings['menuStyle'], string][] = [['map', '🗺️ Bản đồ / ちず'], ['shelf', '🧸 Kệ đồ chơi / たな']];
 
@@ -13,7 +13,7 @@ export function ParentArea({ settings, onSave, onUnlock, onClose }: Props) {
   return (
     <div className={styles.dialog} role="dialog" aria-label="Cài đặt phụ huynh">
       <div className={styles.card}>
-        <span className={styles.sectionTitle}>Ngôn ngữ / ことば</span>
+        <span className={styles.sectionTitle}>Ngôn ngữ / ことば / Language</span>
         <div className={styles.langRow} role="group" aria-label="Ngôn ngữ">
           {LANGS.map(([lang, text]) => (
             <button

@@ -6,7 +6,7 @@ const g = (id: string, minAge: number, maxAge: number, place?: string, order?: n
     id,
     minAge,
     maxAge,
-    title: { vi: id, ja: id },
+    title: { vi: id, ja: id, en: id },
     place: place ?? `place.${id}`,
     icon: '⭐',
     color: 'peach',

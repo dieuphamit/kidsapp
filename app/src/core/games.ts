@@ -12,7 +12,7 @@ export interface GameProps {
 
 export interface GameManifest {
   id: string;
-  title: { vi: string; ja: string };
+  title: Record<Lang, string>;
   place: string; // key content của tên địa điểm, ví dụ "place.farm"
   icon: string;
   color: ClayColor;

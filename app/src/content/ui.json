@@ -1,7 +1,7 @@
 [
-  { "key": "ui.where", "vi": "Đi đâu chơi nào?", "ja": "どこであそぶ?" },
-  { "key": "ui.mascot-name", "vi": "Đậu Đậu", "ja": "ダウダウ" },
-  { "key": "ui.hello", "vi": "Chào bạn! Mình là Đậu Đậu!", "ja": "こんにちは!ダウダウだよ!" },
-  { "key": "ui.great", "vi": "Giỏi quá!", "ja": "すごいね!" },
-  { "key": "ui.sleep", "vi": "Đậu Đậu buồn ngủ rồi. Mai mình chơi tiếp nhé!", "ja": "ダウダウはねむくなっちゃった。またあしたあそぼうね!" }
+  { "key": "ui.where", "vi": "Đi đâu chơi nào?", "ja": "どこであそぶ?", "en": "Where shall we play?" },
+  { "key": "ui.mascot-name", "vi": "Đậu Đậu", "ja": "ダウダウ", "en": "Dau Dau" },
+  { "key": "ui.hello", "vi": "Chào bạn! Mình là Đậu Đậu!", "ja": "こんにちは!ダウダウだよ!", "en": "Hi there! I'm Dau Dau!" },
+  { "key": "ui.great", "vi": "Giỏi quá!", "ja": "すごいね!", "en": "Great job!" },
+  { "key": "ui.sleep", "vi": "Đậu Đậu buồn ngủ rồi. Mai mình chơi tiếp nhé!", "ja": "ダウダウはねむくなっちゃった。またあしたあそぼうね!", "en": "Dau Dau is sleepy now. Let's play again tomorrow!" }
 ]

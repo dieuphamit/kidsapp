@@ -3,7 +3,7 @@ import type { GameManifest } from '../../core/games';
 
 export const manifest: GameManifest = {
   id: 'counting',
-  title: { vi: 'Đếm số', ja: 'かず' },
+  title: { vi: 'Đếm số', ja: 'かず', en: 'Counting' },
   place: 'place.orchard',
   icon: '🍎',
   color: 'leaf',

@@ -3,7 +3,7 @@ import type { GameManifest } from '../../core/games';
 
 export const manifest: GameManifest = {
   id: 'memory',
-  title: { vi: 'Lật hình', ja: 'おなじの さがし' },
+  title: { vi: 'Lật hình', ja: 'おなじの さがし', en: 'Flip and match' },
   place: 'place.puzzle',
   icon: '🃏',
   color: 'lilac',

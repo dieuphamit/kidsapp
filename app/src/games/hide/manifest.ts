@@ -3,7 +3,7 @@ import type { GameManifest } from '../../core/games';
 
 export const manifest: GameManifest = {
   id: 'hide',
-  title: { vi: 'Đậu Đậu trốn ở đâu?', ja: 'ダウダウ どこかな?' },
+  title: { vi: 'Đậu Đậu trốn ở đâu?', ja: 'ダウダウ どこかな?', en: 'Where is Dau Dau?' },
   place: 'place.house',
   icon: '📦',
   color: 'butter',

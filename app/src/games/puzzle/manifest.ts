@@ -3,7 +3,7 @@ import type { GameManifest } from '../../core/games';
 
 export const manifest: GameManifest = {
   id: 'puzzle',
-  title: { vi: 'Ghép hình', ja: 'パズル' },
+  title: { vi: 'Ghép hình', ja: 'パズル', en: 'Puzzle' },
   place: 'place.puzzle',
   icon: '🧩',
   color: 'lilac',

@@ -38,6 +38,8 @@ describe('audio', () => {
   });
   it('URL theo ngôn ngữ', () => {
     expect(audioUrl('animal.cow', 'ja', '/be-hoc/')).toBe('/be-hoc/audio/ja/animal.cow.mp3');
+    expect(audioUrl('animal.cow', 'en', '/be-hoc/')).toBe('/be-hoc/audio/en/animal.cow.mp3');
+    expect(speechUrl('animal.cow-sound', 'en', '/be-hoc/')).toBe('/be-hoc/audio/sfx/animal-cow.mp3');
     expect(sfxUrl('cow', '/be-hoc/')).toBe('/be-hoc/audio/sfx/cow.mp3');
   });
   it('say() phát đúng file của ngôn ngữ hiện tại, cache Howl', () => {

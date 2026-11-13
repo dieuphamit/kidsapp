@@ -11,6 +11,10 @@ describe('settings', () => {
     await saveSettings({ lang: 'ja', ageMonths: 30, sessionMinutes: 10, menuStyle: 'shelf' });
     expect(await loadSettings()).toEqual({ lang: 'ja', ageMonths: 30, sessionMinutes: 10, menuStyle: 'shelf' });
   });
+  it('lưu tiếng Anh rồi đọc lại', async () => {
+    await saveSettings({ lang: 'en', ageMonths: 36, sessionMinutes: 15, menuStyle: 'map' });
+    expect((await loadSettings()).lang).toBe('en');
+  });
   it('bản lưu cũ không có menuStyle thì ra kiểu bản đồ', async () => {
     await set('behoc.settings', { lang: 'ja', ageMonths: 40, sessionMinutes: 20 });
     expect(await loadSettings()).toEqual({ lang: 'ja', ageMonths: 40, sessionMinutes: 20, menuStyle: 'map' });
