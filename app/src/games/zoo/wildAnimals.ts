@@ -1,5 +1,7 @@
 /** Dữ liệu 12 con thú hoang cho game Sở thú */
-import type { Gait, Lane } from '../../ui/wander';
+import type { Gait } from '../../ui/wander';
+import type { Area } from '../../core/steer';
+import { WORLD_ANIMALS, type FakeGait, type WorldAnimal } from '../../core/worldAnimals';
 
 export type WildAnimalData = {
   id: string;
@@ -12,6 +14,8 @@ export type WildAnimalData = {
   gait?: Gait;
   /** false: không bao giờ đi dạo trên cỏ (cá chỉ uốn mình bơi tại chỗ) */
   canWander?: boolean;
+  /** id trong WORLD_ANIMALS nếu có model cử động thật (khung xương + clip) */
+  world?: string;
 };
 
 /**
@@ -27,7 +31,7 @@ export const WILD_ANIMALS: WildAnimalData[] = [
   { id: 'panda', model: 'panda.glb', height: 1.1 },
   { id: 'penguin', model: 'penguin.glb', height: 0.9, gait: 'waddle' },
   { id: 'koala', model: 'koala.glb', height: 0.75 },
-  { id: 'fox', model: 'fox.glb', height: 0.8 },
+  { id: 'fox', model: 'world/fox.glb', height: 0.8, world: 'fox' },
   { id: 'bear', model: 'bear.glb', height: 1.5 },
   { id: 'parrot', model: 'parrot.glb', height: 0.7, gait: 'hop' },
   { id: 'fish', model: 'fish.glb', height: 0.6, gait: 'swim', canWander: false },
@@ -73,18 +77,21 @@ export type ZooPlacement = {
   data: WildAnimalData;
   pos: [number, number, number];
   rotY: number;
-  lane?: Lane;
+  /** vùng đi dạo (steering, xem core/steer.ts); không có = đứng yên một chỗ */
+  area?: Area;
 };
 
 /**
- * 3 làn đi dạo ở 3 độ sâu khác nhau (sau → trước) nên các con đi lướt qua nhau mà không đâm nhau;
- * con to (hươu, voi) đi làn sau cùng để không che con khác. Mỗi làn bắt đầu ở chỗ khác nhau.
+ * 3 vùng đi dạo ở 3 dải độ sâu khác nhau (sau → trước): mỗi con tự chọn đích trong vùng của mình, đi chéo
+ * nhẹ, nghỉ, rồi đi tiếp; các con lướt qua nhau ở dải khác nhau nên ít che nhau. Con to (hươu, voi) đi dải
+ * sau cùng để không che con khác. Mỗi con bắt đầu ở chỗ khác nhau.
  */
-const ZOO_LANES: { pos: [number, number, number]; lane: Lane }[] = [
-  { pos: [0.5, 0, -2.1], lane: { xMin: -4.6, xMax: 4.6, speed: 0.42, dir: 1 } },
-  { pos: [-3.4, 0, 0.8], lane: { xMin: -4.0, xMax: 4.0, speed: 0.5, dir: 1 } },
-  // làn trước dừng ở x = 2.2 để không chui ra sau con đứng góc phải hàng trước
-  { pos: [2.2, 0, 1.8], lane: { xMin: -3.4, xMax: 2.2, speed: 0.4, dir: -1 } },
+const ZOO_ZONES: { pos: [number, number, number]; area: Area }[] = [
+  { pos: [0.5, 0, -2.1], area: { xMin: -4.6, xMax: 4.6, zMin: -2.6, zMax: -1.6 } },
+  // dải giữa tránh hai chỗ đứng yên ở hai góc (x = ±4)
+  { pos: [-2.8, 0, 0.8], area: { xMin: -3.0, xMax: 3.0, zMin: 0.3, zMax: 1.3 } },
+  // dải trước dừng ở x = 2.2 để không chui ra sau con đứng góc phải hàng trước
+  { pos: [1.8, 0, 2.0], area: { xMin: -3.4, xMax: 2.2, zMin: 1.7, zMax: 2.4 } },
 ];
 
 /** 3 chỗ đứng yên: hai góc hàng giữa và góc phải hàng trước (giữa cảnh để trống cho các con đi qua lại) */
@@ -102,14 +109,38 @@ export function placeZooAnimals(animals: WildAnimalData[]): ZooPlacement[] {
   const walkers: WildAnimalData[] = [];
   const idle: WildAnimalData[] = [];
   for (const a of animals) {
-    if (a.canWander !== false && walkers.length < ZOO_LANES.length) walkers.push(a);
+    if (a.canWander !== false && walkers.length < ZOO_ZONES.length) walkers.push(a);
     else idle.push(a);
   }
   const tall = (a: WildAnimalData) => a.height ?? 1.2;
   walkers.sort((a, b) => tall(b) - tall(a));
   idle.sort((a, b) => tall(b) - tall(a));
   return [
-    ...walkers.map((data, i) => ({ data, pos: ZOO_LANES[i].pos, rotY: 0, lane: ZOO_LANES[i].lane })),
+    ...walkers.map((data, i) => ({ data, pos: ZOO_ZONES[i].pos, rotY: 0, area: ZOO_ZONES[i].area })),
     ...idle.map((data, i) => ({ data, pos: ZOO_SPOTS[i].pos, rotY: ZOO_SPOTS[i].rotY })),
   ];
+}
+
+const FAKE_OF: Record<Gait, FakeGait> = { walk: 'walk', waddle: 'waddle', hop: 'hop', swim: 'swim' };
+
+/**
+ * Định nghĩa dùng cho AnimatedAnimal: con có model cử động thật (cáo) lấy từ WORLD_ANIMALS, còn lại là model
+ * tĩnh với dáng đi giả bằng code như trước.
+ */
+export function zooDef(a: WildAnimalData): WorldAnimal {
+  const w = a.world ? WORLD_ANIMALS[a.world] : undefined;
+  const height = a.height ?? 1.2;
+  if (w) return { ...w, id: a.id, model: a.model, height };
+  return {
+    id: a.id,
+    model: a.model,
+    habitat: 'meadow',
+    height,
+    motion: 'walk',
+    clips: [],
+    fake: FAKE_OF[a.gait ?? 'walk'],
+    speed: 0.45,
+    radius: 0.25 + height * 0.25,
+    tris: 0,
+  };
 }

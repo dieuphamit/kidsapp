@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { BackHome } from './BackHome';
+
+// Trang kiểm tra thú 3D cử động (?demo=world&habitat=...), tải riêng để không làm nặng app chính
+const WorldDemo = lazy(() => import('./WorldDemo'));
 
 type Props = {
   name: string;
@@ -7,6 +10,14 @@ type Props = {
 
 export function Demo({ name }: Props) {
   const [exited, setExited] = useState(false);
+
+  if (name === 'world') {
+    return (
+      <Suspense fallback={null}>
+        <WorldDemo />
+      </Suspense>
+    );
+  }
 
   if (name !== 'backhome') {
     return null;
