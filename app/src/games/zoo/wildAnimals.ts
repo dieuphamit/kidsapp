@@ -130,7 +130,8 @@ const FAKE_OF: Record<Gait, FakeGait> = { walk: 'walk', waddle: 'waddle', hop: '
 export function zooDef(a: WildAnimalData): WorldAnimal {
   const w = a.world ? WORLD_ANIMALS[a.world] : undefined;
   const height = a.height ?? 1.2;
-  if (w) return { ...w, id: a.id, model: a.model, height };
+  // Sở thú giữ bán kính đẩy nhau 0.5 như trước (thế giới thú tính theo chiều dài thân)
+  if (w) return { ...w, id: a.id, model: a.model, height, radius: w.radius ?? 0.5 };
   return {
     id: a.id,
     model: a.model,
@@ -140,6 +141,7 @@ export function zooDef(a: WildAnimalData): WorldAnimal {
     clips: [],
     fake: FAKE_OF[a.gait ?? 'walk'],
     speed: 0.45,
+    len: 1,
     radius: 0.25 + height * 0.25,
     tris: 0,
   };

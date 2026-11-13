@@ -28,3 +28,21 @@ Sinh lại: trong `app/` chạy `node scripts/animal-sounds.mjs` (manifest: `scr
 | bear | [Bear growl.ogg](https://commons.wikimedia.org/wiki/File:Bear_growl.ogg) | Shizhao | CC BY 3.0 | gấu con gầm gừ | 0.15–2.15s |
 | parrot | [Scarlet macaw 01.wav](https://commons.wikimedia.org/wiki/File:Scarlet_macaw_01.wav) | Ganesh Mohan T | CC BY-SA 4.0 | vẹt đỏ đuôi dài (scarlet macaw) kêu quác 2 tiếng (bỏ khoảng giữa) | 11–11.9s + 12.58–13.12s |
 | fish | [Toberbreedia water bubbling.opus](https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus) | A.-K. D. | CC0 | tiếng nước sủi bọt lục bục (cá không kêu) | 9.2–11.2s |
+| zebra | [Grévys zebra (Sound Effects).ogg](https://commons.wikimedia.org/wiki/File:Gr%C3%A9vys_zebra_(Sound_Effects).ogg) | DiegoC472 | CC BY-SA 4.0 | ngựa vằn Grévy hí | 0.1–2.1s |
+| frog | [Single Frog Croak.oga](https://commons.wikimedia.org/wiki/File:Single_Frog_Croak.oga) | MichaeltheFox8621 | CC BY-SA 4.0 | ếch kêu ộp ộp (ba tiếng) | 0.05–0.45s + 1.25–1.65s + 2.55–2.95s |
+| wolf | [Wolf howls.ogg](https://commons.wikimedia.org/wiki/File:Wolf_howls.ogg) | U.S. Fish and Wildlife Service | Public domain | sói tru | 1–3.6s |
+| bee | [Bee buzzing sound (animal noises).opus](https://commons.wikimedia.org/wiki/File:Bee_buzzing_sound_(animal_noises).opus) | Free Sounds Library User Spanac | CC BY 3.0 | ong bay vo ve | 10.9–12.7s |
+| dolphin | [161691 felixblume dolphin-screaming-underwater-in-caribbean-sea-mexico.wav](https://commons.wikimedia.org/wiki/File:161691_felixblume_dolphin-screaming-underwater-in-caribbean-sea-mexico.wav) | Felix Blume (freesound.org/people/felix.blume) | CC0 | cá heo kêu dưới nước (biển Caribbean) | 10–11.8s |
+| whale | [Humpback-Whale-Song-and-Foraging-Behavior-on-an-Antarctic-Feeding-Ground-pone.0051214.s001.oga](https://commons.wikimedia.org/wiki/File:Humpback-Whale-Song-and-Foraging-Behavior-on-an-Antarctic-Feeding-Ground-pone.0051214.s001.oga) | Stimpert A, Peavey L, Friedlaender A, Nowacek D | CC BY 2.5 | cá voi lưng gù hát (Nam Cực) | 24.2–26.8s |
+| pigeon | [Dove cooing.ogg](https://commons.wikimedia.org/wiki/File:Dove_cooing.ogg) | mary905 | Public domain | chim bồ câu gù gù | 1–2.75s |
+| deer | [Male roe deer growl.ogg](https://commons.wikimedia.org/wiki/File:Male_roe_deer_growl.ogg) | 1bumer | CC BY-SA 4.0 | hoẵng (nai nhỏ) kêu hai tiếng | 1.05–1.65s + 5.45–6s |
+| stag | [Hirsch roehrt.ogg](https://commons.wikimedia.org/wiki/File:Hirsch_roehrt.ogg) | Jugrü | CC BY-SA 3.0 | hươu đực rống | 1.3–3.3s |
+| raccoon | [Baby Raccoon Chatter 1.flac](https://commons.wikimedia.org/wiki/File:Baby_Raccoon_Chatter_1.flac) | jnargus | CC BY 3.0 | gấu mèo con ríu rít (hai lần) | 0–0.96s + 0–0.96s |
+| bat | [Pipistrellus.ogg](https://commons.wikimedia.org/wiki/File:Pipistrellus.ogg) | AvsoftBioAcoustics | CC BY-SA 3.0 | dơi kêu chít chít (ghi bằng máy dò siêu âm) | 1.45–2.05s + 1.45–2.05s |
+| clownfish | [Toberbreedia water bubbling.opus](https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus) | A.-K. D. | CC0 | tiếng nước sủi bọt lục bục (cá hề không kêu) | 2–3.6s |
+| puffer | [Toberbreedia water bubbling.opus](https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus) | A.-K. D. | CC0 | tiếng nước sủi bọt lục bục (cá nóc không kêu) | 4.5–6s |
+| manta | [Toberbreedia water bubbling.opus](https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus) | A.-K. D. | CC0 | tiếng nước sủi bọt lục bục (cá đuối không kêu) | 7–8.6s |
+| bluetang | [Toberbreedia water bubbling.opus](https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus) | A.-K. D. | CC0 | tiếng nước sủi bọt lục bục (cá đuôi gai xanh không kêu) | 0.2–1.6s |
+| yellowtang | [Toberbreedia water bubbling.opus](https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus) | A.-K. D. | CC0 | tiếng nước sủi bọt lục bục (cá đuôi gai vàng không kêu) | 14.5–16s |
+| koi | [Toberbreedia water bubbling.opus](https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus) | A.-K. D. | CC0 | tiếng nước sủi bọt lục bục (cá chép không kêu) | 17–18.6s |
+| goldfish | [Toberbreedia water bubbling.opus](https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus) | A.-K. D. | CC0 | tiếng nước sủi bọt lục bục (cá vàng không kêu) | 20–21.5s |

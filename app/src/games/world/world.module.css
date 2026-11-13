@@ -1,0 +1,117 @@
+.root {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--sky-bottom);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Vùng kéo ngang: chặn cuộn/thu phóng của trình duyệt để kéo một ngón mượt */
+.stage {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+}
+
+/* Biểu tượng khu hiện thoáng khi tới khu mới */
+.badge {
+  position: absolute;
+  top: 36px;
+  left: 50%;
+  width: 132px;
+  height: 132px;
+  margin-left: -66px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 76px;
+  background: var(--paper);
+  box-shadow: var(--shadow-clay);
+  pointer-events: none;
+  animation: badge 2.2s var(--ease-squish) forwards;
+}
+
+@keyframes badge {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  18% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.85) translateY(-20px);
+  }
+}
+
+/* Lấp lánh ở chỗ chạm khi chạm một bạn lần đầu */
+.sparkle {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  margin: -40px 0 0 -40px;
+  display: grid;
+  place-items: center;
+  font-size: 56px;
+  pointer-events: none;
+  animation: sparkle 0.95s ease-out forwards;
+}
+
+@keyframes sparkle {
+  0% {
+    transform: scale(0.3) rotate(0deg);
+    opacity: 0;
+  }
+  25% {
+    transform: scale(1.2) rotate(20deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.9) translateY(-70px) rotate(40deg);
+    opacity: 0;
+  }
+}
+
+/* Hàng chấm cho biết đang ở khu nào (không cần chạm) */
+.dots {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 10px 16px;
+  border-radius: var(--radius-bubble);
+  background: color-mix(in srgb, var(--paper) 55%, transparent);
+  pointer-events: none;
+}
+
+.dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--clay-lilac);
+  transition: width var(--dur-press) var(--ease-squish), background var(--dur-press);
+}
+
+.dotOn {
+  width: 40px;
+  background: var(--ink-soft);
+}

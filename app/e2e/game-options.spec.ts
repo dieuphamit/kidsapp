@@ -66,7 +66,7 @@ test('khu bố mẹ: tắt Ú òa thì trò biến mất khỏi bản đồ, k�
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10_000 });
   await expect(page.getByTestId('pick-shadow')).toBeVisible();
   await expect(page.getByTestId('pick-peekaboo')).toHaveCount(0);
-  await expect(page.locator('[data-testid^="pick-"]')).toHaveCount(4); // animals, zoo3d, sound-quiz, shadow
+  await expect(page.locator('[data-testid^="pick-"]')).toHaveCount(5); // world, animals, zoo3d, sound-quiz, shadow
   await page.waitForTimeout(1200); // chờ thẻ hiện hết
   await page.screenshot({ path: 'test-results/shots/opts-picker.png' });
 });
