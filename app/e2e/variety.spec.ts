@@ -204,6 +204,7 @@ test('khu bố mẹ: Xếp vào giỏ có chủ đề Theo màu / Thú / quả /
     await expect(row.getByRole('button', { name: `Xếp vào giỏ: ${t}` })).toBeVisible();
   }
   await row.getByRole('button', { name: 'Xếp vào giỏ: To / nhỏ' }).dispatchEvent('pointerdown');
+  await row.getByRole('button', { name: 'Xếp vào giỏ: To / nhỏ' }).dispatchEvent('pointerup'); // nút màn Trò chơi kích hoạt khi nhả tay
   await expect(row.getByRole('button', { name: 'Xếp vào giỏ: To / nhỏ' })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByTestId('opt-shadow').getByRole('button', { name: 'Bóng của ai?: Hình & màu' })).toHaveCount(1);
   await row.screenshot({ path: 'test-results/shots/E2-settings.png' });

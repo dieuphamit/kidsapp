@@ -123,7 +123,8 @@ test.describe('Performance tests', () => {
   });
 
   test('Vườn quả (game-counting 2.5D) - FPS >= 50', async ({ page }) => {
-    await page.goto('./');
+    // Đếm số đổi món theo lượt (E3): ép chủ đề trái cây, mức vừa để có "Quả 1..3"
+    await page.goto('./?e2e=1&level=medium&topic=fruits');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm nút Vườn quả
