@@ -4,9 +4,11 @@ import { BackHome } from '../../ui/BackHome';
 import { ClayButton } from '../../ui/ClayButton';
 import { Scenery } from '../../ui/Scenery';
 import { clientToStage, stageRect } from '../../ui/Stage';
+import { playSetup } from '../../core/variety';
 import {
-  addTopping, removeTopping, onCake, praiseKey, countKey, nextCustomer, toppingImage,
-  TOPPING_IDS, type Topping, type ToppingId,
+  addTopping, removeTopping, onCake, praiseKey, countKey, nextCustomer, toppingImage, toppingSayKey, isToppingId,
+  shelfFor, wishFor, wishSayKeys, countSame,
+  type Topping, type ToppingId, type Wish,
 } from './logic';
 import styles from './Game.module.css';
 
@@ -30,6 +32,12 @@ const ASK_DELAY = 1500;
 const NEXT_DELAY = 3000;
 const ORDER_DELAY = 1500;
 const FIRST_CUSTOMER_DELAY = 2000;
+/** Khoảng cách giữa các câu khách kể điều ước. */
+const WISH_GAP = 1300;
+
+/** Kệ và điều ước lần trước, để lần vào sau đổi món. */
+let lastShelf: ToppingId[] = [];
+let lastWish: Wish | null = null;
 
 type Drag = { id: ToppingId; slot: number; x: number; y: number; sx: number; sy: number; moved: boolean; returning: boolean };
 
@@ -39,6 +47,8 @@ declare global {
       toppings(): { id: string; x: number; y: number }[];
       add(id: string): void;
       serve(): void;
+      wish(): { id: string; count: number }[];
+      shelf(): string[];
     };
   }
 }
@@ -48,7 +58,18 @@ function hookSpot(i: number): { x: number; y: number } {
   return { x: 90 + (i % 5) * 55, y: 90 + (Math.floor(i / 5) % 3) * 80 };
 }
 
-export default function Game({ speaker, onExit }: GameProps) {
+export default function Game({ speaker, ageMonths, options, onExit }: GameProps) {
+  const [{ level, topic }] = useState(() => playSetup(ageMonths, options));
+  const [shelf, setShelf] = useState<ToppingId[]>(() => {
+    const sh = shelfFor(level, topic, lastShelf);
+    lastShelf = sh;
+    return sh;
+  });
+  const [wish, setWish] = useState<Wish>(() => {
+    const w = wishFor(level, shelf, lastWish);
+    lastWish = w;
+    return w;
+  });
   const [toppings, setToppings] = useState<Topping[]>([]);
   const [customer, setCustomer] = useState<string>(() => nextCustomer(null));
   const [visit, setVisit] = useState(0);
@@ -61,6 +82,8 @@ export default function Game({ speaker, onExit }: GameProps) {
   const cakeRef = useRef<HTMLDivElement>(null);
   const timers = useRef<number[]>([]);
   const countTimer = useRef<number | null>(null);
+  const wishTimers = useRef<number[]>([]);
+  const wishRef = useRef<Wish>(wish);
   // Bản sao đồng bộ của state, luôn gán cùng lúc với setState (để hook e2e và hàm hẹn giờ đọc giá trị mới nhất).
   const toppingsRef = useRef<Topping[]>([]);
   const eatingRef = useRef(false);
@@ -83,9 +106,33 @@ export default function Game({ speaker, onExit }: GameProps) {
     const list = timers.current;
     return () => {
       list.forEach((t) => window.clearTimeout(t));
+      wishTimers.current.forEach((t) => window.clearTimeout(t));
       if (countTimer.current !== null) window.clearTimeout(countTimer.current);
     };
   }, []);
+
+  /** Khách kể điều ước sau câu gọi bánh; bé bắt đầu trang trí hoặc rung chuông thì thôi nói. */
+  const tellWish = useCallback(
+    (w: Wish) => {
+      wishSayKeys(w).forEach((k, i) => {
+        wishTimers.current.push(window.setTimeout(() => say(k), WISH_GAP * (i + 1)));
+      });
+    },
+    [say],
+  );
+  const hushWish = useCallback(() => {
+    wishTimers.current.forEach((t) => window.clearTimeout(t));
+    wishTimers.current = [];
+  }, []);
+
+  /** Khách gọi bánh: "Bạn ấy muốn một cái bánh…", rồi kể điều ước. */
+  const order = useCallback(
+    (w: Wish) => {
+      say('bakery.order');
+      tellWish(w);
+    },
+    [say, tellWish],
+  );
 
   // Vào tiệm: chào, rồi khách đầu tiên gọi bánh (say/later ổn định nên chỉ chạy khi vào game).
   const firstCustomer = useRef(customer);
@@ -93,28 +140,30 @@ export default function Game({ speaker, onExit }: GameProps) {
     speaker.say('bakery.hello'); // data-last-say khởi tạo sẵn là 'bakery.hello'
     later(() => {
       say(`animal.${firstCustomer.current}`);
-      later(() => say('bakery.order'), ORDER_DELAY);
+      later(() => order(wishRef.current), ORDER_DELAY);
     }, FIRST_CUSTOMER_DELAY);
-  }, [speaker, say, later]);
+  }, [speaker, say, later, order]);
 
   /** Đặt topping lên bánh tại (x, y) trong khung bánh, nói tên, đếm nếu trùng loại. */
   const place = useCallback(
     (id: ToppingId, x: number, y: number) => {
+      hushWish();
       const next = addTopping(toppingsRef.current, id, Math.round(x), Math.round(y));
       toppingsRef.current = next;
       setToppings(next);
-      say(`topping.${id}`);
+      say(toppingSayKey(id));
       if (countTimer.current !== null) window.clearTimeout(countTimer.current);
       countTimer.current = null;
       const key = countKey(next, id);
       if (key) countTimer.current = later(() => say(key), COUNT_DELAY);
     },
-    [say, later],
+    [say, later, hushWish],
   );
 
   const serve = useCallback(() => {
     setBellRing((k) => k + 1);
     if (eatingRef.current) return;
+    hushWish();
     const list = toppingsRef.current;
     if (list.length === 0) {
       say('bakery.order');
@@ -124,11 +173,19 @@ export default function Game({ speaker, onExit }: GameProps) {
     countTimer.current = null;
     eatingRef.current = true;
     setEating(true);
-    say(praiseKey(list));
+    say(praiseKey(list, wishRef.current));
     later(() => {
       say('bakery.ask');
       later(() => {
         const id = nextCustomer(customer);
+        // Khách mới: kệ đổi món (trừ kệ cổ điển), điều ước mới khác điều ước cũ
+        const sh = shelfFor(level, topic, shelf);
+        const w = wishFor(level, sh, wishRef.current);
+        lastShelf = sh;
+        lastWish = w;
+        wishRef.current = w;
+        setShelf(sh);
+        setWish(w);
         toppingsRef.current = [];
         setToppings([]);
         eatingRef.current = false;
@@ -136,10 +193,10 @@ export default function Game({ speaker, onExit }: GameProps) {
         setCustomer(id);
         setVisit((v) => v + 1);
         say(`animal.${id}`);
-        later(() => say('bakery.order'), ORDER_DELAY);
+        later(() => order(w), ORDER_DELAY);
       }, NEXT_DELAY);
     }, ASK_DELAY);
-  }, [customer, say, later]);
+  }, [customer, say, later, hushWish, level, topic, shelf, order]);
 
   // Hook cho e2e (?e2e=1)
   useEffect(() => {
@@ -147,20 +204,23 @@ export default function Game({ speaker, onExit }: GameProps) {
     window.__behocBakery = {
       toppings: () => toppingsRef.current.map(({ id, x, y }) => ({ id, x, y })),
       add: (id) => {
-        if (!(TOPPING_IDS as readonly string[]).includes(id)) return;
+        if (!isToppingId(id)) return;
         const p = hookSpot(toppingsRef.current.length);
-        place(id as ToppingId, p.x, p.y);
+        place(id, p.x, p.y);
       },
       serve,
+      wish: () => wishRef.current.map((w) => ({ ...w })),
+      shelf: () => [...shelf],
     };
     return () => {
       delete window.__behocBakery;
     };
-  }, [place, serve]);
+  }, [place, serve, shelf]);
 
   // ---- Kéo thả ----
   const onShelfDown = (e: React.PointerEvent, id: ToppingId, slot: number) => {
     if (drag) return;
+    hushWish(); // bé bắt đầu chọn món: khách thôi kể điều ước
     (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
     const p = clientToStage(e.clientX, e.clientY);
     setDrag({ id, slot, x: p.x, y: p.y, sx: p.x, sy: p.y, moved: false, returning: false });
@@ -179,7 +239,7 @@ export default function Game({ speaker, onExit }: GameProps) {
     const moved = drag.moved || Math.hypot(p.x - drag.sx, p.y - drag.sy) > MOVE_PX;
     if (!moved) {
       // Chạm (không kéo): nói tên topping, lắc nhẹ trên kệ.
-      say(`topping.${drag.id}`);
+      say(toppingSayKey(drag.id));
       setWiggle({ slot: drag.slot, k: Date.now() });
       setDrag(null);
       return;
@@ -210,6 +270,7 @@ export default function Game({ speaker, onExit }: GameProps) {
     <div
       className={styles.scene}
       data-testid="game-bakery"
+      data-level={level}
       data-last-say={lastSay}
       onPointerMove={onMove}
       onPointerUp={onUp}
@@ -222,12 +283,12 @@ export default function Game({ speaker, onExit }: GameProps) {
 
       <BackHome onExit={onExit} />
 
-      {/* Kệ trái: 6 topping */}
-      <div className={styles.shelf} aria-hidden="true" />
-      {[0, 1, 2].map((row) => (
+      {/* Kệ trái: 4–8 topping (2 cột) */}
+      <div className={styles.shelf} aria-hidden="true" style={{ height: Math.ceil(shelf.length / 2) * (SLOT + GAP) + 16 }} />
+      {Array.from({ length: Math.ceil(shelf.length / 2) }, (_, row) => row).map((row) => (
         <span key={row} className={styles.plank} aria-hidden="true" style={{ top: SHELF_Y + row * (SLOT + GAP) + SLOT - 10 }} />
       ))}
-      {TOPPING_IDS.map((id, i) => {
+      {shelf.map((id, i) => {
         const c = slotCenter(i);
         const away = drag?.slot === i;
         return (
@@ -258,7 +319,26 @@ export default function Game({ speaker, onExit }: GameProps) {
         data-animal={customer}
         data-near={eating ? '' : undefined}
       >
-        <div className={styles.bubble} aria-hidden="true">{eating ? '💕' : '🎂'}</div>
+        <div className={styles.bubble} aria-hidden="true" data-testid="wish" data-wish={wish.map((w) => `${w.id}x${w.count}`).join(' ')}>
+          {eating ? (
+            '💕'
+          ) : (
+            <span className={styles.wishList}>
+              {wish.flatMap((w) =>
+                Array.from({ length: w.count }, (_, k) => (
+                  <img
+                    key={`${w.id}-${k}`}
+                    src={`${BASE}${toppingImage(w.id)}`}
+                    alt=""
+                    draggable={false}
+                    className={styles.wishImg}
+                    data-got={countSame(toppings, w.id) > k ? '' : undefined}
+                  />
+                )),
+              )}
+            </span>
+          )}
+        </div>
         <img src={`${BASE}cards/${customer}.png`} alt="" draggable={false} className={styles.customerImg} />
       </div>
 

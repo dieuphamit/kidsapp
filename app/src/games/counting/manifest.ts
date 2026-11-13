@@ -10,5 +10,6 @@ export const manifest: GameManifest = {
   minAge: 24,
   maxAge: 72,
   order: 0,
+  options: { difficulty: true, topics: ['animals', 'fruits', 'shapes'] },
   Component: lazy(() => import('./Game')),
 };

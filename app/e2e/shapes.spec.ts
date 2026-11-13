@@ -1,15 +1,26 @@
 // E2E tests for Shapes game - T-009, T-011, T-018
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync, existsSync } from 'node:fs';
 import { pickGame } from './pick.js';
 
-// Slot positions from logic.ts (used for coordinate calculation)
-const SLOTS = {
-  star: [-2.4, 0, 3.5],
-  triangle: [-0.8, 0, 3.5],
-  square: [0.8, 0, 3.5],
-  circle: [2.4, 0, 3.5],
-} as const;
+type Round = { shapes: string[]; slots: Record<string, [number, number, number]>; radius: number };
+
+/** Hình và ô bóng của lượt hiện tại (hook e2e của game). */
+async function currentRound(page: Page): Promise<Round> {
+  await page.waitForFunction(() => !!(window as unknown as { __behocShapes?: unknown }).__behocShapes);
+  return page.evaluate(() => (window as unknown as { __behocShapes: () => Round }).__behocShapes());
+}
+
+/** Thả hình `shape` vào tâm ô bóng của hình `target`. */
+async function dropOn(page: Page, round: Round, shape: string, target: string) {
+  const [x, , z] = round.slots[target];
+  await page.evaluate(
+    ({ shape, x, z }) => {
+      (window as unknown as { __behocDrag: (id: string, x: number, z: number) => void }).__behocDrag(shape, x, z);
+    },
+    { shape, x, z },
+  );
+}
 
 // Đảm bảo thư mục shots tồn tại
 const shotsDir = 'test-results/shots';
@@ -20,7 +31,7 @@ if (!existsSync(shotsDir)) {
 // T-018: Hồ nước đẹp hơn
 test.describe('T-018: Hồ nước đẹp hơn', () => {
   test('chụp hồ nước khi mới vào', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm nút Hồ nước
@@ -38,7 +49,7 @@ test.describe('T-018: Hồ nước đẹp hơn', () => {
   });
 
   test('chụp sau khi kéo đủ 4 khối', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
@@ -53,18 +64,10 @@ test.describe('T-018: Hồ nước đẹp hơn', () => {
     await page.waitForTimeout(1000);
 
     // Kéo từng khối vào đúng ô qua __behocDrag
-    const shapes = ['circle', 'square', 'triangle', 'star'] as const;
-    for (const shape of shapes) {
-      await page.evaluate(
-        ({ shape, slotX, slotZ }) => {
-          (window as unknown as { __behocDrag: (id: string, x: number, z: number) => void }).__behocDrag(
-            shape,
-            slotX,
-            slotZ
-          );
-        },
-        { shape, slotX: SLOTS[shape][0], slotZ: SLOTS[shape][2] }
-      );
+    const round = await currentRound(page);
+    expect(round.shapes).toHaveLength(4);
+    for (const shape of round.shapes) {
+      await dropOn(page, round, shape, shape);
       await page.waitForTimeout(300);
     }
 
@@ -78,7 +81,7 @@ test.describe('T-018: Hồ nước đẹp hơn', () => {
 
 test.describe('Shapes game (Màu và hình)', () => {
   test('từ bản đồ chạm Hồ nước mở game shapes', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm nút Hồ nước
@@ -100,7 +103,7 @@ test.describe('Shapes game (Màu và hình)', () => {
   });
 
   test('chạm khối qua e2e hook nghe color rồi shape', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
@@ -114,9 +117,10 @@ test.describe('Shapes game (Màu và hình)', () => {
     await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
 
     // Gọi hook __behocTap để chạm circle
-    await page.evaluate(() => {
-      (window as unknown as { __behocTap: (id: string) => void }).__behocTap('circle');
-    });
+    const tapRound = await currentRound(page);
+    await page.evaluate((id) => {
+      (window as unknown as { __behocTap: (id: string) => void }).__behocTap(id);
+    }, tapRound.shapes[0]);
 
     // Kiểm tra data-last-say khớp /^color\./ (timeout 3s theo hướng dẫn)
     await expect(gameEl).toHaveAttribute('data-last-say', /^color\./, { timeout: 3000 });
@@ -126,7 +130,7 @@ test.describe('Shapes game (Màu và hình)', () => {
   });
 
   test('chạm thật vào canvas có phản hồi', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
@@ -156,7 +160,7 @@ test.describe('Shapes game (Màu và hình)', () => {
   });
 
   test('nút Về nhà quay lại màn hình chính', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
@@ -176,7 +180,7 @@ test.describe('Shapes game (Màu và hình)', () => {
 
   // T-011: Drag and drop tests
   test('kéo khối tròn vào ô bóng tròn - snap thành công', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
@@ -190,18 +194,9 @@ test.describe('Shapes game (Màu và hình)', () => {
     // Đợi scene ổn định
     await page.waitForTimeout(1000);
 
-    // Sử dụng hook __behocDrag để kéo circle vào slot circle
-    // Circle slot is at x=2.4, z=3.5
-    await page.evaluate(
-      ({ slotX, slotZ }) => {
-        (window as unknown as { __behocDrag: (id: string, x: number, z: number) => void }).__behocDrag(
-          'circle',
-          slotX,
-          slotZ
-        );
-      },
-      { slotX: SLOTS.circle[0], slotZ: SLOTS.circle[2] }
-    );
+    // Kéo hình đầu tiên vào đúng ô bóng của nó qua hook __behocDrag
+    const snapRound = await currentRound(page);
+    await dropOn(page, snapRound, snapRound.shapes[0], snapRound.shapes[0]);
 
     // Chụp ảnh lúc đang kéo (trước khi hoàn tất animation)
     await page.screenshot({ path: 'test-results/shots/T-011-drag.png' });
@@ -211,7 +206,7 @@ test.describe('Shapes game (Màu và hình)', () => {
   });
 
   test('kéo khối vào ô sai - nghe pond.try-again', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
@@ -225,24 +220,16 @@ test.describe('Shapes game (Màu và hình)', () => {
     // Đợi scene ổn định
     await page.waitForTimeout(1000);
 
-    // Kéo circle vào slot của square (sai)
-    await page.evaluate(
-      ({ slotX, slotZ }) => {
-        (window as unknown as { __behocDrag: (id: string, x: number, z: number) => void }).__behocDrag(
-          'circle',
-          slotX,
-          slotZ
-        );
-      },
-      { slotX: SLOTS.square[0], slotZ: SLOTS.square[2] }
-    );
+    // Kéo hình đầu vào ô bóng của hình thứ hai (sai)
+    const wrongRound = await currentRound(page);
+    await dropOn(page, wrongRound, wrongRound.shapes[0], wrongRound.shapes[1]);
 
     // Sau khi thả sai: pond.try-again
     await expect(gameEl).toHaveAttribute('data-last-say', 'pond.try-again', { timeout: 3000 });
   });
 
   test('kéo tất cả khối vào đúng ô - ăn mừng', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
@@ -257,18 +244,10 @@ test.describe('Shapes game (Màu và hình)', () => {
     await page.waitForTimeout(1000);
 
     // Kéo từng khối vào đúng ô
-    const shapes = ['circle', 'square', 'triangle', 'star'] as const;
-    for (const shape of shapes) {
-      await page.evaluate(
-        ({ shape, slotX, slotZ }) => {
-          (window as unknown as { __behocDrag: (id: string, x: number, z: number) => void }).__behocDrag(
-            shape,
-            slotX,
-            slotZ
-          );
-        },
-        { shape, slotX: SLOTS[shape][0], slotZ: SLOTS[shape][2] }
-      );
+    const round = await currentRound(page);
+    expect(round.shapes).toHaveLength(4);
+    for (const shape of round.shapes) {
+      await dropOn(page, round, shape, shape);
 
       // Đợi một chút giữa các lần kéo
       await page.waitForTimeout(300);
@@ -279,5 +258,45 @@ test.describe('Shapes game (Màu và hình)', () => {
 
     // Chụp ảnh lúc ăn mừng
     await page.screenshot({ path: 'test-results/shots/T-011-done.png' });
+  });
+});
+
+test.describe('E3: độ khó Màu và hình', () => {
+  test('dễ (bé 28 tháng): 2 hình; kéo xong thì lượt mới đổi hình', async ({ page }) => {
+    await page.goto('./?e2e=1&picker=orchard');
+    await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10_000 });
+    await page.getByTestId('pick-shapes').click();
+    const gameEl = page.getByTestId('game-shapes');
+    await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
+    await expect(gameEl).toHaveAttribute('data-level', 'easy');
+    const round = await currentRound(page);
+    expect(round.shapes).toHaveLength(2);
+    await page.waitForTimeout(1000);
+    await page.screenshot({ path: 'test-results/shots/E3-shapes-easy.png' });
+    for (const shape of round.shapes) {
+      await dropOn(page, round, shape, shape);
+      await page.waitForTimeout(300);
+    }
+    // sau ăn mừng: lượt mới, hình khác hẳn lượt trước
+    await expect(gameEl).not.toHaveAttribute('data-shapes', round.shapes.join(' '), { timeout: 6000 });
+    const next = await currentRound(page);
+    expect(next.shapes.some((s) => round.shapes.includes(s))).toBe(false);
+  });
+
+  test('khó: 5 hình có cặp giống nhau; chụp E3-shapes.png', async ({ page }) => {
+    await page.goto('./?e2e=1&level=hard&picker=orchard');
+    await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10_000 });
+    await page.getByTestId('pick-shapes').click();
+    const gameEl = page.getByTestId('game-shapes');
+    await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
+    const round = await currentRound(page);
+    expect(round.shapes).toHaveLength(5);
+    const pairs = [['square', 'rectangle'], ['circle', 'oval'], ['square', 'diamond'], ['star', 'heart']];
+    expect(pairs.some(([a, b]) => round.shapes.includes(a) && round.shapes.includes(b))).toBe(true);
+    await page.waitForTimeout(1500);
+    await page.screenshot({ path: 'test-results/shots/E3-shapes.png' });
+    // thả đúng một hình
+    await dropOn(page, round, round.shapes[2], round.shapes[2]);
+    await expect(gameEl).toHaveAttribute('data-last-say', 'ui.great', { timeout: 3000 });
   });
 });

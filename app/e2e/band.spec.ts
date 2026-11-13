@@ -16,8 +16,8 @@ test.beforeAll(() => {
 });
 
 /** Mở bảng chọn trò của Nhà âm nhạc (trang 2D, không phụ thuộc bản đồ 3D) rồi vào Ban nhạc thú. */
-async function openBand(page: Page) {
-  await page.goto('./?e2e=1&picker=music');
+async function openBand(page: Page, level = 'medium') {
+  await page.goto(`./?e2e=1&picker=music${level ? `&level=${level}` : ''}`);
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10_000 });
   await expect(page.getByLabel('Ban nhạc thú')).toBeVisible();
   await page.getByTestId('pick-band').click();
@@ -146,5 +146,59 @@ test.describe('iPhone dọc: kéo con vật', () => {
     expect(await page.evaluate(() => window.__behocBand!.slots()[3])).toBe('chicken');
     await waitForBeatSay(page, 3, 'animal.chicken-sound');
     await page.screenshot({ path: 'test-results/shots/T-037-band-mobile.png' });
+  });
+});
+
+test.describe('E3: độ khó Ban nhạc thú', () => {
+  test('dễ (bé 28 tháng): 3 ô nhịp, khay 4 bạn có chó; vòng lặp quay về ô 1 sau ô 3', async ({ page }) => {
+    const game = await openBand(page, '');
+    await expect(game).toHaveAttribute('data-level', 'easy');
+    expect(await page.evaluate(() => window.__behocBand!.slots())).toEqual(['dog', null, null]);
+    await expect(page.locator('[data-testid^="tray-"]')).toHaveCount(4);
+    await expect(page.getByTestId('tray-dog')).toBeVisible();
+    await page.evaluate(() => window.__behocBand!.put(2, 'dog'));
+    await waitForBeatSay(page, 2, 'animal.dog-sound');
+    await waitForBeatSay(page, 0, 'animal.dog-sound');
+  });
+
+  test('khó: 6 ô nhịp, khay 7 bạn (2 khách mời), vùng chạm ≥120px; chụp E3-band.png', async ({ page }) => {
+    const game = await openBand(page, 'hard');
+    await expect(page.locator('[data-testid^="slot-"]')).toHaveCount(6);
+    const trayIds = await page.locator('[data-testid^="tray-"]').evaluateAll((els) => els.map((e) => e.getAttribute('data-testid')!.slice(5)));
+    expect(trayIds).toHaveLength(7);
+    const farm = ['cow', 'chicken', 'duck', 'pig', 'dog', 'sheep'];
+    const guests = trayIds.filter((id) => !farm.includes(id));
+    expect(guests).toHaveLength(2);
+
+    // Kéo thật khách mời đầu tiên vào ô 6 → nhịp 5 phát tiếng của bạn ấy
+    await dragTo(page, `tray-${guests[0]}`, 'slot-5');
+    await expect(page.getByTestId('slot-5')).toHaveAttribute('data-animal', guests[0]);
+    await waitForBeatSay(page, 5, `animal.${guests[0]}-sound`);
+
+    await page.evaluate((g) => {
+      window.__behocBand!.put(2, g);
+      window.__behocBand!.put(3, 'cow');
+    }, guests[1]);
+    await page.waitForTimeout(700); // chờ hiệu ứng đáp xuống (thu nhỏ) xong rồi mới đo
+    const boxes = await page.locator('button:visible, [data-testid^="tray-"]').evaluateAll((els) =>
+      els.map((e) => {
+        const r = e.getBoundingClientRect();
+        return { name: e.getAttribute('aria-label'), x: r.x, y: r.y, w: r.width, h: r.height };
+      }),
+    );
+    for (const b of boxes) {
+      expect(b.w, b.name ?? '').toBeGreaterThanOrEqual(120);
+      expect(b.h, b.name ?? '').toBeGreaterThanOrEqual(120);
+    }
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i], b = boxes[j];
+        const gapX = Math.max(0, Math.max(a.x, b.x) - Math.min(a.x + a.w, b.x + b.w));
+        const gapY = Math.max(0, Math.max(a.y, b.y) - Math.min(a.y + a.h, b.y + b.h));
+        expect(Math.max(gapX, gapY), `${a.name} ↔ ${b.name}`).toBeGreaterThanOrEqual(24);
+      }
+    }
+    await expect(game).toHaveAttribute('data-beat', /[0-5]/);
+    await page.screenshot({ path: 'test-results/shots/E3-band.png' });
   });
 });

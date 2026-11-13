@@ -154,7 +154,7 @@ test.describe('Performance tests', () => {
   test('Ban nhạc thú chạy vòng lặp 10 giây không lỗi trang', async ({ page }) => {
     const errors: string[] = [];
     page.on('pageerror', (e) => errors.push(e.message));
-    await page.goto('./?e2e=1&picker=music');
+    await page.goto('./?e2e=1&picker=music&level=medium');
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10_000 });
     await page.getByTestId('pick-band').click();
     const game = page.getByTestId('game-band');

@@ -1,9 +1,10 @@
 .container {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 32px;
+  gap: 28px;
   width: 100%;
   height: 100%;
   padding: 24px;
@@ -94,4 +95,84 @@
   font-size: 32px;
   pointer-events: none;
   animation: floatNote 700ms ease-out forwards;
+}
+
+.songIcon {
+  font-size: 52px;
+  line-height: 1;
+}
+
+/* Chấm tiến trình bài hát */
+.progress {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  max-width: 900px;
+  min-height: 16px;
+}
+
+.progress i {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ink-soft) 25%, transparent);
+  transition: background 160ms, transform 160ms var(--ease-squish);
+}
+
+.progress i[data-done] {
+  background: var(--learn-yellow);
+  transform: scale(1.25);
+  box-shadow: 0 0 0 2px var(--paper);
+}
+
+/* Phím kế tiếp của bài: sáng và nhún để bé biết chạm vào đâu */
+.keyWrapper[data-next] .keyDecorator {
+  animation: nextGlow 900ms ease-in-out infinite;
+  box-shadow: 0 0 0 6px var(--paper), 0 0 28px 10px var(--learn-yellow);
+}
+
+.keyWrapper[data-next] .keyDot {
+  background-color: var(--learn-yellow) !important;
+}
+
+.keyWrapper[data-demo] .keyDecorator {
+  transform: translateY(-14px);
+  box-shadow: 0 0 0 6px var(--paper), 0 0 24px 8px var(--clay-mint);
+}
+
+.keyDecorator {
+  transition: transform 120ms var(--ease-squish), box-shadow 120ms;
+}
+
+@keyframes nextGlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.cheer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cheer span {
+  position: absolute;
+  bottom: 30%;
+  font-size: 56px;
+  animation: cheerUp 1.6s var(--ease-squish) forwards;
+}
+
+@keyframes cheerUp {
+  0% { transform: translateY(0) scale(0); opacity: 0; }
+  25% { transform: translateY(-60px) scale(1.2); opacity: 1; }
+  100% { transform: translateY(-320px) scale(0.8); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .keyWrapper[data-next] .keyDecorator,
+  .cheer span {
+    animation: none;
+  }
 }

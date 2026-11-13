@@ -4,7 +4,9 @@ import { join } from 'node:path';
 import {
   addTopping, removeTopping, onCake, praiseKey, countSame, countKey, nextCustomer, toppingImage,
   TOPPING_IDS, CUSTOMER_IDS, MAX_TOPPINGS, type Topping, type ToppingId,
+  ALL_TOPPINGS, FRUIT_TOPPINGS, SHELF_SIZE, shelfFor, wishFor, wishMet, wishSayKeys, toppingSayKey,
 } from './logic';
+import { contentByKey } from '../../core/content';
 
 const build = (ids: ToppingId[]): Topping[] => ids.reduce<Topping[]>((l, id, i) => addTopping(l, id, i, i), []);
 
@@ -111,5 +113,73 @@ describe('nội dung có sẵn', () => {
       expect(existsSync(join(appDir, 'public/cards', `${id}.png`)), id).toBe(true);
       expect(keys.has(`animal.${id}`), id).toBe(true);
     }
+  });
+});
+
+describe('độ khó: kệ và điều ước', () => {
+  it('kệ: dễ 4, vừa 6 (cổ điển), khó 6 món đổi theo khách; chủ đề trái cây chỉ có quả', () => {
+    for (let i = 0; i < 20; i++) {
+      expect(shelfFor('easy', 'mix')).toHaveLength(SHELF_SIZE.easy);
+      expect(shelfFor('medium', 'mix')).toEqual([...TOPPING_IDS]);
+      const hard = shelfFor('hard', 'mix');
+      expect(hard).toHaveLength(6);
+      expect(new Set(hard).size).toBe(6);
+      // khách sau có món mới
+      const next = shelfFor('hard', 'mix', hard);
+      expect(next.filter((id) => !hard.includes(id)).length).toBeGreaterThanOrEqual(6);
+      for (const lv of ['easy', 'medium', 'hard'] as const) {
+        const f = shelfFor(lv, 'fruits');
+        expect(f).toHaveLength(SHELF_SIZE[lv]);
+        f.forEach((id) => expect(FRUIT_TOPPINGS).toContain(id));
+      }
+    }
+  });
+
+  it('kệ trái cây lần sau đổi món', () => {
+    const a = shelfFor('easy', 'fruits');
+    const b = shelfFor('easy', 'fruits', a);
+    expect(b.some((id) => a.includes(id))).toBe(false);
+  });
+
+  it('điều ước: dễ 1 món, vừa 2–3 cái một loại, khó 2 loại; luôn có trên kệ; khác điều ước trước', () => {
+    for (let i = 0; i < 30; i++) {
+      const shelf = shelfFor('hard', 'mix');
+      const e = wishFor('easy', shelf);
+      expect(e).toEqual([{ id: e[0].id, count: 1 }]);
+      const m = wishFor('medium', shelf, e);
+      expect(m).toHaveLength(1);
+      expect([2, 3]).toContain(m[0].count);
+      expect(m[0].id).not.toBe(e[0].id);
+      const h = wishFor('hard', shelf);
+      expect(h).toHaveLength(2);
+      expect(h[0].id).not.toBe(h[1].id);
+      for (const w of [...e, ...m, ...h]) expect(shelf).toContain(w.id);
+    }
+  });
+
+  it('đủ điều ước thì khen riêng, thiếu vẫn được khen thường (không có "sai")', () => {
+    const wish = [{ id: 'kiwi' as const, count: 2 }];
+    expect(wishMet(build(['kiwi']), wish)).toBe(false);
+    expect(praiseKey(build(['kiwi', 'candle']), wish)).toBe('bakery.yum-candle');
+    expect(wishMet(build(['kiwi', 'kiwi', 'banana']), wish)).toBe(true);
+    expect(praiseKey(build(['kiwi', 'kiwi', 'candle']), wish)).toBe('bakery.yum-wish');
+    expect(praiseKey(build(['kiwi']), [])).toBe('bakery.yum');
+  });
+
+  it('câu kể điều ước: số chỉ nói khi từ 2 cái', () => {
+    expect(wishSayKeys([{ id: 'candle', count: 1 }])).toEqual(['bakery.wish', 'topping.candle']);
+    expect(wishSayKeys([{ id: 'banana', count: 3 }, { id: 'kiwi', count: 1 }])).toEqual([
+      'bakery.wish', 'number.3', 'fruit.banana', 'topping.kiwi',
+    ]);
+  });
+
+  it('mọi topping có ảnh và câu nói đủ vi/ja/en', () => {
+    const content = contentByKey();
+    for (const id of ALL_TOPPINGS) {
+      expect(existsSync(join(appDir, 'public', toppingImage(id))), id).toBe(true);
+      const c = content.get(toppingSayKey(id));
+      expect(c?.vi && c.ja && c.en, id).toBeTruthy();
+    }
+    for (const k of ['bakery.wish', 'bakery.yum-wish']) expect(content.has(k), k).toBe(true);
   });
 });

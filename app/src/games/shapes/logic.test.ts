@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { SHAPES, dealColors, markTapped, allTapped, SLOTS, dropResult, markPlaced, allPlaced, type ShapesState } from './logic';
+import {
+  SHAPES, ALL_SHAPES, SIMILAR_PAIRS, dealColors, markTapped, allTapped, SLOTS, dropResult, markPlaced, allPlaced,
+  newShapesRound, type ShapesState,
+} from './logic';
 import { LEARN_COLORS } from '../../core/tokens';
 import { contentByKey } from '../../core/content';
 
@@ -181,5 +184,69 @@ describe('shapes logic', () => {
         expect(item.ja).toBeTruthy();
       }
     });
+  });
+});
+
+describe('shapes: độ khó', () => {
+  it('dễ 2 hình cơ bản, ô to; vừa 4 hình; khó 5 hình, ô nhỏ', () => {
+    for (let i = 0; i < 20; i++) {
+      const e = newShapesRound('easy');
+      expect(e.shapes).toHaveLength(2);
+      e.shapes.forEach((s) => expect(SHAPES).toContain(s));
+      const m = newShapesRound('medium');
+      expect(m.shapes).toHaveLength(4);
+      const h = newShapesRound('hard');
+      expect(h.shapes).toHaveLength(5);
+      expect(e.radius).toBeGreaterThan(m.radius);
+      expect(m.radius).toBeGreaterThan(h.radius);
+      for (const r of [e, m, h]) expect(new Set(r.shapes).size).toBe(r.shapes.length);
+    }
+  });
+
+  it('khó luôn có một cặp hình giống nhau, cùng màu', () => {
+    for (let i = 0; i < 30; i++) {
+      const h = newShapesRound('hard');
+      const pair = SIMILAR_PAIRS.find(([a, b]) => h.shapes.includes(a) && h.shapes.includes(b) && h.colors[a] === h.colors[b]);
+      expect(pair, h.shapes.join(',')).toBeDefined();
+    }
+  });
+
+  it('mỗi hình có vị trí, ô bóng ở bờ; thứ tự ô khác thứ tự hình', () => {
+    for (const level of ['easy', 'medium', 'hard'] as const) {
+      for (let i = 0; i < 10; i++) {
+        const r = newShapesRound(level);
+        const byX = (rec: typeof r.slots) => [...r.shapes].sort((a, b) => rec[a]![0] - rec[b]![0]);
+        expect(byX(r.slots)).not.toEqual(byX(r.positions));
+        for (const s of r.shapes) {
+          expect(r.slots[s]![2]).toBe(3.5);
+          expect(Math.abs(r.positions[s]![0])).toBeLessThanOrEqual(3);
+          // thả đúng tâm ô thì hút
+          expect(dropResult(s, r.slots[s]!, r.slots, r.radius)).toBe('snap');
+        }
+      }
+    }
+  });
+
+  it('lượt sau ưu tiên hình chưa chơi', () => {
+    const first = newShapesRound('easy');
+    const next = newShapesRound('easy', first.shapes);
+    expect(next.shapes.some((s) => first.shapes.includes(s))).toBe(false);
+  });
+
+  it('allPlaced theo số hình của lượt', () => {
+    const r = newShapesRound('easy');
+    let st: ShapesState = { colors: r.colors, tapped: new Set(), placed: new Set(), shapes: r.shapes };
+    st = markPlaced(st, r.shapes[0]);
+    expect(allPlaced(st)).toBe(false);
+    st = markPlaced(st, r.shapes[1]);
+    expect(allPlaced(st)).toBe(true);
+  });
+
+  it('mọi hình có câu đọc vi/ja/en', () => {
+    const content = contentByKey();
+    for (const s of ALL_SHAPES) {
+      const c = content.get(`shape.${s}`);
+      expect(c?.vi && c.ja && c.en, s).toBeTruthy();
+    }
   });
 });
