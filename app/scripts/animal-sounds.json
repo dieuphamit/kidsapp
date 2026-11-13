@@ -326,6 +326,300 @@
      11.2
     ]
    ]
+  },
+  {
+   "id": "zebra",
+   "title": "File:Grévys zebra (Sound Effects).ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Gr%C3%A9vys_zebra_(Sound_Effects).ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/8/8a/Gr%C3%A9vys_zebra_%28Sound_Effects%29.ogg",
+   "author": "DiegoC472",
+   "license": "CC BY-SA 4.0",
+   "what": "ngựa vằn Grévy hí",
+   "segments": [
+    [
+     0.1,
+     2.1
+    ]
+   ]
+  },
+  {
+   "id": "frog",
+   "title": "File:Single Frog Croak.oga",
+   "page": "https://commons.wikimedia.org/wiki/File:Single_Frog_Croak.oga",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Single_Frog_Croak.oga",
+   "author": "MichaeltheFox8621",
+   "license": "CC BY-SA 4.0",
+   "what": "ếch kêu ộp ộp (ba tiếng)",
+   "segments": [
+    [
+     0.05,
+     0.45
+    ],
+    [
+     1.25,
+     1.65
+    ],
+    [
+     2.55,
+     2.95
+    ]
+   ],
+   "gap": 0.15
+  },
+  {
+   "id": "wolf",
+   "title": "File:Wolf howls.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Wolf_howls.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/8/87/Wolf_howls.ogg",
+   "author": "U.S. Fish and Wildlife Service",
+   "license": "Public domain",
+   "what": "sói tru",
+   "segments": [
+    [
+     1.0,
+     3.6
+    ]
+   ]
+  },
+  {
+   "id": "bee",
+   "title": "File:Bee buzzing sound (animal noises).opus",
+   "page": "https://commons.wikimedia.org/wiki/File:Bee_buzzing_sound_(animal_noises).opus",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/0/0f/Bee_buzzing_sound_%28animal_noises%29.opus",
+   "author": "Free Sounds Library User Spanac",
+   "license": "CC BY 3.0",
+   "what": "ong bay vo ve",
+   "segments": [
+    [
+     10.9,
+     12.7
+    ]
+   ]
+  },
+  {
+   "id": "dolphin",
+   "title": "File:161691 felixblume dolphin-screaming-underwater-in-caribbean-sea-mexico.wav",
+   "page": "https://commons.wikimedia.org/wiki/File:161691_felixblume_dolphin-screaming-underwater-in-caribbean-sea-mexico.wav",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/5/5a/161691_felixblume_dolphin-screaming-underwater-in-caribbean-sea-mexico.wav",
+   "author": "Felix Blume (freesound.org/people/felix.blume)",
+   "license": "CC0",
+   "what": "cá heo kêu dưới nước (biển Caribbean)",
+   "segments": [
+    [
+     10.0,
+     11.8
+    ]
+   ]
+  },
+  {
+   "id": "whale",
+   "title": "File:Humpback-Whale-Song-and-Foraging-Behavior-on-an-Antarctic-Feeding-Ground-pone.0051214.s001.oga",
+   "page": "https://commons.wikimedia.org/wiki/File:Humpback-Whale-Song-and-Foraging-Behavior-on-an-Antarctic-Feeding-Ground-pone.0051214.s001.oga",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/1/12/Humpback-Whale-Song-and-Foraging-Behavior-on-an-Antarctic-Feeding-Ground-pone.0051214.s001.oga",
+   "author": "Stimpert A, Peavey L, Friedlaender A, Nowacek D",
+   "license": "CC BY 2.5",
+   "what": "cá voi lưng gù hát (Nam Cực)",
+   "segments": [
+    [
+     24.2,
+     26.8
+    ]
+   ]
+  },
+  {
+   "id": "pigeon",
+   "title": "File:Dove cooing.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Dove_cooing.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/0/05/Dove_cooing.ogg",
+   "author": "mary905",
+   "license": "Public domain",
+   "what": "chim bồ câu gù gù",
+   "segments": [
+    [
+     1.0,
+     2.75
+    ]
+   ]
+  },
+  {
+   "id": "deer",
+   "title": "File:Male roe deer growl.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Male_roe_deer_growl.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Male_roe_deer_growl.ogg",
+   "author": "1bumer",
+   "license": "CC BY-SA 4.0",
+   "what": "hoẵng (nai nhỏ) kêu hai tiếng",
+   "segments": [
+    [
+     1.05,
+     1.65
+    ],
+    [
+     5.45,
+     6.0
+    ]
+   ],
+   "gap": 0.25
+  },
+  {
+   "id": "stag",
+   "title": "File:Hirsch roehrt.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Hirsch_roehrt.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/9/95/Hirsch_roehrt.ogg",
+   "author": "Jugrü",
+   "license": "CC BY-SA 3.0",
+   "what": "hươu đực rống",
+   "segments": [
+    [
+     1.3,
+     3.3
+    ]
+   ]
+  },
+  {
+   "id": "raccoon",
+   "title": "File:Baby Raccoon Chatter 1.flac",
+   "page": "https://commons.wikimedia.org/wiki/File:Baby_Raccoon_Chatter_1.flac",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/f/f7/Baby_Raccoon_Chatter_1.flac",
+   "author": "jnargus",
+   "license": "CC BY 3.0",
+   "what": "gấu mèo con ríu rít (hai lần)",
+   "segments": [
+    [
+     0,
+     0.96
+    ],
+    [
+     0,
+     0.96
+    ]
+   ],
+   "gap": 0.15
+  },
+  {
+   "id": "bat",
+   "title": "File:Pipistrellus.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:Pipistrellus.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/9/94/Pipistrellus.ogg",
+   "author": "AvsoftBioAcoustics",
+   "license": "CC BY-SA 3.0",
+   "what": "dơi kêu chít chít (ghi bằng máy dò siêu âm)",
+   "segments": [
+    [
+     1.45,
+     2.05
+    ],
+    [
+     1.45,
+     2.05
+    ]
+   ],
+   "gap": 0.2
+  },
+  {
+   "id": "clownfish",
+   "title": "File:Toberbreedia water bubbling.opus",
+   "page": "https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/c/cd/Toberbreedia_water_bubbling.opus",
+   "author": "A.-K. D.",
+   "license": "CC0",
+   "what": "tiếng nước sủi bọt lục bục (cá hề không kêu)",
+   "segments": [
+    [
+     2.0,
+     3.6
+    ]
+   ]
+  },
+  {
+   "id": "puffer",
+   "title": "File:Toberbreedia water bubbling.opus",
+   "page": "https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/c/cd/Toberbreedia_water_bubbling.opus",
+   "author": "A.-K. D.",
+   "license": "CC0",
+   "what": "tiếng nước sủi bọt lục bục (cá nóc không kêu)",
+   "segments": [
+    [
+     4.5,
+     6.0
+    ]
+   ]
+  },
+  {
+   "id": "manta",
+   "title": "File:Toberbreedia water bubbling.opus",
+   "page": "https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/c/cd/Toberbreedia_water_bubbling.opus",
+   "author": "A.-K. D.",
+   "license": "CC0",
+   "what": "tiếng nước sủi bọt lục bục (cá đuối không kêu)",
+   "segments": [
+    [
+     7.0,
+     8.6
+    ]
+   ]
+  },
+  {
+   "id": "bluetang",
+   "title": "File:Toberbreedia water bubbling.opus",
+   "page": "https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/c/cd/Toberbreedia_water_bubbling.opus",
+   "author": "A.-K. D.",
+   "license": "CC0",
+   "what": "tiếng nước sủi bọt lục bục (cá đuôi gai xanh không kêu)",
+   "segments": [
+    [
+     0.2,
+     1.6
+    ]
+   ]
+  },
+  {
+   "id": "yellowtang",
+   "title": "File:Toberbreedia water bubbling.opus",
+   "page": "https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/c/cd/Toberbreedia_water_bubbling.opus",
+   "author": "A.-K. D.",
+   "license": "CC0",
+   "what": "tiếng nước sủi bọt lục bục (cá đuôi gai vàng không kêu)",
+   "segments": [
+    [
+     14.5,
+     16.0
+    ]
+   ]
+  },
+  {
+   "id": "koi",
+   "title": "File:Toberbreedia water bubbling.opus",
+   "page": "https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/c/cd/Toberbreedia_water_bubbling.opus",
+   "author": "A.-K. D.",
+   "license": "CC0",
+   "what": "tiếng nước sủi bọt lục bục (cá chép không kêu)",
+   "segments": [
+    [
+     17.0,
+     18.6
+    ]
+   ]
+  },
+  {
+   "id": "goldfish",
+   "title": "File:Toberbreedia water bubbling.opus",
+   "page": "https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/c/cd/Toberbreedia_water_bubbling.opus",
+   "author": "A.-K. D.",
+   "license": "CC0",
+   "what": "tiếng nước sủi bọt lục bục (cá vàng không kêu)",
+   "segments": [
+    [
+     20.0,
+     21.5
+    ]
+   ]
   }
  ]
 }

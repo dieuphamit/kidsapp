@@ -71,7 +71,7 @@ test('kệ đồ chơi: mọi thẻ 132px, khe ≥24px, trong khung, xếp theo 
   expect(await cards.count()).toBeGreaterThanOrEqual(11);
   const ids = await cards.evaluateAll((els) => els.map((e) => e.getAttribute('data-testid')!.slice('shelf-card-'.length)));
   // thứ tự khu: Thế giới thú trước, Nhà âm nhạc cuối
-  expect(ids.slice(0, 5)).toEqual(['animals', 'zoo3d', 'sound-quiz', 'shadow', 'peekaboo']);
+  expect(ids.slice(0, 6)).toEqual(['world', 'animals', 'zoo3d', 'sound-quiz', 'shadow', 'peekaboo']);
   expect(ids.slice(-2).sort()).toEqual(['band', 'music']);
 
   await page.waitForTimeout(900); // chờ hiệu ứng hiện thẻ

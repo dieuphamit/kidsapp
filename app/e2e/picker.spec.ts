@@ -15,9 +15,9 @@ function overlap(a: Box, b: Box, gap = 0): boolean {
   );
 }
 
-const ZOO_GAMES = ['animals', 'zoo3d', 'sound-quiz', 'shadow', 'peekaboo'];
+const ZOO_GAMES = ['world', 'animals', 'zoo3d', 'sound-quiz', 'shadow', 'peekaboo'];
 
-test('Thế giới thú → 5 thẻ trò 180×228 một hàng, bong bóng tên khu, Đậu Đậu hỏi; chụp T-034-picker', async ({ page }) => {
+test('Thế giới thú → 6 thẻ trò 180×228 chia đều 2 hàng, bong bóng tên khu, Đậu Đậu hỏi; chụp T-034-picker', async ({ page }) => {
   await page.goto('./');
   await expect(page.getByLabel('Thế giới thú')).toBeVisible();
   await page.getByLabel('Thế giới thú').click();
@@ -29,7 +29,7 @@ test('Thế giới thú → 5 thẻ trò 180×228 một hàng, bong bóng tên k
   await expect(picker.getByText('Bé chơi trò nào?')).toBeVisible();
 
   const cards = page.locator('[data-testid^="pick-"]');
-  await expect(cards).toHaveCount(5);
+  await expect(cards).toHaveCount(6);
   const ids = await cards.evaluateAll((els) => els.map((e) => e.getAttribute('data-testid')!.slice('pick-'.length)));
   expect(ids).toEqual(ZOO_GAMES);
 
@@ -41,13 +41,16 @@ test('Thế giới thú → 5 thẻ trò 180×228 một hàng, bong bóng tên k
     expect(box.height, id).toBeCloseTo(228, 0);
     boxes.push(box);
   }
-  // một hàng, khe ≥24px, căn giữa khung
-  for (const b of boxes) expect(b.y).toBeCloseTo(boxes[0].y, 0);
-  for (let i = 1; i < boxes.length; i++) {
-    expect(boxes[i].x - (boxes[i - 1].x + boxes[i - 1].width)).toBeGreaterThanOrEqual(24);
+  // hai hàng 3 thẻ, mỗi hàng khe ≥24px và căn giữa khung; hai hàng cách nhau ≥24px
+  for (const row of [boxes.slice(0, 3), boxes.slice(3)]) {
+    for (const b of row) expect(b.y).toBeCloseTo(row[0].y, 0);
+    for (let i = 1; i < row.length; i++) {
+      expect(row[i].x - (row[i - 1].x + row[i - 1].width)).toBeGreaterThanOrEqual(24);
+    }
+    const mid = (row[0].x + row[2].x + row[2].width) / 2;
+    expect(Math.abs(mid - 1194 / 2)).toBeLessThan(2);
   }
-  const mid = (boxes[0].x + boxes[4].x + boxes[4].width) / 2;
-  expect(Math.abs(mid - 1194 / 2)).toBeLessThan(2);
+  expect(boxes[3].y - (boxes[0].y + boxes[0].height)).toBeGreaterThanOrEqual(24);
 
   // không đè nút Về nhà, cổng phụ huynh, Đậu Đậu
   const back = (await page.getByLabel('Đậu Đậu').boundingBox())!;
@@ -66,7 +69,7 @@ test('Thế giới thú → 5 thẻ trò 180×228 một hàng, bong bóng tên k
 test('móc e2e ?picker=zoo mở màn chọn trò; nút quay lại về bản đồ', async ({ page }) => {
   await page.goto('./?e2e=1&picker=zoo');
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
-  await expect(page.locator('[data-testid^="pick-"]')).toHaveCount(5);
+  await expect(page.locator('[data-testid^="pick-"]')).toHaveCount(6);
   await page.getByLabel('Đậu Đậu').click();
   await expect(page.getByTestId('home')).toBeVisible({ timeout: 2000 });
   await expect(page.getByTestId('game-picker')).toHaveCount(0);

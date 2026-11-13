@@ -19,8 +19,12 @@
 export type Motion = 'walk' | 'hop' | 'swim' | 'school' | 'fly';
 export type AgentMode = 'walk' | 'rest' | 'eat' | 'react' | 'idle';
 
-/** Vùng hoạt động (đơn vị 3D). yMin/yMax chỉ dùng cho bơi/bay; bỏ trống là 0. */
-export type Area = { xMin: number; xMax: number; zMin: number; zMax: number; yMin?: number; yMax?: number };
+/**
+ * Vùng hoạt động (đơn vị 3D). yMin/yMax chỉ dùng cho bơi/bay; bỏ trống là 0.
+ * `cam`: vị trí camera (x = 0, toạ độ của khu) để agent có zWeight < 1 tính chồng nhau theo hình chiếu trên màn
+ * hình: con đứng sau trông gần giữa màn hình hơn và (camera cao) trông cao hơn.
+ */
+export type Area = { xMin: number; xMax: number; zMin: number; zMax: number; yMin?: number; yMax?: number; cam?: { y: number; z: number } };
 
 /** Đích chung của một đàn cá (dùng chung giữa các con trong đàn) */
 export type Flock = { tx: number; ty: number; tz: number; t: number; seed: number; tick: number; cx: number; cy: number; cz: number };
@@ -52,8 +56,16 @@ export type Agent = {
   maxSpeed: number;
   /** tốc độ quay đầu tối đa (rad/giây) */
   turnRate: number;
-  /** bán kính thân để đẩy nhau */
+  /** bán kính thân để đẩy nhau (theo phương ngang: nửa chiều dài thân) */
   radius: number;
+  /** nửa chiều cao thân (y của agent là đáy thân, tâm thân ở y + halfH) */
+  halfH: number;
+  /**
+   * Cách tính chạm nhau. 1 (mặc định): hình tròn trên mặt xz. Nhỏ hơn 1: theo màn hình — hai thân chạm nhau khi
+   * chồng nhau trên khung hình (chiếu từ camera area.cam: ngang và dọc), chiều sâu chỉ góp thêm
+   * zWeight; con đứng trước/sau nhau vẫn bị coi là chạm nên chúng tách nhau theo chiều ngang.
+   */
+  zWeight: number;
   tx: number;
   ty: number;
   tz: number;
@@ -147,6 +159,8 @@ export type AgentOptions = {
   maxSpeed?: number;
   turnRate?: number;
   radius?: number;
+  halfH?: number;
+  zWeight?: number;
   fixed?: boolean;
   restYaw?: number;
   canEat?: boolean;
@@ -195,6 +209,8 @@ export function createAgent(o: AgentOptions): Agent {
     maxSpeed: o.maxSpeed ?? 0.45,
     turnRate: o.turnRate ?? 1.6,
     radius: o.radius ?? 0.5,
+    halfH: o.halfH ?? o.radius ?? 0.5,
+    zWeight: o.zWeight ?? 1,
     tx: 0,
     ty: 0,
     tz: 0,
@@ -363,42 +379,119 @@ function turnToward(a: Agent, want: number, dt: number): number {
   return err;
 }
 
-/** Đẩy khỏi các con đứng gần trên mặt xz; trả lực vào sep[0], sep[1] */
-const sep = [0, 0];
+/** Nhóm va chạm: con đi/nhảy đẩy nhau trên mặt đất, con bơi (lẻ và đàn) đẩy nhau trong nước; con bay đi theo quỹ đạo */
+function medium(a: Agent): 0 | 1 | 2 {
+  return a.motion === 'walk' || a.motion === 'hop' ? 0 : a.motion === 'fly' ? 2 : 1;
+}
+
+/**
+ * Khoảng cách chuẩn hoá giữa thân hai con: < 1 là hai thân chạm nhau. Kết quả ở `nd` = [ex, ev, ez, n, rs, hs]:
+ * - zWeight = 1: ex = dx / rs, ez = dz / rs (tròn trên mặt xz), ev = độ lệch tâm thân theo y / hs (chỉ khi bơi).
+ * - zWeight < 1 (theo màn hình): chiếu tâm thân hai con từ camera (area.cam) lên mặt phẳng ở độ sâu trung bình của
+ *   chúng; ex, ev = độ lệch ngang, dọc trên mặt phẳng đó / rs, hs; ez = dz × zWeight / rs.
+ * rs = tổng nửa chiều dài thân, hs = tổng nửa chiều cao (khi chiếu: theo kích thước trên mặt phẳng chiếu). `proj` giữ hệ số chiếu của a, o: [ka, ko, camY].
+ */
+const nd = [0, 0, 0, 0, 0, 0];
+const proj = [1, 1, 0];
+function normDist(a: Agent, o: Agent): void {
+  const zw = Math.min(a.zWeight, o.zWeight);
+  const ground = medium(a) === 0;
+  const cam = zw < 1 ? a.area.cam : undefined;
+  let ka = 1;
+  let ko = 1;
+  let cy = 0;
+  if (cam) {
+    const dm = cam.z - (a.z + o.z) / 2;
+    ka = dm / Math.max(0.5, cam.z - a.z);
+    ko = dm / Math.max(0.5, cam.z - o.z);
+    cy = cam.y;
+  }
+  // con gần camera trông to hơn: kích thước trên mặt phẳng chiếu cũng nhân hệ số chiếu
+  const rs = a.radius * ka + o.radius * ko;
+  const hs = a.halfH * ka + o.halfH * ko;
+  const dx = a.x * ka - o.x * ko;
+  // mặt đất: chân cùng chạm đất, so tâm thân; khi có camera thì luôn tính theo hình chiếu
+  const ya = ground && !cam ? 0 : a.y + a.halfH;
+  const yo = ground && !cam ? 0 : o.y + o.halfH;
+  const dy = cy + (ya - cy) * ka - (cy + (yo - cy) * ko);
+  nd[0] = dx / rs;
+  nd[1] = dy / hs;
+  nd[2] = ((a.z - o.z) * (cam ? zw : 1)) / rs;
+  nd[3] = Math.hypot(nd[0], nd[1], nd[2]);
+  nd[4] = rs;
+  nd[5] = hs;
+  proj[0] = ka;
+  proj[1] = ko;
+  proj[2] = cy;
+}
+
+/** Đẩy khỏi các con gần cùng nhóm; trả hướng đẩy vào sep[0] (x), sep[1] (z), sep[2] (y, chỉ khi bơi) */
+const sep = [0, 0, 0];
 function separation(a: Agent, all: readonly Agent[]): void {
   sep[0] = 0;
   sep[1] = 0;
+  sep[2] = 0;
+  const m = medium(a);
   for (let i = 0; i < all.length; i++) {
     const o = all[i];
-    if (o === a || o.motion === 'fly' || o.motion === 'school') continue;
-    if (Math.abs(o.y - a.y) > a.radius + o.radius) continue;
-    const dx = a.x - o.x;
-    const dz = a.z - o.z;
-    const d = Math.hypot(dx, dz);
-    const min = (a.radius + o.radius) * SEP_MULT;
-    if (d < min && d > 1e-6) {
-      const w = (min - d) / min;
-      sep[0] += (dx / d) * w;
-      sep[1] += (dz / d) * w;
+    if (o === a || medium(o) !== m) continue;
+    normDist(a, o);
+    const n = nd[3];
+    if (n < SEP_MULT && n > 1e-6) {
+      const w = (SEP_MULT - n) / SEP_MULT / n;
+      sep[0] += nd[0] * w;
+      sep[1] += nd[2] * w;
+      sep[2] += nd[1] * w;
     }
   }
 }
 
-/** Tách hẳn nếu đã chồng lên con khác (chỉ con này dịch, con kia đứng nguyên) */
+/**
+ * Tách hẳn nếu thân đã chồng lên con khác cùng nhóm (chỉ con này dịch, con kia đứng nguyên). zWeight = 1: đẩy ra
+ * theo hướng nối hai tâm trên mặt xz. zWeight < 1: giữ z, chỉ dịch theo x (và y khi bơi) tới vừa hết chồng trên
+ * màn hình; nếu phía đó ra ngoài vùng thì sang phía bên kia.
+ */
 function resolveOverlap(a: Agent, all: readonly Agent[]): void {
+  const m = medium(a);
   for (let i = 0; i < all.length; i++) {
     const o = all[i];
-    if (o === a || o.motion === 'fly' || o.motion === 'school') continue;
-    if (Math.abs(o.y - a.y) > a.radius + o.radius) continue;
-    const dx = a.x - o.x;
-    const dz = a.z - o.z;
-    const d = Math.hypot(dx, dz);
-    const min = a.radius + o.radius;
-    if (d < min) {
-      const nx = d > 1e-6 ? dx / d : 1;
-      const nz = d > 1e-6 ? dz / d : 0;
-      a.x = o.x + nx * min;
-      a.z = o.z + nz * min;
+    if (o === a || medium(o) !== m) continue;
+    normDist(a, o);
+    const [ex, ev, ez, n, rs, hs] = nd;
+    if (n >= 1) continue;
+    if (a.zWeight >= 1 && o.zWeight >= 1) {
+      if (m === 0 || Math.abs(ev) < 1) {
+        const d = Math.hypot(ex, ez);
+        if (d > 1e-6) {
+          a.x = o.x + (ex / d) * rs;
+          a.z = o.z + (ez / d) * rs;
+        } else a.x = o.x + rs;
+      }
+      continue;
+    }
+    const [ka, ko, cy] = proj;
+    // mặt đất hoặc mặt nước (vùng không có bề dày y): không đổi được độ lệch dọc, chỉ dịch ngang
+    const flat = m === 0 || (a.area.yMax ?? 0) - (a.area.yMin ?? 0) < 1e-6;
+    let px = ex;
+    let pv = flat ? 0 : ev;
+    const fixedV = flat ? ev : 0;
+    let p = Math.hypot(px, pv);
+    if (p < 1e-6) {
+      px = a.seed % 2 ? 1 : -1;
+      pv = 0;
+      p = 1;
+    }
+    const need = Math.sqrt(Math.max(0, 1 - ez * ez - fixedV * fixedV)) / p;
+    // vị trí cần có trên mặt phẳng chiếu, đổi lại về toạ độ thật của a
+    let x = (o.x * ko + px * need * rs) / ka;
+    if (x < a.area.xMin || x > a.area.xMax) {
+      const alt = (o.x * ko - px * need * rs) / ka;
+      if (alt >= a.area.xMin && alt <= a.area.xMax) x = alt;
+    }
+    a.x = x;
+    if (!flat) {
+      const yo = cy + (o.y + o.halfH - cy) * ko;
+      a.y = cy + (yo + pv * need * hs - cy) / ka - a.halfH;
     }
   }
 }
@@ -480,6 +573,7 @@ function stepGround(a: Agent, all: readonly Agent[], dt: number): void {
   a.z += Math.cos(a.heading) * a.speed * dt;
   clampToArea(a);
   resolveOverlap(a, all);
+  clampToArea(a);
   a.yaw = ease(a.yaw, faceYaw(a.heading), 6, dt);
   // Ngóc/chúc theo độ dốc là 0 trên mặt đất; nghiêng nhẹ vào khúc cua cho sống động
   a.roll = ease(a.roll, 0, 6, dt);
@@ -521,7 +615,7 @@ function stepSwim(a: Agent, all: readonly Agent[], dt: number): void {
   // cá không đứng yên: chậm lại khi phải quay nhiều nhưng vẫn lượn
   const want = a.maxSpeed * (0.35 + 0.65 * align);
   a.speed += clamp(want - a.speed, -ACCEL * dt, ACCEL * dt);
-  const wantPitch = clamp(Math.atan2(dy, Math.max(dh, 0.3)), -0.45, 0.45);
+  const wantPitch = clamp(Math.atan2(dy + sep[2] * SEP_W, Math.max(dh, 0.3)), -0.45, 0.45);
   a.pitch = ease(a.pitch, wantPitch, 2, dt);
   const cp = Math.cos(a.pitch);
   a.x += Math.sin(a.heading) * cp * a.speed * dt;
@@ -529,6 +623,7 @@ function stepSwim(a: Agent, all: readonly Agent[], dt: number): void {
   a.y += Math.sin(a.pitch) * a.speed * dt;
   clampToArea(a);
   resolveOverlap(a, all);
+  clampToArea(a);
   // Nghiêng vào khúc lượn
   const turnRate = dt > 0 ? wrapAngle(a.heading - before) / dt : 0;
   a.roll = ease(a.roll, clamp(-turnRate * 0.35, -0.4, 0.4), 3, dt);
@@ -544,6 +639,9 @@ const W_ALI = 0.8;
 const W_COH = 0.5;
 const W_SEEK = 0.7;
 const MAX_ACC = 1.6;
+/** Đàn cá tránh con bơi khác/đàn khác trong khoảng (r1 + r2) × AVOID_MULT */
+const AVOID_MULT = 1.5;
+const W_AVOID = 3;
 
 function updateFlock(f: Flock, a: Agent, all: readonly Agent[], dt: number): void {
   if (f.tick === tick) return;
@@ -607,6 +705,14 @@ function stepSchool(a: Agent, all: readonly Agent[], dt: number): void {
       sy += dy * w;
       sz += dz * w;
     }
+    // giữ thân cá trong đàn không chồng nhau (theo kích thước thật)
+    normDist(a, o);
+    if (nd[3] < 1.2 && nd[3] > 1e-6) {
+      const w = (1.2 - nd[3]) / 1.2 / nd[3];
+      sx += nd[0] * w;
+      sy += nd[1] * w;
+      sz += nd[2] * w;
+    }
     alx += o.vx;
     aly += o.vy;
     alz += o.vz;
@@ -631,6 +737,20 @@ function stepSchool(a: Agent, all: readonly Agent[], dt: number): void {
     ax += ((dx / d) * a.maxSpeed - a.vx) * W_SEEK;
     ay += ((dy / d) * a.maxSpeed - a.vy) * W_SEEK;
     az += ((dz / d) * a.maxSpeed - a.vz) * W_SEEK;
+  }
+  // Tránh các con bơi khác (cá lớn, đàn khác) để các đàn không dồn vào một chỗ, chồng lên nhau
+  for (let i = 0; i < all.length; i++) {
+    const o = all[i];
+    if (o === a || o.flock === a.flock || medium(o) !== 1) continue;
+    normDist(a, o);
+    const n = nd[3];
+    if (n < AVOID_MULT && n > 1e-6) {
+      const w = ((AVOID_MULT - n) / AVOID_MULT / n) * W_AVOID;
+      // ey đã chuẩn hoá theo chiều cao (nhỏ) nên nhân 2 để đàn cá né lên/xuống không yếu hơn né ngang
+      ax += nd[0] * w;
+      ay += nd[1] * w * 2;
+      az += nd[2] * w;
+    }
   }
   // Kéo về trong vùng (lực lò xo khi ra gần mép)
   const ar = a.area;
@@ -672,6 +792,8 @@ function stepSchool(a: Agent, all: readonly Agent[], dt: number): void {
   a.x += a.vx * dt;
   a.y += a.vy * dt;
   a.z += a.vz * dt;
+  clampToArea(a);
+  resolveOverlap(a, all);
   clampToArea(a);
   const before = a.heading;
   a.heading = Math.atan2(a.vx, a.vz);

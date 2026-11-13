@@ -38,7 +38,7 @@
   line-height: 1;
 }
 
-/* Hàng thẻ: tối đa 5 thẻ 180×228 một hàng, căn giữa */
+/* Hàng thẻ: tối đa 5 thẻ 180×228 một hàng (nhiều hơn thì chia đều các hàng), căn giữa */
 .games {
   position: absolute;
   left: 50%;

@@ -84,3 +84,31 @@
   --buddy-ink: #3a2a40;
   --buddy-cheek: #ff9fb2;
 }
+
+/* Bảng màu "Khám phá thế giới" (cảnh 3D 5 khu: ao, rừng, biển, trời); three không đọc biến CSS nên
+   games/world/scenery.ts chép lại mã màu, test đối chiếu với file này */
+:root {
+  --world-sky-high: #8fd0ff;
+  --world-forest-sky: #c8f0d2;
+  --world-forest-floor: #86cf6e;
+  --world-pine: #3f9a5c;
+  --world-pine-light: #58b56b;
+  --world-mushroom: #ff7b72;
+  --world-water: #7fd3e6;
+  --world-water-light: #b8ecf2;
+  --world-lily: #6fcf7a;
+  --world-lotus: #ffc2dc;
+  --world-reed: #8fbf5a;
+  --world-mud: #d9b48a;
+  --world-sea-top: #6cc4f0;
+  --world-sea-deep: #2f7fc9;
+  --world-sand: #f3d9a4;
+  --world-sand-dark: #e2c084;
+  --world-seaweed: #4fbf8a;
+  --world-seaweed-dark: #2f9a6e;
+  --world-coral: #ff8a80;
+  --world-coral-pink: #ff9ecb;
+  --world-bubble: #e6f7ff;
+  --world-rock: #c7b8a8;
+  --world-cloud: #ffffff;
+}

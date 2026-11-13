@@ -57,7 +57,9 @@ export function GamePicker({ placeKey, games, lang, speaker, onPick, onBack }: P
     pendingTimeout.current = setTimeout(() => onPick(g), PICK_DELAY_MS);
   };
 
-  const rowStyle = { '--per-row': Math.min(PER_ROW, Math.max(1, games.length)) } as CSSProperties;
+  // Nhiều hơn 5 trò thì chia đều các hàng (6 trò → 2 hàng × 3) thay vì để một thẻ lẻ hàng dưới
+  const rows = Math.max(1, Math.ceil(games.length / PER_ROW));
+  const rowStyle = { '--per-row': Math.max(1, Math.ceil(games.length / rows)) } as CSSProperties;
 
   return (
     <div

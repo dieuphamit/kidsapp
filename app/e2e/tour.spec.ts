@@ -1,4 +1,4 @@
-// T-042: đi hết 17 trò ở cả hai kiểu menu (bản đồ 5 khu và kệ đồ chơi); mỗi trò Về nhà quay lại đúng menu.
+// T-042: đi hết 18 trò ở cả hai kiểu menu (bản đồ 5 khu và kệ đồ chơi); mỗi trò Về nhà quay lại đúng menu.
 import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { pickGame } from './pick.js';
@@ -7,6 +7,7 @@ mkdirSync('test-results/shots', { recursive: true });
 
 // [id trong manifest, nhãn khu trên bản đồ, data-testid gốc của trò]
 const ROUTES: [string, string, string][] = [
+  ['world', 'Thế giới thú', 'game-world'],
   ['animals', 'Thế giới thú', 'game-animals'],
   ['zoo3d', 'Thế giới thú', 'game-zoo'],
   ['sound-quiz', 'Thế giới thú', 'game-sound-quiz'],
