@@ -1,7 +1,8 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULT_SETTINGS, loadSettings, saveSettings, type Settings } from './core/settings';
 import { createSpeaker, unlockAudioOnFirstGesture } from './core/audio';
-import { ALL_GAMES, gamesForAge, type GameManifest } from './core/games';
+import { ALL_GAMES, visibleGames, type GameManifest } from './core/games';
+import { effectiveAge, gameSetting, optionsFor } from './core/gameOptions';
 import { startSession, isOver, readLocked, writeLocked } from './core/session';
 import { loadLastGame, saveLastGame } from './core/lastGame';
 import { WorldMap } from './ui/WorldMap';
@@ -57,15 +58,16 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('e2e') === '1' && params.has('picker')) {
       const placeKey = `place.${params.get('picker')}`;
-      const games = gamesForAge(ALL_GAMES, settings.ageMonths);
+      const games = visibleGames(ALL_GAMES, settings.ageMonths, settings.games);
       const placeGames = games.filter((g) => g.place === placeKey);
       if (placeGames.length > 0) {
         setPicker({ placeKey, placeGames });
       }
     }
-  }, [settings.ageMonths]);
+  }, [settings.ageMonths, settings.games]);
 
-  const games = gamesForAge(ALL_GAMES, settings.ageMonths);
+  const games = visibleGames(ALL_GAMES, settings.ageMonths, settings.games);
+  const gameOptions = game ? optionsFor(game, gameSetting(settings.games, game.id)) : null;
   // Móc e2e: ?e2e=1&menu=shelf ép kiểu kệ đồ chơi
   const menuStyle = forceShelf ? 'shelf' : settings.menuStyle;
 
@@ -75,7 +77,13 @@ export default function App() {
         <SleepScreen speaker={speaker} />
       ) : game ? (
         <Suspense fallback={null}>
-          <game.Component lang={settings.lang} speaker={speaker} ageMonths={settings.ageMonths} onExit={() => setGame(null)} />
+          <game.Component
+            lang={settings.lang}
+            speaker={speaker}
+            ageMonths={effectiveAge(settings.ageMonths, gameOptions?.difficulty ?? 'auto', game)}
+            options={gameOptions ?? undefined}
+            onExit={() => setGame(null)}
+          />
         </Suspense>
       ) : picker ? (
         <GamePicker

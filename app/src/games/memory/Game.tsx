@@ -42,7 +42,9 @@ function getAudioKey(card: { id: string; kind: string }): string {
   return `animal.${card.id}`;
 }
 
-export default function Game({ speaker, ageMonths, onExit }: GameProps) {
+export default function Game({ speaker, ageMonths, options, onExit }: GameProps) {
+  const difficulty = options?.difficulty ?? 'auto';
+  const topic = options?.topic ?? 'mix';
   const [allCards, setAllCards] = useState<Card[]>([]);
   const [state, setState] = useState<GameState | null>(null);
   const [lastSay, setLastSay] = useState('');
@@ -69,19 +71,20 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
   // Initialize level from storage or age
   useEffect(() => {
     loadLevel().then((saved) => {
-      if (saved !== null) {
+      // Bố mẹ chọn độ khó cố định thì bắt đầu theo độ khó đó, không theo cấp đã lưu
+      if (saved !== null && difficulty === 'auto') {
         setLevel(saved);
       } else {
         setLevel(startLevel(ageMonths));
       }
     });
-  }, [ageMonths]);
+  }, [ageMonths, difficulty]);
 
   // Start new round when level or cards change
   useEffect(() => {
     if (allCards.length === 0) return;
     const seed = Date.now();
-    const newState = newRound(level, seed, allCards);
+    const newState = newRound(level, seed, allCards, topic);
     newState.wins = wins;
     setState(newState);
     setShowPreview(true);
@@ -97,7 +100,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [level, allCards, wins, say]);
+  }, [level, allCards, wins, say, topic]);
 
   // Expose reveal function for e2e testing
   useEffect(() => {

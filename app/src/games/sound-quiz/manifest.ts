@@ -11,5 +11,6 @@ export const manifest: GameManifest = {
   maxAge: 72,
   order: 2,
   titleKey: 'game.sound-quiz',
+  options: { difficulty: true },
   Component: lazy(() => import('./Game')),
 };

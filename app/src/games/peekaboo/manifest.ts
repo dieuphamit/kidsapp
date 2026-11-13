@@ -11,5 +11,6 @@ export const manifest: GameManifest = {
   maxAge: 60,
   order: 4,
   titleKey: 'game.peekaboo',
+  options: { difficulty: true },
   Component: lazy(() => import('./Game')),
 };

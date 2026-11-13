@@ -11,5 +11,6 @@ export const manifest: GameManifest = {
   maxAge: 72,
   order: 3,
   titleKey: 'game.pattern',
+  options: { difficulty: true },
   Component: lazy(() => import('./Game')),
 };

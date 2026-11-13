@@ -19,4 +19,22 @@ describe('settings', () => {
     await set('behoc.settings', { lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'grid' });
     expect((await loadSettings()).menuStyle).toBe('map');
   });
+  it('bản lưu cũ không có games thì mọi trò mặc định (không thêm games)', async () => {
+    await set('behoc.settings', { lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'map' });
+    expect((await loadSettings()).games).toBeUndefined();
+  });
+  it('games sai kiểu hoặc mục sai thì được vá', async () => {
+    await set('behoc.settings', { ...DEFAULT_SETTINGS, games: { memory: { enabled: 'x', difficulty: 'hard' }, hide: null } });
+    expect((await loadSettings()).games).toEqual({
+      memory: { enabled: true, difficulty: 'hard', topic: 'mix' },
+      hide: { enabled: true, difficulty: 'auto', topic: 'mix' },
+    });
+    await set('behoc.settings', { ...DEFAULT_SETTINGS, games: 'oops' });
+    expect((await loadSettings()).games).toEqual({});
+  });
+  it('lưu rồi đọc lại tùy chọn trò', async () => {
+    const games = { memory: { enabled: false, difficulty: 'easy', topic: 'fruits' } } as const;
+    await saveSettings({ ...DEFAULT_SETTINGS, games: { ...games } });
+    expect((await loadSettings()).games).toEqual(games);
+  });
 });

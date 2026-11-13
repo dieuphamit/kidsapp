@@ -10,9 +10,12 @@ type Props = {
   size?: number;
   caption?: string;
   style?: CSSProperties;
+  /** Nút bật/tắt hoặc nút trong nhóm chọn một: đặt aria-pressed. */
+  selected?: boolean;
+  className?: string;
 };
 
-export function ClayButton({ color, label, onPress, children, size = 160, caption, style }: Props) {
+export function ClayButton({ color, label, onPress, children, size = 160, caption, style, selected, className }: Props) {
   const [pressed, setPressed] = useState(false);
   const release = () => setPressed(false);
   const px = `${Math.max(size, TOUCH_MIN_PX)}px`;
@@ -20,7 +23,8 @@ export function ClayButton({ color, label, onPress, children, size = 160, captio
     <button
       type="button"
       aria-label={label}
-      className={styles.clay}
+      className={className ? `${styles.clay} ${className}` : styles.clay}
+      aria-pressed={selected}
       style={{ ...style, width: px, height: px, background: `var(--clay-${color})` }}
       data-pressed={pressed ? '' : undefined}
       onPointerDown={() => { setPressed(true); onPress(); }}
