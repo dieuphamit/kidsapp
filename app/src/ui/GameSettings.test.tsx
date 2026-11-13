@@ -10,7 +10,7 @@ const g = (id: string, options?: GameManifest['options']) =>
     id,
     minAge: 24,
     maxAge: 72,
-    title: { vi: `Trò ${id}`, ja: id },
+    title: { vi: `Trò ${id}`, ja: id, en: `Game ${id}` },
     place: 'place.zoo',
     icon: '⭐',
     color: 'peach',
