@@ -1,0 +1,72 @@
+{
+ "clownfish": {
+  "w": 640,
+  "h": 351,
+  "face": "right"
+ },
+ "puffer": {
+  "w": 640,
+  "h": 379,
+  "face": "right"
+ },
+ "manta": {
+  "w": 640,
+  "h": 476,
+  "face": "right"
+ },
+ "yellow-tang": {
+  "w": 640,
+  "h": 408,
+  "face": "left"
+ },
+ "goldfish": {
+  "w": 640,
+  "h": 318,
+  "face": "right"
+ },
+ "koi": {
+  "w": 640,
+  "h": 342,
+  "face": "left"
+ },
+ "frog": {
+  "w": 640,
+  "h": 380,
+  "face": "left"
+ },
+ "duck": {
+  "w": 640,
+  "h": 304,
+  "face": "right"
+ },
+ "bee": {
+  "w": 640,
+  "h": 531,
+  "face": "left"
+ },
+ "parrot": {
+  "w": 640,
+  "h": 601,
+  "face": "right"
+ },
+ "bat": {
+  "w": 633,
+  "h": 640,
+  "face": "right"
+ },
+ "pigeon": {
+  "w": 640,
+  "h": 577,
+  "face": "left"
+ },
+ "raccoon": {
+  "w": 640,
+  "h": 516,
+  "face": "right"
+ },
+ "lion": {
+  "w": 640,
+  "h": 381,
+  "face": "left"
+ }
+}

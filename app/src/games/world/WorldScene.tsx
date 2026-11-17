@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { ContactShadows } from '@react-three/drei';
 import { MeshStandardMaterial, Vector3, type Group, type Mesh, type PerspectiveCamera } from 'three';
 import { Scene3D } from '../../ui/Scene3D';
-import { AnimalHerd } from '../../ui/AnimatedAnimal';
+import { HybridHerd } from '../../ui/hybrid/HybridHerd';
 import type { Herd } from '../../core/herd';
 import type { Agent } from '../../core/steer';
 import { HABITAT_IDS, HABITATS, type Habitat } from '../../core/worldAnimals';
@@ -201,7 +201,7 @@ function HabitatView({
         <ContactShadows position={[0, 0.005, 0]} opacity={0.3} blur={2.8} scale={14} far={SHADOW_FAR[habitat]} resolution={256} color="#5b3f6b" />
       )}
       <Suspense fallback={null}>
-        <AnimalHerd herd={herd} active={active} onTap={tap} onLoaded={loaded} />
+        <HybridHerd herd={herd} active={active} onTap={tap} onLoaded={loaded} />
       </Suspense>
     </group>
   );

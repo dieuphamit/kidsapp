@@ -1,6 +1,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Scene3D } from './Scene3D';
-import { AgentProbe, AnimalHerd } from './AnimatedAnimal';
+import { AgentProbe } from './AnimatedAnimal';
+import { HybridHerd } from './hybrid/HybridHerd';
 import { createHabitatHerd } from '../core/herd';
 import { animalVoiceKeys, HABITAT_IDS, HABITATS, type Habitat } from '../core/worldAnimals';
 import { createSpeaker } from '../core/audio';
@@ -94,7 +95,7 @@ export default function WorldDemo() {
         <Suspense fallback={null}>
           <Ground habitat={habitat} />
           <PondWater habitat={habitat} />
-          <AnimalHerd herd={herd} onTap={onTap} onLoaded={onLoaded} />
+          <HybridHerd herd={herd} onTap={onTap} onLoaded={onLoaded} />
         </Suspense>
         <AgentProbe agents={herd.agents} />
       </Scene3D>

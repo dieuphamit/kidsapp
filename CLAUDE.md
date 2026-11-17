@@ -22,7 +22,7 @@ App PWA học và chơi cho bé 2–5 tuổi trên iPad. Spec: `docs/superpowers
 4. Không cần biết đọc: mọi chỉ dẫn qua `speaker.say(key)`; mọi câu nói phải có trong `src/content/*.json` với cả `vi`, `ja` và `en`. iOS mở khóa âm thanh ở lần chạm đầu bằng `unlockAudioOnFirstGesture()` (`src/core/audio.ts`, đã nối sẵn trong App), đừng tự làm lại.
 5. Không link ra ngoài, không gọi mạng lúc chạy, không thu thập dữ liệu.
 6. Chỉ chạm và kéo đơn giản. Không vuốt nhiều ngón, không chạm đúp.
-7. Chỉ dùng màu và bóng từ `src/core/tokens.css`. Scene 3D dùng lại `Scene3D` (`src/ui/Scene3D.tsx`, prop `view` tùy chỉnh camera): màu phẳng, ánh sáng ấm, chỉ ContactShadows; không thêm shadow map. Model chỉ lấy từ gói CC0 (Kenney, Quaternius) và ghi nguồn vào `app/public/models/CREDITS.md`.
+7. Chỉ dùng màu và bóng từ `src/core/tokens.css`. Scene 3D dùng lại `Scene3D` (`src/ui/Scene3D.tsx`, prop `view` tùy chỉnh camera): màu phẳng, ánh sáng ấm, chỉ ContactShadows; không thêm shadow map. Model lấy từ gói CC0 (Kenney, Quaternius) và ghi nguồn vào `app/public/models/CREDITS.md`. Riêng thú trong trò Thế giới (`src/ui/hybrid/look.ts`) được dùng model 3D có texture (CC0 / CC BY / CC BY-SA, ở `public/models/world/real/`) hoặc ảnh thật tách nền 2.5D (Wikimedia CC0/PD/CC BY/CC BY-SA, ở `public/world-photos/`), ghi nguồn vào CREDITS.md tương ứng; phần còn lại giữ phong cách màu phẳng.
 8. Mỗi scene 3D ≤ ~50k tam giác; nén GLB, chạy trong `app/`: `npm run model:opt -- ../assets-src/<đường-dẫn> public/models/<tên>.glb --compress meshopt`.
 
 ## Cấu trúc
