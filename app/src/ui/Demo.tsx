@@ -3,6 +3,8 @@ import { BackHome } from './BackHome';
 
 // Trang kiểm tra thú 3D cử động (?demo=world&habitat=...), tải riêng để không làm nặng app chính
 const WorldDemo = lazy(() => import('./WorldDemo'));
+// DEMO so sánh thú "giống thật" cho bố mẹ (?demo=realism), chỉ xem ở local, không có trong menu
+const RealismDemo = lazy(() => import('./realism/RealismDemo'));
 
 type Props = {
   name: string;
@@ -10,6 +12,14 @@ type Props = {
 
 export function Demo({ name }: Props) {
   const [exited, setExited] = useState(false);
+
+  if (name === 'realism') {
+    return (
+      <Suspense fallback={null}>
+        <RealismDemo />
+      </Suspense>
+    );
+  }
 
   if (name === 'world') {
     return (

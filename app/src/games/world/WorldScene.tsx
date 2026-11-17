@@ -73,8 +73,8 @@ function Node({ p, anims }: { p: Prop; anims: AnimRec[] }) {
   );
 }
 
-/** Cảnh một khu + chuyển động nhẹ (một useFrame cho cả khu) */
-function Scenery({ habitat, active }: { habitat: Habitat; active: boolean }) {
+/** Cảnh một khu + chuyển động nhẹ (một useFrame cho cả khu); trang demo ?demo=realism dùng lại */
+export function Scenery({ habitat, active }: { habitat: Habitat; active: boolean }) {
   const props = sceneryFor(habitat);
   const anims = useMemo<AnimRec[]>(() => [], []);
   useFrame(({ clock }) => {
