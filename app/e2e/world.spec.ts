@@ -63,6 +63,8 @@ test('vào trò, bấm mũi tên đi qua 5 khu, mỗi khu đọc tên và chụp
       expect(s[id].sy, `${h}/${id} y`).toBeLessThan(834);
     }
     await page.screenshot({ path: `test-results/shots/world-${h}.png` });
+    // thú kiểu "lai" (model 3D có texture / ảnh thật 2.5D, src/ui/hybrid/look.ts): ảnh riêng để bố mẹ xem lại
+    await page.screenshot({ path: `test-results/shots/hybrid-${h}.png` });
   }
   // cuối dải: không còn mũi tên phải, mũi tên trái đưa về khu trước
   await expect(page.getByRole('button', { name: 'Sang phải' })).toHaveCount(0);

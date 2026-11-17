@@ -15,8 +15,7 @@ export default defineConfig({
         // Giọng đọc của tên bạn đồng hành khác tên mặc định (<key>~<nameId>.mp3, ~22MB cho 7 tên)
         // không precache: app nạp sẵn bộ của tên đang chọn vào cache 'buddy-audio' (src/core/buddyAudio.ts)
         // và service worker phục vụ CacheFirst từ đó, nên tên đang chọn vẫn chạy offline.
-        // Trang demo ?demo=realism (chỉ xem ở local) không precache
-        globIgnores: ['**/audio/*/*~*.mp3', '**/demo-realism/**'],
+        globIgnores: ['**/audio/*/*~*.mp3'],
         runtimeCaching: [
           {
             urlPattern: ({ url }) => /\/audio\/[a-z]+\/[^/]+~[a-z0-9]+\.mp3$/.test(url.pathname),

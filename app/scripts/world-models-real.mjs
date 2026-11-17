@@ -1,8 +1,8 @@
-// DEMO (?demo=realism, phương án C "3D chân thực có texture"): chuyển model nguồn trong ../assets-src/models-demo/
-// thành public/demo-realism/models/<id>.glb (meshopt + texture WebP, giảm tam giác), mỗi file ≤ ~1MB.
-//   node scripts/demo-realism-models.mjs [id...]
-// Nguồn GLB đi thẳng qua `gltf-transform optimize`; OBJ (ngựa, bò) và FBX (hươu) đọc bằng loader của three
-// rồi ghi GLB tạm bằng @gltf-transform/core (chỉ hình + texture màu, không xương).
+// Thú "3D có texture" của trò Thế giới: chuyển model nguồn trong ../assets-src/models-demo/ thành
+// public/models/world/real/<id>.glb (meshopt + texture WebP, giảm tam giác), mỗi file ≤ 1MB.
+//   node scripts/world-models-real.mjs [id...]
+// Nguồn GLB đi thẳng qua `gltf-transform optimize`; OBJ (ngựa) và FBX (hươu) đọc bằng loader của three
+// rồi ghi GLB tạm bằng @gltf-transform/core (chỉ hình + texture màu, không xương). Nguồn/giấy phép: public/models/CREDITS.md.
 import { readFileSync, writeFileSync, statSync, mkdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,20 +12,19 @@ import { Document, NodeIO } from '@gltf-transform/core';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const APP = join(__dirname, '..');
 const SRC = join(APP, '..', 'assets-src', 'models-demo');
-const OUT = join(APP, 'public', 'demo-realism', 'models');
+const OUT = join(APP, 'public', 'models', 'world', 'real');
 
 // ratio: tỉ lệ đỉnh giữ lại khi simplify; tex: cạnh texture tối đa
 const MODELS = {
   whale: { glb: 'whale.glb', ratio: 1, tex: 1024 },
   dolphin: { glb: 'dolphin.glb', ratio: 1, tex: 1024 },
-  clownfish: { glb: 'clownfish.glb', ratio: 1, tex: 512 },
-  // bản scan ~700k tam giác, nhiều mảnh UV: `simplify` của CLI dừng ở ~40k vì giữ đường nối, nên tự giảm (decimate)
-  puffer: { glb: 'puffer.glb', ratio: 1, decimate: 15000, tex: 512 },
-  ray: { glb: 'ray.glb', ratio: 1, decimate: 15000, tex: 512 },
   zebra: { glb: 'zebra.glb', ratio: 0.5, tex: 1024 },
   fox: { glb: 'fox.glb', ratio: 1, tex: 512 },
   horse: { obj: 'horse/LD_HorseRtime02.obj', maps: { default: 'horse/HorseMain2k00.png', hair: 'horse/Hair12Main2k.png', eye: 'horse/eye_texture.png' }, ratio: 0.5, tex: 1024 },
-  cow: { obj: 'cow/cowTM08New00RTime02.obj', maps: { default: 'cow/colorOpacityCow.png', eye: 'cow/cowEye.png' }, ratio: 1, tex: 1024 },
+  stag: { glb: 'stag.glb', ratio: 1, tex: 1024 },
+  bear: { glb: 'bear.glb', ratio: 1, tex: 1024 },
+  giraffe: { glb: 'giraffe.glb', ratio: 1, tex: 1024 },
+  elephant: { glb: 'elephant.glb', ratio: 1, tex: 1024 },
   deer: { fbx: 'deer/deer-female-mesh.fbx', maps: { default: 'deer/doe-body.png', head: 'deer/doe-head.png' }, ratio: 1, tex: 1024 },
 };
 

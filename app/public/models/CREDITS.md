@@ -114,3 +114,29 @@ https://quaternius.com/packs/ultimateanimatedanimals.html (`assets-src/quaterniu
 
 Tổng tam giác mỗi khu (kể cả đàn cá, model tĩnh Poly dùng lại): đồng cỏ 6874, ao hồ 13568, rừng 12844,
 biển 23569, trời 9019 (test `src/core/worldAnimals.test.ts` kiểm ≤ 50k từ file thật).
+
+## Thú Thế giới giống thật (`world/real/*.glb`): model 3D có texture, CC0 / CC BY
+
+Từ 17/11/2026 trò Thế giới vẽ thú theo phương án "lai" bố mẹ đã chọn (`src/ui/hybrid/look.ts`): thú lớn có chân
+và cá voi, cá heo dùng model 3D có texture dưới đây; cá nhỏ, chim, côn trùng, ếch, vịt và con chưa có model đạt
+(sư tử, gấu mèo) dùng ảnh thật tách nền (`public/world-photos/`, nguồn ở `public/world-photos/CREDITS.md`).
+Các file `world/*.glb` Quaternius ở trên vẫn giữ: Sở thú dùng, và WORLD_ANIMALS lấy kích thước/đội hình từ đó.
+
+Chuyển và nén bằng `node scripts/world-models-real.mjs` (trong `app/`; nguồn trong `assets-src/models-demo/`,
+không commit): `gltf-transform optimize --compress meshopt --texture-compress webp` (texture ≤ 1024px), ngựa
+giảm còn 50% đỉnh từ OBJ, hươu cái đổi từ FBX (chỉ giữ hình + texture màu). File GLB của Sketchfab lấy qua bản sao
+công khai Objaverse (huggingface.co/datasets/allenai/objaverse); giấy phép đối chiếu với API Sketchfab hoặc
+metadata Objaverse (`license: by` = CC BY 4.0). Bản đã chỉnh sửa (giảm tam giác, nén texture) vẫn theo giấy phép gốc.
+
+| File | Model gốc | Tác giả | Giấy phép | Tam giác | Chuyển động |
+|---|---|---|---|---|---|
+| world/real/horse.glb | [Realtime Rancher's 3D Model Pack: horse](https://opengameart.org/content/realtime-ranchers-3d-model-pack) | Lyndon Daniels | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) | 14 982 | uốn đỉnh (chân bước) |
+| world/real/zebra.glb | [Plain Zebra](https://sketchfab.com/3d-models/ff2875fb1a5b4771805a5fd35c8fe7bb) | Jeffery Lopez (đăng bởi GentryHS EAST) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | 8 106 | uốn đỉnh |
+| world/real/giraffe.glb | [Giraffe](https://sketchfab.com/3d-models/522c042aad9f4348a74c2985ec3f99f9) | BlueMesh | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | 3 872 | uốn đỉnh (clip gốc chỉ 1 khung, không dùng) |
+| world/real/elephant.glb | [Elephant Animation Idle](https://sketchfab.com/3d-models/a8e7e10f005f4baab0a2f5079d759fcd) | GremorySaiyan | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | 5 980 | uốn đỉnh (clip idle không dùng khi đi) |
+| world/real/deer.glb | [Deer Female](https://opengameart.org/content/deer-female) | Čestmír Dammer (CDmir), TinyWorlds | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) | 4 735 | uốn đỉnh |
+| world/real/stag.glb | [Deer (stag)](https://sketchfab.com/3d-models/01f33919650c421e91666908db8c421e) | aeonfitzgerald | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | 11 203 | uốn đỉnh |
+| world/real/bear.glb | [Bear](https://sketchfab.com/3d-models/da9b588f7a7346519f391c3eb9532226) | SDPM Esare | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | 11 556 | uốn đỉnh |
+| world/real/fox.glb | [Fox (glTF Sample Assets)](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/Fox) | PixelMannen (model); tomkranis (xương, clip); AsoboStudio & scurest (glTF) | model [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/); xương & clip [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | 486 | clip Walk / Survey |
+| world/real/whale.glb | [Humpback Whale (Swimming)](https://sketchfab.com/3d-models/f4912be9163a4f45b2480df8ccb8b2c6) | Connlan_Immure | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | 6 174 | clip bơi |
+| world/real/dolphin.glb | [Game-Ready dolphin (Swimming)](https://sketchfab.com/3d-models/b621ec8894734bc79c04338edff3cd0d) | Allie2k | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | 1 414 | clip bơi |
