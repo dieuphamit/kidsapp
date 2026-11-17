@@ -32,7 +32,7 @@ export type PhotoLook = {
 };
 
 /** Uốn đỉnh cho model tĩnh (không có xương) */
-export type ModelDeform = 'swim' | 'walk' | 'none';
+export type ModelDeform = 'swim' | 'fluke' | 'walk' | 'none';
 
 export type ModelLook = {
   kind: 'model';
@@ -56,6 +56,8 @@ export type ModelLook = {
   /** voi: vòi đung đưa, tai vẫy (uốn đỉnh) */
   trunk?: boolean;
   ears?: boolean;
+  /** luôn nhìn nghiêng (không quay thẳng mặt về camera khi đứng nghỉ/được chạm) */
+  side?: boolean;
   /** bỏ mesh có tên (hoặc tên vật liệu) bắt đầu bằng chuỗi này: đĩa nền kèm theo model */
   skip?: string;
   scale?: number;
@@ -84,8 +86,9 @@ export const WORLD_LOOK: Record<string, Look> = {
   raccoon: photo('walk'),
   bear: { kind: 'model', file: 'bear', rot: [0, -Math.PI / 2, 0], deform: 'walk' },
   // Biển
-  whale: { kind: 'model', file: 'whale', rot: [-0.6, 0, 0], turn: Math.PI / 2, pitch: -0.2, deform: 'none', move: 'Take 001', clipSpeed: 0.8 },
-  dolphin: { kind: 'model', file: 'dolphin', rot: [0, 0, 0], deform: 'none', move: 'Take 001' },
+  // clip bơi gốc lặn ngóc gần thẳng đứng: dùng dáng gốc + uốn đuôi lên xuống cho thân luôn nằm ngang
+  whale: { kind: 'model', file: 'whale', rot: [0, 0, 0], turn: Math.PI / 2, pitch: 0.3, deform: 'fluke', bake: true, side: true },
+  dolphin: { kind: 'model', file: 'dolphin', rot: [0, 0, 0], deform: 'none', move: 'Take 001', side: true },
   clownfish: photo('fish'),
   puffer: photo('puffer'),
   'yellow-tang': photo('fish'),
