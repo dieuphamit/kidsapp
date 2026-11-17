@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useAnimations, useGLTF } from '@react-three/drei';
-import { Box3, BufferGeometry, Euler, Float32BufferAttribute, LoopRepeat, Matrix4, Vector3, type BufferAttribute, type Group, type Material, type Mesh, type Object3D, type SkinnedMesh } from 'three';
+import { Box3, Group, BufferGeometry, Euler, Float32BufferAttribute, LoopRepeat, Matrix4, Vector3, type BufferAttribute, type Material, type Mesh, type Object3D, type SkinnedMesh } from 'three';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { reactJump, type Agent } from '../../core/steer';
 import type { WorldAnimal } from '../../core/worldAnimals';
@@ -79,6 +79,8 @@ export function RealAnimal({ def, look, agent, active, phase, onTap, onLoaded }:
   const gltf = useGLTF(modelUrl(look.file));
   const animated = gltf.animations.length > 0 && !look.bake;
   const [rx, ry, rz] = look.rot;
+  const turn = look.turn ?? 0;
+  const pitch = look.pitch ?? 0;
   const grounded = def.motion === 'walk' || def.motion === 'hop';
 
   // Model có clip: clone có xương riêng; model tĩnh: nướng hình để uốn đỉnh
@@ -86,12 +88,19 @@ export function RealAnimal({ def, look, agent, active, phase, onTap, onLoaded }:
     if (animated) {
       const c = cloneSkinned(gltf.scene) as Group;
       c.rotation.set(rx, ry, rz);
-      c.updateMatrixWorld(true);
-      return { skinned: c, baked: null, box: new Box3().setFromObject(c, true) };
+      // quay thêm quanh trục đứng sau khi dựng thẳng (turn), bọc ngoài để không lẫn thứ tự Euler
+      const holder = new Group();
+      const tilt = new Group();
+      holder.rotation.y = turn;
+      tilt.rotation.x = pitch;
+      tilt.add(c);
+      holder.add(tilt);
+      holder.updateMatrixWorld(true);
+      return { skinned: holder, baked: null, box: new Box3().setFromObject(holder, true) };
     }
-    const b = bake(gltf.scene, new Matrix4().makeRotationFromEuler(new Euler(rx, ry, rz)), look.skip);
+    const b = bake(gltf.scene, new Matrix4().makeRotationY(turn).multiply(new Matrix4().makeRotationX(pitch)).multiply(new Matrix4().makeRotationFromEuler(new Euler(rx, ry, rz))), look.skip);
     return { skinned: null, baked: b, box: b.box };
-  }, [animated, gltf.scene, rx, ry, rz, look.skip]);
+  }, [animated, gltf.scene, rx, ry, rz, turn, pitch, look.skip]);
   useEffect(() => () => baked?.parts.forEach((p) => p.geo.dispose()), [baked]);
 
   const { scale, offset, size } = useMemo(() => {
@@ -158,6 +167,8 @@ export function RealAnimal({ def, look, agent, active, phase, onTap, onLoaded }:
       const L = Math.max(max.z - min.z, 1e-6);
       const Hh = Math.max(max.y - min.y, 1e-6);
       const midX = (min.x + max.x) / 2;
+      const Wd = max.x - min.x;
+      const stepAmp = look.stepAmp ?? 0.07;
       for (const p of baked.parts) {
         const pos = p.geo.attributes.position as BufferAttribute;
         const arr = pos.array as Float32Array;
@@ -167,6 +178,7 @@ export function RealAnimal({ def, look, agent, active, phase, onTap, onLoaded }:
           const y0 = base[i + 1];
           const z0 = base[i + 2];
           let x = x0;
+          let y = y0;
           let z = z0;
           if (look.deform === 'swim') {
             const t = (max.z - z0) / L; // 0 ở mũi (+z), 1 ở đuôi
@@ -179,11 +191,24 @@ export function RealAnimal({ def, look, agent, active, phase, onTap, onLoaded }:
               const k = (LEG - v) / LEG;
               const front = z0 > min.z + L / 2 ? 0 : Math.PI;
               const side = x0 > midX ? Math.PI : 0;
-              z += Math.sin(st + front + side) * L * 0.07 * k * m;
+              z += Math.sin(st + front + side) * L * stepAmp * k * m;
+              // nhấc chân lên ở nửa nhịp bước về phía trước
+              y += Math.max(0, Math.cos(st + front + side)) * Hh * stepAmp * 0.5 * k * k * m;
+            }
+            const head = (z0 - (max.z - L * 0.4)) / (L * 0.4); // 0..1 trong 40% phía đầu
+            if (look.trunk && head > 0.55 && v < 0.75) {
+              // vòi đung đưa: càng xa đầu (thấp, phía trước) càng lắc nhiều
+              const k = (head - 0.55) / 0.45;
+              x += Math.sin(time * 1.4 + (0.75 - v) * 4) * L * 0.07 * k * (0.75 - v);
+            }
+            if (look.ears && head > 0 && v > 0.4) {
+              // tai vẫy: phần nằm ngoài bề ngang thân đập ra trước/sau quanh gốc tai
+              const out = Math.abs(x0 - midX) - Wd * 0.22;
+              if (out > 0) z += Math.sin(time * 2.2 + (x0 > midX ? 0 : 0.6)) * out * 0.55;
             }
           }
           arr[i] = x;
-          arr[i + 1] = y0;
+          arr[i + 1] = y;
           arr[i + 2] = z;
         }
         pos.needsUpdate = true;
