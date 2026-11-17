@@ -245,7 +245,8 @@ export function RealAnimal({ def, look, agent, active, phase, onTap, onLoaded }:
     }
     yg.rotation.y = yaw;
     b.position.y = bob + jump;
-    b.rotation.set(-a.pitch, 0, a.roll + (grounded ? Math.sin(st) * 0.02 * m : 0));
+    // con bơi lớn (cá voi, cá heo): ngóc/chúc theo độ sâu một nửa thôi, tránh cắm đầu gần thẳng đứng
+    b.rotation.set(-a.pitch * (grounded ? 1 : 0.5), 0, a.roll + (grounded ? Math.sin(st) * 0.02 * m : 0));
   });
 
   return (
