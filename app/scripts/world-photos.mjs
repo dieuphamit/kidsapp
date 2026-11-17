@@ -30,9 +30,9 @@ const PHOTOS_WORLD = {
   'yellow-tang': { file: 'Zebrasoma flavescens Luc Viatour.jpg', face: 'left' },
   // Ao hồ
   goldfish: { file: 'Carassius wild golden fish 2013 G1.jpg', face: 'right' },
-  koi: { file: 'Cyprinus carpio rubrofuscus in Ouwehands Dierenpark 01.jpg', face: 'right' },
+  koi: { file: 'Japan-Koi.jpg', face: 'left' },
   frog: { file: 'Green treefrog.jpg', face: 'left' },
-  duck: { file: 'Mallard Drake (Anas Platyrhynchos).jpg', face: 'right' },
+  duck: { file: 'Mallard Drake (Anas Platyrhynchos).jpg', face: 'right', crop: [0, 0, 1, 0.56] },
   // Trời
   bee: { file: 'Honey bee flying.JPG', face: 'left', crop: [0.36, 0.02, 0.8, 0.68] },
   parrot: { file: 'Ara macao -flying away-8a.jpg', face: 'right', crop: [0.08, 0, 1, 1] },
@@ -40,7 +40,7 @@ const PHOTOS_WORLD = {
   pigeon: { file: 'Common pigeon at Waterlow Park, London 01.jpg', face: 'left' },
   // Rừng, đồng cỏ: con chưa có model 3D có texture đạt (sư tử: model tìm được không rõ nguồn; gấu mèo: không có)
   raccoon: { file: 'Raccoon in Central Park (35264).jpg', face: 'right' },
-  lion: { file: 'Lion Walking.JPG', face: 'left' },
+  lion: { file: 'Lion (Panthera leo) walking on the road ... (50133447418).jpg', face: 'left' },
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
