@@ -40,6 +40,10 @@ export type ModelLook = {
   file: string;
   /** xoay về chuẩn: đầu nhìn +z, lưng lên +y (radian) */
   rot: [number, number, number];
+  /** quay thêm quanh trục đứng sau `rot` (radian): sửa hướng đầu mà không đổi phần dựng thẳng */
+  turn?: number;
+  /** ngóc đầu (âm) / chúc đầu (dương) sau khi đã quay đầu về +z (radian) */
+  pitch?: number;
   deform: ModelDeform;
   /** clip khi đi/bơi và khi đứng (model có xương) */
   move?: string;
@@ -47,6 +51,11 @@ export type ModelLook = {
   clipSpeed?: number;
   /** model có xương nhưng clip không dùng được (đứng im, chỉ có idle): vẽ tĩnh ở dáng gốc và uốn đỉnh */
   bake?: boolean;
+  /** biên độ bước chân (phần chiều dài thân, mặc định 0.07) */
+  stepAmp?: number;
+  /** voi: vòi đung đưa, tai vẫy (uốn đỉnh) */
+  trunk?: boolean;
+  ears?: boolean;
   /** bỏ mesh có tên (hoặc tên vật liệu) bắt đầu bằng chuỗi này: đĩa nền kèm theo model */
   skip?: string;
   scale?: number;
@@ -60,8 +69,8 @@ export const WORLD_LOOK: Record<string, Look> = {
   // Đồng cỏ
   horse: { kind: 'model', file: 'horse', rot: [0, 0, 0], deform: 'walk' },
   zebra: { kind: 'model', file: 'zebra', rot: [0, 0, 0], deform: 'walk' },
-  giraffe: { kind: 'model', file: 'giraffe', rot: [0, 0, 0], deform: 'walk', bake: true, skip: 'Circle' },
-  elephant: { kind: 'model', file: 'elephant', rot: [0, 0, 0], deform: 'walk', bake: true },
+  giraffe: { kind: 'model', file: 'giraffe', rot: [0, Math.PI, 0], deform: 'walk', bake: true, skip: 'Circle' },
+  elephant: { kind: 'model', file: 'elephant', rot: [0, -Math.PI / 2, 0], deform: 'walk', bake: true, stepAmp: 0.11, trunk: true, ears: true },
   lion: photo('walk'),
   // Ao hồ
   frog: photo('hop'),
@@ -73,9 +82,9 @@ export const WORLD_LOOK: Record<string, Look> = {
   stag: { kind: 'model', file: 'stag', rot: [0, 0, 0], deform: 'walk' },
   fox: { kind: 'model', file: 'fox', rot: [0, 0, 0], deform: 'none', move: 'Walk', idle: 'Survey' },
   raccoon: photo('walk'),
-  bear: { kind: 'model', file: 'bear', rot: [0, 0, 0], deform: 'walk' },
+  bear: { kind: 'model', file: 'bear', rot: [0, -Math.PI / 2, 0], deform: 'walk' },
   // Biển
-  whale: { kind: 'model', file: 'whale', rot: [-0.6, 0, 0], deform: 'none', move: 'Take 001', clipSpeed: 0.8 },
+  whale: { kind: 'model', file: 'whale', rot: [-0.6, 0, 0], turn: Math.PI / 2, pitch: -0.2, deform: 'none', move: 'Take 001', clipSpeed: 0.8 },
   dolphin: { kind: 'model', file: 'dolphin', rot: [0, 0, 0], deform: 'none', move: 'Take 001' },
   clownfish: photo('fish'),
   puffer: photo('puffer'),

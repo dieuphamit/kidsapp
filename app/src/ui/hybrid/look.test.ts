@@ -61,6 +61,19 @@ describe('WORLD_LOOK (thú Thế giới: model 3D có texture hoặc ảnh thậ
     }
   });
 
+  it('ong đủ to để bé thấy và chạm: ảnh ≥ 0.95 đơn vị (~125px trên khung iPad, ~132px/đơn vị ở z = 0)', () => {
+    const look = WORLD_LOOK.bee;
+    expect(look.kind).toBe('photo');
+    if (look.kind !== 'photo') return;
+    const [w, h] = photoSize(WORLD_ANIMALS.bee, look, PHOTO_META.bee);
+    expect(Math.min(w, h)).toBeGreaterThanOrEqual(0.95);
+  });
+
+  it('cá voi là con lớn nhất khu Biển', () => {
+    const size = (id: string) => WORLD_ANIMALS[id].height * WORLD_ANIMALS[id].len;
+    for (const e of HABITATS.sea.roster) if (e.id !== 'whale') expect(size('whale'), e.id).toBeGreaterThan(size(e.id));
+  });
+
   it('ảnh vừa trong khung thân của con vật (đội hình, vùng đi lại vẫn đúng)', () => {
     for (const id of rosterIds) {
       const look = WORLD_LOOK[id];

@@ -36,7 +36,8 @@ const PHOTOS_WORLD = {
   // Trời
   bee: { file: 'Honey bee flying.JPG', face: 'left', crop: [0.36, 0.02, 0.8, 0.68] },
   parrot: { file: 'Ara macao -flying away-8a.jpg', face: 'right', crop: [0.08, 0, 1, 1] },
-  bat: { file: 'Fruit bat flying (35883279984).jpg', face: 'right', crop: [0.28, 0.28, 0.82, 0.88] },
+  // dang hai cánh sẫm, nhìn từ dưới lên: vỗ cánh đều hai bên (kiểu 'wings')
+  bat: { file: 'Mauritian flying fox (Pteropus niger) in flight 3.jpg', face: 'right' },
   pigeon: { file: 'Common pigeon at Waterlow Park, London 01.jpg', face: 'left' },
   // Rừng, đồng cỏ: con chưa có model 3D có texture đạt (sư tử: model tìm được không rõ nguồn; gấu mèo: không có)
   raccoon: { file: 'Raccoon in Central Park (35264).jpg', face: 'right' },

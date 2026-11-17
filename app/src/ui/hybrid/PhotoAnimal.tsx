@@ -147,7 +147,8 @@ export function PhotoAnimal({ def, look, agent, active, phase, onTap, onLoaded }
         case 'buzz': {
           // cánh ong ở nửa trên ảnh: rung rất nhanh theo pháp tuyến, thân gần như yên
           const w = Math.max(0, v - 0.5) / 0.5;
-          z += Math.sin(time * 40) * W * 0.12 * w * w;
+          z += Math.sin(time * 47) * W * 0.16 * w * w;
+          y += Math.sin(time * 47 + 1.2) * H * 0.04 * w;
           break;
         }
         case 'float': {
@@ -182,7 +183,9 @@ export function PhotoAnimal({ def, look, agent, active, phase, onTap, onLoaded }
     let bob: number;
     if (style === 'walk') bob = Math.abs(Math.sin(st)) * 0.035 * m;
     else if (style === 'hop') bob = a.hop >= 0 ? Math.sin(a.hop * Math.PI) * 0.25 : 0;
-    else if (style === 'wings' || style === 'buzz') bob = Math.sin(time * 9) * 0.03;
+    else if (style === 'wings') bob = Math.sin(time * 9) * 0.03;
+    // ong: bay lượn lắc lư (lên xuống chậm + rung nhẹ theo nhịp cánh)
+    else if (style === 'buzz') bob = Math.sin(time * 3.2) * 0.1 + Math.sin(time * 23) * 0.015;
     else bob = Math.sin(time * 1.3) * 0.04;
     if (style === 'hop' && a.hop < 0) sq *= 1 - Math.max(0, Math.sin(time * 2)) * 0.03;
 
@@ -190,7 +193,14 @@ export function PhotoAnimal({ def, look, agent, active, phase, onTap, onLoaded }
     tg.position.y = bob + jump;
     tg.scale.set(1 / Math.sqrt(sq), sq, 1);
     tg.rotation.x = style === 'manta' ? -0.55 : 0;
-    tg.rotation.z = style === 'walk' ? Math.sin(st * 2) * 0.012 * m : style === 'float' ? Math.sin(time * 1.2) * 0.04 : a.pitch * facing.current * 0.25;
+    tg.rotation.z =
+      style === 'walk'
+        ? Math.sin(st * 2) * 0.012 * m
+        : style === 'float'
+          ? Math.sin(time * 1.2) * 0.04
+          : style === 'buzz'
+            ? Math.sin(time * 2.7) * 0.2
+            : a.pitch * facing.current * 0.25;
   });
 
   return (
