@@ -84,7 +84,7 @@ export const WORLD_LOOK: Record<string, Look> = {
   raccoon: photo('walk'),
   bear: { kind: 'model', file: 'bear', rot: [0, -Math.PI / 2, 0], deform: 'walk' },
   // Biển
-  whale: { kind: 'model', file: 'whale', rot: [-0.6, 0, 0], turn: Math.PI / 2, pitch: -0.4, deform: 'none', move: 'Take 001', clipSpeed: 0.8 },
+  whale: { kind: 'model', file: 'whale', rot: [-0.6, 0, 0], turn: Math.PI / 2, pitch: -0.2, deform: 'none', move: 'Take 001', clipSpeed: 0.8 },
   dolphin: { kind: 'model', file: 'dolphin', rot: [0, 0, 0], deform: 'none', move: 'Take 001' },
   clownfish: photo('fish'),
   puffer: photo('puffer'),
