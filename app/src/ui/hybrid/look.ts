@@ -47,6 +47,8 @@ export type ModelLook = {
   clipSpeed?: number;
   /** model có xương nhưng clip không dùng được (đứng im, chỉ có idle): vẽ tĩnh ở dáng gốc và uốn đỉnh */
   bake?: boolean;
+  /** bỏ mesh có tên (hoặc tên vật liệu) bắt đầu bằng chuỗi này: đĩa nền kèm theo model */
+  skip?: string;
   scale?: number;
 };
 
@@ -58,7 +60,7 @@ export const WORLD_LOOK: Record<string, Look> = {
   // Đồng cỏ
   horse: { kind: 'model', file: 'horse', rot: [0, 0, 0], deform: 'walk' },
   zebra: { kind: 'model', file: 'zebra', rot: [0, 0, 0], deform: 'walk' },
-  giraffe: { kind: 'model', file: 'giraffe', rot: [0, 0, 0], deform: 'walk', bake: true },
+  giraffe: { kind: 'model', file: 'giraffe', rot: [0, 0, 0], deform: 'walk', bake: true, skip: 'Circle' },
   elephant: { kind: 'model', file: 'elephant', rot: [0, 0, 0], deform: 'walk', bake: true },
   lion: photo('walk'),
   // Ao hồ

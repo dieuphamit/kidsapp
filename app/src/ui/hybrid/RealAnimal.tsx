@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useAnimations, useGLTF } from '@react-three/drei';
-import { Box3, BufferGeometry, Euler, Float32BufferAttribute, LoopRepeat, Matrix4, Vector3, type BufferAttribute, type Group, type Material, type Mesh, type Object3D } from 'three';
+import { Box3, BufferGeometry, Euler, Float32BufferAttribute, LoopRepeat, Matrix4, Vector3, type BufferAttribute, type Group, type Material, type Mesh, type Object3D, type SkinnedMesh } from 'three';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { reactJump, type Agent } from '../../core/steer';
 import type { WorldAnimal } from '../../core/worldAnimals';
@@ -22,14 +22,15 @@ type Part = { geo: BufferGeometry; base: Float32Array; mat: Material };
 type Baked = { parts: Part[]; box: Box3 };
 
 /** Gộp mọi mesh tĩnh về hệ toạ độ của gốc model, xoay về chuẩn */
-function bake(scene: Object3D, rot: Matrix4): Baked {
+function bake(scene: Object3D, rot: Matrix4, skip?: string): Baked {
   scene.updateMatrixWorld(true);
   const inv = new Matrix4().copy(scene.matrixWorld).invert();
   const parts: Part[] = [];
   const box = new Box3();
   scene.traverse((o) => {
     const m = o as Mesh;
-    if (!m.isMesh || !m.visible) return;
+    const mat = Array.isArray(m.material) ? m.material[0] : m.material;
+    if (!m.isMesh || !m.visible || (skip && (mat.name === skip || m.name.startsWith(skip)))) return;
     const g = m.geometry.clone();
     // meshopt lượng tử hoá đỉnh (Int16 chuẩn hoá): đổi sang Float32 trước khi nhân ma trận, nếu không toạ độ
     // mới bị kẹp vào [-1, 1] của kiểu số nguyên và con vật biến thành một khối hộp
@@ -44,10 +45,21 @@ function bake(scene: Object3D, rot: Matrix4): Baked {
       }
       g.setAttribute(name, new Float32BufferAttribute(f, 3));
     }
+    // Mesh có xương: lấy dáng đang đứng (áp xương ở tư thế gốc), không phải toạ độ bind thô
+    const sk = m as Mesh & Partial<SkinnedMesh>;
+    if (sk.isSkinnedMesh && sk.applyBoneTransform) {
+      const pos = g.getAttribute('position');
+      const v = new Vector3();
+      for (let i = 0; i < pos.count; i++) {
+        sk.applyBoneTransform(i, v.fromBufferAttribute(pos, i));
+        pos.setXYZ(i, v.x, v.y, v.z);
+      }
+      g.deleteAttribute('skinIndex');
+      g.deleteAttribute('skinWeight');
+    }
     g.applyMatrix4(new Matrix4().multiplyMatrices(rot, new Matrix4().multiplyMatrices(inv, m.matrixWorld)));
     g.computeBoundingBox();
     box.union(g.boundingBox!);
-    const mat = Array.isArray(m.material) ? m.material[0] : m.material;
     parts.push({ geo: g, base: Float32Array.from(g.attributes.position.array), mat });
   });
   return { parts, box };
@@ -77,9 +89,9 @@ export function RealAnimal({ def, look, agent, active, phase, onTap, onLoaded }:
       c.updateMatrixWorld(true);
       return { skinned: c, baked: null, box: new Box3().setFromObject(c, true) };
     }
-    const b = bake(gltf.scene, new Matrix4().makeRotationFromEuler(new Euler(rx, ry, rz)));
+    const b = bake(gltf.scene, new Matrix4().makeRotationFromEuler(new Euler(rx, ry, rz)), look.skip);
     return { skinned: null, baked: b, box: b.box };
-  }, [animated, gltf.scene, rx, ry, rz]);
+  }, [animated, gltf.scene, rx, ry, rz, look.skip]);
   useEffect(() => () => baked?.parts.forEach((p) => p.geo.dispose()), [baked]);
 
   const { scale, offset, size } = useMemo(() => {
