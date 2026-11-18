@@ -21,6 +21,14 @@ const SEG_X = 24;
 const SEG_Y = 10;
 /** cho thân to hơn khung thân của WORLD_ANIMALS một chút: ảnh thật không có phần thừa như model đồ chơi */
 const FIT = 1.1;
+/** quay đầu: thời gian (giây) và mức co ảnh ở giữa chừng (không bao giờ dẹt theo chiều ngang) */
+export const FLIP_TIME = 0.3;
+export const FLIP_SHRINK = 0.35;
+
+/** Cỡ ảnh (cả ngang lẫn dọc) ở tiến độ quay đầu t (0..1): co nhẹ rồi nở lại, không bao giờ dưới 1 - FLIP_SHRINK */
+export function turnScale(t: number): number {
+  return 1 - FLIP_SHRINK * Math.sin(Math.min(1, Math.max(0, t)) * Math.PI);
+}
 
 /** Cỡ tấm ảnh (rộng, cao) vừa trong khung thân của con vật */
 export function photoSize(def: WorldAnimal, look: PhotoLook, meta: Meta): [number, number] {
@@ -75,7 +83,10 @@ export function PhotoAnimal({ def, look, agent, active, phase, onTap, onLoaded }
   const tilt = useRef<Group>(null);
   // +1: quay mặt sang phải (x tăng); giữ hướng cũ khi đứng yên hoặc đi về phía camera
   const facing = useRef(Math.sin(agent.heading) >= 0 ? 1 : -1);
-  const flip = useRef(Math.sin(agent.heading) >= 0 ? 1 : -1);
+  // hướng đang vẽ (±1) và tiến độ quay đầu (1 = xong). Quay đầu = soi gương ảnh: co cả ảnh lại rồi đổi dấu ở giữa
+  // chừng, không bóp dẹt theo chiều ngang, nên không bao giờ thấy ảnh mỏng như lát cắt
+  const shown = useRef(Math.sin(agent.heading) >= 0 ? 1 : -1);
+  const turnT = useRef(1);
   const stride = useRef(phase * 2);
 
   useFrame((frame, rawDt) => {
@@ -90,8 +101,14 @@ export function PhotoAnimal({ def, look, agent, active, phase, onTap, onLoaded }
     const s = Math.sin(a.heading);
     if ((a.moving > 0.2 || a.motion === 'fly') && Math.abs(s) > 0.25) facing.current = s > 0 ? 1 : -1;
     // chạm: quay mặt về phía bé (giữ hướng hiện tại)
-    flip.current += (facing.current - flip.current) * Math.min(1, dt * 7);
-    f.scale.x = flip.current * (headLeft ? -1 : 1);
+    if (facing.current !== shown.current && turnT.current >= 1) turnT.current = 0;
+    let k = 1;
+    if (turnT.current < 1) {
+      turnT.current = Math.min(1, turnT.current + dt / FLIP_TIME);
+      if (turnT.current >= 0.5) shown.current = facing.current;
+      k = turnScale(turnT.current);
+    }
+    f.scale.set(shown.current * (headLeft ? -1 : 1) * k, k, k);
 
     const m = a.moving;
     stride.current += a.speed * dt * (grounded ? 9 : 6);

@@ -3,7 +3,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { HABITAT_IDS, HABITATS, WORLD_ANIMALS } from '../../core/worldAnimals';
 import { WORLD_LOOK } from './look';
-import { PHOTO_META, photoSize } from './PhotoAnimal';
+import { PHOTO_META, photoSize, turnScale } from './PhotoAnimal';
 
 const PUBLIC = join(import.meta.dirname, '../../../public');
 const modelFile = (f: string) => join(PUBLIC, 'models/world/real', `${f}.glb`);
@@ -67,6 +67,12 @@ describe('WORLD_LOOK (thú Thế giới: model 3D có texture hoặc ảnh thậ
     if (look.kind !== 'photo') return;
     const [w, h] = photoSize(WORLD_ANIMALS.bee, look, PHOTO_META.bee);
     expect(Math.min(w, h)).toBeGreaterThanOrEqual(0.95);
+  });
+
+  it('ảnh quay đầu bằng soi gương: không bao giờ bóp dẹt thành lát mỏng (cá đuối, cá, chim)', () => {
+    for (let t = 0; t <= 1.0001; t += 0.01) expect(turnScale(t)).toBeGreaterThanOrEqual(0.6);
+    expect(turnScale(0)).toBe(1);
+    expect(turnScale(1)).toBeCloseTo(1);
   });
 
   it('cá voi là con lớn nhất khu Biển', () => {

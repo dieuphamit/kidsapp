@@ -35,7 +35,8 @@ const PHOTOS_WORLD = {
   duck: { file: 'Mallard Drake (Anas Platyrhynchos).jpg', face: 'right', crop: [0, 0, 1, 0.56] },
   // Trời
   bee: { file: 'Honey bee flying.JPG', face: 'left', crop: [0.36, 0.02, 0.8, 0.68] },
-  parrot: { file: 'Ara macao -flying away-8a.jpg', face: 'right', crop: [0.08, 0, 1, 1] },
+  // bay nghiêng, nền đen: đủ hai cánh, không bị cắt mép
+  parrot: { file: 'Scarlet Macaws -11 100- (33404691865).jpg', face: 'right', crop: [0.5, 0, 1, 1] },
   // dang hai cánh sẫm, nhìn từ dưới lên: vỗ cánh đều hai bên (kiểu 'wings')
   bat: { file: 'Mauritian flying fox (Pteropus niger) in flight 3.jpg', face: 'right' },
   pigeon: { file: 'Common pigeon at Waterlow Park, London 01.jpg', face: 'left' },

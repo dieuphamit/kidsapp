@@ -45,8 +45,8 @@
   "face": "left"
  },
  "parrot": {
-  "w": 640,
-  "h": 601,
+  "w": 639,
+  "h": 299,
   "face": "right"
  },
  "bat": {

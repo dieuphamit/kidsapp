@@ -17,6 +17,8 @@ import { HitBox } from './HitBox';
 
 /** to hơn khung thân WORLD_ANIMALS một chút (model thật không có phần thừa như model đồ chơi) */
 const FIT = 1.1;
+/** con `side`: lệch tối đa khỏi hướng nghiêng (rad) */
+const SIDE_MAX = 0.6;
 
 type Part = { geo: BufferGeometry; base: Float32Array; mat: Material };
 type Baked = { parts: Part[]; box: Box3 };
@@ -93,12 +95,13 @@ export function RealAnimal({ def, look, agent, active, phase, onTap, onLoaded }:
       const tilt = new Group();
       holder.rotation.y = turn;
       tilt.rotation.x = pitch;
-      tilt.add(c);
-      holder.add(tilt);
-      holder.updateMatrixWorld(true);
-      return { skinned: holder, baked: null, box: new Box3().setFromObject(holder, true) };
+      // quay đầu trước (holder), ngóc/chúc sau (tilt, bọc ngoài) để pitch luôn quanh trục ngang của thân
+      holder.add(c);
+      tilt.add(holder);
+      tilt.updateMatrixWorld(true);
+      return { skinned: tilt, baked: null, box: new Box3().setFromObject(tilt, true) };
     }
-    const b = bake(gltf.scene, new Matrix4().makeRotationY(turn).multiply(new Matrix4().makeRotationX(pitch)).multiply(new Matrix4().makeRotationFromEuler(new Euler(rx, ry, rz))), look.skip);
+    const b = bake(gltf.scene, new Matrix4().makeRotationX(pitch).multiply(new Matrix4().makeRotationY(turn)).multiply(new Matrix4().makeRotationFromEuler(new Euler(rx, ry, rz))), look.skip);
     return { skinned: null, baked: b, box: b.box };
   }, [animated, gltf.scene, rx, ry, rz, turn, pitch, look.skip]);
   useEffect(() => () => baked?.parts.forEach((p) => p.geo.dispose()), [baked]);
@@ -140,6 +143,8 @@ export function RealAnimal({ def, look, agent, active, phase, onTap, onLoaded }:
   const body = useRef<Group>(null);
   const stride = useRef(phase * 2);
   const walkW = useRef(1);
+  const sideSign = useRef(Math.sin(agent.yaw) >= 0 ? 1 : -1);
+  const shownYaw = useRef(agent.yaw);
 
   useFrame((frame, rawDt) => {
     if (!active) return;
@@ -180,7 +185,12 @@ export function RealAnimal({ def, look, agent, active, phase, onTap, onLoaded }:
           let x = x0;
           let y = y0;
           let z = z0;
-          if (look.deform === 'swim') {
+          if (look.deform === 'fluke') {
+            // cá voi/cá heo: thân uốn sóng lên xuống, mạnh dần về đuôi (không lắc ngang như cá)
+            const t = (max.z - z0) / L;
+            const k = Math.max(0, t - 0.25) / 0.75;
+            y += Math.sin(time * 2.2 - t * 3) * L * 0.07 * k * k;
+          } else if (look.deform === 'swim') {
             const t = (max.z - z0) / L; // 0 ở mũi (+z), 1 ở đuôi
             const k = Math.max(0, t - 0.3) / 0.7;
             x += Math.sin(time * 8 - t * 4) * L * 0.12 * k * k;
@@ -221,9 +231,22 @@ export function RealAnimal({ def, look, agent, active, phase, onTap, onLoaded }:
     // Con đứng yên một góc: lắc lư nhẹ quanh hướng nhìn camera
     const sway = a.fixed && a.mode === 'idle' ? Math.sin(time * 0.6) * 0.15 : 0;
     r.position.set(a.x, a.y + (grounded ? 0 : a.halfH), a.z);
-    yg.rotation.y = a.yaw + sway;
+    let yaw = a.yaw + sway;
+    if (look.side) {
+      // con dài (cá voi): luôn cho bé thấy thân nghiêng, không quay thẳng mặt về camera (trông như một cục tròn)
+      const sn = Math.sin(yaw);
+      if (Math.abs(sn) > 0.3) sideSign.current = sn > 0 ? 1 : -1;
+      const base = (sideSign.current * Math.PI) / 2;
+      const off = Math.atan2(Math.sin(yaw - base), Math.cos(yaw - base));
+      const target = base + Math.max(-SIDE_MAX, Math.min(SIDE_MAX, off));
+      const d = Math.atan2(Math.sin(target - shownYaw.current), Math.cos(target - shownYaw.current));
+      shownYaw.current += d * Math.min(1, dt * 3);
+      yaw = shownYaw.current;
+    }
+    yg.rotation.y = yaw;
     b.position.y = bob + jump;
-    b.rotation.set(-a.pitch, 0, a.roll + (grounded ? Math.sin(st) * 0.02 * m : 0));
+    // con bơi lớn (cá voi, cá heo): ngóc/chúc theo độ sâu một nửa thôi, tránh cắm đầu gần thẳng đứng
+    b.rotation.set(-a.pitch * (grounded ? 1 : 0.5), 0, a.roll + (grounded ? Math.sin(st) * 0.02 * m : 0));
   });
 
   return (
