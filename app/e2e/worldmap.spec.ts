@@ -7,9 +7,9 @@ mkdirSync('test-results/shots', { recursive: true });
 type Box = { x: number; y: number; width: number; height: number };
 
 const STAGE = { width: 1194, height: 834 };
-// 5 khu theo thứ tự; house chưa có trò (phase 3 thêm) nên có thể ẩn
-const PLACE_IDS = ['zoo', 'house', 'orchard', 'puzzle', 'music'];
-const WITH_GAMES = ['zoo', 'orchard', 'puzzle', 'music'];
+// 6 khu theo thứ tự; house chưa có trò (phase 3 thêm) nên có thể ẩn; pond có Tắm cho thú
+const PLACE_IDS = ['zoo', 'house', 'orchard', 'pond', 'puzzle', 'music'];
+const WITH_GAMES = ['zoo', 'orchard', 'pond', 'puzzle', 'music'];
 
 function overlap(a: Box, b: Box, gap = 0): boolean {
   return !(
@@ -26,7 +26,7 @@ async function placeButtons(page: Page) {
   return { ids, buttons: ids.map((id) => page.getByTestId(`place-${id}`).getByRole('button')) };
 }
 
-test('bản đồ có các khu trong 5 khu (zoo, house, orchard, puzzle, music), không còn trang trại / hồ nước', async ({ page }) => {
+test('bản đồ có các khu trong 6 khu (zoo, house, orchard, pond, puzzle, music), không còn trang trại', async ({ page }) => {
   await page.goto('./');
   await expect(page.getByTestId('home')).toBeVisible();
   await expect(page.getByTestId('place-music')).toBeVisible();
@@ -42,7 +42,8 @@ test('bản đồ có các khu trong 5 khu (zoo, house, orchard, puzzle, music),
   await expect(page.getByLabel('Góc đố')).toBeVisible();
   await expect(page.getByLabel('Nhà âm nhạc')).toBeVisible();
   await expect(page.getByLabel('Trang trại')).toHaveCount(0);
-  await expect(page.getByLabel('Hồ nước')).toHaveCount(0);
+  await expect(page.getByLabel('Hồ nước')).toBeVisible();
+  await expect(page.getByTestId('place-pond').getByTestId('strip')).toHaveText('🛁');
 
   // dải icon trò: Thế giới thú có 6 trò nhưng chỉ hiện 4 icon đầu
   await expect(page.getByTestId('place-zoo').getByTestId('strip')).toHaveText('🌍🐄🦁🔊');

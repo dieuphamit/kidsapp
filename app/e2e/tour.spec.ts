@@ -1,4 +1,4 @@
-// T-042: đi hết 18 trò ở cả hai kiểu menu (bản đồ 5 khu và kệ đồ chơi); mỗi trò Về nhà quay lại đúng menu.
+// T-042: đi hết 19 trò ở cả hai kiểu menu (bản đồ 6 khu và kệ đồ chơi); mỗi trò Về nhà quay lại đúng menu.
 import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { pickGame } from './pick.js';
@@ -20,6 +20,7 @@ const ROUTES: [string, string, string][] = [
   ['sort', 'Vườn quả', 'game-sort'],
   ['shapes', 'Vườn quả', 'game-shapes'],
   ['pattern', 'Vườn quả', 'game-pattern'],
+  ['bath', 'Hồ nước', 'game-bath'],
   ['memory', 'Góc đố', 'game-memory'],
   ['puzzle', 'Góc đố', 'game-puzzle'],
   ['path', 'Góc đố', 'game-path'],
