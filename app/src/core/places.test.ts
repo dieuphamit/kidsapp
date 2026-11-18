@@ -4,29 +4,33 @@ import { contentByKey } from './content';
 import { ALL_GAMES } from './games';
 
 describe('places', () => {
-  it('đúng 6 khu theo thứ tự, mỗi khu có icon và màu', () => {
+  it('đúng 7 khu theo thứ tự, mỗi khu có icon và màu', () => {
     expect(PLACES.map((p) => p.key)).toEqual([
       'place.zoo',
       'place.house',
       'place.orchard',
+      'place.pond',
       'place.puzzle',
       'place.music',
       'place.farm',
     ]);
-    expect(PLACES.map((p) => p.icon)).toEqual(['🦁', '🏠', '🍎', '🧩', '🎵', '🐮']);
-    expect(PLACES.map((p) => p.color)).toEqual(['peach', 'butter', 'leaf', 'mint', 'lilac', 'leaf']);
+    expect(PLACES.map((p) => p.icon)).toEqual(['🦁', '🏠', '🍎', '🦆', '🧩', '🎵', '🐮']);
+    expect(PLACES.map((p) => p.color)).toEqual(['peach', 'butter', 'leaf', 'mint', 'mint', 'lilac', 'leaf']);
   });
 
   it('placeOrder trả chỉ số, khu lạ xếp cuối', () => {
     expect(placeOrder('place.zoo')).toBe(0);
-    expect(placeOrder('place.music')).toBe(4);
-    expect(placeOrder('place.farm')).toBe(5);
-    expect(placeOrder('place.pond')).toBe(6);
+    expect(placeOrder('place.pond')).toBe(3);
+    expect(placeOrder('place.music')).toBe(5);
+    expect(placeOrder('place.farm')).toBe(6);
+    expect(placeOrder('place.lake')).toBe(7);
   });
 
   it('placeByKey tìm được khu', () => {
     expect(placeByKey('place.puzzle')?.icon).toBe('🧩');
-    expect(placeByKey('place.pond')).toBeUndefined();
+    expect(placeByKey('place.pond')?.icon).toBe('🦆');
+    expect(placeByKey('place.farm')?.icon).toBe('🐮');
+    expect(placeByKey('place.lake')).toBeUndefined();
   });
 
   it('mỗi khu có tên vi và ja trong content', () => {
@@ -37,7 +41,7 @@ describe('places', () => {
     }
   });
 
-  it('mọi trò nằm trong một trong 6 khu, đúng thứ tự trong khu', () => {
+  it('mọi trò nằm trong một trong 7 khu, đúng thứ tự trong khu', () => {
     const byId = new Map(ALL_GAMES.map((g) => [g.id, g]));
     for (const g of ALL_GAMES) expect(placeOrder(g.place), g.id).toBeLessThan(PLACES.length);
     const expected: [string, string, number][] = [
@@ -49,6 +53,7 @@ describe('places', () => {
       ['counting', 'place.orchard', 0],
       ['sort', 'place.orchard', 1],
       ['shapes', 'place.orchard', 2],
+      ['bath', 'place.pond', 0],
       ['memory', 'place.puzzle', 0],
       ['puzzle', 'place.puzzle', 1],
       ['music', 'place.music', 0],

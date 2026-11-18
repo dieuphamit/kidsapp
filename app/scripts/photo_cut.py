@@ -125,8 +125,8 @@ def main():
             x0, y0, x1, y1 = job['crop']
             W, H = img.size
             img = img.crop((round(x0 * W), round(y0 * H), round(x1 * W), round(y1 * H)))
-        # Làm việc ở ~1600px là đủ cho thẻ 512px.
-        sc = 1600 / max(img.size)
+        # Làm việc ở ~1600px là đủ cho thẻ 512px (thẻ lớn của bath đặt "work" riêng).
+        sc = job.get('work', 1600) / max(img.size)
         if sc < 1:
             img = img.resize((round(img.width * sc), round(img.height * sc)), Image.LANCZOS)
         if job.get('scene'):
@@ -158,7 +158,7 @@ def main():
         rgb = np.asarray(img, dtype=np.float32)
         rgb = decontaminate(rgb, a)
         out = np.dstack([np.clip(rgb, 0, 255), a * 255]).astype(np.uint8)
-        card = fit(Image.fromarray(out, 'RGBA'), size, fill)
+        card = fit(Image.fromarray(out, 'RGBA'), job.get('size', size), fill)
         # Mép trong suốt hoàn toàn: đặt RGB = 0 để PNG nén tốt hơn.
         arr = np.asarray(card).copy()
         # Xóa đốm rời nhỏ (< 40px) để bóng trong trò Bóng hình sạch.
@@ -169,7 +169,7 @@ def main():
             arr[tiny, 3] = 0
         arr[arr[..., 3] == 0, :3] = 0
         final = Image.fromarray(arr, 'RGBA')
-        save_small(final, job['out'], Image.Quantize.FASTOCTREE)
+        save_small(final, job['out'], Image.Quantize.FASTOCTREE, limit=job.get('limit') or 120 * 1024)
         print(job['id'], 'ok', flush=True)
 
 

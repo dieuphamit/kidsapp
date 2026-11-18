@@ -94,6 +94,18 @@ const CARDS = {
   'story/rain-3': { file: 'WhereRainbowRises.jpg', scene: true },
   'extra/candle': { file: 'Birthday candle, Downpatrick, July 2010.JPG' },
   'extra/chocolate': { file: '2023 Gorzka czekolada.jpg', keep: 'all' },
+  // bath: tắm cho thú — thú chiếm ~60% màn hình nên cần thẻ lớn (size 1024, ≤ limitKB).
+  // width: cỡ ảnh tải từ Commons, chỉ dùng cỡ thumbnail chuẩn 1920/3840 (tải ảnh gốc bị Wikimedia chặn 429);
+  // work: cỡ làm việc khi tách nền (mặc định 1600).
+  // Chọn thú lông sáng để vệt bùn nâu nhìn rõ. Không nằm trong cards/index.json.
+  'bath/pig': { file: 'Pigs in the Altai Mountains. Village Ortolyk.jpg', crop: [0.73, 0.38, 0.975, 0.71], width: 3840, size: 1024, limitKB: 450 },
+  'bath/dog': { file: 'Golden Retriever Puppy in the House.JPG', width: 1920, work: 1920, size: 1024, limitKB: 450 },
+  'bath/sheep': { file: 'Lamb 09807-a.jpg', width: 1920, work: 1920, size: 1024, limitKB: 450 },
+  'bath/duck': { file: 'Pekin duck in Buddha park lake, Eluru.jpg', width: 3840, work: 3200, size: 1024, limitKB: 450 },
+  'bath/elephant': { file: '178 Male African bush elephant in Etosha National Park Photo by Giles Laurent.jpg', width: 3840, work: 3000, size: 1024, limitKB: 450 },
+  'bath/panda': { file: 'Chengdu Sichuan China Panda-breeding-and-research-center-02.jpg', width: 1920, work: 1920, size: 1024, limitKB: 450 },
+  'bath/cow': { file: 'HF in der Rhön auf der Weide.jpg', width: 3840, work: 3000, size: 1024, limitKB: 450 },
+  'bath/rabbit': { file: 'Heimtier 004 2023 08 26.jpg', width: 3840, work: 3000, size: 1024, limitKB: 450 },
   // mama: mẹ và con
   // Trò "Mẹ ơi, con đâu?": thú con (cards/baby/) và thú mẹ chưa có thẻ trưởng thành (cards/mama/).
   // Không nằm trong cards/index.json. Mẹ bò, vịt, ngựa, chó dùng lại thẻ cow, duck, horse, dog.
@@ -124,7 +136,7 @@ async function get(url) {
   throw new Error('tải thất bại: ' + url);
 }
 
-async function fetchPhoto(id, file) {
+async function fetchPhoto(id, file, width = 1920) {
   const metaPath = join(PHOTOS, `${id}.json`);
   const imgPath = join(PHOTOS, `${id}.jpg`);
   mkdirSync(dirname(imgPath), { recursive: true });
@@ -134,7 +146,7 @@ async function fetchPhoto(id, file) {
   }
   const p = new URLSearchParams({
     action: 'query', format: 'json', titles: 'File:' + file, prop: 'imageinfo',
-    iiprop: 'url|extmetadata|size', iiurlwidth: '1920',
+    iiprop: 'url|extmetadata|size', iiurlwidth: String(width),
   });
   const j = await (await get(`${API}?${p}`)).json();
   const page = Object.values(j.query.pages)[0];
@@ -150,7 +162,7 @@ async function fetchPhoto(id, file) {
   };
   if (!OK_LICENSE.test(meta.license)) throw new Error(`${id}: giấy phép không nhận: ${meta.license}`);
   await sleep(1500);
-  const src = ii.thumburl && ii.width > 1920 ? ii.thumburl : ii.url;
+  const src = ii.thumburl && ii.width > width ? ii.thumburl : ii.url;
   const buf = Buffer.from(await (await get(src)).arrayBuffer());
   writeFileSync(imgPath, buf);
   writeFileSync(metaPath, JSON.stringify(meta, null, 2));
@@ -198,7 +210,7 @@ async function main() {
   const metas = [];
   for (const id of Object.keys(CARDS)) {
     // CREDITS.md luôn ghi đủ mọi thẻ; chỉ tải ảnh chưa có.
-    metas.push(await fetchPhoto(id, CARDS[id].file));
+    metas.push(await fetchPhoto(id, CARDS[id].file, CARDS[id].width));
   }
   writeCredits(metas);
 
@@ -206,6 +218,8 @@ async function main() {
     id, src: join(PHOTOS, `${id}.jpg`), out: join(OUT, `${id}.png`),
     crop: CARDS[id].crop, keep: CARDS[id].keep ?? 'largest', minPart: CARDS[id].minPart, thresh: CARDS[id].thresh,
     scene: CARDS[id].scene,
+    // bath: tắm cho thú — cỡ thẻ / cỡ làm việc / trần dung lượng riêng (thiếu thì theo mặc định chung)
+    size: CARDS[id].size, work: CARDS[id].work, limit: CARDS[id].limitKB ? CARDS[id].limitKB * 1024 : undefined,
   }));
   for (const j of jobs) mkdirSync(dirname(j.out), { recursive: true });
   const jobsPath = join(PHOTOS, 'jobs.json');
@@ -218,7 +232,7 @@ async function main() {
   if (r.status !== 0) throw new Error('photo_cut.py lỗi (mã ' + r.status + ')');
   for (const id of ids) {
     const kb = statSync(join(OUT, `${id}.png`)).size / 1024;
-    if (kb > 150) console.warn(`  ⚠ ${id}.png ${kb.toFixed(0)} KB > 150 KB`);
+    if (kb > (CARDS[id].limitKB ?? 150)) console.warn(`  ⚠ ${id}.png ${kb.toFixed(0)} KB > 150 KB`);
   }
 }
 

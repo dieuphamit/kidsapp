@@ -7,7 +7,7 @@ import { mkdirSync } from 'node:fs';
 test.beforeAll(() => mkdirSync('test-results/shots', { recursive: true }));
 
 // Khu đang có trò (Nhà Đậu Đậu chưa có trò nên bị ẩn)
-const PLACES = ['Thế giới thú', 'Vườn quả', 'Góc đố', 'Nhà âm nhạc', 'Trang trại'];
+const PLACES = ['Thế giới thú', 'Vườn quả', 'Hồ nước', 'Góc đố', 'Nhà âm nhạc', 'Trang trại'];
 
 async function expectPlacesInside(page: Page, vw: number, vh: number) {
   for (const name of PLACES) {

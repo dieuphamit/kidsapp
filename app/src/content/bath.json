@@ -1,0 +1,22 @@
+[
+  { "key": "game.bath", "vi": "Tắm cho thú", "ja": "どうぶつ おふろ", "en": "Bath time" },
+  { "key": "bath.hint", "vi": "Bé đưa ngón tay chà chà lên chỗ bùn nhé!", "ja": "ゆびで どろを ごしごし してね!", "en": "Rub the mud with your finger, scrub scrub!" },
+  { "key": "bath.shower", "vi": "Nhiều bọt quá! Bé bấm vòi sen để xả nước nào!", "ja": "あわあわ だね! シャワーを おしてね!", "en": "So many bubbles! Press the shower to rinse!" },
+  { "key": "bath.towel", "vi": "Ướt hết rồi! Bé lấy khăn lau khô nhé!", "ja": "びしょびしょ! タオルで ふいてあげてね!", "en": "All wet! Dry off with the towel!" },
+  { "key": "bath.dirty.pig", "vi": "Ôi, heo con lấm lem bùn rồi! Bé chà cho heo con nhé!", "ja": "あらら、こぶたさん どろんこ! ごしごし してあげてね!", "en": "Oh no, the piggy is all muddy! Let's scrub the piggy!" },
+  { "key": "bath.dirty.dog", "vi": "Ôi, cún con lấm lem bùn rồi! Bé chà cho cún con nhé!", "ja": "あらら、こいぬさん どろんこ! ごしごし してあげてね!", "en": "Oh no, the puppy is all muddy! Let's scrub the puppy!" },
+  { "key": "bath.dirty.sheep", "vi": "Ôi, cừu con lấm lem bùn rồi! Bé chà cho cừu con nhé!", "ja": "あらら、こひつじさん どろんこ! ごしごし してあげてね!", "en": "Oh no, the lamb is all muddy! Let's scrub the lamb!" },
+  { "key": "bath.dirty.duck", "vi": "Ôi, bạn vịt lấm lem bùn rồi! Bé chà cho bạn vịt nhé!", "ja": "あらら、あひるさん どろんこ! ごしごし してあげてね!", "en": "Oh no, the duck is all muddy! Let's scrub the duck!" },
+  { "key": "bath.dirty.elephant", "vi": "Ôi, bạn voi lấm lem bùn rồi! Bé chà cho bạn voi nhé!", "ja": "あらら、ぞうさん どろんこ! ごしごし してあげてね!", "en": "Oh no, the elephant is all muddy! Let's scrub the elephant!" },
+  { "key": "bath.dirty.panda", "vi": "Ôi, gấu trúc lấm lem bùn rồi! Bé chà cho gấu trúc nhé!", "ja": "あらら、パンダさん どろんこ! ごしごし してあげてね!", "en": "Oh no, the panda is all muddy! Let's scrub the panda!" },
+  { "key": "bath.dirty.cow", "vi": "Ôi, bạn bò lấm lem bùn rồi! Bé chà cho bạn bò nhé!", "ja": "あらら、うしさん どろんこ! ごしごし してあげてね!", "en": "Oh no, the cow is all muddy! Let's scrub the cow!" },
+  { "key": "bath.dirty.rabbit", "vi": "Ôi, thỏ con lấm lem bùn rồi! Bé chà cho thỏ con nhé!", "ja": "あらら、うさぎさん どろんこ! ごしごし してあげてね!", "en": "Oh no, the bunny is all muddy! Let's scrub the bunny!" },
+  { "key": "bath.clean.pig", "vi": "Heo con sạch bong rồi!", "ja": "こぶたさん ぴかぴか!", "en": "The piggy is squeaky clean!" },
+  { "key": "bath.clean.dog", "vi": "Cún con sạch bong rồi!", "ja": "こいぬさん ぴかぴか!", "en": "The puppy is squeaky clean!" },
+  { "key": "bath.clean.sheep", "vi": "Cừu con sạch bong rồi!", "ja": "こひつじさん ぴかぴか!", "en": "The lamb is squeaky clean!" },
+  { "key": "bath.clean.duck", "vi": "Bạn vịt sạch bong rồi!", "ja": "あひるさん ぴかぴか!", "en": "The duck is squeaky clean!" },
+  { "key": "bath.clean.elephant", "vi": "Bạn voi sạch bong rồi!", "ja": "ぞうさん ぴかぴか!", "en": "The elephant is squeaky clean!" },
+  { "key": "bath.clean.panda", "vi": "Gấu trúc sạch bong rồi!", "ja": "パンダさん ぴかぴか!", "en": "The panda is squeaky clean!" },
+  { "key": "bath.clean.cow", "vi": "Bạn bò sạch bong rồi!", "ja": "うしさん ぴかぴか!", "en": "The cow is squeaky clean!" },
+  { "key": "bath.clean.rabbit", "vi": "Thỏ con sạch bong rồi!", "ja": "うさぎさん ぴかぴか!", "en": "The bunny is squeaky clean!" }
+]

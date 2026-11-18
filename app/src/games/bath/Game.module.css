@@ -1,0 +1,381 @@
+/* Khung 1194×834 (Stage). Thú ở khung 680×680 bên trái-giữa; vòi sen bên phải, cách mép phải ≥144px
+   (góc phải trên là cổng phụ huynh). */
+.container {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--sky-top);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sceneSvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tubLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ---- Khung thú ---- */
+.tub {
+  position: absolute;
+  left: 170px;
+  top: 116px;
+  width: 680px;
+  height: 680px;
+}
+
+.enter {
+  animation: slideIn 720ms var(--ease-squish) both;
+}
+
+.leave {
+  animation: slideOut 500ms ease-in both;
+}
+
+@keyframes slideIn {
+  0% { transform: translateX(760px) rotate(6deg); }
+  100% { transform: none; }
+}
+
+@keyframes slideOut {
+  0% { transform: none; }
+  100% { transform: translateX(-960px) rotate(-6deg); }
+}
+
+/* Vũng nước xà phòng dưới chân + bóng đổ mềm (đặt theo hàng chân thú: --feet) */
+.puddle {
+  position: absolute;
+  left: 50%;
+  top: var(--feet, 90%);
+  width: 560px;
+  height: 84px;
+  transform: translate(-50%, -58%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 40%, var(--world-water-light) 0 55%, var(--world-water) 80%, transparent 81%);
+  opacity: 0.9;
+}
+
+.puddle::before {
+  content: '';
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 22%;
+  bottom: 26%;
+  border-radius: 50%;
+  background: rgba(60, 40, 120, 0.2);
+}
+
+.puddle::after {
+  content: '';
+  position: absolute;
+  left: 4%;
+  top: 30%;
+  width: 92%;
+  height: 46%;
+  background:
+    radial-gradient(circle at 4% 60%, var(--paper) 0 13px, transparent 14px),
+    radial-gradient(circle at 9% 30%, var(--paper) 0 9px, transparent 10px),
+    radial-gradient(circle at 92% 50%, var(--paper) 0 14px, transparent 15px),
+    radial-gradient(circle at 97% 24%, var(--paper) 0 8px, transparent 9px),
+    radial-gradient(circle at 86% 80%, var(--world-bubble) 0 9px, transparent 10px);
+}
+
+.animal {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% var(--feet, 90%);
+}
+
+.photo,
+.layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.photo {
+  pointer-events: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 10px 10px rgba(60, 40, 120, 0.18));
+}
+
+.layer {
+  pointer-events: none;
+}
+
+.touch {
+  pointer-events: auto;
+  touch-action: none;
+  cursor: pointer;
+}
+
+/* Nước xối cuốn bùn và bọt trôi xuống */
+.rinseAway {
+  transition: opacity 1200ms ease-in 250ms, transform 1400ms ease-in 250ms;
+  opacity: 0;
+  transform: translateY(60px);
+}
+
+.shake {
+  animation: shake 1300ms ease-in-out both;
+}
+
+@keyframes shake {
+  0%, 100% { transform: none; }
+  10% { transform: rotate(-6deg) translateX(-14px); }
+  22% { transform: rotate(6deg) translateX(14px); }
+  34% { transform: rotate(-5deg) translateX(-12px); }
+  46% { transform: rotate(5deg) translateX(12px); }
+  58% { transform: rotate(-3deg) translateX(-7px); }
+  70% { transform: rotate(3deg) translateX(7px); }
+  84% { transform: scale(1.04, 0.97); }
+}
+
+/* ---- Bọt biển và khăn đi theo ngón tay ---- */
+.sponge,
+.towel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 120ms;
+  will-change: transform;
+}
+
+.sponge[data-show='true'],
+.towel[data-show='true'] {
+  opacity: 1;
+}
+
+.sponge::before,
+.towel::before {
+  content: '';
+  position: absolute;
+  border-radius: 22px;
+  box-shadow: 0 8px 14px rgba(60, 40, 120, 0.25);
+}
+
+.sponge::before {
+  left: -52px;
+  top: -36px;
+  width: 104px;
+  height: 72px;
+  background:
+    radial-gradient(circle at 18% 30%, var(--scene-wicker) 0 4px, transparent 5px),
+    radial-gradient(circle at 46% 58%, var(--scene-wicker) 0 5px, transparent 6px),
+    radial-gradient(circle at 74% 28%, var(--scene-wicker) 0 3px, transparent 4px),
+    radial-gradient(circle at 82% 70%, var(--scene-wicker) 0 4px, transparent 5px),
+    radial-gradient(circle at 30% 78%, var(--scene-wicker) 0 3px, transparent 4px),
+    linear-gradient(180deg, var(--clay-butter) 0%, var(--learn-yellow) 100%);
+  transform: rotate(-10deg);
+}
+
+.towel::before {
+  left: -64px;
+  top: -44px;
+  width: 128px;
+  height: 88px;
+  border-radius: 18px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 20px, var(--learn-blue) 20px 30px),
+    var(--clay-peach);
+  transform: rotate(8deg);
+}
+
+/* ---- Gợi ý: bọt biển nhấp nháy ở chỗ còn bẩn ---- */
+.hint {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.hint::before {
+  content: '';
+  position: absolute;
+  left: -48px;
+  top: -34px;
+  width: 96px;
+  height: 66px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, var(--clay-butter) 0%, var(--learn-yellow) 100%);
+  box-shadow: 0 8px 14px rgba(60, 40, 120, 0.25);
+  animation: rub 900ms ease-in-out infinite;
+}
+
+@keyframes rub {
+  0%, 100% { transform: translate(-30px, 0) rotate(-12deg); }
+  50% { transform: translate(30px, 6px) rotate(8deg); }
+}
+
+/* ---- Nước văng khi lắc mình ---- */
+.splash {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  pointer-events: none;
+}
+
+.splash span {
+  position: absolute;
+  width: 18px;
+  height: 24px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: var(--world-water);
+  box-shadow: inset -3px -4px 0 rgba(60, 40, 120, 0.12);
+  animation: fly 900ms ease-out both;
+}
+
+@keyframes fly {
+  0% { transform: translate(0, 0) scale(0.4); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; }
+}
+
+/* ---- Lấp lánh khi sạch bong ---- */
+.sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sparkles span {
+  position: absolute;
+  width: calc(54px * var(--s, 1));
+  height: calc(54px * var(--s, 1));
+  margin: calc(-27px * var(--s, 1)) 0 0 calc(-27px * var(--s, 1));
+  background: var(--learn-yellow);
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+  filter: drop-shadow(0 0 6px var(--paper));
+  animation: twinkle 1300ms ease-in-out infinite both;
+}
+
+.sparkles span:nth-child(3n) {
+  background: var(--paper);
+}
+
+@keyframes twinkle {
+  0% { transform: scale(0) rotate(0deg); opacity: 0; }
+  40% { transform: scale(1.1) rotate(30deg); opacity: 1; }
+  100% { transform: scale(0.3) rotate(90deg); opacity: 0; }
+}
+
+/* ---- Vòi sen xối nước ---- */
+.shower {
+  position: absolute;
+  left: 170px;
+  top: 0;
+  width: 680px;
+  height: 834px;
+  pointer-events: none;
+}
+
+.showerPipe {
+  position: absolute;
+  left: calc(50% - 8px);
+  top: -10px;
+  width: 16px;
+  height: 56px;
+  border-radius: 8px;
+  background: var(--ink-soft);
+}
+
+.showerHead {
+  position: absolute;
+  left: calc(50% - 130px);
+  top: 36px;
+  width: 260px;
+  height: 64px;
+  border-radius: 20px 20px 130px 130px / 20px 20px 64px 64px;
+  background: linear-gradient(180deg, var(--learn-blue) 0%, var(--ink-soft) 140%);
+  box-shadow: var(--shadow-clay);
+  animation: drop-in 300ms var(--ease-squish) both;
+}
+
+@keyframes drop-in {
+  0% { transform: translateY(-120px); }
+  100% { transform: none; }
+}
+
+.stream {
+  position: absolute;
+  top: 96px;
+  width: 7px;
+  height: 130px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, var(--world-water-light) 0%, var(--world-water) 100%);
+  opacity: 0;
+  animation: fall 560ms linear infinite;
+}
+
+@keyframes fall {
+  0% { transform: translateY(0); opacity: 0; }
+  12% { opacity: 0.95; }
+  100% { transform: translateY(600px); opacity: 0.7; }
+}
+
+/* ---- Nút vòi sen ---- */
+.showerBtn {
+  position: absolute;
+  left: 880px;
+  top: 330px;
+  pointer-events: auto;
+  animation: pop-in 520ms var(--ease-squish) both;
+}
+
+/* Nút đứng yên (dễ chạm), chỉ hình vòi sen bên trong nhún nhảy mời bấm */
+.showerBtn svg {
+  animation: nudge 1600ms ease-in-out 700ms infinite;
+}
+
+@keyframes pop-in {
+  0% { opacity: 0; scale: 0.4; }
+  100% { opacity: 1; scale: 1; }
+}
+
+@keyframes nudge {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(-6deg); }
+}
+
+.iconDrop {
+  animation: icon-drip 900ms ease-in infinite;
+}
+
+@keyframes icon-drip {
+  0% { transform: translateY(-4px); opacity: 0.3; }
+  60% { opacity: 1; }
+  100% { transform: translateY(8px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enter,
+  .leave,
+  .shake,
+  .showerBtn,
+  .showerBtn svg,
+  .hint::before,
+  .iconDrop {
+    animation: none;
+  }
+}
+
+/* Bùn nhân màu lên ảnh (multiply): vân lông thật vẫn hiện qua lớp bùn, như lông bị lấm bẩn */
+.mud {
+  mix-blend-mode: multiply;
+}
