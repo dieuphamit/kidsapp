@@ -19,9 +19,11 @@ export const REPLAY_DELAY_MS = 300;
 /** Số icon trò tối đa trong dải icon của một khu. */
 const STRIP_MAX = 4;
 
-// Bố cục: zoo trên trái, orchard trên phải, house dưới trái, puzzle dưới giữa, music dưới phải
+// Bố cục: zoo trên trái, farm giữa trái, orchard trên phải, house dưới trái, puzzle dưới giữa, music dưới phải
+// (giữa phải để trống cho nút chơi lại cạnh Đậu Đậu)
 const LAYOUT: Record<string, { posClass: string; facing: Facing }> = {
   'place.zoo': { posClass: styles.topLeft, facing: -1 },
+  'place.farm': { posClass: styles.middleLeft, facing: -1 },
   'place.orchard': { posClass: styles.topRight, facing: 1 },
   'place.house': { posClass: styles.bottomLeft, facing: -1 },
   'place.puzzle': { posClass: styles.bottomCenter, facing: 0 },

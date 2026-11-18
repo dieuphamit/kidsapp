@@ -68,11 +68,17 @@ describe('WorldMap', () => {
     }
   });
 
-  it('bỏ trang trại và hồ nước khỏi bản đồ', () => {
+  it('có trò ở trang trại thì hiện khu Trang trại (cuối danh sách); khu lạ như hồ nước thì không', () => {
     const games = [...FIVE, makeGame('f', 'place.farm'), makeGame('w', 'place.pond')];
     render(<WorldMap games={games} lang="vi" speaker={mockSpeaker()} onPick={vi.fn()} />);
-    expect(screen.queryByLabelText('Trang trại')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Trang trại')).toBeInTheDocument();
+    expect(screen.getByTestId('place-farm')).toBeInTheDocument();
     expect(screen.queryByLabelText('Hồ nước')).not.toBeInTheDocument();
+  });
+
+  it('không có trò ở trang trại thì ẩn khu Trang trại', () => {
+    render(<WorldMap games={FIVE} lang="vi" speaker={mockSpeaker()} onPick={vi.fn()} />);
+    expect(screen.queryByLabelText('Trang trại')).not.toBeInTheDocument();
   });
 
   it('ẩn khu không có trò', () => {

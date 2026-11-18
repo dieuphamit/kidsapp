@@ -1,0 +1,21 @@
+[
+  { "key": "game.mama", "vi": "Mẹ ơi, con đâu?", "ja": "ママは どこ?", "en": "Where's my mommy?" },
+  { "key": "mama.hello", "vi": "Các bạn nhỏ lạc mẹ rồi! Bé giúp các bạn tìm mẹ nhé!", "ja": "あかちゃんが まいごだよ! ママを さがして あげてね!", "en": "The babies are lost! Let's help them find their mommies!" },
+  { "key": "mama.done", "vi": "Giỏi quá! Các bạn nhỏ đều tìm được mẹ rồi!", "ja": "やったね! みんな ママに あえたよ!", "en": "Hooray! Every baby found its mommy!" },
+
+  { "key": "mama.ask.calf", "vi": "Mẹ của bê con đâu nhỉ?", "ja": "こうしの ママは どこかな?", "en": "Where is the calf's mommy?" },
+  { "key": "mama.ask.chick", "vi": "Mẹ của gà con đâu nhỉ?", "ja": "ひよこの ママは どこかな?", "en": "Where is the chick's mommy?" },
+  { "key": "mama.ask.duckling", "vi": "Mẹ của vịt con đâu nhỉ?", "ja": "こがもの ママは どこかな?", "en": "Where is the duckling's mommy?" },
+  { "key": "mama.ask.lamb", "vi": "Mẹ của cừu non đâu nhỉ?", "ja": "こひつじの ママは どこかな?", "en": "Where is the lamb's mommy?" },
+  { "key": "mama.ask.piglet", "vi": "Mẹ của heo con đâu nhỉ?", "ja": "こぶたの ママは どこかな?", "en": "Where is the piglet's mommy?" },
+  { "key": "mama.ask.foal", "vi": "Mẹ của ngựa con đâu nhỉ?", "ja": "こうまの ママは どこかな?", "en": "Where is the foal's mommy?" },
+  { "key": "mama.ask.puppy", "vi": "Mẹ của cún con đâu nhỉ?", "ja": "こいぬの ママは どこかな?", "en": "Where is the puppy's mommy?" },
+
+  { "key": "mama.found.calf", "vi": "Bò mẹ và bê con!", "ja": "うしの ママと こうし!", "en": "Mommy cow and her calf!" },
+  { "key": "mama.found.chick", "vi": "Gà mẹ và gà con!", "ja": "にわとりの ママと ひよこ!", "en": "Mommy hen and her chick!" },
+  { "key": "mama.found.duckling", "vi": "Vịt mẹ và vịt con!", "ja": "あひるの ママと こがも!", "en": "Mommy duck and her duckling!" },
+  { "key": "mama.found.lamb", "vi": "Cừu mẹ và cừu non!", "ja": "ひつじの ママと こひつじ!", "en": "Mommy sheep and her lamb!" },
+  { "key": "mama.found.piglet", "vi": "Heo mẹ và heo con!", "ja": "ぶたの ママと こぶた!", "en": "Mommy pig and her piglet!" },
+  { "key": "mama.found.foal", "vi": "Ngựa mẹ và ngựa con!", "ja": "うまの ママと こうま!", "en": "Mommy horse and her foal!" },
+  { "key": "mama.found.puppy", "vi": "Chó mẹ và cún con!", "ja": "いぬの ママと こいぬ!", "en": "Mommy dog and her puppy!" }
+]
