@@ -68,7 +68,7 @@ describe('manifest options', () => {
     const withDiff = ALL_GAMES.filter((g) => g.options?.difficulty).map((g) => g.id).sort();
     expect(withDiff).toEqual(
       [
-        'bakery', 'band', 'bath', 'counting', 'hide', 'memory', 'music', 'path', 'pattern', 'peekaboo', 'puzzle',
+        'bakery', 'band', 'bath', 'counting', 'hide', 'mama', 'memory', 'music', 'path', 'pattern', 'peekaboo', 'puzzle',
         'shadow', 'shapes', 'sort', 'sound-quiz', 'story',
       ],
     );

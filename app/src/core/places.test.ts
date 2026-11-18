@@ -4,7 +4,7 @@ import { contentByKey } from './content';
 import { ALL_GAMES } from './games';
 
 describe('places', () => {
-  it('đúng 6 khu theo thứ tự, mỗi khu có icon và màu', () => {
+  it('đúng 7 khu theo thứ tự, mỗi khu có icon và màu', () => {
     expect(PLACES.map((p) => p.key)).toEqual([
       'place.zoo',
       'place.house',
@@ -12,9 +12,10 @@ describe('places', () => {
       'place.pond',
       'place.puzzle',
       'place.music',
+      'place.farm',
     ]);
-    expect(PLACES.map((p) => p.icon)).toEqual(['🦁', '🏠', '🍎', '🦆', '🧩', '🎵']);
-    expect(PLACES.map((p) => p.color)).toEqual(['peach', 'butter', 'leaf', 'mint', 'mint', 'lilac']);
+    expect(PLACES.map((p) => p.icon)).toEqual(['🦁', '🏠', '🍎', '🦆', '🧩', '🎵', '🐮']);
+    expect(PLACES.map((p) => p.color)).toEqual(['peach', 'butter', 'leaf', 'mint', 'mint', 'lilac', 'leaf']);
   });
 
   it('placeOrder trả chỉ số, khu lạ xếp cuối', () => {
@@ -22,12 +23,14 @@ describe('places', () => {
     expect(placeOrder('place.pond')).toBe(3);
     expect(placeOrder('place.music')).toBe(5);
     expect(placeOrder('place.farm')).toBe(6);
+    expect(placeOrder('place.lake')).toBe(7);
   });
 
   it('placeByKey tìm được khu', () => {
     expect(placeByKey('place.puzzle')?.icon).toBe('🧩');
     expect(placeByKey('place.pond')?.icon).toBe('🦆');
-    expect(placeByKey('place.farm')).toBeUndefined();
+    expect(placeByKey('place.farm')?.icon).toBe('🐮');
+    expect(placeByKey('place.lake')).toBeUndefined();
   });
 
   it('mỗi khu có tên vi và ja trong content', () => {
@@ -38,9 +41,9 @@ describe('places', () => {
     }
   });
 
-  it('mọi trò nằm trong một trong 6 khu, đúng thứ tự trong khu', () => {
+  it('mọi trò nằm trong một trong 7 khu, đúng thứ tự trong khu', () => {
     const byId = new Map(ALL_GAMES.map((g) => [g.id, g]));
-    for (const g of ALL_GAMES) expect(placeOrder(g.place), g.id).toBeLessThan(6);
+    for (const g of ALL_GAMES) expect(placeOrder(g.place), g.id).toBeLessThan(PLACES.length);
     const expected: [string, string, number][] = [
       ['animals', 'place.zoo', 0],
       ['zoo3d', 'place.zoo', 1],
@@ -54,6 +57,7 @@ describe('places', () => {
       ['memory', 'place.puzzle', 0],
       ['puzzle', 'place.puzzle', 1],
       ['music', 'place.music', 0],
+      ['mama', 'place.farm', 0],
     ];
     for (const [id, place, order] of expected) {
       const g = byId.get(id);

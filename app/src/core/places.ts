@@ -6,7 +6,7 @@ export type Place = {
   color: ClayColor;
 };
 
-/** 6 khu theo thứ tự cố định, dùng chung cho bản đồ và kệ đồ chơi. */
+/** 7 khu theo thứ tự cố định, dùng chung cho bản đồ và kệ đồ chơi. */
 export const PLACES: readonly Place[] = [
   { key: 'place.zoo', icon: '🦁', color: 'peach' },
   { key: 'place.house', icon: '🏠', color: 'butter' },
@@ -14,6 +14,7 @@ export const PLACES: readonly Place[] = [
   { key: 'place.pond', icon: '🦆', color: 'mint' },
   { key: 'place.puzzle', icon: '🧩', color: 'mint' },
   { key: 'place.music', icon: '🎵', color: 'lilac' },
+  { key: 'place.farm', icon: '🐮', color: 'leaf' },
 ];
 
 /** Chỉ số khu trong PLACES; khu lạ xếp cuối. */

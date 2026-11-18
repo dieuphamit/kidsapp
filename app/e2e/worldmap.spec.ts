@@ -7,9 +7,9 @@ mkdirSync('test-results/shots', { recursive: true });
 type Box = { x: number; y: number; width: number; height: number };
 
 const STAGE = { width: 1194, height: 834 };
-// 6 khu theo thứ tự; house chưa có trò (phase 3 thêm) nên có thể ẩn; pond có Tắm cho thú
-const PLACE_IDS = ['zoo', 'house', 'orchard', 'pond', 'puzzle', 'music'];
-const WITH_GAMES = ['zoo', 'orchard', 'pond', 'puzzle', 'music'];
+// 7 khu theo thứ tự; khu không có trò hợp tuổi thì ẩn; pond có Tắm cho thú, farm có Mẹ ơi, con đâu?
+const PLACE_IDS = ['zoo', 'house', 'orchard', 'pond', 'puzzle', 'music', 'farm'];
+const WITH_GAMES = ['zoo', 'orchard', 'pond', 'puzzle', 'music', 'farm'];
 
 function overlap(a: Box, b: Box, gap = 0): boolean {
   return !(
@@ -26,7 +26,7 @@ async function placeButtons(page: Page) {
   return { ids, buttons: ids.map((id) => page.getByTestId(`place-${id}`).getByRole('button')) };
 }
 
-test('bản đồ có các khu trong 6 khu (zoo, house, orchard, pond, puzzle, music), không còn trang trại', async ({ page }) => {
+test('bản đồ có các khu trong 7 khu (zoo, house, orchard, pond, puzzle, music, farm)', async ({ page }) => {
   await page.goto('./');
   await expect(page.getByTestId('home')).toBeVisible();
   await expect(page.getByTestId('place-music')).toBeVisible();
@@ -41,7 +41,7 @@ test('bản đồ có các khu trong 6 khu (zoo, house, orchard, pond, puzzle, m
   await expect(page.getByLabel('Vườn quả')).toBeVisible();
   await expect(page.getByLabel('Góc đố')).toBeVisible();
   await expect(page.getByLabel('Nhà âm nhạc')).toBeVisible();
-  await expect(page.getByLabel('Trang trại')).toHaveCount(0);
+  await expect(page.getByLabel('Trang trại')).toBeVisible();
   await expect(page.getByLabel('Hồ nước')).toBeVisible();
   await expect(page.getByTestId('place-pond').getByTestId('strip')).toHaveText('🛁');
 
@@ -49,6 +49,7 @@ test('bản đồ có các khu trong 6 khu (zoo, house, orchard, pond, puzzle, m
   await expect(page.getByTestId('place-zoo').getByTestId('strip')).toHaveText('🌍🐄🦁🔊');
   await expect(page.getByTestId('place-orchard').getByTestId('strip')).toHaveText('🍎🧺🔺');
   await expect(page.getByTestId('place-puzzle').getByTestId('strip')).toHaveText('🃏🧩');
+  await expect(page.getByTestId('place-farm').getByTestId('strip')).toHaveText('🐣');
 
   // chưa chơi trò nào thì không có nút chơi lại
   await expect(page.getByTestId('replay')).toHaveCount(0);

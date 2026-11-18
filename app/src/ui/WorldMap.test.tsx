@@ -68,11 +68,12 @@ describe('WorldMap', () => {
     }
   });
 
-  it('bỏ trang trại khỏi bản đồ; hồ nước chỉ hiện khi có trò', () => {
-    const games = [...FIVE, makeGame('f', 'place.farm'), makeGame('w', 'place.pond')];
+  it('hồ nước và trang trại hiện khi có trò; khu lạ thì không', () => {
+    const games = [...FIVE, makeGame('f', 'place.farm'), makeGame('w', 'place.pond'), makeGame('l', 'place.lake')];
     render(<WorldMap games={games} lang="vi" speaker={mockSpeaker()} onPick={vi.fn()} />);
-    expect(screen.queryByLabelText('Trang trại')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Trang trại')).toBeInTheDocument();
     expect(screen.getByLabelText('Hồ nước')).toBeInTheDocument();
+    expect(screen.queryByTestId('place-lake')).not.toBeInTheDocument();
   });
 
   it('không có trò ở hồ nước thì không hiện khu hồ nước', () => {
@@ -87,6 +88,20 @@ describe('WorldMap', () => {
     fireEvent.pointerDown(screen.getByLabelText('Hồ nước'));
     vi.advanceTimersByTime(1000);
     expect(onPick).toHaveBeenCalledWith(pond);
+  });
+
+  it('khu trang trại nằm giữa bên phải, chạm vào thẳng trò duy nhất', () => {
+    const farm = makeGame('f', 'place.farm');
+    const onPick = vi.fn();
+    render(<WorldMap games={[...FIVE, farm]} lang="vi" speaker={mockSpeaker()} onPick={onPick} />);
+    fireEvent.pointerDown(screen.getByLabelText('Trang trại'));
+    vi.advanceTimersByTime(1000);
+    expect(onPick).toHaveBeenCalledWith(farm);
+  });
+
+  it('không có trò ở trang trại thì ẩn khu Trang trại', () => {
+    render(<WorldMap games={FIVE} lang="vi" speaker={mockSpeaker()} onPick={vi.fn()} />);
+    expect(screen.queryByLabelText('Trang trại')).not.toBeInTheDocument();
   });
 
   it('ẩn khu không có trò', () => {

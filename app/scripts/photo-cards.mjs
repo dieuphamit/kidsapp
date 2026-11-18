@@ -106,6 +106,19 @@ const CARDS = {
   'bath/panda': { file: 'Chengdu Sichuan China Panda-breeding-and-research-center-02.jpg', width: 1920, work: 1920, size: 1024, limitKB: 450 },
   'bath/cow': { file: 'HF in der Rhön auf der Weide.jpg', width: 3840, work: 3000, size: 1024, limitKB: 450 },
   'bath/rabbit': { file: 'Heimtier 004 2023 08 26.jpg', width: 3840, work: 3000, size: 1024, limitKB: 450 },
+  // mama: mẹ và con
+  // Trò "Mẹ ơi, con đâu?": thú con (cards/baby/) và thú mẹ chưa có thẻ trưởng thành (cards/mama/).
+  // Không nằm trong cards/index.json. Mẹ bò, vịt, ngựa, chó dùng lại thẻ cow, duck, horse, dog.
+  'baby/calf': { file: 'HOLSTEIN FRIESIAN CALF.jpg' },
+  'baby/chick': { file: 'CSIRO ScienceImage 2857 A Day Old Chick.jpg', crop: [0, 0, 1, 0.888] },
+  'baby/duckling': { file: 'Cute ducklings waddling on pavement near children.jpg', crop: [0.4, 0.36, 0.78, 0.95] },
+  'baby/lamb': { file: 'Spring Lamb - geograph.org.uk - 2967473.jpg' },
+  'baby/piglet': { file: 'Einmal strecken buntes Bentheimer Landschwein Ferkel 2011.JPG' },
+  'baby/foal': { file: 'Bay arabian foal, Germany.jpg' },
+  'baby/puppy': { file: 'Lone puppy.jpg' },
+  'mama/hen': { file: 'Australorps henne.jpg' },
+  'mama/sheep': { file: 'Texel ewe and three lambs.jpg', crop: [0.27, 0.22, 0.68, 0.74] },
+  'mama/pig': { file: 'Sow.jpg' },
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

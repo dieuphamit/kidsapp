@@ -109,6 +109,8 @@
 .bottomRight { right: 96px; top: 600px; animation-delay: 240ms; }
 /* Khu thứ 6 (Hồ nước): giữa hai khu bên trái, cách mỗi khu 28px */
 .middleLeft { left: 96px; top: 372px; animation-delay: 300ms; }
+/* Khu thứ 7 (Trang trại): giữa bên phải, sát mép hơn để cách nút chơi lại (cạnh Đậu Đậu) ≥24px */
+.middleRight { right: 72px; top: 372px; animation-delay: 360ms; }
 
 /* Nảy nhẹ khi hiện ra; chỉ đổi độ mờ và vị trí dọc, giữ nguyên kích thước nút */
 @keyframes pop {

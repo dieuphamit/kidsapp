@@ -26,6 +26,7 @@ const ROUTES: [string, string, string][] = [
   ['path', 'Góc đố', 'game-path'],
   ['music', 'Nhà âm nhạc', 'game-music'],
   ['band', 'Nhà âm nhạc', 'game-band'],
+  ['mama', 'Trang trại', 'game-mama'],
 ];
 
 /** Tuổi mặc định 28 tháng ẩn story, pattern, path: ghi tuổi 48 tháng vào idb-keyval trước khi vào app. */

@@ -79,6 +79,16 @@
 | bath/panda | [Chengdu Sichuan China Panda-breeding-and-research-center-02.jpg](https://commons.wikimedia.org/wiki/File:Chengdu_Sichuan_China_Panda-breeding-and-research-center-02.jpg) | CEphoto, Uwe Aranas | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
 | bath/cow | [HF in der Rhön auf der Weide.jpg](https://commons.wikimedia.org/wiki/File:HF_in_der_Rh%C3%B6n_auf_der_Weide.jpg) | Verum | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
 | bath/rabbit | [Heimtier 004 2023 08 26.jpg](https://commons.wikimedia.org/wiki/File:Heimtier_004_2023_08_26.jpg) | Friedrich Haag | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| baby/calf | [HOLSTEIN FRIESIAN CALF.jpg](https://commons.wikimedia.org/wiki/File:HOLSTEIN_FRIESIAN_CALF.jpg) | Ranjithkumar Murugesan | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| baby/chick | [CSIRO ScienceImage 2857 A Day Old Chick.jpg](https://commons.wikimedia.org/wiki/File:CSIRO_ScienceImage_2857_A_Day_Old_Chick.jpg) | division, CSIRO | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) |
+| baby/duckling | [Cute ducklings waddling on pavement near children.jpg](https://commons.wikimedia.org/wiki/File:Cute_ducklings_waddling_on_pavement_near_children.jpg) | Shixart1985 | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) |
+| baby/lamb | [Spring Lamb - geograph.org.uk - 2967473.jpg](https://commons.wikimedia.org/wiki/File:Spring_Lamb_-_geograph.org.uk_-_2967473.jpg) | Anthony Parkes | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) |
+| baby/piglet | [Einmal strecken buntes Bentheimer Landschwein Ferkel 2011.JPG](https://commons.wikimedia.org/wiki/File:Einmal_strecken_buntes_Bentheimer_Landschwein_Ferkel_2011.JPG) | 4028mdk09 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| baby/foal | [Bay arabian foal, Germany.jpg](https://commons.wikimedia.org/wiki/File:Bay_arabian_foal,_Germany.jpg) | OliverSeitz | Public domain |
+| baby/puppy | [Lone puppy.jpg](https://commons.wikimedia.org/wiki/File:Lone_puppy.jpg) | Kixofa | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| mama/hen | [Australorps henne.jpg](https://commons.wikimedia.org/wiki/File:Australorps_henne.jpg) | Palauenc05 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| mama/sheep | [Texel ewe and three lambs.jpg](https://commons.wikimedia.org/wiki/File:Texel_ewe_and_three_lambs.jpg) | unknown | Public domain |
+| mama/pig | [Sow.jpg](https://commons.wikimedia.org/wiki/File:Sow.jpg) | Jacqueline Macou | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
 
 `daudau.png`: render từ model Đậu Đậu tự làm (`src/ui/DauDau.tsx`) bằng `scripts/render-daudau.mjs`.
 
