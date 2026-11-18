@@ -68,11 +68,25 @@ describe('WorldMap', () => {
     }
   });
 
-  it('bỏ trang trại và hồ nước khỏi bản đồ', () => {
+  it('bỏ trang trại khỏi bản đồ; hồ nước chỉ hiện khi có trò', () => {
     const games = [...FIVE, makeGame('f', 'place.farm'), makeGame('w', 'place.pond')];
     render(<WorldMap games={games} lang="vi" speaker={mockSpeaker()} onPick={vi.fn()} />);
     expect(screen.queryByLabelText('Trang trại')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Hồ nước')).toBeInTheDocument();
+  });
+
+  it('không có trò ở hồ nước thì không hiện khu hồ nước', () => {
+    render(<WorldMap games={FIVE} lang="vi" speaker={mockSpeaker()} onPick={vi.fn()} />);
     expect(screen.queryByLabelText('Hồ nước')).not.toBeInTheDocument();
+  });
+
+  it('khu hồ nước nằm giữa bên trái, chạm vào thẳng trò duy nhất', () => {
+    const pond = makeGame('w', 'place.pond');
+    const onPick = vi.fn();
+    render(<WorldMap games={[...FIVE, pond]} lang="vi" speaker={mockSpeaker()} onPick={onPick} />);
+    fireEvent.pointerDown(screen.getByLabelText('Hồ nước'));
+    vi.advanceTimersByTime(1000);
+    expect(onPick).toHaveBeenCalledWith(pond);
   });
 
   it('ẩn khu không có trò', () => {
