@@ -181,7 +181,21 @@
   <div class="photos" id="words-photos"></div>
 
   <h2 id="tests">🧪 Kiểm thử</h2>
-  <!--TESTS-->
+  <p><span class="ok">✅ <code>npm run verify</code> qua trọn một lượt</span> trên nhánh gộp <code>feat/batch3</code> (2026-11-20, máy không chạy việc khác).</p>
+  <div class="scroll"><table>
+    <tr><th>Bước</th><th>Kết quả</th></tr>
+    <tr><td>TypeScript (<code>tsc -b</code>), oxlint</td><td class="ok">Qua (oxlint chỉ còn cảnh báo cũ)</td></tr>
+    <tr><td>Vitest (unit)</td><td class="ok">84 file, 834/834 test</td></tr>
+    <tr><td>check:audio</td><td class="ok">Đủ giọng vi/ja/en (93 câu có tên × 8 tên) và 36 tiếng kêu</td></tr>
+    <tr><td>Playwright (e2e, Chromium giả lập iPad + iPhone)</td><td class="ok">235/235, không có test chập chờn, 19,2 phút</td></tr>
+    <tr><td>check:size</td><td class="ok">Gói offline 45,76 MB + giọng tên nặng nhất 4,97 MB</td></tr>
+  </table></div>
+  <h3>Sửa thêm khi gộp</h3>
+  <ul>
+    <li><b>Kệ đồ chơi tràn khung:</b> có thêm 3 trò thì bé từ 36 tháng thấy 23 trò, kệ thành 4 tầng và hàng cuối rơi ra ngoài khung 834px. Đã thêm kiểu "kệ gọn" (ván mỏng, tầng sát hơn), thẻ vẫn 120px, cách nhau ≥24px. Có test e2e mới ở 60 tháng.</li>
+    <li>Test đi hết các trò (tour) và test khu–thứ tự thêm Nối điểm, Đồ vật quanh bé; test theo mùa dùng chung helper cổng phụ huynh mới.</li>
+  </ul>
+  <figure style="max-width:640px"><img src="img/T-035-shelf-all.jpg" alt=""><figcaption>Kệ đồ chơi 60 tháng: đủ 23 trò, 4 tầng gọn</figcaption></figure>
 
   <h2 id="concerns">👀 Cần bố mẹ kiểm tra</h2>
   <ul>
