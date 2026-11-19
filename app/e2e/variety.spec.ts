@@ -1,5 +1,6 @@
 // E2: đa dạng nội dung + chủ đề cho sound-quiz, shadow, sort, memory, puzzle.
 import { test, expect, type Page } from '@playwright/test';
+import { openParentArea } from './parent-gate.js';
 import { mkdirSync } from 'node:fs';
 import { pickGame } from './pick.js';
 
@@ -185,16 +186,7 @@ test('khu bố mẹ: Xếp vào giỏ có chủ đề Theo màu / Thú / quả /
   // Kệ đồ chơi (không có bản đồ 3D) để cổng phụ huynh đứng yên
   await page.goto('./?e2e=1&menu=shelf');
   await expect(page.getByTestId('shelf-card-sort')).toBeVisible({ timeout: 10_000 });
-  const gate = page.getByRole('button', { name: 'Khu phụ huynh' });
-  await gate.dispatchEvent('pointerdown');
-  await page.waitForTimeout(3300);
-  await gate.dispatchEvent('pointerup');
-  const confirm = page.getByRole('dialog', { name: 'Xác nhận phụ huynh' });
-  await expect(confirm).toBeVisible({ timeout: 2000 });
-  const q = await confirm.locator('span').first().textContent();
-  const [a, b] = (q ?? '').match(/\d+/g)!.map(Number);
-  await page.getByLabel('Đáp án').fill(String(a + b));
-  await page.getByRole('button', { name: 'Mở' }).click();
+  await openParentArea(page);
   await page.getByRole('button', { name: 'Trò chơi', exact: true }).dispatchEvent('pointerdown');
   await expect(page.getByTestId('game-settings')).toBeVisible();
 

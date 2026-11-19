@@ -1,21 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
+import { openParentArea } from './parent-gate.js';
 import { pickGame } from './pick.js';
 
-async function openParentArea(page: Page) {
-  const gate = page.getByRole('button', { name: 'Khu phụ huynh' });
-  await expect(gate).toBeVisible();
-  // giữ 3 giây (gửi thẳng pointerdown/pointerup vào nút để không lệ thuộc toạ độ chuột)
-  await gate.dispatchEvent('pointerdown');
-  await page.waitForTimeout(3300);
-  await gate.dispatchEvent('pointerup');
-  const confirm = page.getByRole('dialog', { name: 'Xác nhận phụ huynh' });
-  await expect(confirm).toBeVisible({ timeout: 2000 });
-  const q = await confirm.locator('span').first().textContent();
-  const [a, b] = (q ?? '').match(/\d+/g)!.map(Number);
-  await page.getByLabel('Đáp án').fill(String(a + b));
-  await page.getByRole('button', { name: 'Mở' }).click();
-  await expect(page.getByRole('dialog', { name: 'Cài đặt phụ huynh' })).toBeVisible();
-}
 
 async function openGameSettings(page: Page) {
   await openParentArea(page);
