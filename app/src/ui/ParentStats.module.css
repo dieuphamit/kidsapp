@@ -1,0 +1,87 @@
+/* Khung 1194×834, giống màn Trò chơi (GameSettings): cổng phụ huynh ở góc phải trên, chừa lề phải 144px. */
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%);
+  color: var(--ink);
+  font-family: var(--font-kid);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--touch-gap);
+  padding: 24px 144px 12px 24px;
+}
+
+.title { margin: 0; font-size: 36px; }
+.hint { margin: 0; font-size: 20px; color: var(--ink-soft); }
+
+.list {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 144px 48px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--touch-gap);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px 28px;
+  background: var(--paper);
+  border-radius: var(--radius-clay);
+  box-shadow: var(--shadow-clay);
+}
+
+.cardTitle { margin: 0 0 4px; font-size: 26px; }
+.note { margin: 4px 0 0; font-size: 16px; color: var(--ink-soft); }
+
+/* Thanh ngang: nhãn | rãnh | số phút */
+.barRow { display: flex; align-items: center; gap: 16px; font-size: 22px; }
+.barLabel { width: 290px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.track {
+  flex: 1;
+  height: 28px;
+  border-radius: 14px;
+  background: var(--sky-bottom);
+  overflow: hidden;
+}
+.fill {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  border-radius: 14px;
+  transition: width 400ms var(--ease-squish);
+}
+.barValue { width: 96px; flex-shrink: 0; text-align: right; font-variant-numeric: tabular-nums; }
+
+.games { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.gameRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  border-top: 2px solid var(--sky-bottom);
+  font-size: 20px;
+}
+.gameRow:first-child { border-top: 0; }
+.gameIcon { font-size: 34px; line-height: 1; width: 44px; text-align: center; }
+.gameName { width: 240px; flex-shrink: 0; }
+.chips { flex: 1; display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  padding: 2px 12px;
+  border-radius: var(--radius-bubble);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.gameTime { width: 96px; flex-shrink: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.muted { color: var(--ink-soft); opacity: 0.6; }

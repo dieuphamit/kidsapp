@@ -39,3 +39,31 @@
 .credits { font-size: 14px; line-height: 1.4; opacity: 0.6; max-width: 420px; }
 .parentFields { display: flex; flex-direction: column; justify-content: center; gap: 16px; }
 .clayRow { display: flex; gap: var(--touch-gap); }
+/* Câu hỏi người lớn sau khi giữ ⚙️: phép tính to, 4 nút đáp án đất sét */
+.gateCard { align-items: center; padding: 40px 48px; }
+.gateAsk { font-size: 22px; color: var(--ink-soft); }
+.gateQuestion { font-size: 64px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.gateChoices { display: flex; gap: var(--touch-gap); padding: 8px 0 16px; }
+.gateNumber { font-size: 44px; line-height: 1; color: var(--ink); }
+.gateCard > button { align-self: stretch; }
+/* Công tắc Chế độ nhẹ nhàng trong khu bố mẹ */
+.card .calmBtn {
+  display: flex; align-items: center; gap: 16px; padding: 8px 20px; text-align: left;
+  background: var(--paper); border: 3px solid var(--clay-lilac); box-shadow: none;
+}
+.calmBtn small { flex: 1; font-size: 18px; color: var(--ink-soft); }
+.switch {
+  position: relative; flex-shrink: 0; width: 72px; height: 40px; border-radius: 20px; background: var(--sky-bottom);
+  transition: background var(--dur-press);
+}
+.switch::after {
+  content: ''; position: absolute; top: 4px; left: 4px; width: 32px; height: 32px; border-radius: 50%;
+  background: var(--paper); box-shadow: var(--shadow-clay-pressed); transition: transform var(--dur-press) var(--ease-squish);
+}
+.card .calmBtn[aria-pressed='true'] { background: var(--clay-lilac); border-color: var(--ink); }
+.calmBtn[aria-pressed='true'] .switch { background: var(--ink-soft); }
+.calmBtn[aria-pressed='true'] .switch::after { transform: translateX(32px); }
+/* Lưu / Đóng chung một hàng để khu bố mẹ vừa khung 834px */
+.actionRow { display: flex; gap: var(--touch-gap); }
+.actionRow > button { flex: 1; }
+.actionRow > button:last-child { flex: 0 0 240px; }

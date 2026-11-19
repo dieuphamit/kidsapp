@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import type { Group } from 'three';
 import type { BuddyCharacter } from '../core/tokens';
 import { BUDDY_LOOKS, ballSegments, buddyParts, type Part, type PartRole } from './buddyModel';
+import { useCalm } from './calmContext';
 
 type Roles = Partial<Record<PartRole, Group | null>>;
 type SetRole = (role: PartRole, g: Group | null) => void;
@@ -71,6 +72,8 @@ export function Buddy({ character, onTap, wave = 0 }: Props) {
   const waveT = useRef(0); // 1 → 0 trong WAVE_S giây
   const setRole = useCallback<SetRole>((role, g) => { roles.current[role] = g; }, []);
   const parts = useMemo(() => buddyParts(BUDDY_LOOKS[character]), [character]);
+  // chế độ nhẹ nhàng: nhảy thấp hơn, lắc lư và vẫy đuôi chậm hơn
+  const calm = useCalm();
 
   useEffect(() => {
     if (wave) waveT.current = 1;
@@ -82,11 +85,11 @@ export function Buddy({ character, onTap, wave = 0 }: Props) {
     const g = ref.current;
     if (!g) return;
     const t = state.clock.elapsedTime;
-    g.rotation.y = Math.sin(t * 0.8) * 0.4;
+    g.rotation.y = Math.sin(t * (calm ? 0.5 : 0.8)) * (calm ? 0.25 : 0.4);
     if (jump.current > 0) {
       jump.current = Math.max(0, jump.current - dt / 0.6);
       const p = 1 - jump.current;
-      g.position.y = Math.sin(p * Math.PI) * 0.6;
+      g.position.y = Math.sin(p * Math.PI) * (calm ? 0.3 : 0.6);
       const sq = 1 + Math.sin(p * Math.PI * 2) * 0.06;
       g.scale.set(sq, 1 / sq, sq);
     } else {
@@ -105,7 +108,7 @@ export function Buddy({ character, onTap, wave = 0 }: Props) {
       }
     }
     const tailG = roles.current.wag;
-    if (tailG) tailG.rotation.z = Math.sin(t * 9) * 0.45;
+    if (tailG) tailG.rotation.z = Math.sin(t * (calm ? 5 : 9)) * 0.45;
   });
 
   return (

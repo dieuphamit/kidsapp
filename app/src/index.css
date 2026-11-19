@@ -11,3 +11,18 @@ body {
   touch-action: manipulation;
   overscroll-behavior: none;
 }
+
+/*
+ * Chế độ nhẹ nhàng (data-calm trên <html>, xem src/ui/calmContext.ts): giống prefers-reduced-motion.
+ * Hiệu ứng lặp (nảy, nhấp nháy, trôi) chỉ chạy một lượt rồi đứng yên; hạt lấp lánh / pháo giấy ẩn đi.
+ * Phản hồi chạm (nút lún xuống, chuyển trạng thái) vẫn giữ để bé biết mình đã chạm.
+ */
+:root[data-calm='true'] *,
+:root[data-calm='true'] *::before,
+:root[data-calm='true'] *::after {
+  animation-iteration-count: 1 !important;
+}
+:root[data-calm='true'] [class*='sparkle'],
+:root[data-calm='true'] [class*='confetti'] {
+  display: none !important;
+}

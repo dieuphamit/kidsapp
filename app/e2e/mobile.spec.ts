@@ -1,6 +1,7 @@
 // iPhone 14 Pro Max: app thiết kế cho khung 1194×834 phải co lại vừa màn hình điện thoại,
 // cầm dọc thì tự xoay ngang; nút vẫn chạm được; cổng phụ huynh có nút ⚙️ để đổi ngôn ngữ.
 import { test, expect, type Page } from '@playwright/test';
+import { openParentArea } from './parent-gate.js';
 import { pickGame } from './pick.js';
 import { mkdirSync } from 'node:fs';
 
@@ -53,20 +54,13 @@ test.describe('iPhone dọc 430×932', () => {
 test.describe('Cài đặt ngôn ngữ', () => {
   test.use({ viewport: { width: 932, height: 430 }, hasTouch: true, isMobile: true });
 
-  test('giữ ⚙️ 3 giây, trả lời phép cộng, đổi sang 日本語', async ({ page }) => {
+  test('giữ ⚙️ 3 giây, chạm đáp án phép tính, đổi sang 日本語', async ({ page }) => {
     await page.goto('./');
     const gate = page.getByRole('button', { name: 'Khu phụ huynh' });
     await expect(gate).toBeVisible();
     await expect(gate).toContainText('⚙️');
-    const box = (await gate.boundingBox())!;
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-    await page.mouse.down();
-    await page.waitForTimeout(3300);
-    await page.mouse.up();
-    const q = await page.getByRole('dialog', { name: 'Xác nhận phụ huynh' }).locator('span').first().textContent();
-    const [a, b] = (q ?? '').match(/\d+/g)!.map(Number);
-    await page.getByLabel('Đáp án').fill(String(a + b));
-    await page.getByRole('button', { name: 'Mở' }).click();
+    // chuột thật: giữ và chạm đáp án trong khung đã co giãn
+    await openParentArea(page, 'mouse');
     const ja = page.getByRole('button', { name: /日本語/ });
     await ja.click();
     await expect(ja).toHaveAttribute('aria-pressed', 'true');

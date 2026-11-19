@@ -1,0 +1,12 @@
+[
+  { "key": "game.dots", "vi": "Nối điểm", "ja": "てんつなぎ", "en": "Connect the dots" },
+  { "key": "dots.hello", "vi": "Bé nối các chấm theo số nhé! Xem con gì hiện ra nào!", "ja": "すうじの じゅんに てんを つなごう! なにが でてくるかな?", "en": "Connect the dots in order! Let's see who appears!" },
+  { "key": "dots.is.elephant", "vi": "Là con voi!", "ja": "ぞうさんだ!", "en": "It's an elephant!" },
+  { "key": "dots.is.giraffe", "vi": "Là con hươu cao cổ!", "ja": "きりんさんだ!", "en": "It's a giraffe!" },
+  { "key": "dots.is.rabbit", "vi": "Là con thỏ!", "ja": "うさぎさんだ!", "en": "It's a bunny!" },
+  { "key": "dots.is.fish", "vi": "Là con cá!", "ja": "おさかなさんだ!", "en": "It's a fish!" },
+  { "key": "dots.is.horse", "vi": "Là con ngựa!", "ja": "うまさんだ!", "en": "It's a horse!" },
+  { "key": "dots.is.chicken", "vi": "Là chú gà trống!", "ja": "にわとりさんだ!", "en": "It's a rooster!" },
+  { "key": "dots.is.duck", "vi": "Là con vịt!", "ja": "あひるさんだ!", "en": "It's a duck!" },
+  { "key": "dots.is.pig", "vi": "Là con heo!", "ja": "ぶたさんだ!", "en": "It's a pig!" }
+]

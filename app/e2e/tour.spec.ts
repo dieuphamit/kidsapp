@@ -1,4 +1,4 @@
-// T-042: đi hết 19 trò ở cả hai kiểu menu (bản đồ 6 khu và kệ đồ chơi); mỗi trò Về nhà quay lại đúng menu.
+// T-042: đi hết 22 trò ở cả hai kiểu menu (bản đồ 6 khu và kệ đồ chơi); mỗi trò Về nhà quay lại đúng menu.
 import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { pickGame } from './pick.js';
@@ -16,6 +16,7 @@ const ROUTES: [string, string, string][] = [
   ['hide', 'Nhà Đậu Đậu', 'game-hide'],
   ['story', 'Nhà Đậu Đậu', 'game-story'],
   ['bakery', 'Nhà Đậu Đậu', 'game-bakery'],
+  ['words', 'Nhà Đậu Đậu', 'game-words'],
   ['counting', 'Vườn quả', 'game-counting'],
   ['sort', 'Vườn quả', 'game-sort'],
   ['shapes', 'Vườn quả', 'game-shapes'],
@@ -24,9 +25,11 @@ const ROUTES: [string, string, string][] = [
   ['memory', 'Góc đố', 'game-memory'],
   ['puzzle', 'Góc đố', 'game-puzzle'],
   ['path', 'Góc đố', 'game-path'],
+  ['dots', 'Góc đố', 'game-dots'],
   ['music', 'Nhà âm nhạc', 'game-music'],
   ['band', 'Nhà âm nhạc', 'game-band'],
   ['mama', 'Trang trại', 'game-mama'],
+  ['feed', 'Trang trại', 'game-feed'],
 ];
 
 /** Tuổi mặc định 28 tháng ẩn story, pattern, path: ghi tuổi 48 tháng vào idb-keyval trước khi vào app. */

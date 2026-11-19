@@ -590,6 +590,71 @@
      21.5
     ]
    ]
+  },
+  {
+   "id": "carhorn",
+   "title": "File:Car Horn.wav",
+   "page": "https://commons.wikimedia.org/wiki/File:Car_Horn.wav",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/8/8c/Car_Horn.wav",
+   "author": "15HPanska_Ruttner_Jan",
+   "license": "CC0",
+   "what": "words: còi xe ô tô bíp bíp (2 tiếng)",
+   "segments": [
+    [
+     0.47,
+     0.9
+    ],
+    [
+     1.86,
+     2.35
+    ]
+   ],
+   "gap": 0.25
+  },
+  {
+   "id": "firetruck",
+   "title": "File:WWS Fireenginesiren.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:WWS_Fireenginesiren.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/4/47/WWS_Fireenginesiren.ogg",
+   "author": "Work With Sounds / Konrad Gutkowski",
+   "license": "CC BY 4.0",
+   "what": "words: còi hụ xe cứu hỏa \"tò te tò te\" (Martinshorn)",
+   "segments": [
+    [
+     0.95,
+     3.2
+    ]
+   ]
+  },
+  {
+   "id": "train",
+   "title": "File:JP-Train horn.wav",
+   "page": "https://commons.wikimedia.org/wiki/File:JP-Train_horn.wav",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/9/9f/JP-Train_horn.wav",
+   "author": "JIRCTRAINZ",
+   "license": "CC BY-SA 4.0",
+   "what": "words: còi tàu điện Nhật \"tuu\"",
+   "segments": [
+    [
+     0.15,
+     1.8
+    ]
+   ]
+  },
+  {
+   "id": "bicyclebell",
+   "title": "File:Bicycle-bell-1.wav",
+   "page": "https://commons.wikimedia.org/wiki/File:Bicycle-bell-1.wav",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/6/68/Bicycle-bell-1.wav",
+   "author": "Soundscape_Leuphana",
+   "license": "CC0",
+   "what": "words: chuông xe đạp kính coong",
+   "segments": [
+    [
+     0.25,
+     1.4
+    ]
+   ]
   }
  ]
 }

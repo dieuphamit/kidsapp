@@ -1,5 +1,6 @@
 // E2E trò "Mẹ ơi, con đâu?" (mama): kéo thú con về đúng thú mẹ.
 import { test, expect, type Page } from '@playwright/test';
+import { pickGame } from './pick.js';
 import { mkdirSync } from 'node:fs';
 
 mkdirSync('test-results/shots', { recursive: true });
@@ -40,8 +41,9 @@ async function setAge(page: Page, ageMonths: number) {
 async function openGame(page: Page) {
   await page.goto('./?e2e=1');
   await expect(page.getByTestId('home')).toBeVisible();
-  // Trang trại chỉ có một trò nên chạm khu là vào thẳng
+  // Trang trại có nhiều trò: chạm khu rồi chọn trò mama
   await page.getByRole('button', { name: 'Trang trại' }).click();
+  await pickGame(page, 'mama');
   const game = page.getByTestId('game-mama');
   await expect(game).toBeVisible({ timeout: 10_000 });
   await expect(game).toHaveAttribute('data-last-say', 'mama.hello');

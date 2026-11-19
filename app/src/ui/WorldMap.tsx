@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './WorldMap.module.css';
 import { WorldMapScene, type Facing } from './WorldMapScene';
 import { ClayButton } from './ClayButton';
+import { SeasonLayer } from './SeasonLayer';
 import { contentByKey } from '../core/content';
 import { buddyName } from '../core/buddy';
 import { useBuddy, useFillName } from './buddyContext';
@@ -99,6 +100,9 @@ export function WorldMap({ games, lang, speaker, onPick, onOpenPicker, lastGameI
 
       {/* Đồi cỏ */}
       <div className={styles.hill} />
+
+      {/* Trang trí theo mùa (Tết, Trung thu, Giáng Sinh); không nhận chạm */}
+      <SeasonLayer speaker={speaker} />
 
       {/* Bong bóng chữ */}
       <div className={styles.bubble} data-testid="bubble">

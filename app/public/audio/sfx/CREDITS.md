@@ -44,3 +44,7 @@ Sinh lại: trong `app/` chạy `node scripts/animal-sounds.mjs` (manifest: `scr
 | yellowtang | [Toberbreedia water bubbling.opus](https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus) | A.-K. D. | CC0 | tiếng nước sủi bọt lục bục (cá đuôi gai vàng không kêu) | 14.5–16s |
 | koi | [Toberbreedia water bubbling.opus](https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus) | A.-K. D. | CC0 | tiếng nước sủi bọt lục bục (cá chép không kêu) | 17–18.6s |
 | goldfish | [Toberbreedia water bubbling.opus](https://commons.wikimedia.org/wiki/File:Toberbreedia_water_bubbling.opus) | A.-K. D. | CC0 | tiếng nước sủi bọt lục bục (cá vàng không kêu) | 20–21.5s |
+| carhorn | [Car Horn.wav](https://commons.wikimedia.org/wiki/File:Car_Horn.wav) | 15HPanska_Ruttner_Jan | CC0 | words: còi xe ô tô bíp bíp (2 tiếng) | 0.47–0.9s + 1.86–2.35s |
+| firetruck | [WWS Fireenginesiren.ogg](https://commons.wikimedia.org/wiki/File:WWS_Fireenginesiren.ogg) | Work With Sounds / Konrad Gutkowski | CC BY 4.0 | words: còi hụ xe cứu hỏa "tò te tò te" (Martinshorn) | 0.95–3.2s |
+| train | [JP-Train horn.wav](https://commons.wikimedia.org/wiki/File:JP-Train_horn.wav) | JIRCTRAINZ | CC BY-SA 4.0 | words: còi tàu điện Nhật "tuu" | 0.15–1.8s |
+| bicyclebell | [Bicycle-bell-1.wav](https://commons.wikimedia.org/wiki/File:Bicycle-bell-1.wav) | Soundscape_Leuphana | CC0 | words: chuông xe đạp kính coong | 0.25–1.4s |

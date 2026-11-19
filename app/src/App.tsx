@@ -1,6 +1,8 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULT_SETTINGS, loadSettings, saveSettings, type Settings } from './core/settings';
-import { createSpeaker, unlockAudioOnFirstGesture } from './core/audio';
+import { CALM_SPEECH_RATE, createSpeaker, unlockAudioOnFirstGesture } from './core/audio';
+import { trackPlay } from './core/playTime';
+import { CalmContext, useApplyCalm } from './ui/calmContext';
 import { cacheBuddyAudio } from './core/buddyAudio';
 import { BuddyContext } from './ui/buddyContext';
 import { ALL_GAMES, visibleGames, type GameManifest } from './core/games';
@@ -30,9 +32,15 @@ export default function App() {
   });
   const langRef = useRef(settings.lang);
   const nameRef = useRef(settings.buddy.name);
+  const calmRef = useRef(settings.calm);
   useEffect(() => { langRef.current = settings.lang; }, [settings.lang]);
   useEffect(() => { nameRef.current = settings.buddy.name; }, [settings.buddy.name]);
-  const speaker = useMemo(() => createSpeaker(() => langRef.current, undefined, () => nameRef.current), []);
+  useEffect(() => { calmRef.current = settings.calm; }, [settings.calm]);
+  const speaker = useMemo(
+    () => createSpeaker(() => langRef.current, undefined, () => nameRef.current, undefined, () => (calmRef.current ? CALM_SPEECH_RATE : 1)),
+    [],
+  );
+  useApplyCalm(settings.calm);
   // Giọng đọc có tên của tên đang chọn: nạp sẵn vào cache để chạy offline (tên mặc định đã precache)
   // (chỉ sau khi đọc xong settings: chạy với mặc định trước sẽ xoá mất bộ của tên đã chọn)
   const [loaded, setLoaded] = useState(false);
@@ -53,6 +61,10 @@ export default function App() {
     setLastGameId(g.id);
     void saveLastGame(g.id);
   };
+
+  // Đo thời gian bé chơi từng trò (chỉ lưu trên máy) cho mục "Tuần này" của bố mẹ
+  const gameId = game?.id;
+  useEffect(() => (gameId ? trackPlay(gameId) : undefined), [gameId]);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -81,6 +93,7 @@ export default function App() {
 
   return (
     <BuddyContext value={settings.buddy}>
+    <CalmContext value={settings.calm}>
     <Stage>
       {locked ? (
         <SleepScreen speaker={speaker} />
@@ -124,6 +137,7 @@ export default function App() {
             // cập nhật ngay (không chờ effect) để câu chào thử trong BuddySettings đọc đúng tên/ngôn ngữ mới
             langRef.current = s.lang;
             nameRef.current = s.buddy.name;
+            calmRef.current = s.calm;
             setSettings(s);
             void saveSettings(s);
           }}
@@ -132,6 +146,7 @@ export default function App() {
         />
       )}
     </Stage>
+    </CalmContext>
     </BuddyContext>
   );
 }

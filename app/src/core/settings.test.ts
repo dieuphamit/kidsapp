@@ -8,19 +8,25 @@ const buddy = DEFAULT_BUDDY;
 describe('settings', () => {
   it('mặc định khi chưa lưu', async () => {
     expect(await loadSettings()).toEqual(DEFAULT_SETTINGS);
-    expect(DEFAULT_SETTINGS).toEqual({ lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'map', buddy: { character: 'cat', name: 'dau' } });
+    expect(DEFAULT_SETTINGS).toEqual({ lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'map', buddy: { character: 'cat', name: 'dau' }, calm: false });
   });
   it('lưu rồi đọc lại', async () => {
-    await saveSettings({ lang: 'ja', ageMonths: 30, sessionMinutes: 10, menuStyle: 'shelf', buddy });
-    expect(await loadSettings()).toEqual({ lang: 'ja', ageMonths: 30, sessionMinutes: 10, menuStyle: 'shelf', buddy });
+    await saveSettings({ lang: 'ja', ageMonths: 30, sessionMinutes: 10, menuStyle: 'shelf', buddy, calm: true });
+    expect(await loadSettings()).toEqual({ lang: 'ja', ageMonths: 30, sessionMinutes: 10, menuStyle: 'shelf', buddy, calm: true });
   });
   it('lưu tiếng Anh rồi đọc lại', async () => {
-    await saveSettings({ lang: 'en', ageMonths: 36, sessionMinutes: 15, menuStyle: 'map', buddy });
+    await saveSettings({ lang: 'en', ageMonths: 36, sessionMinutes: 15, menuStyle: 'map', buddy, calm: false });
     expect((await loadSettings()).lang).toBe('en');
   });
   it('bản lưu cũ không có menuStyle thì ra kiểu bản đồ', async () => {
     await set('behoc.settings', { lang: 'ja', ageMonths: 40, sessionMinutes: 20 });
-    expect(await loadSettings()).toEqual({ lang: 'ja', ageMonths: 40, sessionMinutes: 20, menuStyle: 'map', buddy });
+    expect(await loadSettings()).toEqual({ lang: 'ja', ageMonths: 40, sessionMinutes: 20, menuStyle: 'map', buddy, calm: false });
+  });
+  it('chế độ nhẹ nhàng: bản cũ chưa có hoặc giá trị lạ thì tắt', async () => {
+    await set('behoc.settings', { lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'map', calm: 'yes' });
+    expect((await loadSettings()).calm).toBe(false);
+    await set('behoc.settings', { lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'map', calm: true });
+    expect((await loadSettings()).calm).toBe(true);
   });
   it('giá trị menuStyle lạ thì về kiểu bản đồ', async () => {
     await set('behoc.settings', { lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'grid' });

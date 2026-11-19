@@ -53,12 +53,25 @@ export interface Speaker {
 
 export const NOTE_FADE_MS = 150;
 
-/** getName: id tên bạn đồng hành đang dùng; câu có {name} phát file của tên đó. */
+/** Chế độ nhẹ nhàng: âm lượng tổng (Howler) và tốc độ giọng đọc. */
+export const CALM_VOLUME = 0.6;
+export const CALM_SPEECH_RATE = 0.9;
+
+/** Đặt âm lượng tổng cho mọi tiếng của app (giọng đọc, sfx, nốt nhạc) theo chế độ nhẹ nhàng. */
+export function applyCalmVolume(calm: boolean): void {
+  Howler.volume(calm ? CALM_VOLUME : 1);
+}
+
+/**
+ * getName: id tên bạn đồng hành đang dùng; câu có {name} phát file của tên đó.
+ * getRate: tốc độ giọng đọc (1 = bình thường; chế độ nhẹ nhàng dùng CALM_SPEECH_RATE).
+ */
 export function createSpeaker(
   getLang: () => Lang,
   base = BASE,
   getName: () => string = () => DEFAULT_NAME_ID,
   namedKeys: ReadonlySet<string> = NAMED_KEYS,
+  getRate: () => number = () => 1,
 ): Speaker {
   const cache = new Map<string, Howl>();
   let current: Howl | null = null;
@@ -75,6 +88,7 @@ export function createSpeaker(
     say(key) {
       current?.stop();
       current = get(speechUrl(key, getLang(), base, getName(), namedKeys));
+      current.rate(getRate());
       current.play();
     },
     sfx(name) {

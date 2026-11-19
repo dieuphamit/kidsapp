@@ -1,24 +1,9 @@
 // E2E tiếng Anh: chọn English trong khu bố mẹ, vào một trò, mọi câu nói lấy từ /audio/en/
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+import { openParentArea } from './parent-gate.js';
 import { mkdirSync } from 'node:fs';
 
 mkdirSync('test-results/shots', { recursive: true });
-
-async function openParentArea(page: Page) {
-  const gate = page.getByRole('button', { name: 'Khu phụ huynh' });
-  await expect(gate).toBeVisible();
-  // giữ 3 giây (gửi thẳng pointerdown/pointerup vào nút để không lệ thuộc toạ độ chuột)
-  await gate.dispatchEvent('pointerdown');
-  await page.waitForTimeout(3300);
-  await gate.dispatchEvent('pointerup');
-  const confirm = page.getByRole('dialog', { name: 'Xác nhận phụ huynh' });
-  await expect(confirm).toBeVisible({ timeout: 2000 });
-  const q = await confirm.locator('span').first().textContent();
-  const [a, b] = (q ?? '').match(/\d+/g)!.map(Number);
-  await page.getByLabel('Đáp án').fill(String(a + b));
-  await page.getByRole('button', { name: 'Mở' }).click();
-  await expect(page.getByRole('dialog', { name: 'Cài đặt phụ huynh' })).toBeVisible();
-}
 
 test('khu bố mẹ: chọn English rồi vào Ai kêu đấy, giọng đọc lấy từ /audio/en/; chụp en-settings, en-game', async ({ page }) => {
   // Bắt đầu ở màn chọn trò (2D) để không phụ thuộc WebGL của máy chạy test

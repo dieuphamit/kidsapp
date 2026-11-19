@@ -60,6 +60,8 @@ export function ShelfMenu({ games, lang, speaker, onPick }: Props) {
   const size = roomy ? 132 : 120;
   const rows: GameManifest[][] = [];
   for (let i = 0; i < sorted.length; i += cols) rows.push(sorted.slice(i, i + cols));
+  // 4 tầng trở lên: kệ gọn (ván mỏng, tầng sát hơn) để vẫn nằm trọn khung 834px
+  const compact = rows.length > 3;
 
   const press = (g: GameManifest) => {
     if (locked.current) return;
@@ -70,9 +72,10 @@ export function ShelfMenu({ games, lang, speaker, onPick }: Props) {
 
   return (
     <div
-      className={styles.shelf}
+      className={compact ? `${styles.shelf} ${styles.compact}` : styles.shelf}
       data-testid="shelf"
       data-cols={cols}
+      data-compact={compact || undefined}
       data-last-say={lastSay || undefined}
       style={{ '--card': `${size}px`, '--cols': cols } as CSSProperties}
     >
