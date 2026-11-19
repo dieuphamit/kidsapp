@@ -89,6 +89,15 @@
 | mama/hen | [Australorps henne.jpg](https://commons.wikimedia.org/wiki/File:Australorps_henne.jpg) | Palauenc05 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
 | mama/sheep | [Texel ewe and three lambs.jpg](https://commons.wikimedia.org/wiki/File:Texel_ewe_and_three_lambs.jpg) | unknown | Public domain |
 | mama/pig | [Sow.jpg](https://commons.wikimedia.org/wiki/File:Sow.jpg) | Jacqueline Macou | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| feed/carrot | [Vegetable-Carrot-Bundle-wStalks.jpg](https://commons.wikimedia.org/wiki/File:Vegetable-Carrot-Bundle-wStalks.jpg) | Evan-Amos | Public domain |
+| feed/fish | [Homemade fish smoking - Raw mackerel prepared for smoking.jpg](https://commons.wikimedia.org/wiki/File:Homemade_fish_smoking_-_Raw_mackerel_prepared_for_smoking.jpg) | Natalka Ukraine | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| feed/corn | [Corn on the cob - Massachusetts.jpg](https://commons.wikimedia.org/wiki/File:Corn_on_the_cob_-_Massachusetts.jpg) | Daderot | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| feed/bamboo | [Bamboo Sky - Flickr - pfly.jpg](https://commons.wikimedia.org/wiki/File:Bamboo_Sky_-_Flickr_-_pfly.jpg) | pfly from Pugetopolis | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) |
+| feed/bone | [Dog chew.jpg](https://commons.wikimedia.org/wiki/File:Dog_chew.jpg) | Simiprof | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| feed/monkey | [Rhesus macaque (Macaca mulatta mulatta), male, Gokarna.jpg](https://commons.wikimedia.org/wiki/File:Rhesus_macaque_(Macaca_mulatta_mulatta),_male,_Gokarna.jpg) | Charles J. Sharp | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| feed/cat | [Felis catus-cat on snow.jpg](https://commons.wikimedia.org/wiki/File:Felis_catus-cat_on_snow.jpg) | Von.grzanka | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| feed/horse | [Horse in Calchaquí Valleys, Argentina.jpg](https://commons.wikimedia.org/wiki/File:Horse_in_Calchaqu%C3%AD_Valleys,_Argentina.jpg) | Bernard Gagnon | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| feed/hen | [Australorps henne.jpg](https://commons.wikimedia.org/wiki/File:Australorps_henne.jpg) | Palauenc05 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
 
 `daudau.png`: render từ model Đậu Đậu tự làm (`src/ui/DauDau.tsx`) bằng `scripts/render-daudau.mjs`.
 

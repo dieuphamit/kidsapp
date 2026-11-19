@@ -58,6 +58,7 @@ describe('places', () => {
       ['puzzle', 'place.puzzle', 1],
       ['music', 'place.music', 0],
       ['mama', 'place.farm', 0],
+      ['feed', 'place.farm', 1],
     ];
     for (const [id, place, order] of expected) {
       const g = byId.get(id);

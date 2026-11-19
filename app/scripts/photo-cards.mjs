@@ -119,6 +119,18 @@ const CARDS = {
   'mama/hen': { file: 'Australorps henne.jpg' },
   'mama/sheep': { file: 'Texel ewe and three lambs.jpg', crop: [0.27, 0.22, 0.68, 0.74] },
   'mama/pig': { file: 'Sow.jpg' },
+  // feed: cho thú ăn
+  // Trò "Cho thú ăn": món ăn (cards/feed/<món>.png, 512) và thú hiển thị lớn chưa có bản 1024 (cards/feed/<thú>.png).
+  // Tải thumbnail 1280 (Wikimedia hay trả 429). Thỏ, gấu trúc, cún dùng lại cards/bath/; chuối, táo dùng thẻ sẵn có.
+  'feed/carrot': { file: 'Vegetable-Carrot-Bundle-wStalks.jpg', width: 1280 },
+  'feed/fish': { file: 'Homemade fish smoking - Raw mackerel prepared for smoking.jpg', width: 1280, crop: [0, 0.08, 1, 0.37] },
+  'feed/corn': { file: 'Corn on the cob - Massachusetts.jpg', width: 1280, crop: [0.2, 0, 0.78, 1], keep: 'all' },
+  'feed/bamboo': { file: 'Bamboo Sky - Flickr - pfly.jpg', width: 1280, crop: [0.3, 0, 1, 1], keep: 'all' },
+  'feed/bone': { file: 'Dog chew.jpg', width: 1280, crop: [0.22, 0.14, 0.46, 0.65] },
+  'feed/monkey': { file: 'Rhesus macaque (Macaca mulatta mulatta), male, Gokarna.jpg', width: 1280, work: 1280, size: 1024, limitKB: 450 },
+  'feed/cat': { file: 'Felis catus-cat on snow.jpg', width: 1280, work: 1280, size: 1024, limitKB: 450 },
+  'feed/horse': { file: 'Horse in Calchaquí Valleys, Argentina.jpg', width: 1280, work: 1280, size: 1024, limitKB: 450 },
+  'feed/hen': { file: 'Australorps henne.jpg', width: 1280, work: 1280, size: 1024, limitKB: 450 },
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
