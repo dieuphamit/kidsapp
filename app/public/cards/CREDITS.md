@@ -98,6 +98,33 @@
 | feed/cat | [Felis catus-cat on snow.jpg](https://commons.wikimedia.org/wiki/File:Felis_catus-cat_on_snow.jpg) | Von.grzanka | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
 | feed/horse | [Horse in Calchaquí Valleys, Argentina.jpg](https://commons.wikimedia.org/wiki/File:Horse_in_Calchaqu%C3%AD_Valleys,_Argentina.jpg) | Bernard Gagnon | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | feed/hen | [Australorps henne.jpg](https://commons.wikimedia.org/wiki/File:Australorps_henne.jpg) | Palauenc05 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| words/pants | [Jeans Gul&Blå i modellen Dallas.jpg](https://commons.wikimedia.org/wiki/File:Jeans_Gul%26Bl%C3%A5_i_modellen_Dallas.jpg) | Eriksson Elisabeth | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| words/shoes | [Paar witte sneakers, merk G-Unit, maat 40, objectnr 87415-7.A-B.JPG](https://commons.wikimedia.org/wiki/File:Paar_witte_sneakers,_merk_G-Unit,_maat_40,_objectnr_87415-7.A-B.JPG) | G-Unit | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| words/boots | [Rain boots on Stairs.jpg](https://commons.wikimedia.org/wiki/File:Rain_boots_on_Stairs.jpg) | Erikamthompson | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| words/spoon | [Stainless Steel Soup Spoon.jpg](https://commons.wikimedia.org/wiki/File:Stainless_Steel_Soup_Spoon.jpg) | Paolomarco | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| words/fork | [Fork isolated on white background 03.jpg](https://commons.wikimedia.org/wiki/File:Fork_isolated_on_white_background_03.jpg) | Jonatan Svensson Glad | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| words/pot | [Cooking Pot March.jpg](https://commons.wikimedia.org/wiki/File:Cooking_Pot_March.jpg) | Peculiar grace | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| words/bus | [Hyundai - school bus in Bulgaria.JPG](https://commons.wikimedia.org/wiki/File:Hyundai_-_school_bus_in_Bulgaria.JPG) | Pudelek (Marcin Szala) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| words/firetruck | [KAMAZ fire truck - Moscow.jpg](https://commons.wikimedia.org/wiki/File:KAMAZ_fire_truck_-_Moscow.jpg) | Юрий Д.К. | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
+| words/ambulance | [Dutch Volkswagen ambulance 2016-12-27.jpg](https://commons.wikimedia.org/wiki/File:Dutch_Volkswagen_ambulance_2016-12-27.jpg) | Ties Salden | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| words/train | [NSW XPT passenger train Galong, NSW.jpg](https://commons.wikimedia.org/wiki/File:NSW_XPT_passenger_train_Galong,_NSW.jpg) | Tomoyn | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
+| words/bicycle | [White single-speed bicycle on yellow background.png](https://commons.wikimedia.org/wiki/File:White_single-speed_bicycle_on_yellow_background.png) | Shisma & Alorin | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| words/boat | [Fishing boat Nørre Vorupør 2012-11-18 cropped.jpg](https://commons.wikimedia.org/wiki/File:Fishing_boat_N%C3%B8rre_Vorup%C3%B8r_2012-11-18_cropped.jpg) | Slaunger | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| words/teddy | [Handmade teddy bear.jpg](https://commons.wikimedia.org/wiki/File:Handmade_teddy_bear.jpg) | Clément Bucco-Lechat | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| words/shirt | [Classical polo shirt.jpg](https://commons.wikimedia.org/wiki/File:Classical_polo_shirt.jpg) | Elkagye | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) |
+| words/socks | [Hand Knitted Socks.JPG](https://commons.wikimedia.org/wiki/File:Hand_Knitted_Socks.JPG) | ChesPal (Debra Heaphy) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| words/hat | [Straw hat, Vietnamese Women's Museum.jpg](https://commons.wikimedia.org/wiki/File:Straw_hat,_Vietnamese_Women%27s_Museum.jpg) | Vietnamese Women's Museum | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| words/cup | [Party red plastic cup.png](https://commons.wikimedia.org/wiki/File:Party_red_plastic_cup.png) | Lenny Maidana created this photo. Vitor Perrut (MiloFriburguense) edited this photo! :) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| words/bowl | [Simple-ceramic-bowl (cropped).jpg](https://commons.wikimedia.org/wiki/File:Simple-ceramic-bowl_(cropped).jpg) | Yonkeltron at English Wikipedia | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) |
+| words/plate | [Ceramic Plate.jpg](https://commons.wikimedia.org/wiki/File:Ceramic_Plate.jpg) | Unknown author | Public domain |
+| words/car | [1991 Holden Caprice (VQ) armoured car side.jpg](https://commons.wikimedia.org/wiki/File:1991_Holden_Caprice_(VQ)_armoured_car_side.jpg) | Epsom Rd Studios | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| words/airplane | [Saudi Airliens Takeoff a320.jpg](https://commons.wikimedia.org/wiki/File:Saudi_Airliens_Takeoff_a320.jpg) | Meteb Ali | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| words/ball | [Soccer ball on ground.jpg](https://commons.wikimedia.org/wiki/File:Soccer_ball_on_ground.jpg) | Petey21 | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| words/book | [SIDGWICK-PAINTER(1895) The children's book of gardening (15628997510).jpg](https://commons.wikimedia.org/wiki/File:SIDGWICK-PAINTER(1895)_The_children%27s_book_of_gardening_(15628997510).jpg) | National Library NZ on The Commons | Public domain |
+| words/chair | [Kitchen chair made by Lübke. Germany.jpeg](https://commons.wikimedia.org/wiki/File:Kitchen_chair_made_by_L%C3%BCbke._Germany.jpeg) | Ditigibt | Public domain |
+| words/bed | [Bunk bed (wooden).jpg](https://commons.wikimedia.org/wiki/File:Bunk_bed_(wooden).jpg) | Steven Pavlov | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| words/toothbrush | [Gum manual toothbrush.jpg](https://commons.wikimedia.org/wiki/File:Gum_manual_toothbrush.jpg) | Caltechphd | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| words/clock | [Classic alarm clock 20180513.jpg](https://commons.wikimedia.org/wiki/File:Classic_alarm_clock_20180513.jpg) | Santeri Viinamäki | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 
 `daudau.png`: render từ model Đậu Đậu tự làm (`src/ui/DauDau.tsx`) bằng `scripts/render-daudau.mjs`.
 
