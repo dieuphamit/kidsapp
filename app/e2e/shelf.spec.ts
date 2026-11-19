@@ -1,5 +1,6 @@
 // E2E menu kiểu kệ đồ chơi và lựa chọn kiểu menu trong khu bố mẹ (T-035)
 import { test, expect, type Page } from '@playwright/test';
+import { openParentArea } from './parent-gate.js';
 import { mkdirSync } from 'node:fs';
 
 mkdirSync('test-results/shots', { recursive: true });
@@ -41,21 +42,6 @@ function expectInsideAndApart(boxes: (Box & { id: string })[], vw: number, vh: n
   }
 }
 
-async function openParentArea(page: Page) {
-  const gate = page.getByRole('button', { name: 'Khu phụ huynh' });
-  await expect(gate).toBeVisible();
-  // giữ 3 giây (gửi thẳng pointerdown/pointerup vào nút để không lệ thuộc toạ độ chuột)
-  await gate.dispatchEvent('pointerdown');
-  await page.waitForTimeout(3300);
-  await gate.dispatchEvent('pointerup');
-  const confirm = page.getByRole('dialog', { name: 'Xác nhận phụ huynh' });
-  await expect(confirm).toBeVisible({ timeout: 2000 });
-  const q = await confirm.locator('span').first().textContent();
-  const [a, b] = (q ?? '').match(/\d+/g)!.map(Number);
-  await page.getByLabel('Đáp án').fill(String(a + b));
-  await page.getByRole('button', { name: 'Mở' }).click();
-  await expect(page.getByRole('dialog', { name: 'Cài đặt phụ huynh' })).toBeVisible();
-}
 
 test('kệ đồ chơi: mọi thẻ 132px, khe ≥24px, trong khung, xếp theo khu; chụp T-035-shelf', async ({ page }) => {
   await page.goto('./?e2e=1&menu=shelf');

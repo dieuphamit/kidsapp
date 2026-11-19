@@ -1,21 +1,37 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const { play, stop, fade, volume, Howl, Howler } = vi.hoisted(() => {
+const { play, stop, fade, volume, rate, Howl, Howler } = vi.hoisted(() => {
   let n = 0;
   const play = vi.fn(() => ++n);
   const stop = vi.fn();
   const fade = vi.fn();
   const volume = vi.fn();
-  const Howl = vi.fn(function () { return { play, stop, fade, volume }; });
-  const Howler = { ctx: { state: 'suspended', resume: vi.fn() } };
-  return { play, stop, fade, volume, Howl, Howler };
+  const rate = vi.fn();
+  const Howl = vi.fn(function () { return { play, stop, fade, volume, rate }; });
+  const Howler = { ctx: { state: 'suspended', resume: vi.fn() }, volume: vi.fn() };
+  return { play, stop, fade, volume, rate, Howl, Howler };
 });
 vi.mock('howler', () => ({ Howl, Howler }));
 
-import { audioUrl, sfxUrl, speechUrl, createSpeaker, unlockAudioOnFirstGesture, preferPlaybackAudioSession, NOTE_FADE_MS } from './audio';
+import { audioUrl, sfxUrl, speechUrl, createSpeaker, unlockAudioOnFirstGesture, preferPlaybackAudioSession, NOTE_FADE_MS, applyCalmVolume, CALM_VOLUME, CALM_SPEECH_RATE } from './audio';
 
 describe('audio', () => {
-  beforeEach(() => { Howl.mockClear(); play.mockClear(); stop.mockClear(); fade.mockClear(); volume.mockClear(); });
+  beforeEach(() => { Howl.mockClear(); play.mockClear(); stop.mockClear(); fade.mockClear(); volume.mockClear(); rate.mockClear(); });
+  it('chế độ nhẹ nhàng: giọng đọc chậm hơn theo getRate, âm lượng tổng nhỏ lại', () => {
+    let calm = false;
+    const sp = createSpeaker(() => 'vi', '/b/', undefined, undefined, () => (calm ? CALM_SPEECH_RATE : 1));
+    sp.say('ui.great');
+    expect(rate).toHaveBeenLastCalledWith(1);
+    calm = true;
+    sp.say('ui.great');
+    expect(rate).toHaveBeenLastCalledWith(CALM_SPEECH_RATE);
+    expect(CALM_SPEECH_RATE).toBeLessThan(1);
+    applyCalmVolume(true);
+    expect(Howler.volume).toHaveBeenLastCalledWith(CALM_VOLUME);
+    expect(CALM_VOLUME).toBeLessThan(1);
+    applyCalmVolume(false);
+    expect(Howler.volume).toHaveBeenLastCalledWith(1);
+  });
   it('note() không cắt lời đang nói; nốt trước tắt dần rồi mới dừng', () => {
     vi.useFakeTimers();
     try {

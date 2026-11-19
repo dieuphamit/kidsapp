@@ -15,9 +15,11 @@ export interface Settings {
   games?: Record<string, GameSetting>;
   /** Bạn đồng hành: con vật và tên, chọn độc lập (mặc định mèo + Đậu Đậu). */
   buddy: Buddy;
+  /** Chế độ nhẹ nhàng: nhỏ tiếng hơn, giọng đọc chậm hơn, bớt hiệu ứng nhấp nháy/ăn mừng. */
+  calm: boolean;
 }
 
-export const DEFAULT_SETTINGS: Settings = { lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'map', buddy: DEFAULT_BUDDY };
+export const DEFAULT_SETTINGS: Settings = { lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'map', buddy: DEFAULT_BUDDY, calm: false };
 const KEY = 'behoc.settings';
 
 export async function loadSettings(): Promise<Settings> {
@@ -29,6 +31,8 @@ export async function loadSettings(): Promise<Settings> {
   if (s.games !== undefined) s.games = sanitizeGameSettings(s.games);
   // Bạn đồng hành: bản cũ chưa có hoặc giá trị lạ thì về mèo + Đậu Đậu (từng phần)
   s.buddy = sanitizeBuddy(s.buddy);
+  // Chế độ nhẹ nhàng: bản cũ chưa có hoặc giá trị lạ thì tắt
+  s.calm = s.calm === true;
   return s;
 }
 
