@@ -69,7 +69,7 @@ describe('manifest options', () => {
     expect(withDiff).toEqual(
       [
         'bakery', 'band', 'bath', 'counting', 'hide', 'mama', 'memory', 'music', 'path', 'pattern', 'peekaboo', 'puzzle',
-        'shadow', 'shapes', 'sort', 'sound-quiz', 'story',
+        'shadow', 'shapes', 'sort', 'sound-quiz', 'story', 'words',
       ],
     );
   });

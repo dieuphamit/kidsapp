@@ -119,6 +119,36 @@ const CARDS = {
   'mama/hen': { file: 'Australorps henne.jpg' },
   'mama/sheep': { file: 'Texel ewe and three lambs.jpg', crop: [0.27, 0.22, 0.68, 0.74] },
   'mama/pig': { file: 'Sow.jpg' },
+// words: đồ vật quanh bé
+  // Trò "Đồ vật quanh bé" (cards/words/). Không nằm trong cards/index.json.
+  // width: cỡ thumbnail chuẩn tải từ Commons (tải ảnh gốc bị Wikimedia chặn 429).
+  'words/pants': { file: 'Jeans Gul&Blå i modellen Dallas.jpg', width: 500 },
+  'words/shoes': { file: 'Paar witte sneakers, merk G-Unit, maat 40, objectnr 87415-7.A-B.JPG', keep: 'all', width: 1280 },
+  'words/boots': { file: 'Rain boots on Stairs.jpg', crop: [0.3, 0.24, 0.96, 0.98], width: 1280 },
+  'words/spoon': { file: 'Stainless Steel Soup Spoon.jpg', width: 1280 },
+  'words/fork': { file: 'Fork isolated on white background 03.jpg', width: 1280 },
+  'words/pot': { file: 'Cooking Pot March.jpg', width: 1280 },
+  'words/bus': { file: 'Hyundai - school bus in Bulgaria.JPG', width: 1280 },
+  'words/firetruck': { file: 'KAMAZ fire truck - Moscow.jpg', width: 1280 },
+  'words/ambulance': { file: 'Dutch Volkswagen ambulance 2016-12-27.jpg', width: 1280 },
+  'words/train': { file: 'NSW XPT passenger train Galong, NSW.jpg', width: 1280 },
+  'words/bicycle': { file: 'White single-speed bicycle on yellow background.png', width: 1280 },
+  'words/boat': { file: 'Fishing boat Nørre Vorupør 2012-11-18 cropped.jpg', width: 1280 },
+  'words/teddy': { file: 'Handmade teddy bear.jpg', width: 1280 },
+  'words/shirt': { file: 'Classical polo shirt.jpg', width: 1280 },
+  'words/socks': { file: 'Hand Knitted Socks.JPG', keep: 'all', width: 1280 },
+  'words/hat': { file: "Straw hat, Vietnamese Women's Museum.jpg", width: 1280 },
+  'words/cup': { file: 'Party red plastic cup.png', width: 500 },
+  'words/bowl': { file: 'Simple-ceramic-bowl (cropped).jpg', width: 960 },
+  'words/plate': { file: 'Ceramic Plate.jpg', width: 1280 },
+  'words/car': { file: '1991 Holden Caprice (VQ) armoured car side.jpg', width: 1280 },
+  'words/airplane': { file: 'Saudi Airliens Takeoff a320.jpg', width: 1280 },
+  'words/ball': { file: 'Soccer ball on ground.jpg', width: 1280 },
+  'words/book': { file: "SIDGWICK-PAINTER(1895) The children's book of gardening (15628997510).jpg", width: 960 },
+  'words/chair': { file: 'Kitchen chair made by Lübke. Germany.jpeg', width: 1280 },
+  'words/bed': { file: 'Bunk bed (wooden).jpg', width: 1280 },
+  'words/toothbrush': { file: 'Gum manual toothbrush.jpg', width: 1280 },
+  'words/clock': { file: 'Classic alarm clock 20180513.jpg', width: 1280 },
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
