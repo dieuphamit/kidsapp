@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bé Học – Đợt 3</title>
+<style>
+  :root {
+    --bg: #fbf7ff; --card: #ffffff; --ink: #2d1f5e; --muted: #6b5f8f; --line: #e7defa;
+    --accent: #7c5cff; --mint: #a6e9e4; --peach: #ffb9a3; --butter: #ffe39b; --lilac: #cdb8ff;
+    --ok: #2f9e6b; --warn: #c7771a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #17122b; --card: #221a3d; --ink: #f1ecff; --muted: #b9addf; --line: #3a2f63; --accent: #a993ff;
+      --ok: #5fd39c; --warn: #f0b060;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 system-ui, "Segoe UI", sans-serif; }
+  main { max-width: 1120px; margin: 0 auto; padding: 32px 16px 80px; }
+  h1 { font-size: 32px; margin: 0 0 4px; }
+  h2 { font-size: 24px; margin: 48px 0 12px; padding-top: 8px; border-top: 2px solid var(--line); }
+  h3 { font-size: 18px; margin: 24px 0 8px; }
+  p, li { max-width: 78ch; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+  nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 8px; }
+  nav a { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; color: var(--ink); text-decoration: none; font-size: 14px; }
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+  .tile b { display: block; font-size: 17px; }
+  .tile span { color: var(--muted); font-size: 14px; }
+  .shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 16px; margin: 12px 0; }
+  figure { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  figure img { display: block; width: 100%; height: auto; }
+  figcaption { padding: 8px 12px; font-size: 14px; color: var(--muted); }
+  .tall img { max-height: 520px; object-fit: cover; object-position: top; }
+  .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+  .photos figure { background: #fff; }
+  .photos img { aspect-ratio: 1; object-fit: contain; padding: 6px; }
+  .photos figcaption { padding: 2px 6px 6px; font-size: 12px; text-align: center; color: #6b5f8f; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; background: var(--card); }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: color-mix(in srgb, var(--lilac) 35%, var(--card)); }
+  .scroll { overflow-x: auto; border-radius: 12px; }
+  .chip { display: inline-block; border-radius: 999px; padding: 1px 10px; font-size: 13px; margin: 1px 2px; background: color-mix(in srgb, var(--mint) 55%, var(--card)); }
+  .ok { color: var(--ok); font-weight: 600; }
+  .warn { color: var(--warn); font-weight: 600; }
+  code { background: color-mix(in srgb, var(--lilac) 25%, transparent); padding: 1px 5px; border-radius: 5px; font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Bé Học – Đợt 3: 3 trò mới và 5 cải tiến cho bố mẹ</h1>
+  <p class="sub">Nhánh <code>feat/batch3</code>, chưa merge vào main. Làm theo ảnh tham khảo trong <code>ideal/</code> (ứng dụng học kiểu Intellecto). Ngày 2026-11-20.</p>
+
+  <div class="summary">
+    <div class="tile"><b>✏️ Nối điểm</b><span>Góc đố · 30–72 tháng · 8 con vật ảnh thật</span></div>
+    <div class="tile"><b>🥕 Cho thú ăn</b><span>Trang trại · 7 cặp thú – món, kéo thả</span></div>
+    <div class="tile"><b>🧸 Đồ vật quanh bé</b><span>Nhà Đậu Đậu · 27 thẻ ảnh thật, 4 chủ đề</span></div>
+    <div class="tile"><b>🔐 Cổng phụ huynh</b><span>Giữ 3 giây + một phép tính</span></div>
+    <div class="tile"><b>📊 Tuần này</b><span>Phút chơi theo 6 kỹ năng, chỉ lưu trên máy</span></div>
+    <div class="tile"><b>🌙 Chế độ nhẹ nhàng</b><span>Nhỏ tiếng, đọc chậm, bớt nhấp nháy</span></div>
+    <div class="tile"><b>🏮 Trang trí theo mùa</b><span>Tết, Trung thu, Giáng Sinh, tự theo ngày</span></div>
+    <div class="tile"><b>🖨️ Bản in</b><span>10 tờ tô màu, nối số, tô nét</span></div>
+  </div>
+
+  <nav>
+    <a href="#dots">Nối điểm</a><a href="#feed">Cho thú ăn</a><a href="#words">Đồ vật quanh bé</a>
+    <a href="#parent">Cổng, thống kê, nhẹ nhàng</a><a href="#season">Theo mùa, bản in</a>
+    <a href="#photos">Ảnh thật mới</a><a href="#tests">Kiểm thử</a><a href="#concerns">Cần bố mẹ kiểm tra</a>
+  </nav>
+
+  <h2 id="dots">✏️ Nối điểm (Góc đố)</h2>
+  <ul>
+    <li>Quanh bóng mờ một con vật có các chấm đánh số. Bé chạm (hoặc kéo ngón) lần lượt 1, 2, 3…; mỗi chấm sáng lên, đọc số và nối nét từ chấm trước.</li>
+    <li>Nối hết vòng thì ảnh thật hiện ra, con vật kêu tiếng thật và Đậu Đậu nói "Là con voi!".</li>
+    <li>Chạm sai chấm: không có âm báo sai, chỉ chấm kế tiếp nhún nhẹ.</li>
+    <li>Số chấm theo tuổi: dưới 36 tháng 4–5 chấm, 36–47 tháng 6–8 chấm, từ 48 tháng 8–10 chấm. Chấm luôn cách nhau đủ để mỗi ô chạm 120px hở 24px.</li>
+    <li>8 con vật: voi, hươu cao cổ, thỏ, cá, ngựa, gà, vịt, lợn. Vị trí chấm lấy từ đường viền của chính ảnh thật.</li>
+  </ul>
+  <div class="shots">
+    <figure><img src="img/dots-start.jpg" alt=""><figcaption>Bắt đầu: bóng mờ và các chấm số</figcaption></figure>
+    <figure><img src="img/dots-midway.jpg" alt=""><figcaption>Đang nối giữa chừng</figcaption></figure>
+    <figure><img src="img/dots-reveal.jpg" alt=""><figcaption>Nối xong: ảnh thật hiện ra</figcaption></figure>
+    <figure><img src="img/dots-portrait.jpg" alt=""><figcaption>iPhone cầm dọc (khung xoay ngang)</figcaption></figure>
+  </div>
+
+  <h2 id="feed">🥕 Cho thú ăn (Trang trại)</h2>
+  <ul>
+    <li>7 cặp: thỏ – cà rốt, khỉ – chuối, gấu trúc – tre, cún – xương, mèo – cá, gà – ngô, ngựa – táo. Thú và món đều là ảnh thật tách nền.</li>
+    <li>Kéo đúng món vào miệng: thú nhai "măm măm", khen "Thỏ thích cà rốt!", thanh tim đầy dần (chỉ tăng, không giảm).</li>
+    <li>Đủ 2 miếng (dưới 36 tháng) hoặc 3 miếng: thú kêu tiếng thật, tim bay, sang con kế. Cho no 4 con thì bạn đồng hành ăn mừng.</li>
+    <li>Kéo món không hợp: thú lắc đầu nhẹ, món trôi về khay. Lần thứ hai thì gợi ý tên món và món đúng nhún lên.</li>
+    <li>Khay có 2, 3 hoặc 4 món theo tuổi. Món "không hợp" lấy từ món của con khác, nên không bao giờ dạy sai.</li>
+  </ul>
+  <div class="shots">
+    <figure><img src="img/feed-hungry.jpg" alt=""><figcaption>Cún đói, khay 2 món</figcaption></figure>
+    <figure><img src="img/feed-chew.jpg" alt=""><figcaption>Đang nhai</figcaption></figure>
+    <figure><img src="img/feed-full.jpg" alt=""><figcaption>Gấu trúc no, tim bay</figcaption></figure>
+    <figure><img src="img/feed-four.jpg" alt=""><figcaption>Khay 4 món (bé lớn)</figcaption></figure>
+    <figure><img src="img/feed-party.jpg" alt=""><figcaption>Ăn mừng cuối ván</figcaption></figure>
+    <figure><img src="img/feed-mobile.jpg" alt=""><figcaption>iPhone cầm dọc</figcaption></figure>
+  </div>
+
+  <h2 id="words">🧸 Đồ vật quanh bé (Nhà Đậu Đậu)</h2>
+  <ul>
+    <li>27 thẻ ảnh thật, 4 chủ đề: quần áo (6), đồ ăn uống (6), xe cộ (8), đồ chơi và đồ trong nhà (7).</li>
+    <li>Xem thẻ: chạm để lật, thẻ nhún và đọc tên (vi/ja/en). Nút trước/sau và nút quay về màn chủ đề.</li>
+    <li>Từ 36 tháng: cứ 3 thẻ lại có câu đố "Đâu là…?" với 2, 3 hoặc 4 thẻ theo tuổi. Chạm sai thì thẻ đó tự nói tên, thẻ đúng lắc nhẹ gợi ý.</li>
+    <li>4 xe có tiếng thật: còi ô tô, còi xe cứu hỏa, còi tàu, chuông xe đạp.</li>
+  </ul>
+  <div class="shots">
+    <figure><img src="img/words-topics.jpg" alt=""><figcaption>Chọn chủ đề</figcaption></figure>
+    <figure><img src="img/words-view.jpg" alt=""><figcaption>Xem thẻ: cái bát</figcaption></figure>
+    <figure><img src="img/words-vehicle.jpg" alt=""><figcaption>Xe cộ</figcaption></figure>
+    <figure><img src="img/words-find.jpg" alt=""><figcaption>Đâu là…? (2 thẻ)</figcaption></figure>
+    <figure><img src="img/words-find-hint.jpg" alt=""><figcaption>Gợi ý sau khi chạm sai</figcaption></figure>
+    <figure><img src="img/words-find4.jpg" alt=""><figcaption>Đâu là…? (4 thẻ, bé lớn)</figcaption></figure>
+    <figure><img src="img/words-mobile.jpg" alt=""><figcaption>iPhone cầm dọc</figcaption></figure>
+  </div>
+
+  <h2 id="parent">🔐 Cổng phụ huynh, 📊 Tuần này, 🌙 Chế độ nhẹ nhàng</h2>
+  <h3>Cổng phụ huynh</h3>
+  <ul>
+    <li>Vẫn giữ ⚙️ 3 giây, sau đó hiện một phép nhân (3–9 × 3–9) hoặc phép cộng (15–49) với 4 nút đáp án lớn. Đáp án sai được chọn gần đúng, bé khó đoán theo độ lớn.</li>
+    <li>Chọn sai: lặng lẽ đóng, không âm báo. Muốn thử lại phải giữ 3 giây lần nữa.</li>
+  </ul>
+  <h3>Tuần này (kỹ năng)</h3>
+  <ul>
+    <li>Mỗi trò gắn 1–2 kỹ năng trong 6 nhóm: Toán, Logic, Ngôn ngữ, Khoa học – thiên nhiên, Sáng tạo, Cảm xúc – xã hội.</li>
+    <li>App đếm phút chơi từng trò theo ngày (lưu trong máy, giữ 35 ngày, không gửi đi đâu). Màn "Tuần này" cho bố mẹ: tổng phút 7 ngày, thanh theo kỹ năng, danh sách trò kèm kỹ năng. Bé không thấy gì.</li>
+  </ul>
+  <div class="scroll"><table>
+    <tr><th>Trò mới</th><th>Kỹ năng</th></tr>
+    <tr><td>Nối điểm</td><td><span class="chip">🔢 Toán</span><span class="chip">🧩 Logic</span></td></tr>
+    <tr><td>Cho thú ăn</td><td><span class="chip">🌿 Khoa học – thiên nhiên</span><span class="chip">💗 Cảm xúc – xã hội</span></td></tr>
+    <tr><td>Đồ vật quanh bé</td><td><span class="chip">💬 Ngôn ngữ</span></td></tr>
+  </table></div>
+  <h3>Chế độ nhẹ nhàng</h3>
+  <ul>
+    <li>Công tắc trong khu bố mẹ. Khi bật: âm lượng còn 60%, giọng đọc chậm 10%, hiệu ứng lặp chỉ chạy một lượt, ẩn lấp lánh và pháo giấy, bạn đồng hành nhảy nhẹ hơn.</li>
+  </ul>
+  <div class="shots">
+    <figure><img src="img/parent-gate.jpg" alt=""><figcaption>Cổng: 4 × 6 = ?</figcaption></figure>
+    <figure><img src="img/parent-stats.jpg" alt=""><figcaption>Tuần này: phút theo kỹ năng</figcaption></figure>
+    <figure><img src="img/parent-calm.jpg" alt=""><figcaption>Công tắc chế độ nhẹ nhàng</figcaption></figure>
+    <figure><img src="img/parent-mobile.jpg" alt=""><figcaption>Cổng trên iPhone dọc</figcaption></figure>
+  </div>
+
+  <h2 id="season">🏮 Trang trí theo mùa, 🖨️ Bản in</h2>
+  <h3>Theo mùa</h3>
+  <ul>
+    <li>Tự chọn theo ngày trên máy, không cần mạng. Tết: từ 10 ngày trước đến 7 ngày sau mùng 1 (cành mai, đào, đèn lồng đỏ, cánh hoa rơi). Trung thu: 10 ngày trước đến 3 ngày sau rằm tháng Tám (trăng, đèn ông sao). Giáng Sinh: 15–31/12 (tuyết, cây thông, dây đèn).</li>
+    <li>Ngày Tết và Trung thu ghi sẵn cho 2025–2033. Lớp trang trí không chặn chạm và tắt chuyển động khi máy bật giảm chuyển động.</li>
+    <li>Đậu Đậu chào theo mùa một lần mỗi ngày. Bố mẹ có thể chọn "Tự động / Tắt".</li>
+  </ul>
+  <div class="shots">
+    <figure><img src="img/season-tet.jpg" alt=""><figcaption>Tết</figcaption></figure>
+    <figure><img src="img/season-trungthu.jpg" alt=""><figcaption>Trung thu</figcaption></figure>
+    <figure><img src="img/season-xmas.jpg" alt=""><figcaption>Giáng Sinh</figcaption></figure>
+    <figure><img src="img/season-none.jpg" alt=""><figcaption>Ngày thường (không trang trí)</figcaption></figure>
+    <figure><img src="img/season-mobile.jpg" alt=""><figcaption>iPhone dọc</figcaption></figure>
+    <figure><img src="img/season-parent.jpg" alt=""><figcaption>Khu bố mẹ: tùy chọn mùa và bản in</figcaption></figure>
+  </div>
+  <h3>Bản in</h3>
+  <ul>
+    <li>10 tờ: tô màu (sao, tim, mặt trời, cá, mèo Đậu Đậu), nối số (sao, tim, nhà), tô nét (đường kẻ, hình khối).</li>
+    <li>Bố mẹ chọn tờ rồi bấm "In n tờ". Trang A4 nét đen nền trắng, không cần mạng hay thư viện PDF.</li>
+  </ul>
+  <div class="shots">
+    <figure><img src="img/printables-picker.jpg" alt=""><figcaption>Chọn tờ để in</figcaption></figure>
+    <figure class="tall"><img src="img/printables-sheet.jpg" alt=""><figcaption>Bản in (giả lập máy in): tô màu, nối số, tô nét</figcaption></figure>
+  </div>
+
+  <h2 id="photos">📷 Ảnh thật mới trong đợt này</h2>
+  <p>Mọi ảnh lấy từ Wikimedia Commons (CC0, PD, CC BY, CC BY-SA), tách nền bằng BiRefNet. Nguồn và tác giả từng ảnh ghi trong <code>app/public/cards/CREDITS.md</code>. Trò Nối điểm dùng lại ảnh thú đã có.</p>
+  <h3>Cho thú ăn</h3>
+  <div class="photos" id="feed-photos"></div>
+  <h3>Đồ vật quanh bé</h3>
+  <div class="photos" id="words-photos"></div>
+
+  <h2 id="tests">🧪 Kiểm thử</h2>
+  <!--TESTS-->
+
+  <h2 id="concerns">👀 Cần bố mẹ kiểm tra</h2>
+  <ul>
+    <li><b>iPad Safari thật:</b> e2e chạy Chromium; cần thử kéo thả (Cho thú ăn), in thật (Bản in), chế độ offline.</li>
+    <li><b>Nối điểm:</b> ảnh thẻ 512px hơi mờ khi phóng to; chấm của hươu cao cổ và vịt khá sát nhau (vẫn đủ 144px).</li>
+    <li><b>Cho thú ăn:</b> bỏ cặp bò – cỏ vì không có ảnh bó cỏ tốt. Ảnh xương hơi bóng; "tre" là cành lá tre. Vị trí miệng mỗi thú ước lượng tay. Gà là gà mái đen. Mèo chưa có ghi âm thật nên dùng câu "Meo meo!".</li>
+    <li><b>Đồ vật quanh bé:</b> vài ảnh có chữ nhỏ (bìa sách tiếng Anh, "GUM" trên bàn chải, chữ trên xe buýt); mũ là nón rơm; giày trắng hơi nhạt trên thẻ trắng; không có váy và bàn. Xe buýt, xe cứu thương, máy bay, thuyền chưa có tiếng (Wikimedia trả lỗi 429).</li>
+    <li><b>Theo mùa:</b> ngày âm lịch trong bảng tự ghi, nên kiểm lại vài năm. Tuyết rơi bay qua chữ trong chốc lát (không chặn chạm).</li>
+    <li><b>Chế độ nhẹ nhàng:</b> đọc chậm bằng Howler làm giọng trầm đi khoảng 10%. Trò mới muốn ẩn lấp lánh cần đặt class có chữ <code>sparkle</code>/<code>confetti</code> hoặc đọc <code>useCalm()</code>.</li>
+    <li><b>Dung lượng:</b> đợt này thêm khoảng 10 MB (ảnh, giọng đọc 3 thứ tiếng, tiếng xe).</li>
+  </ul>
+</main>
+<script>
+  const FEED = { carrot: 'cà rốt', fish: 'cá', corn: 'ngô', bamboo: 'tre', bone: 'xương', monkey: 'khỉ', cat: 'mèo', horse: 'ngựa', hen: 'gà' };
+  const WORDS = { shirt: 'áo', pants: 'quần', socks: 'tất', hat: 'mũ', shoes: 'giày', boots: 'ủng', cup: 'cốc', spoon: 'thìa', bowl: 'bát', plate: 'đĩa', pot: 'nồi', fork: 'nĩa', car: 'ô tô', bus: 'xe buýt', firetruck: 'xe cứu hỏa', ambulance: 'xe cứu thương', airplane: 'máy bay', train: 'tàu hỏa', bicycle: 'xe đạp', boat: 'thuyền', ball: 'bóng', teddy: 'gấu bông', book: 'sách', bed: 'giường', chair: 'ghế', clock: 'đồng hồ', toothbrush: 'bàn chải' };
+  for (const [box, group, names] of [['feed-photos', 'feed', FEED], ['words-photos', 'words', WORDS]]) {
+    const el = document.getElementById(box);
+    for (const [id, vi] of Object.entries(names)) {
+      const f = document.createElement('figure');
+      f.innerHTML = `<img src="photos/${group}-${id}.png" alt="${vi}" loading="lazy"><figcaption>${vi}</figcaption>`;
+      el.appendChild(f);
+    }
+  }
+</script>
+</body>
+</html>

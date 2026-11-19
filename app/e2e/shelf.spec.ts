@@ -43,7 +43,7 @@ function expectInsideAndApart(boxes: (Box & { id: string })[], vw: number, vh: n
 }
 
 
-test('kệ đồ chơi: mọi thẻ 132px, khe ≥24px, trong khung, xếp theo khu; chụp T-035-shelf', async ({ page }) => {
+test('kệ đồ chơi: mọi thẻ ≥120px (132px khi ít trò), khe ≥24px, trong khung, xếp theo khu; chụp T-035-shelf', async ({ page }) => {
   await page.goto('./?e2e=1&menu=shelf');
   const shelf = page.getByTestId('shelf');
   await expect(shelf).toBeVisible({ timeout: 3000 });
@@ -63,9 +63,11 @@ test('kệ đồ chơi: mọi thẻ 132px, khe ≥24px, trong khung, xếp theo 
 
   await page.waitForTimeout(900); // chờ hiệu ứng hiện thẻ
   const boxes = await cardBoxes(page);
+  // ≤18 trò: 6 cột thẻ 132px; nhiều hơn: 7 cột thẻ 120px (sàn ClayButton)
+  const min = (await shelf.getAttribute('data-cols')) === '6' ? 132 : 120;
   for (const b of boxes) {
-    expect(b.width, `${b.id} rộng`).toBeGreaterThanOrEqual(132);
-    expect(b.height, `${b.id} cao`).toBeGreaterThanOrEqual(132);
+    expect(b.width, `${b.id} rộng`).toBeGreaterThanOrEqual(min);
+    expect(b.height, `${b.id} cao`).toBeGreaterThanOrEqual(min);
   }
   expectInsideAndApart(boxes, 1194, 834, 24);
 
@@ -79,6 +81,43 @@ test('kệ đồ chơi: mọi thẻ 132px, khe ≥24px, trong khung, xếp theo 
   }
 
   await page.screenshot({ path: 'test-results/shots/T-035-shelf.png' });
+});
+
+test('60 tháng: đủ mọi trò, kệ gọn 4 tầng vẫn trọn khung, khe ≥24px, không đè cổng; chụp T-035-shelf-all', async ({ page }) => {
+  await page.goto('./?e2e=1');
+  await page.evaluate(async () => {
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open('keyval-store', 1);
+      request.onupgradeneeded = () => request.result.createObjectStore('keyval');
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        const tx = request.result.transaction('keyval', 'readwrite');
+        tx.objectStore('keyval').put({ lang: 'vi', ageMonths: 60, sessionMinutes: 15, menuStyle: 'shelf' }, 'behoc.settings');
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      };
+    });
+  });
+  await page.goto('./?e2e=1&menu=shelf');
+  const shelf = page.getByTestId('shelf');
+  await expect(shelf).toBeVisible({ timeout: 3000 });
+  const cards = page.locator('[data-testid^="shelf-card-"]');
+  expect(await cards.count()).toBeGreaterThanOrEqual(22);
+  await expect(shelf).toHaveAttribute('data-compact', 'true');
+  await page.waitForTimeout(900);
+  const boxes = await cardBoxes(page);
+  for (const b of boxes) {
+    expect(b.width, `${b.id} rộng`).toBeGreaterThanOrEqual(120);
+    expect(b.height, `${b.id} cao`).toBeGreaterThanOrEqual(120);
+  }
+  expectInsideAndApart(boxes, 1194, 834, 24);
+  const gate = (await page.getByLabel('Khu phụ huynh').boundingBox())!;
+  const mascot = (await shelf.locator('img').boundingBox())!;
+  for (const b of boxes) {
+    expect(overlap(b, gate, 24), `${b.id} sát cổng phụ huynh`).toBe(false);
+    expect(overlap(b, mascot), `${b.id} đè Đậu Đậu`).toBe(false);
+  }
+  await page.screenshot({ path: 'test-results/shots/T-035-shelf-all.png' });
 });
 
 test('kệ đồ chơi: chạm thẻ nói tên trò ngay rồi vào đúng trò', async ({ page }) => {

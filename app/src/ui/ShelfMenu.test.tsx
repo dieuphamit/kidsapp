@@ -84,6 +84,14 @@ describe('ShelfMenu', () => {
     renderShelf(many);
     expect(screen.getByRole('button', { name: 'Trò g00' }).style.width).toBe('120px');
     expect(screen.getByTestId('shelf')).toHaveAttribute('data-cols', '7');
+    expect(screen.getByTestId('shelf')).not.toHaveAttribute('data-compact');
+  });
+
+  it('hơn 21 trò (4 tầng) thì kệ gọn để nằm trọn khung', () => {
+    const many = Array.from({ length: 23 }, (_, i) => makeGame(`g${String(i).padStart(2, '0')}`, 'place.zoo'));
+    renderShelf(many);
+    expect(screen.getByTestId('shelf')).toHaveAttribute('data-compact', 'true');
+    expect(screen.getByRole('button', { name: 'Trò g22' }).style.width).toBe('120px');
   });
 
   it('nói ui.pick-game khi vào, có Đậu Đậu và bong bóng', () => {

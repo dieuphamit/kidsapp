@@ -44,6 +44,23 @@
   box-shadow: 0 6px 10px rgba(168, 112, 63, 0.3);
 }
 
+/* Kệ gọn (4 tầng, 7 cột × 120px): 4 × (8 + 120 + 6 + 12) + 3 × 16 = 632 ≤ 834 − 148 − 16.
+   Hai hàng thẻ vẫn cách nhau 6 + 12 + 16 + 8 = 42px ≥ 24px. */
+.compact .rows {
+  top: 148px;
+  bottom: 16px;
+  gap: 16px;
+}
+
+.compact .row {
+  padding-top: 8px;
+}
+
+.compact .plank {
+  height: 12px;
+  margin-top: 6px;
+}
+
 .card {
   animation: pop 420ms var(--ease-squish) both;
 }
