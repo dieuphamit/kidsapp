@@ -161,7 +161,7 @@ test('tên đang chọn chạy offline: bộ giọng đọc của tên được 
   await page.reload();
   await expect(page.getByRole('button', { name: 'Ki Ki trốn ở đâu?' })).toBeVisible({ timeout: 10_000 });
   const status = await page.evaluate(async () => {
-    const r = await fetch('audio/ja/hide.hello~kiki.mp3'); // tương đối với /kidsapp/
+    const r = await fetch('audio/ja/hide.hello~kiki.mp3'); // tương đối với gốc site
     return r.status;
   });
   expect(status).toBe(200);
