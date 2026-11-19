@@ -1,0 +1,131 @@
+/* ---- Màn chọn tờ in (trong khung 1194×834) ---- */
+.picker {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: var(--sky-bottom);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  font-size: 24px;
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  /* chừa góc phải trên 120×120 của cổng phụ huynh */
+  padding-right: 120px;
+}
+.title { flex: 1; font-size: 32px; color: var(--ink); }
+.headBtn {
+  font: inherit;
+  min-height: 72px;
+  padding: 8px 24px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--clay-mint);
+  color: var(--ink);
+  box-shadow: var(--shadow-clay);
+}
+.headBtn:active { box-shadow: var(--shadow-clay-pressed); }
+.printBtn { background: var(--clay-butter); }
+.printBtn:disabled { opacity: 0.55; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 24px;
+}
+.sheetCard {
+  position: relative;
+  font: inherit;
+  min-height: 120px;
+  height: 300px;
+  border: 4px solid transparent;
+  border-radius: var(--radius-clay);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow-clay);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+}
+.sheetCard[aria-pressed='true'] { border-color: var(--ink-soft); background: var(--clay-butter); }
+.thumb {
+  width: 170px;
+  height: 190px;
+  background: var(--print-paper);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+}
+.thumb .art { width: 100%; height: 100%; }
+.cardKind { font-size: 18px; opacity: 0.75; }
+.cardTitle { font-size: 22px; line-height: 1.1; }
+.check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--ink-soft);
+  color: var(--paper);
+  line-height: 40px;
+  font-size: 26px;
+  display: none;
+}
+.sheetCard[aria-pressed='true'] .check { display: block; }
+
+/* ---- Nét vẽ tờ in: đen trên trắng ---- */
+.art { display: block; }
+.line, .thin, .dashed { fill: none; stroke: var(--print-ink); stroke-linecap: round; stroke-linejoin: round; }
+.line { stroke-width: 2.4; }
+.thin { stroke-width: 1.5; }
+.dashed { stroke-width: 2.2; stroke-dasharray: 5 5; opacity: 0.7; }
+.dot { fill: var(--print-ink); }
+.num { fill: var(--print-ink); font-family: var(--font-kid); font-size: 8px; text-anchor: middle; dominant-baseline: central; }
+.numFirst { font-size: 10px; }
+
+/* ---- Trang A4: ẩn trên màn hình, chỉ hiện khi in ---- */
+.printRoot { display: none; }
+.page {
+  width: 186mm;
+  height: 270mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--print-paper);
+  color: var(--print-ink);
+  font-family: var(--font-kid);
+  break-after: page;
+  page-break-after: always;
+  overflow: hidden;
+}
+.page:last-child { break-after: auto; page-break-after: auto; }
+.pageHead {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14pt;
+  padding-bottom: 4mm;
+  border-bottom: 0.4mm solid var(--print-ink);
+}
+.nameLine { min-width: 60mm; border-bottom: 0.3mm dotted var(--print-ink); }
+.pageArt { flex: 1; width: 100%; min-height: 0; margin: 8mm 0; }
+.pageFoot { font-size: 9pt; opacity: 0.6; }
+
+@media print {
+  @page { size: A4 portrait; margin: 12mm; }
+  :global(html), :global(body) {
+    height: auto !important;
+    overflow: visible !important;
+    background: var(--print-paper) !important;
+  }
+  :global(#root) { display: none !important; }
+  .printRoot { display: block; }
+}

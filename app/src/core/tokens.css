@@ -112,3 +112,14 @@
   --world-rock: #c7b8a8;
   --world-cloud: #ffffff;
 }
+
+/* Trang trí theo mùa (SeasonLayer): đèn lồng Tết, đèn ông sao, trăng rằm; bản in (Printables) nét đen trên giấy trắng */
+:root {
+  --season-lantern: #e8453c;
+  --season-lantern-dark: #b93a32;
+  --season-gold: #ffc23d;
+  --season-moon: #fff3c4;
+  --season-branch: #7a5236;
+  --print-ink: #000000;
+  --print-paper: #ffffff;
+}

@@ -5,6 +5,7 @@ import { ALL_GAMES } from '../core/games';
 import { ClayButton } from './ClayButton';
 import { GameSettings } from './GameSettings';
 import { BuddySettings } from './BuddySettings';
+import { ParentExtras } from './parent/ParentExtras';
 import type { Speaker } from '../core/audio';
 
 const LANGS: [Settings['lang'], string][] = [['vi', '🇻🇳 Tiếng Việt'], ['ja', '🇯🇵 日本語'], ['en', '🇬🇧 English']];
@@ -96,6 +97,7 @@ export function ParentArea({ settings, speaker, onSave, onUnlock, onClose }: Pro
                 onChange={(e) => setS({ ...s, sessionMinutes: Number(e.target.value) })} />
             </label>
           </div>
+          <ParentExtras />
         </div>
         <button type="button" onClick={() => { onSave(s); onUnlock(); onClose(); }}>Lưu và cho bé chơi tiếp</button>
         <button type="button" onClick={onClose}>Đóng</button>
