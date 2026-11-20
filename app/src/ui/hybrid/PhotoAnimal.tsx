@@ -4,7 +4,7 @@ import { useTexture } from '@react-three/drei';
 import { DoubleSide, MeshBasicMaterial, PlaneGeometry, SRGBColorSpace, type BufferAttribute, type Group } from 'three';
 import { reactJump, type Agent } from '../../core/steer';
 import type { WorldAnimal } from '../../core/worldAnimals';
-import { photoUrl, type PhotoLook } from './look';
+import { photoId, photoUrl, type PhotoLook } from './look';
 import { HitBox } from './HitBox';
 import photoMeta from './photoMeta.json';
 
@@ -52,8 +52,9 @@ type Props = {
 };
 
 export function PhotoAnimal({ def, look, agent, active, phase, onTap, onLoaded }: Props) {
-  const meta = PHOTO_META[def.id];
-  const tex = useTexture(photoUrl(def.id));
+  const pid = photoId(def.id, look);
+  const meta = PHOTO_META[pid];
+  const tex = useTexture(photoUrl(pid));
   const [W, H] = photoSize(def, look, meta);
   // con bơi/bay: tâm ảnh ở giữa thân; con đi/nhảy: chân chạm đất (y = 0)
   const grounded = look.style === 'walk' || look.style === 'hop';

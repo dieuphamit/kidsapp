@@ -37,6 +37,19 @@ describe('animals data', () => {
   });
 });
 
+describe('farmDef', () => {
+  it('mỗi con vẽ kiểu trò Thế giới (model có texture hoặc ảnh thật), giữ chiều cao, con đi dạo theo tốc độ làn', async () => {
+    const { farmDef } = await import('./animals');
+    const { PARK_LOOK } = await import('../../ui/hybrid/look');
+    for (const a of ANIMALS) {
+      const d = farmDef(a);
+      expect(PARK_LOOK[a.id], a.id).toBeDefined();
+      expect(d.height).toBe(a.height ?? 1.2);
+      if (a.lane) expect(d.speed).toBe(a.lane.speed);
+    }
+  });
+});
+
 describe('animals manifest', () => {
   it('place là place.zoo', () => {
     expect(manifest.place).toBe('place.zoo');

@@ -1,10 +1,13 @@
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Scene3D } from '../../ui/Scene3D';
-import { WanderAnimal, WanderProbe, type WanderRegistry } from '../../ui/WanderAnimal';
-import { startReact } from '../../ui/wander';
+import { AgentProbe } from '../../ui/AnimatedAnimal';
+import { HybridHerd } from '../../ui/hybrid/HybridHerd';
+import { PARK_LOOK } from '../../ui/hybrid/look';
+import { createAgent, startReact, type Agent } from '../../core/steer';
+import type { Herd } from '../../core/herd';
 import { BackHome } from '../../ui/BackHome';
 import type { GameProps } from '../../core/games';
-import { ANIMALS } from './animals';
+import { ANIMALS, farmDef } from './animals';
 
 const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
 
@@ -111,8 +114,27 @@ export default function Game({ speaker, onExit }: GameProps) {
   // Sẵn sàng khi mọi model đã load
   const ready = loadedCount >= ANIMALS.length;
   const soundTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Trạng thái đi lại của từng con (đọc/ghi trong useFrame, không gây render lại)
-  const [registry] = useState<WanderRegistry>(() => new Map());
+  // Mỗi con một Agent (steering): con có làn đi qua lại đúng làn của mình (z cố định), còn lại đứng yên một chỗ
+  const herd = useMemo<Herd>(() => {
+    const members = ANIMALS.map((a, i) => {
+      const def = farmDef(a);
+      const [x, , z] = a.pos;
+      const agent = createAgent({
+        id: a.id,
+        motion: 'walk',
+        area: a.lane ? { xMin: a.lane.xMin, xMax: a.lane.xMax, zMin: z, zMax: z } : { xMin: x, xMax: x, zMin: z, zMax: z },
+        pos: a.pos,
+        fixed: !a.lane,
+        restYaw: a.rotY ?? 0,
+        seed: 101 + i * 7,
+        maxSpeed: def.speed,
+        radius: def.radius,
+      });
+      return { key: a.id, def, agent };
+    });
+    return { members, agents: members.map((m) => m.agent) };
+  }, []);
+  const registry = useMemo(() => new Map<string, Agent>(herd.agents.map((a) => [a.id, a])), [herd]);
 
   const say = useCallback(
     (key: string) => {
@@ -132,7 +154,7 @@ export default function Game({ speaker, onExit }: GameProps) {
 
       // Con vật dừng lại, ngoảnh về bé và nhảy (vẽ trong useFrame)
       const st = registry.get(animalId);
-      if (st) startReact(st);
+      if (st && st.mode !== 'react') startReact(st);
 
       // Nói tên con vật
       say(`animal.${animalId}`);
@@ -181,24 +203,9 @@ export default function Game({ speaker, onExit }: GameProps) {
       <Scene3D label="Trang trại" shadowScale={18} view={{ position: [0, 4.2, 10], target: [0, 0.5, -0.2], fov: 45 }}>
         <Suspense fallback={<GrassGround />}>
           <GrassGround />
-          {ANIMALS.map((animal, i) => (
-            <WanderAnimal
-              key={animal.id}
-              id={animal.id}
-              model={animal.model}
-              height={animal.height}
-              pos={animal.pos}
-              rotY={animal.rotY}
-              lane={animal.lane}
-              gait={animal.gait}
-              phase={i * 0.8}
-              registry={registry}
-              onTap={() => handleTap(animal.id)}
-              onLoaded={handleAnimalLoaded}
-            />
-          ))}
+          <HybridHerd herd={herd} looks={PARK_LOOK} onTap={handleTap} onLoaded={handleAnimalLoaded} />
         </Suspense>
-        <WanderProbe registry={registry} />
+        <AgentProbe agents={herd.agents} />
       </Scene3D>
       <BackHome onExit={onExit} />
     </div>

@@ -1,7 +1,8 @@
 /** Dữ liệu 12 con thú hoang cho game Sở thú */
 import type { Gait } from '../../ui/wander';
 import type { Area } from '../../core/steer';
-import { WORLD_ANIMALS, type FakeGait, type WorldAnimal } from '../../core/worldAnimals';
+import { WORLD_ANIMALS, type WorldAnimal } from '../../core/worldAnimals';
+import { parkDef } from '../../ui/hybrid/look';
 
 export type WildAnimalData = {
   id: string;
@@ -121,28 +122,11 @@ export function placeZooAnimals(animals: WildAnimalData[]): ZooPlacement[] {
   ];
 }
 
-const FAKE_OF: Record<Gait, FakeGait> = { walk: 'walk', waddle: 'waddle', hop: 'hop', swim: 'swim' };
-
 /**
- * Định nghĩa dùng cho AnimatedAnimal: con có model cử động thật (cáo) lấy từ WORLD_ANIMALS, còn lại là model
- * tĩnh với dáng đi giả bằng code như trước.
+ * Khung thân cho từng con, vẽ cùng kiểu với trò Thế giới (ui/hybrid PARK_LOOK): model có texture hoặc ảnh thật.
+ * Cáo đi nhanh như ở Thế giới; các con khác giữ tốc độ đi dạo cũ.
  */
 export function zooDef(a: WildAnimalData): WorldAnimal {
   const w = a.world ? WORLD_ANIMALS[a.world] : undefined;
-  const height = a.height ?? 1.2;
-  // Sở thú giữ bán kính đẩy nhau 0.5 như trước (thế giới thú tính theo chiều dài thân)
-  if (w) return { ...w, id: a.id, model: a.model, height, radius: w.radius ?? 0.5 };
-  return {
-    id: a.id,
-    model: a.model,
-    habitat: 'meadow',
-    height,
-    motion: 'walk',
-    clips: [],
-    fake: FAKE_OF[a.gait ?? 'walk'],
-    speed: 0.45,
-    len: 1,
-    radius: 0.25 + height * 0.25,
-    tris: 0,
-  };
+  return parkDef(a.id, a.height ?? 1.2, w?.speed ?? 0.45);
 }

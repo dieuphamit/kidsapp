@@ -43,6 +43,24 @@ const PHOTOS_WORLD = {
   // Rừng, đồng cỏ: con chưa có model 3D có texture đạt (sư tử: model tìm được không rõ nguồn; gấu mèo: không có)
   raccoon: { file: 'Raccoon in Central Park (35264).jpg', face: 'right' },
   lion: { file: 'Lion (Panthera leo) walking on the road ... (50133447418).jpg', face: 'left' },
+  // Sở thú, nông trại: ảnh nghiêng đủ bốn chân, nền thoáng
+  tiger: { file: 'Bengal tiger in Sanjay Dubri Tiger Reserve December 2024 by Tisha Mukherjee 15.jpg', face: 'left' },
+  sheep: { file: 'Ovella. Galiza.jpg', face: 'left' },
+  cow: { file: 'Seitenansicht Milchkuh mit prallem Euter.JPG', face: 'right' },
+  dog: { file: '1Shiba Inu Kazumi.jpg', face: 'right' },
+  // vịt nhà đứng trên đất, thấy rõ hai chân (con 'duck' ở trên đang bơi)
+  'farm-duck': { file: 'Anas platyrhynchos Кряква в Санкт-Петербурге Нестандартная окраска 07.jpg', face: 'left' },
+  pig: { file: 'Mettingen Hausschwein 01.jpg', face: 'right' },
+  rabbit: { file: 'Heimtier 004 2023 08 26.jpg', face: 'left' },
+  // gấu trúc: không có ảnh nghiêng hẳn đủ chân, dùng ảnh ba phần tư đang đi, đủ bốn chân
+  panda: { file: 'Panda Walking 4.jpg', face: 'right' },
+  monkey: { file: '20160802 - Rhesus macaque - Mount Popa, Myanmar - 7170.jpg', face: 'right' },
+  // ngồi thẳng trên thanh gỗ: cắt bỏ phần lớn thanh gỗ bên dưới
+  koala: { file: 'AUS koala1.jpg', face: 'right', crop: [0.2, 0.15, 0.72, 0.9] },
+  penguin: { file: 'Aptenodytes patagonicus Nils Olav at Edinburgh zoo.jpg', face: 'right' },
+  // vẹt đứng trên tảng đá: cắt ngang chân để bỏ tảng đá
+  'parrot-stand': { file: 'Scarlet macaw (Ara macao macao) Yasuni.jpg', face: 'left', crop: [0.24, 0.2, 0.86, 0.785] },
+  chicken: { file: 'Kogut na ulicy w Chintown w Singapurze, 20240122 0853 2966.jpg', face: 'right' },
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

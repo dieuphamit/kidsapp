@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { HABITAT_IDS, HABITATS, WORLD_ANIMALS } from '../../core/worldAnimals';
-import { WORLD_LOOK } from './look';
+import { PARK_LOOK, WORLD_LOOK, parkDef, photoId } from './look';
 import { PHOTO_META, photoSize, turnScale } from './PhotoAnimal';
 
 const PUBLIC = join(import.meta.dirname, '../../../public');
@@ -89,6 +89,44 @@ describe('WORLD_LOOK (thú Thế giới: model 3D có texture hoặc ảnh thậ
       expect(w, id).toBeLessThanOrEqual(def.len * def.height * 1.1 + 1e-6);
       expect(h, id).toBeLessThanOrEqual(def.height * 1.1 + 1e-6);
       expect(Math.max(w, h), `${id} không quá nhỏ`).toBeGreaterThan(def.height * 0.6);
+    }
+  });
+});
+
+describe('PARK_LOOK (thú Sở thú và Trang trại vẽ cùng kiểu trò Thế giới)', () => {
+  it('mỗi cách vẽ có file thật: model ≤ 1MB, ảnh ≤ 150KB và có trong photoMeta.json', () => {
+    for (const [id, look] of Object.entries(PARK_LOOK)) {
+      if (look.kind === 'model') {
+        expect(existsSync(modelFile(look.file)), id).toBe(true);
+        expect(statSync(modelFile(look.file)).size, id).toBeLessThanOrEqual(1024 * 1024);
+      } else {
+        const pid = photoId(id, look);
+        expect(existsSync(photoFile(pid)), `${id}: world-photos/${pid}.png`).toBe(true);
+        expect(statSync(photoFile(pid)).size, id).toBeLessThanOrEqual(150 * 1024);
+        expect(PHOTO_META[pid], `${pid} trong photoMeta.json`).toBeDefined();
+      }
+    }
+  });
+
+  it('thú trên cỏ dùng ảnh đứng (chân chạm đất), chỉ cá là ảnh bơi', () => {
+    for (const [id, look] of Object.entries(PARK_LOOK)) {
+      if (look.kind !== 'photo') continue;
+      if (id === 'fish') expect(look.style).toBe('fish');
+      else expect(['walk', 'hop'], id).toContain(look.style);
+    }
+  });
+
+  it('con dùng lại model của trò Thế giới giữ tỉ lệ thân của model đó; ảnh cao đúng chiều cao, không quá to', () => {
+    for (const [id, look] of Object.entries(PARK_LOOK)) {
+      const def = parkDef(id, 1.2);
+      if (look.kind === 'model') {
+        expect(def.len, id).toBe(WORLD_ANIMALS[look.file].len);
+        continue;
+      }
+      const [w, h] = photoSize(def, look, PHOTO_META[photoId(id, look)]);
+      expect(h, id).toBeLessThanOrEqual(1.2 * 1.1 + 1e-6);
+      expect(h, id).toBeGreaterThan(1.2 * 0.5);
+      expect(w, `${id} không quá dài`).toBeLessThanOrEqual(1.2 * 3 * 1.1 + 1e-6);
     }
   });
 });

@@ -68,5 +68,70 @@
   "w": 640,
   "h": 381,
   "face": "left"
+ },
+ "tiger": {
+  "w": 640,
+  "h": 250,
+  "face": "left"
+ },
+ "sheep": {
+  "w": 640,
+  "h": 500,
+  "face": "left"
+ },
+ "cow": {
+  "w": 640,
+  "h": 356,
+  "face": "right"
+ },
+ "dog": {
+  "w": 640,
+  "h": 444,
+  "face": "right"
+ },
+ "farm-duck": {
+  "w": 640,
+  "h": 451,
+  "face": "left"
+ },
+ "pig": {
+  "w": 640,
+  "h": 319,
+  "face": "right"
+ },
+ "rabbit": {
+  "w": 640,
+  "h": 613,
+  "face": "left"
+ },
+ "panda": {
+  "w": 570,
+  "h": 640,
+  "face": "right"
+ },
+ "monkey": {
+  "w": 640,
+  "h": 368,
+  "face": "right"
+ },
+ "koala": {
+  "w": 594,
+  "h": 640,
+  "face": "right"
+ },
+ "penguin": {
+  "w": 377,
+  "h": 640,
+  "face": "right"
+ },
+ "parrot-stand": {
+  "w": 640,
+  "h": 509,
+  "face": "left"
+ },
+ "chicken": {
+  "w": 640,
+  "h": 535,
+  "face": "right"
  }
 }
