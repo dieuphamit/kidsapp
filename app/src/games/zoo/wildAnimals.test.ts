@@ -93,17 +93,16 @@ describe('placeZooAnimals', () => {
 });
 
 describe('zooDef', () => {
-  it('cáo dùng model cử động thật (có clip), các con khác là model tĩnh với dáng giả', async () => {
+  it('mỗi con vẽ kiểu trò Thế giới (model có texture hoặc ảnh thật), giữ chiều cao, cáo đi nhanh như ở Thế giới', async () => {
     const { zooDef } = await import('./wildAnimals');
+    const { PARK_LOOK } = await import('../../ui/hybrid/look');
+    const { WORLD_ANIMALS } = await import('../../core/worldAnimals');
     for (const a of WILD_ANIMALS) {
       const d = zooDef(a);
       expect(d.id).toBe(a.id);
       expect(d.height).toBe(a.height ?? 1.2);
-      if (a.id === 'fox') {
-        expect(d.model).toBe('world/fox.glb');
-        expect(d.clips).toContain('Walk');
-      } else expect(d.clips).toHaveLength(0);
-      expect(existsSync(join(import.meta.dirname, '../../../public/models', d.model)), d.model).toBe(true);
+      expect(PARK_LOOK[a.id], a.id).toBeDefined();
     }
+    expect(zooDef(WILD_ANIMALS.find((a) => a.id === 'fox')!).speed).toBe(WORLD_ANIMALS.fox.speed);
   });
 });

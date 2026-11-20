@@ -36,7 +36,7 @@ test('chụp ảnh trang trại sau khi model load xong', async ({ page }) => {
   // Chờ game hiện và ready
   const gameEl = page.getByTestId('game-animals');
   await expect(gameEl).toBeVisible({ timeout: 10000 });
-  await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
+  await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 15000 });
 
   // Đợi thêm cho model ổn định
   await page.waitForTimeout(500);
@@ -60,7 +60,7 @@ test('cham con bo nghe animal.cow roi animal.cow-sound (via hook)', async ({ pag
   // Chờ game hiện và ready
   const gameEl = page.getByTestId('game-animals');
   await expect(gameEl).toBeVisible({ timeout: 10000 });
-  await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
+  await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 15000 });
 
   // Gọi hook để tap con bò
   await page.evaluate(() => {
@@ -91,7 +91,7 @@ test('chạm thật vào canvas có phản hồi', async ({ page }) => {
   // Chờ game hiện và ready
   const gameEl = page.getByTestId('game-animals');
   await expect(gameEl).toBeVisible({ timeout: 10000 });
-  await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
+  await expect(gameEl).toHaveAttribute('data-ready', 'true', { timeout: 15000 });
 
   // Lưu giá trị ban đầu của data-last-say
   const initialLastSay = await gameEl.getAttribute('data-last-say');

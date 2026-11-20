@@ -1,6 +1,8 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Scene3D } from '../../ui/Scene3D';
-import { AgentProbe, AnimalHerd } from '../../ui/AnimatedAnimal';
+import { AgentProbe } from '../../ui/AnimatedAnimal';
+import { HybridHerd } from '../../ui/hybrid/HybridHerd';
+import { PARK_LOOK } from '../../ui/hybrid/look';
 import { createAgent, startReact, type Agent } from '../../core/steer';
 import type { Herd } from '../../core/herd';
 import { BackHome } from '../../ui/BackHome';
@@ -69,6 +71,22 @@ function Rock({ x, z, scale = 1 }: { x: number; z: number; scale?: number }) {
       <sphereGeometry args={[0.25, 10, 8]} />
       <meshStandardMaterial color="#c0b0a0" roughness={0.9} metalness={0} />
     </mesh>
+  );
+}
+
+/** Vũng nước dưới chỗ cá quẫy (cá không lên cỏ) */
+function Pond({ x, z }: { x: number; z: number }) {
+  return (
+    <group position={[x, 0.01, z]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} scale={[1, 0.6, 1]}>
+        <circleGeometry args={[0.85, 32]} />
+        <meshStandardMaterial color="#b8ecf2" roughness={0.6} metalness={0} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]} scale={[1, 0.6, 1]}>
+        <circleGeometry args={[0.7, 32]} />
+        <meshStandardMaterial color="#7fd3e6" roughness={0.5} metalness={0} />
+      </mesh>
+    </group>
   );
 }
 
@@ -149,6 +167,7 @@ export default function Game({ speaker, onExit }: GameProps) {
     });
     return { members, agents: members.map((m) => m.agent) };
   }, [placed, walkSeed]);
+  const fishSpot = placed.find((p) => p.data.id === 'fish')?.pos;
   const registry = useMemo(() => new Map<string, Agent>(herd.agents.map((a) => [a.id, a])), [herd]);
 
   const say = useCallback(
@@ -222,7 +241,8 @@ export default function Game({ speaker, onExit }: GameProps) {
       <Scene3D label="Sở thú" shadowScale={18} view={{ position: [0, 4.2, 10], target: [0, 0.5, -0.2], fov: 45 }}>
         <Suspense fallback={<ZooGround />}>
           <ZooGround />
-          <AnimalHerd herd={herd} onTap={handleTap} onLoaded={handleAnimalLoaded} />
+          {fishSpot && <Pond x={fishSpot[0]} z={fishSpot[2]} />}
+          <HybridHerd herd={herd} looks={PARK_LOOK} onTap={handleTap} onLoaded={handleAnimalLoaded} />
         </Suspense>
         <AgentProbe agents={herd.agents} />
       </Scene3D>

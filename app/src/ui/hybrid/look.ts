@@ -10,6 +10,8 @@
  * lại và test chiếu khung hình (herdLayout.test.ts) vẫn đúng.
  */
 
+import { WORLD_ANIMALS, type WorldAnimal } from '../../core/worldAnimals';
+
 /** Kiểu chuyển động của ảnh 2.5D (uốn lưới trên CPU) */
 export type PhotoStyle =
   | 'cetacean' // thân uốn sóng lên xuống
@@ -29,6 +31,8 @@ export type PhotoLook = {
   w?: number;
   /** nhân thêm vào cỡ vừa khung (mặc định 1) */
   scale?: number;
+  /** id ảnh trong public/world-photos/ nếu khác id con vật (cá ở Sở thú dùng ảnh cá vàng) */
+  photo?: string;
 };
 
 /** Uốn đỉnh cho model tĩnh (không có xương) */
@@ -100,5 +104,60 @@ export const WORLD_LOOK: Record<string, Look> = {
   pigeon: photo('walk'),
 };
 
-export const modelUrl = (file: string) => `${import.meta.env.BASE_URL}models/world/real/${file}.glb`;
+/**
+ * Thú của Sở thú và Trang trại, vẽ cùng kiểu với trò Thế giới: con đã có model có texture thì dùng lại, còn lại là
+ * ảnh thật 2.5D. Thú ở đây đều đi trên cỏ nên ảnh dùng dáng đứng (vẹt đứng, vịt đứng), trừ cá (bơi trong vũng nước).
+ */
+export const PARK_LOOK: Record<string, Look> = {
+  // Sở thú
+  elephant: WORLD_LOOK.elephant,
+  giraffe: WORLD_LOOK.giraffe,
+  fox: WORLD_LOOK.fox,
+  bear: WORLD_LOOK.bear,
+  lion: photo('walk'),
+  tiger: photo('walk'),
+  monkey: photo('walk'),
+  panda: photo('walk'),
+  penguin: photo('walk'),
+  koala: photo('walk'),
+  parrot: photo('walk', { photo: 'parrot-stand' }),
+  // cá quẫy tại chỗ, nổi trên vũng nước (Sở thú vẽ vũng dưới chỗ đứng của cá)
+  fish: photo('fish', { photo: 'goldfish' }),
+  // Trang trại
+  horse: WORLD_LOOK.horse,
+  sheep: photo('walk'),
+  rabbit: photo('hop'),
+  cow: photo('walk'),
+  pig: photo('walk'),
+  dog: photo('walk'),
+  chicken: photo('walk'),
+  duck: photo('walk', { photo: 'farm-duck' }),
+};
+
+/**
+ * Khung thân (WorldAnimal) cho thú Sở thú / Trang trại cao `height`: con dùng lại model của trò Thế giới lấy
+ * tỉ lệ dài/cao của model đó; con vẽ bằng ảnh để chiều cao quyết định cỡ (khung dài rộng rãi).
+ * Bán kính đẩy nhau giữ như trước (0.25 + 0.25 × cao) để đội hình cũ của hai trò vẫn đúng.
+ */
+export function parkDef(id: string, height: number, speed = 0.45): WorldAnimal {
+  const look = PARK_LOOK[id];
+  const world = look?.kind === 'model' ? WORLD_ANIMALS[look.file] : undefined;
+  return {
+    id,
+    model: world?.model ?? `${id}.glb`,
+    habitat: 'meadow',
+    height,
+    motion: 'walk',
+    clips: [],
+    speed,
+    len: world?.len ?? 3,
+    radius: 0.25 + height * 0.25,
+    tris: 0,
+  };
+}
+
+/** id ảnh của một con vẽ bằng ảnh */
+export const photoId = (id: string, look: PhotoLook) => look.photo ?? id;
+
+export const modelUrl =(file: string) => `${import.meta.env.BASE_URL}models/world/real/${file}.glb`;
 export const photoUrl = (id: string) => `${import.meta.env.BASE_URL}world-photos/${id}.png`;
