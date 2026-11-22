@@ -161,6 +161,14 @@ const CARDS = {
   'words/bed': { file: 'Bunk bed (wooden).jpg', width: 1280 },
   'words/toothbrush': { file: 'Gum manual toothbrush.jpg', width: 1280 },
   'words/clock': { file: 'Classic alarm clock 20180513.jpg', width: 1280 },
+  // cook: Bếp nấu ăn — nguyên liệu chưa có thẻ (cards/cook/). Trứng dùng lại story/chick-1,
+  // rau quả khác dùng thẻ sẵn có. Không nằm trong cards/index.json.
+  'cook/tomato': { file: 'Tomato (41282993051).jpg', width: 1280 },
+  'cook/potato': { file: 'Potato cv Dejima.jpg', width: 1280, crop: [0, 0, 0.52, 1] },
+  'cook/broccoli': { file: 'Good broccoli Deal!.jpg', width: 1280 },
+  'cook/rice': { file: 'A bowl of rice.jpg', width: 1280 },
+  'cook/mushroom': { file: 'WHITE MUSHROOM.jpg', width: 1280 },
+  'cook/noodles': { file: '75g Nissin Seafood Cup Noodles 2026-09-25 uncooked in plate 05.jpg', width: 1280, crop: [0.3, 0.08, 0.72, 0.78] },
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -213,6 +221,25 @@ async function fetchPhoto(id, file, width = 1920) {
   return meta;
 }
 
+/** Đọc lại các dòng nguồn trong CREDITS.md hiện có: id → { id, file, page, author, license, licenseUrl }. */
+function creditRows() {
+  const map = new Map();
+  const path = join(OUT, 'CREDITS.md');
+  if (!existsSync(path)) return map;
+  const unesc = (s) => s.replace(/\\\|/g, '|');
+  const re = /^\| ([^|]+?) \| \[(.+?)\]\((.+?)\) \| ((?:\\\||[^|])*) \| (.*) \|$/;
+  for (const line of readFileSync(path, 'utf8').split(/\r?\n/)) {
+    const m = re.exec(line);
+    if (!m) continue;
+    const lic = /^\[(.*)\]\((.*)\)$/.exec(m[5]);
+    map.set(m[1], {
+      id: m[1], file: unesc(m[2]), page: m[3], author: unesc(m[4]),
+      license: lic ? lic[1] : m[5], licenseUrl: lic ? lic[2] : '',
+    });
+  }
+  return map;
+}
+
 function writeCredits(metas) {
   const lines = [
     '# Nguồn ảnh thẻ (cards/*.png)',
@@ -249,10 +276,14 @@ async function main() {
   const ids = only.length ? only : Object.keys(CARDS);
   for (const id of ids) if (!CARDS[id]) throw new Error('không có thẻ ' + id);
 
+  // CREDITS.md luôn ghi đủ mọi thẻ. Khi chỉ làm vài thẻ, thẻ khác giữ nguyên dòng nguồn đã có
+  // (cùng ảnh gốc) thay vì tải lại ảnh gốc của cả bộ.
+  const known = only.length ? creditRows() : new Map();
   const metas = [];
   for (const id of Object.keys(CARDS)) {
-    // CREDITS.md luôn ghi đủ mọi thẻ; chỉ tải ảnh chưa có.
-    metas.push(await fetchPhoto(id, CARDS[id].file, CARDS[id].width));
+    const row = known.get(id);
+    if (!only.includes(id) && row && row.file === CARDS[id].file) metas.push(row);
+    else metas.push(await fetchPhoto(id, CARDS[id].file, CARDS[id].width));
   }
   writeCredits(metas);
 

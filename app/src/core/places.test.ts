@@ -58,6 +58,7 @@ describe('places', () => {
       ['puzzle', 'place.puzzle', 1],
       ['dots', 'place.puzzle', 3],
       ['words', 'place.house', 3],
+      ['cook', 'place.house', 4],
       ['music', 'place.music', 0],
       ['mama', 'place.farm', 0],
       ['feed', 'place.farm', 1],

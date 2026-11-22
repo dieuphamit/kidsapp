@@ -125,6 +125,12 @@
 | words/bed | [Bunk bed (wooden).jpg](https://commons.wikimedia.org/wiki/File:Bunk_bed_(wooden).jpg) | Steven Pavlov | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | words/toothbrush | [Gum manual toothbrush.jpg](https://commons.wikimedia.org/wiki/File:Gum_manual_toothbrush.jpg) | Caltechphd | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | words/clock | [Classic alarm clock 20180513.jpg](https://commons.wikimedia.org/wiki/File:Classic_alarm_clock_20180513.jpg) | Santeri Viinamäki | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| cook/tomato | [Tomato (41282993051).jpg](https://commons.wikimedia.org/wiki/File:Tomato_(41282993051).jpg) | Willis Lam | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) |
+| cook/potato | [Potato cv Dejima.jpg](https://commons.wikimedia.org/wiki/File:Potato_cv_Dejima.jpg) | Fk | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| cook/broccoli | [Good broccoli Deal!.jpg](https://commons.wikimedia.org/wiki/File:Good_broccoli_Deal!.jpg) | Renee Comet (Photographer) | Public domain |
+| cook/rice | [A bowl of rice.jpg](https://commons.wikimedia.org/wiki/File:A_bowl_of_rice.jpg) | Douglas Perkins | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| cook/mushroom | [WHITE MUSHROOM.jpg](https://commons.wikimedia.org/wiki/File:WHITE_MUSHROOM.jpg) | Dinkun Chen | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| cook/noodles | [75g Nissin Seafood Cup Noodles 2026-09-25 uncooked in plate 05.jpg](https://commons.wikimedia.org/wiki/File:75g_Nissin_Seafood_Cup_Noodles_2026-09-25_uncooked_in_plate_05.jpg) | P1898 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
 
 `daudau.png`: render từ model Đậu Đậu tự làm (`src/ui/DauDau.tsx`) bằng `scripts/render-daudau.mjs`.
 
