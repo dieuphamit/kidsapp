@@ -18,7 +18,7 @@ test.beforeAll(() => mkdirSync('test-results/shots', { recursive: true }));
 
 async function openBakery(page: Page, query = 'level=medium') {
   // Bảng chọn trò của nhà bạn đồng hành mở thẳng (trang 2D, không phụ thuộc bản đồ 3D)
-  await page.goto(`./?e2e=1&picker=house${query ? `&${query}` : ''}`);
+  await page.goto(`./?menu=map&e2e=1&picker=house${query ? `&${query}` : ''}`);
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10_000 });
   await page.getByTestId('pick-bakery').click();
   const game = page.getByTestId('game-bakery');

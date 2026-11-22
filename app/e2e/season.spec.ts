@@ -28,7 +28,7 @@ const CASES = [
 
 for (const c of CASES) {
   test(`ngày ${c.date}: trang trí ${c.season}, không chặn chạm`, async ({ page }) => {
-    await page.goto(`./?e2e=1&date=${c.date}`);
+    await page.goto(`./?menu=map&e2e=1&date=${c.date}`);
     await expect(page.getByTestId('home')).toBeVisible();
     const layer = page.getByTestId('season-layer');
     await expect(layer).toHaveAttribute('data-season', c.season);
@@ -40,7 +40,7 @@ for (const c of CASES) {
 }
 
 test('ngày thường không trang trí; bố mẹ tắt thì hết trang trí', async ({ page }) => {
-  await page.goto('./?e2e=1&date=2026-11-19');
+  await page.goto('./?menu=map&e2e=1&date=2026-11-19');
   await expect(page.getByTestId('home')).toBeVisible();
   await expect(page.getByTestId('place-music')).toBeVisible();
   await expect(page.getByTestId('season-layer')).toHaveCount(0);
@@ -48,7 +48,7 @@ test('ngày thường không trang trí; bố mẹ tắt thì hết trang trí',
   await page.screenshot({ path: 'test-results/shots/season-none.png' });
 
   // Tết nhưng bố mẹ chọn Tắt
-  await page.goto('./?e2e=1&date=2027-02-06');
+  await page.goto('./?menu=map&e2e=1&date=2027-02-06');
   await expect(page.getByTestId('season-layer')).toHaveAttribute('data-season', 'tet');
   await openParentArea(page);
   // khu bố mẹ vẫn nằm trọn khung khi thêm mục mùa và bản in
@@ -72,7 +72,7 @@ test('ngày thường không trang trí; bố mẹ tắt thì hết trang trí',
 });
 
 test('bản in: chọn tờ, in ra trang A4 nét đen', async ({ page }) => {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await expect(page.getByTestId('home')).toBeVisible();
   await openParentArea(page);
   // không mở hộp thoại in thật: đếm số lần gọi
@@ -122,7 +122,7 @@ test('bản in: chọn tờ, in ra trang A4 nét đen', async ({ page }) => {
 test.describe('iPhone dọc 430×932', () => {
   test.use({ viewport: { width: 430, height: 932 }, hasTouch: true, isMobile: true });
   test('Giáng Sinh trên iPhone dọc: trang trí theo khung xoay', async ({ page }) => {
-    await page.goto('./?e2e=1&date=2026-12-24');
+    await page.goto('./?menu=map&e2e=1&date=2026-12-24');
     await expect(page.getByTestId('home')).toBeVisible();
     await expect(page.getByTestId('season-layer')).toHaveAttribute('data-season', 'xmas');
     await expect(page.getByTestId('stage')).toHaveAttribute('data-rotated', 'true');

@@ -12,13 +12,13 @@ declare global {
 async function openWithAge(page: Page, ageMonths: number) {
   await openWithAgeOnly(page, ageMonths);
   // chuyện đầu tiên là chuyện ảnh 3 tranh; chuyện có bạn đồng hành có test riêng
-  await page.goto('./?e2e=1&story=plant');
+  await page.goto('./?menu=map&e2e=1&story=plant');
   await expect(page.getByTestId('home')).toBeVisible({ timeout: 10_000 });
 }
 
 /** Chỉ ghi tuổi bé vào idb (settings). */
 async function openWithAgeOnly(page: Page, ageMonths: number) {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await page.evaluate(
     (age) =>
       new Promise<void>((resolve, reject) => {
@@ -43,7 +43,7 @@ async function openWithAgeOnly(page: Page, ageMonths: number) {
 /** E4: đặt tuổi rồi vào thẳng bảng chọn trò Nhà Đậu Đậu (2D, không qua bản đồ 3D), chuyện đầu là `story`. */
 async function openDirect(page: Page, ageMonths: number, story: string): Promise<{ game: Locator; story: string }> {
   await openWithAgeOnly(page, ageMonths);
-  await page.goto(`./?e2e=1&picker=house&story=${story}`);
+  await page.goto(`./?menu=map&e2e=1&picker=house&story=${story}`);
   await pickGame(page, 'story');
   const game = page.getByTestId('game-story');
   await expect(game).toBeVisible({ timeout: 10_000 });

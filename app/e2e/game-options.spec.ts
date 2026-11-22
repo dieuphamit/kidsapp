@@ -50,7 +50,7 @@ test('khu bố mẹ: tắt Ú òa thì trò biến mất khỏi bản đồ, k�
   await expect(page.getByTestId('shelf-card-shadow')).toBeVisible();
 
   // Màn chọn trò của khu thú (đọc lại tùy chọn đã lưu sau khi tải lại trang)
-  await page.goto('./?e2e=1&picker=zoo');
+  await page.goto('./?menu=map&e2e=1&picker=zoo');
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10_000 });
   await expect(page.getByTestId('pick-shadow')).toBeVisible();
   await expect(page.getByTestId('pick-peekaboo')).toHaveCount(0);
@@ -60,7 +60,7 @@ test('khu bố mẹ: tắt Ú òa thì trò biến mất khỏi bản đồ, k�
 });
 
 test('đặt Khó cho Lật hình thì bé 28 tháng nhận 6 thẻ thay vì 4', async ({ page }) => {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await expect(page.getByTestId('home')).toBeVisible({ timeout: 10_000 });
 
   // Mặc định theo tuổi (28 tháng): 2 cặp
@@ -69,7 +69,7 @@ test('đặt Khó cho Lật hình thì bé 28 tháng nhận 6 thẻ thay vì 4',
   const game = page.getByTestId('game-memory');
   await expect(game.locator('[data-flipped]')).toHaveCount(4, { timeout: 10_000 });
 
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await expect(page.getByTestId('home')).toBeVisible({ timeout: 10_000 });
   await openGameSettings(page);
   const hard = page.getByRole('button', { name: 'Lật hình: Khó' });

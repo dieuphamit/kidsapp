@@ -15,11 +15,11 @@ test.beforeAll(() => {
 async function openCounting(page: Page, query = '') {
   if (query.includes('e2e=1')) {
     // Bảng chọn trò của Vườn quả mở thẳng (trang 2D, không phụ thuộc bản đồ 3D)
-    await page.goto(`./?${query}&picker=orchard`);
+    await page.goto(`./?menu=map&${query}&picker=orchard`);
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10_000 });
     await page.getByTestId('pick-counting').click();
   } else {
-    await page.goto('./');
+    await page.goto('./?menu=map&menu=map');
     await expect(page.getByTestId('home')).toBeVisible();
     const orchardBtn = page.getByLabel('Vườn quả');
     await expect(orchardBtn).toBeVisible();

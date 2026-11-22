@@ -27,7 +27,7 @@ async function placeButtons(page: Page) {
 }
 
 test('bản đồ có các khu trong 7 khu (zoo, house, orchard, pond, puzzle, music, farm)', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   await expect(page.getByTestId('home')).toBeVisible();
   await expect(page.getByTestId('place-music')).toBeVisible();
 
@@ -60,7 +60,7 @@ test('bản đồ có các khu trong 7 khu (zoo, house, orchard, pond, puzzle, m
 });
 
 test('nút khu 200px, cách nhau ≥24px, nằm trọn khung, không đè cổng phụ huynh và Đậu Đậu; chụp T-034-map', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   await expect(page.getByTestId('home')).toBeVisible();
   await expect(page.getByTestId('place-music')).toBeVisible();
   await page.waitForTimeout(800); // chờ hiệu ứng hiện nút xong
@@ -97,7 +97,7 @@ test('nút khu 200px, cách nhau ≥24px, nằm trọn khung, không đè cổng
 });
 
 test('chạm khu có phản hồi ngay (data-pressed, nói tên khu)', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   const orchardBtn = page.getByLabel('Vườn quả');
   await expect(orchardBtn).toBeVisible();
   // Màn đổi sau 400ms, nên ghi lại phản hồi ngay trong trang thay vì đọc sau
@@ -120,7 +120,7 @@ test('chạm khu có phản hồi ngay (data-pressed, nói tên khu)', async ({ 
 });
 
 test('chạm khu nhiều trò mở màn chọn trò sau khoảng 400ms', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   await expect(page.getByLabel('Góc đố')).toBeVisible();
   await page.getByLabel('Góc đố').click();
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 1500 });
@@ -130,7 +130,7 @@ test('chạm khu nhiều trò mở màn chọn trò sau khoảng 400ms', async (
 
 // Phase 3: không còn khu nào chỉ có 1 trò; luật "1 trò thì vào thẳng" kiểm ở WorldMap.test.tsx.
 test('Nhà âm nhạc mở màn chọn trò có Vẽ và nhạc và Ban nhạc thú', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   await expect(page.getByLabel('Nhà âm nhạc')).toBeVisible();
   await page.getByLabel('Nhà âm nhạc').click();
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 1500 });
@@ -139,7 +139,7 @@ test('Nhà âm nhạc mở màn chọn trò có Vẽ và nhạc và Ban nhạc t
 });
 
 test('bong bóng không giao với mây ở 3 thời điểm', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   await expect(page.getByTestId('home')).toBeVisible();
   const bubble = page.getByTestId('bubble');
   const clouds = page.locator('[data-testid="cloud"]');

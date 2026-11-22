@@ -28,7 +28,7 @@ const move = (p: Pos, d: Dir): Pos => ({ r: p.r + DELTA[d].r, c: p.c + DELTA[d].
 
 /** Đặt tuổi bé trong cài đặt (idb-keyval) rồi vào Góc đố → Đường về nhà. */
 async function openPath(page: Page, query = '', ageMonths = 40) {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await expect(page.getByTestId('home')).toBeVisible();
   await page.evaluate(async (age) => {
     await new Promise<void>((resolve, reject) => {
@@ -48,7 +48,7 @@ async function openPath(page: Page, query = '', ageMonths = 40) {
     });
   }, ageMonths);
   // chủ đề 'home' (Đậu Đậu về nhà) cố định cho các test cũ; chủ đề khác có test riêng
-  await page.goto(`./?e2e=1&ptheme=home${query}`);
+  await page.goto(`./?menu=map&e2e=1&ptheme=home${query}`);
   await expect(page.getByTestId('home')).toBeVisible();
   await page.getByLabel('Góc đố').click();
   await pickGame(page, 'path');
@@ -247,7 +247,7 @@ test.describe('iPhone dọc 430×932', () => {
 
 /** E4: ghi cài đặt (tuổi + tùy chọn trò) vào idb-keyval rồi mới vào app. */
 async function seedSettings(page: Page, settings: Record<string, unknown>) {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await page.evaluate(
     (s) =>
       new Promise<void>((resolve, reject) => {
@@ -273,7 +273,7 @@ test.describe('E4: chủ đề mới và độ khó', () => {
   test('?ptheme=sea: đưa cá về biển → path.home-sea; chụp E4-path.png', async ({ page }) => {
     await seedSettings(page, { ageMonths: 40 });
     // vào thẳng bảng chọn trò (2D), không qua bản đồ 3D
-    await page.goto('./?e2e=1&picker=puzzle&ptheme=sea');
+    await page.goto('./?menu=map&e2e=1&picker=puzzle&ptheme=sea');
     await pickGame(page, 'path');
     const game = page.getByTestId('game-path');
     await expect(game).toBeVisible({ timeout: 10_000 });
@@ -298,7 +298,7 @@ test.describe('E4: chủ đề mới và độ khó', () => {
 
   test('Khó: bé 40 tháng vào thẳng xếp lệnh, đường ≥ 3 bước; Dễ: luôn đi từng bước', async ({ page }) => {
     await seedSettings(page, { ageMonths: 40, games: { path: { enabled: true, difficulty: 'hard', topic: 'mix' } } });
-    await page.goto('./?e2e=1&picker=puzzle&ptheme=nest');
+    await page.goto('./?menu=map&e2e=1&picker=puzzle&ptheme=nest');
     await pickGame(page, 'path');
     const game = page.getByTestId('game-path');
     await expect(game).toHaveAttribute('data-mode', 'program', { timeout: 10_000 });
@@ -308,7 +308,7 @@ test.describe('E4: chủ đề mới và độ khó', () => {
     await page.screenshot({ path: 'test-results/shots/E4-path-hard.png' });
 
     await seedSettings(page, { ageMonths: 72, games: { path: { enabled: true, difficulty: 'easy', topic: 'mix' } } });
-    await page.goto('./?e2e=1&picker=puzzle&ptheme=burrow');
+    await page.goto('./?menu=map&e2e=1&picker=puzzle&ptheme=burrow');
     await pickGame(page, 'path');
     await expect(game).toHaveAttribute('data-mode', 'step', { timeout: 10_000 });
     const sol2 = (await page.evaluate(() => window.__behocPath!.solution())) as string[];

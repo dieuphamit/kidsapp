@@ -11,7 +11,7 @@ import type { Speaker } from '../core/audio';
 
 const LANGS: [Settings['lang'], string][] = [['vi', '🇻🇳 Tiếng Việt'], ['ja', '🇯🇵 日本語'], ['en', '🇬🇧 English']];
 
-const MENUS: [Settings['menuStyle'], string][] = [['map', '🗺️ Bản đồ / ちず'], ['shelf', '🧸 Kệ đồ chơi / たな']];
+const MENUS: [Settings['menuStyle'], string][] = [['train', '🚂 Đoàn tàu / きしゃ'], ['map', '🗺️ Bản đồ / ちず'], ['shelf', '🧸 Kệ đồ chơi / たな']];
 
 // Chế độ nhẹ nhàng: chữ cho bố mẹ theo ngôn ngữ đang chọn
 const CALM_TEXT: Record<Settings['lang'], { label: string; hint: string }> = {

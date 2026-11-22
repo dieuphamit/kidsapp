@@ -34,7 +34,7 @@ const ROUTES: [string, string, string][] = [
 
 /** Tuổi mặc định 28 tháng ẩn story, pattern, path: ghi tuổi 48 tháng vào idb-keyval trước khi vào app. */
 async function setAge(page: Page, ageMonths: number) {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await page.evaluate(async (age) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open('keyval-store', 1);
@@ -62,7 +62,7 @@ for (const [id, place, root] of ROUTES) {
     await setAge(page, 48);
 
     // Kiểu bản đồ
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
     await page.getByLabel(place, { exact: true }).click();
     await pickGame(page, id);

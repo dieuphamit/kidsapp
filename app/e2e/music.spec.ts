@@ -7,7 +7,7 @@ test.beforeAll(() => {
 });
 
 test('vào Nhà âm nhạc hiện game-music', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   await expect(page.getByTestId('home')).toBeVisible();
 
   const musicBtn = page.getByLabel('Nhà âm nhạc');
@@ -19,7 +19,7 @@ test('vào Nhà âm nhạc hiện game-music', async ({ page }) => {
 });
 
 test('chạm màu xanh dương ghi data-last-say', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
   await pickGame(page, 'music');
@@ -34,7 +34,7 @@ test('chạm màu xanh dương ghi data-last-say', async ({ page }) => {
 });
 
 test('vẽ trên paper tạo pixel không trắng, xóa làm trống', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
   await pickGame(page, 'music');
@@ -122,7 +122,7 @@ test('vẽ trên paper tạo pixel không trắng, xóa làm trống', async ({ 
 });
 
 test('7 nút (6 màu + Xóa) đều >= 120x120', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
   await pickGame(page, 'music');
@@ -148,7 +148,7 @@ test('7 nút (6 màu + Xóa) đều >= 120x120', async ({ page }) => {
 });
 
 test('nút Về nhà đưa về home', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
   await pickGame(page, 'music');
@@ -162,7 +162,7 @@ test('nút Về nhà đưa về home', async ({ page }) => {
 });
 
 test('chạm nút Nhạc hiện 8 phím và 4 trống (mức vừa), tất cả >= 120x120, cách nhau >= 24px', async ({ page }) => {
-  await page.goto('./?e2e=1&level=medium');
+  await page.goto('./?menu=map&e2e=1&level=medium');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
   await pickGame(page, 'music');
@@ -230,7 +230,7 @@ test('chạm Phím 3 tăng __osc, không có lỗi console', async ({ page }) =>
     }
   });
 
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
   await pickGame(page, 'music');
@@ -257,7 +257,7 @@ test('chạm Phím 3 tăng __osc, không có lỗi console', async ({ page }) =>
 });
 
 test('chạm Phím 5 rồi chụp ảnh với phím lún và ♪ bay', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
   await pickGame(page, 'music');
@@ -287,7 +287,7 @@ test('chạm Phím 5 rồi chụp ảnh với phím lún và ♪ bay', async ({ 
 });
 
 test('chạm Vẽ trở lại chế độ vẽ, nét vẽ trước đó vẫn còn', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   const musicBtn = page.getByLabel('Nhà âm nhạc');
   await musicBtn.click();
   await pickGame(page, 'music');
@@ -355,7 +355,7 @@ test('chạm Vẽ trở lại chế độ vẽ, nét vẽ trước đó vẫn c�
 
 /** Vào Nhà âm nhạc → Vẽ và nhạc → chế độ Nhạc. */
 async function openPlay(page: import('@playwright/test').Page, query: string) {
-  await page.goto(`./?${query}&picker=music`);
+  await page.goto(`./?menu=map&${query}&picker=music`);
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10_000 });
   await page.getByTestId('pick-music').click();
   await expect(page.getByTestId('game-music')).toBeVisible();

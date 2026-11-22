@@ -1,0 +1,321 @@
+/* Khung 1194×834. Đường ray ở y≈628; đoàn tàu trong vùng kéo 150–650; thanh tab sát đáy.
+   Cổng phụ huynh góc trên phải (120×120): vùng tàu bắt đầu dưới y=150 nên không đè. */
+.menu {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--sky-top);
+  font-family: var(--font-kid);
+  color: var(--ink);
+}
+
+.scenery {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.cloud {
+  position: absolute;
+  height: 54px;
+  border-radius: 999px;
+  background: var(--world-cloud);
+  box-shadow: 30px -22px 0 4px var(--world-cloud), 70px 0 0 -4px var(--world-cloud);
+  opacity: 0.9;
+  pointer-events: none;
+  animation: drift 60s linear infinite;
+}
+.cloud1 { width: 120px; top: 70px; left: 40px; }
+.cloud2 { width: 150px; top: 150px; left: 520px; animation-duration: 80s; animation-delay: -30s; }
+@keyframes drift {
+  from { transform: translateX(-200px); }
+  to { transform: translateX(1300px); }
+}
+
+/* Bong bóng lời Đậu Đậu, phía trên đầu tàu */
+.bubble {
+  position: absolute;
+  left: 210px;
+  top: 32px;
+  max-width: 600px;
+  padding: 18px 28px;
+  border-radius: var(--radius-bubble);
+  background: var(--paper);
+  box-shadow: var(--shadow-clay);
+  font: 700 30px / 1.2 var(--font-kid);
+  color: var(--ink);
+  pointer-events: none;
+}
+.bubble::after {
+  content: '';
+  position: absolute;
+  left: 60px;
+  bottom: -18px;
+  border: 12px solid transparent;
+  border-top: 18px solid var(--paper);
+  border-bottom: 0;
+}
+
+/* Vùng kéo ngang: kéo một ngón bằng pointer events (touch-action none để trình duyệt không tự cuộn) */
+.viewport {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 150px;
+  height: 500px;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.train {
+  display: flex;
+  align-items: flex-end;
+  width: max-content;
+  height: 100%;
+  padding: 0 60px 8px 40px;
+  box-sizing: border-box;
+  animation: arrive 1.4s cubic-bezier(0.22, 0.75, 0.25, 1) both;
+}
+@keyframes arrive {
+  from { transform: translateX(1300px); }
+  to { transform: translateX(0); }
+}
+
+/* ---- Đầu tàu ---- */
+.engine {
+  position: relative;
+  flex: none;
+  width: 340px;
+  height: 420px;
+  cursor: pointer;
+}
+.engineArt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.driver {
+  position: absolute;
+  left: 206px;
+  top: 112px;
+  width: 116px;
+  height: 140px;
+  object-fit: contain;
+  object-position: bottom;
+  pointer-events: none;
+}
+.wheel {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.train[data-moving] .wheel,
+.train[data-moving] .carWheel {
+  animation: spin 0.45s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(-360deg); }
+}
+.train[data-moving] .engine {
+  animation: chug 0.3s ease-in-out infinite alternate;
+}
+@keyframes chug {
+  to { transform: translateY(-3px); }
+}
+
+.puff {
+  position: absolute;
+  left: 66px;
+  top: 100px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--world-cloud);
+  opacity: 0;
+  pointer-events: none;
+  animation: puff 2.4s ease-out infinite;
+}
+.puff2 { animation-delay: 0.8s; }
+.puff3 { animation-delay: 1.6s; }
+@keyframes puff {
+  0% { transform: translate(0, 20px) scale(0.5); opacity: 0.9; }
+  100% { transform: translate(60px, -90px) scale(1.8); opacity: 0; }
+}
+
+/* ---- Toa ---- */
+.carWrap {
+  display: flex;
+  align-items: flex-end;
+  flex: none;
+}
+.coupler {
+  flex: none;
+  width: 34px;
+  height: 12px;
+  margin-bottom: 58px;
+  border-radius: 6px;
+  background: var(--ink-soft);
+}
+.car {
+  position: relative;
+  flex: none;
+  width: 270px;
+  height: 360px;
+  margin-bottom: 10px;
+}
+.car.hop {
+  animation: hop 0.45s var(--ease-squish);
+}
+@keyframes hop {
+  40% { transform: translateY(-26px); }
+}
+.awning {
+  position: absolute;
+  top: 0;
+  left: 8px;
+  right: 8px;
+  height: 40px;
+  border-radius: 20px 20px 8px 8px;
+  background: repeating-linear-gradient(90deg, var(--awning) 0 26px, var(--paper) 26px 52px);
+  box-shadow: 0 6px 10px rgba(60, 40, 120, 0.18);
+  z-index: 1;
+}
+.body {
+  position: absolute;
+  top: 32px;
+  left: 0;
+  right: 0;
+  height: 262px;
+  border-radius: var(--radius-clay);
+  background: var(--car);
+  box-shadow: var(--shadow-clay);
+}
+.window {
+  position: absolute;
+  top: 22px;
+  left: 20px;
+  right: 20px;
+  height: 152px;
+  border-radius: 24px;
+  border: 6px solid var(--paper);
+  background: linear-gradient(180deg, var(--paper) 0%, var(--car) 120%);
+  overflow: hidden;
+  cursor: pointer;
+}
+.gameIcon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10px;
+  text-align: center;
+  font-size: 84px;
+  line-height: 1;
+}
+.deco {
+  position: absolute;
+  left: 8px;
+  top: 6px;
+  font-size: 30px;
+  line-height: 1;
+  opacity: 0.9;
+}
+.plate {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: var(--paper);
+  font: 700 18px / 1.3 var(--font-kid);
+  color: var(--ink);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.play {
+  position: absolute;
+  left: 50%;
+  top: 188px;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+.playIcon {
+  width: 56px;
+  height: 56px;
+  margin-left: 6px;
+}
+.chassis {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 290px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--ink);
+}
+.carWheel {
+  position: absolute;
+  top: 300px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background:
+    linear-gradient(90deg, transparent 26px, var(--ink-soft) 26px 34px, transparent 34px),
+    radial-gradient(circle, var(--season-gold) 0 8px, var(--scene-cloud-shade) 9px 20px, var(--ink) 21px);
+}
+.wheelL { left: 26px; }
+.wheelR { right: 26px; }
+
+/* toa cuối: đèn đuôi nhỏ */
+.tail {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0 0 120px -6px;
+  border-radius: 50%;
+  background: var(--learn-red);
+}
+
+/* ---- Thanh tab khu: tab ≥120×120, khe 24px; tab đang chọn to 150 có tên; nhiều khu thì cuộn ngang ---- */
+.tabs {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: safe center;
+  gap: var(--touch-gap);
+  padding: 8px 24px 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex: none;
+  transition: transform var(--dur-press) var(--ease-squish);
+}
+.tabOn {
+  transform: translateY(-4px);
+}
+.tabOn > button {
+  outline: 6px solid var(--paper);
+  outline-offset: -6px;
+}
+.tabIcon {
+  font-size: 56px;
+  line-height: 1;
+}
+.tabName {
+  max-width: 138px;
+  font: 700 18px / 1.15 var(--font-kid);
+  color: var(--ink);
+  text-align: center;
+}

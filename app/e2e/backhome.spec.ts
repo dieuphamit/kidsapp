@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('BackHome component', () => {
   test('hiện nút về nhà đúng kích thước và vị trí', async ({ page }) => {
-    await page.goto('./?demo=backhome');
+    await page.goto('./?menu=map&demo=backhome');
     const button = page.getByRole('button', { name: 'Về nhà' });
     await expect(button).toBeVisible();
     const box = await button.boundingBox();
@@ -15,14 +15,14 @@ test.describe('BackHome component', () => {
   });
 
   test('chạm nút thì hiện demo-exited', async ({ page }) => {
-    await page.goto('./?demo=backhome');
+    await page.goto('./?menu=map&demo=backhome');
     const button = page.getByRole('button', { name: 'Về nhà' });
     await button.tap();
     await expect(page.getByTestId('demo-exited')).toBeVisible();
   });
 
   test('trang chính vẫn hoạt động khi không có demo param', async ({ page }) => {
-    await page.goto('./');
+    await page.goto('./?menu=map&menu=map');
     await expect(page.getByTestId('home')).toBeVisible();
   });
 });

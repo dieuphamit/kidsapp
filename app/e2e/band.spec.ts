@@ -17,7 +17,7 @@ test.beforeAll(() => {
 
 /** Mở bảng chọn trò của Nhà âm nhạc (trang 2D, không phụ thuộc bản đồ 3D) rồi vào Ban nhạc thú. */
 async function openBand(page: Page, level = 'medium') {
-  await page.goto(`./?e2e=1&picker=music${level ? `&level=${level}` : ''}`);
+  await page.goto(`./?menu=map&e2e=1&picker=music${level ? `&level=${level}` : ''}`);
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10_000 });
   await expect(page.getByLabel('Ban nhạc thú')).toBeVisible();
   await page.getByTestId('pick-band').click();

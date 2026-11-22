@@ -29,7 +29,7 @@ const LIKES: Record<string, string> = {
 
 /** Ghi tuổi vào idb-keyval trước khi vào app (mặc định 28 tháng = 2 món). */
 async function setAge(page: Page, ageMonths: number) {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await page.evaluate(async (age) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open('keyval-store', 1);
@@ -50,7 +50,7 @@ async function setAge(page: Page, ageMonths: number) {
 }
 
 async function openGame(page: Page) {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await expect(page.getByTestId('home')).toBeVisible();
   await page.getByRole('button', { name: 'Trang trại' }).click();
   await pickGame(page, 'feed');

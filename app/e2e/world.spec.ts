@@ -14,7 +14,7 @@ const HABITATS = ['meadow', 'pond', 'forest', 'sea', 'sky'];
 type Snap = Record<string, { x: number; y: number; z: number; mode: string; sx: number; sy: number }>;
 
 async function openWorld(page: Page): Promise<Locator> {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await page.getByRole('button', { name: 'Thế giới thú' }).click();
   await pickGame(page, 'world');
   const game = page.getByTestId('game-world');

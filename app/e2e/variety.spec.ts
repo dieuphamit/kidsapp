@@ -10,7 +10,7 @@ type Opt = { enabled: boolean; difficulty: 'auto' | 'easy' | 'medium' | 'hard'; 
 
 /** Ghi thẳng tùy chọn trò vào IndexedDB (như khu bố mẹ lưu) rồi mở màn chọn trò của khu. */
 async function openWith(page: Page, place: string, gameId: string, games: Record<string, Opt>) {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await expect(page.getByTestId('home')).toBeVisible({ timeout: 10_000 });
   await page.evaluate(
     (games) =>
@@ -34,7 +34,7 @@ async function openWith(page: Page, place: string, gameId: string, games: Record
       }),
     games,
   );
-  await page.goto(`./?e2e=1&picker=${place}`);
+  await page.goto(`./?menu=map&e2e=1&picker=${place}`);
   await pickGame(page, gameId);
   const game = page.getByTestId(`game-${gameId}`);
   await expect(game).toBeVisible({ timeout: 10_000 });

@@ -8,7 +8,7 @@ const buddy = DEFAULT_BUDDY;
 describe('settings', () => {
   it('mặc định khi chưa lưu', async () => {
     expect(await loadSettings()).toEqual(DEFAULT_SETTINGS);
-    expect(DEFAULT_SETTINGS).toEqual({ lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'map', buddy: { character: 'cat', name: 'dau' }, calm: false });
+    expect(DEFAULT_SETTINGS).toEqual({ lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'train', buddy: { character: 'cat', name: 'dau' }, calm: false });
   });
   it('lưu rồi đọc lại', async () => {
     await saveSettings({ lang: 'ja', ageMonths: 30, sessionMinutes: 10, menuStyle: 'shelf', buddy, calm: true });
@@ -18,9 +18,15 @@ describe('settings', () => {
     await saveSettings({ lang: 'en', ageMonths: 36, sessionMinutes: 15, menuStyle: 'map', buddy, calm: false });
     expect((await loadSettings()).lang).toBe('en');
   });
-  it('bản lưu cũ không có menuStyle thì ra kiểu bản đồ', async () => {
+  it('bản lưu cũ không có menuStyle thì ra kiểu đoàn tàu', async () => {
     await set('behoc.settings', { lang: 'ja', ageMonths: 40, sessionMinutes: 20 });
-    expect(await loadSettings()).toEqual({ lang: 'ja', ageMonths: 40, sessionMinutes: 20, menuStyle: 'map', buddy, calm: false });
+    expect(await loadSettings()).toEqual({ lang: 'ja', ageMonths: 40, sessionMinutes: 20, menuStyle: 'train', buddy, calm: false });
+  });
+  it('bản lưu đã chọn bản đồ, kệ hay tàu thì giữ nguyên', async () => {
+    for (const menuStyle of ['map', 'shelf', 'train'] as const) {
+      await set('behoc.settings', { lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle });
+      expect((await loadSettings()).menuStyle).toBe(menuStyle);
+    }
   });
   it('chế độ nhẹ nhàng: bản cũ chưa có hoặc giá trị lạ thì tắt', async () => {
     await set('behoc.settings', { lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'map', calm: 'yes' });
@@ -28,9 +34,9 @@ describe('settings', () => {
     await set('behoc.settings', { lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'map', calm: true });
     expect((await loadSettings()).calm).toBe(true);
   });
-  it('giá trị menuStyle lạ thì về kiểu bản đồ', async () => {
+  it('giá trị menuStyle lạ thì về kiểu đoàn tàu', async () => {
     await set('behoc.settings', { lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'grid' });
-    expect((await loadSettings()).menuStyle).toBe('map');
+    expect((await loadSettings()).menuStyle).toBe('train');
   });
   it('bản lưu cũ không có games thì mọi trò mặc định (không thêm games)', async () => {
     await set('behoc.settings', { lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'map' });

@@ -24,7 +24,7 @@ if (!existsSync(shotsDir)) {
 
 test.describe('Sort game (Xếp vào giỏ)', () => {
   test('Vườn quả → picker → Xếp quả; chụp T-029-sort.png', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm Vườn quả
@@ -52,7 +52,7 @@ test.describe('Sort game (Xếp vào giỏ)', () => {
   });
 
   test('thả sai → không đổi remaining', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game sort
@@ -85,7 +85,7 @@ test.describe('Sort game (Xếp vào giỏ)', () => {
   });
 
   test('thả đúng hết → sort.done; chụp T-029-done.png', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game sort
@@ -115,7 +115,7 @@ test.describe('Sort game (Xếp vào giỏ)', () => {
   });
 
   test('kéo thật bằng page.mouse', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game sort
@@ -168,7 +168,7 @@ test.describe('Sort game (Xếp vào giỏ)', () => {
   });
 
   test('nút Về nhà quay lại home', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game sort
@@ -187,7 +187,7 @@ test.describe('Sort game (Xếp vào giỏ)', () => {
   });
 
   test('các quả có kích thước ≥120px', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game sort
@@ -218,7 +218,7 @@ test.describe('iPhone dọc: kéo quả', () => {
   test.use({ viewport: { width: 430, height: 932 }, hasTouch: true, isMobile: true });
 
   test('kéo quả vào giỏ đúng màu', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game sort

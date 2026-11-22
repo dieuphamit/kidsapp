@@ -35,7 +35,7 @@ async function assertUxRules(page: Page, shot: string) {
 }
 
 test('màn hình chính đạt luật UX', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   await expect(page.getByTestId('home')).toBeVisible();
   await expect(page.getByRole('img', { name: 'Đậu Đậu' })).toBeVisible();
   await page.waitForTimeout(800);
@@ -44,7 +44,7 @@ test('màn hình chính đạt luật UX', async ({ page }) => {
 
 test('chạy offline sau lần tải đầu', async ({ page, context }) => {
   test.setTimeout(180_000); // precache nhiều model/mp3 (vi/ja/en), máy chạy song song nên chậm
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   await page.evaluate(() => navigator.serviceWorker.ready);
   await page.reload();
   await context.setOffline(true);
@@ -53,7 +53,7 @@ test('chạy offline sau lần tải đầu', async ({ page, context }) => {
 });
 
 test('đang khóa thì hiện màn hình ngủ', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   await page.evaluate(() => localStorage.setItem('behoc.locked', '1'));
   await page.reload();
   await expect(page.getByTestId('sleep')).toBeVisible();

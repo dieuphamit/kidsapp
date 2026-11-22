@@ -19,7 +19,7 @@ async function snap(page: Page): Promise<Snap> {
 }
 
 async function openHabitat(page: Page, habitat: string) {
-  await page.goto(`./?demo=world&habitat=${habitat}&e2e=1`);
+  await page.goto(`./?menu=map&demo=world&habitat=${habitat}&e2e=1`);
   const demo = page.getByTestId('world-demo');
   await expect(demo).toHaveAttribute('data-habitat', habitat);
   await expect(demo).toHaveAttribute('data-ready', 'true', { timeout: 30_000 });
