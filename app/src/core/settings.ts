@@ -3,8 +3,9 @@ import type { Lang } from './i18n';
 import { sanitizeGameSettings, type GameSetting } from './gameOptions';
 import { DEFAULT_BUDDY, sanitizeBuddy, type Buddy } from './buddy';
 
-/** Kiểu menu chính: bản đồ 5 khu (mặc định) hoặc kệ đồ chơi một màn. */
-export type MenuStyle = 'map' | 'shelf';
+/** Kiểu menu chính: đoàn tàu (mặc định), bản đồ các khu hoặc kệ đồ chơi một màn. */
+export type MenuStyle = 'train' | 'map' | 'shelf';
+export const MENU_STYLES: readonly MenuStyle[] = ['train', 'map', 'shelf'];
 
 export interface Settings {
   lang: Lang;
@@ -19,14 +20,14 @@ export interface Settings {
   calm: boolean;
 }
 
-export const DEFAULT_SETTINGS: Settings = { lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'map', buddy: DEFAULT_BUDDY, calm: false };
+export const DEFAULT_SETTINGS: Settings = { lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'train', buddy: DEFAULT_BUDDY, calm: false };
 const KEY = 'behoc.settings';
 
 export async function loadSettings(): Promise<Settings> {
   const saved = await get<Partial<Settings>>(KEY);
   const s = { ...DEFAULT_SETTINGS, ...(saved ?? {}) };
-  // Bản lưu cũ (chưa có menuStyle) hoặc giá trị lạ thì về bản đồ
-  if (s.menuStyle !== 'map' && s.menuStyle !== 'shelf') s.menuStyle = DEFAULT_SETTINGS.menuStyle;
+  // Bản lưu cũ (chưa có menuStyle) hoặc giá trị lạ thì về đoàn tàu; đã chọn bản đồ/kệ thì giữ nguyên
+  if (!MENU_STYLES.includes(s.menuStyle)) s.menuStyle = DEFAULT_SETTINGS.menuStyle;
   // Tùy chọn trò: bản cũ chưa có thì để trống; có thì vá từng mục sai về mặc định
   if (s.games !== undefined) s.games = sanitizeGameSettings(s.games);
   // Bạn đồng hành: bản cũ chưa có hoặc giá trị lạ thì về mèo + Đậu Đậu (từng phần)

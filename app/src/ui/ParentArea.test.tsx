@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { ParentArea } from './ParentArea';
 import { DEFAULT_SETTINGS } from '../core/settings';
 
@@ -10,12 +10,14 @@ function renderArea(settings = DEFAULT_SETTINGS) {
 }
 
 describe('ParentArea', () => {
-  it('mục Kiểu menu có 2 nút, mặc định Bản đồ đang chọn', () => {
+  it('mục Kiểu menu có 3 nút, mặc định Đoàn tàu đang chọn', () => {
     renderArea();
     expect(screen.getByText('Kiểu menu / メニュー')).toBeInTheDocument();
     const group = screen.getByRole('group', { name: 'Kiểu menu' });
     expect(group).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Bản đồ/ })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(group).getAllByRole('button')).toHaveLength(3);
+    expect(screen.getByRole('button', { name: '🚂 Đoàn tàu / きしゃ' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /Bản đồ/ })).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getByRole('button', { name: /Kệ đồ chơi/ })).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getByRole('button', { name: '🗺️ Bản đồ / ちず' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '🧸 Kệ đồ chơi / たな' })).toBeInTheDocument();
@@ -36,6 +38,13 @@ describe('ParentArea', () => {
     expect(screen.getByRole('button', { name: /Kệ đồ chơi/ })).toHaveAttribute('aria-pressed', 'true');
     fireEvent.click(screen.getByRole('button', { name: /Bản đồ/ }));
     expect(onSave).toHaveBeenCalledWith({ ...DEFAULT_SETTINGS, menuStyle: 'map' });
+  });
+
+  it('đang là bản đồ, chạm Đoàn tàu gọi onSave với menuStyle train', () => {
+    const { onSave } = renderArea({ ...DEFAULT_SETTINGS, menuStyle: 'map' });
+    expect(screen.getByRole('button', { name: /Bản đồ/ })).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(screen.getByRole('button', { name: /Đoàn tàu/ }));
+    expect(onSave).toHaveBeenCalledWith({ ...DEFAULT_SETTINGS, menuStyle: 'train' });
   });
 
   it('đổi ngôn ngữ vẫn gọi onSave ngay', () => {

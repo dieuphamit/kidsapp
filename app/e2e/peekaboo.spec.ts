@@ -13,7 +13,7 @@ if (!existsSync(shotsDir)) {
 
 test.describe('Peekaboo game', () => {
   test('vào Sở thú → Ú òa và chụp T-026-bushes.png', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible({ timeout: 10000 });
 
     // Chạm nút Sở thú - vì chỉ có 1 game trong place.zoo, sẽ vào thẳng game
@@ -34,7 +34,7 @@ test.describe('Peekaboo game', () => {
   });
 
   test('chạm bụi trống → peek.empty', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible({ timeout: 10000 });
 
     // Vào Sở thú - vào thẳng game vì chỉ có 1 game
@@ -62,7 +62,7 @@ test.describe('Peekaboo game', () => {
   });
 
   test('chạm bụi đúng → thú phóng to giữa màn hình, nói tên rồi kêu, chụp T-026-found.png', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible({ timeout: 10000 });
 
     // Vào Sở thú - vào thẳng game vì chỉ có 1 game
@@ -114,7 +114,7 @@ test.describe('Peekaboo game', () => {
   });
 
   test('mọi bụi có kích thước >= 120px', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible({ timeout: 10000 });
 
     // Vào Sở thú - vào thẳng game vì chỉ có 1 game
@@ -137,7 +137,7 @@ test.describe('Peekaboo game', () => {
   });
 
   test('nút Về nhà hoạt động', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible({ timeout: 10000 });
 
     // Vào Sở thú - vào thẳng game vì chỉ có 1 game
@@ -160,7 +160,7 @@ test.describe('E4: chỗ núp mới (mây, sóng) và thú mới', () => {
   for (const [cover, shot] of [['cloud', 'E4-peekaboo'], ['wave', 'E4-peekaboo-sea']] as const) {
     test(`?pcover=${cover}: tìm thấy thú, nói tên rồi tiếng kêu thật; chụp ${shot}.png`, async ({ page }) => {
       // vào thẳng bảng chọn trò (2D), không qua bản đồ 3D
-      await page.goto(`./?e2e=1&picker=zoo&pcover=${cover}`);
+      await page.goto(`./?menu=map&e2e=1&picker=zoo&pcover=${cover}`);
       await pickGame(page, 'peekaboo');
       const gameEl = page.getByTestId('game-peekaboo');
       await expect(gameEl).toHaveAttribute('data-cover', cover, { timeout: 10000 });

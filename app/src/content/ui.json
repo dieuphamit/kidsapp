@@ -4,5 +4,6 @@
   { "key": "buddy.hello", "vi": "Chào bé, tớ là {name}!", "ja": "こんにちは! {name}だよ! よろしくね!", "en": "Hi, little one! I'm {name}!" },
   { "key": "ui.hello", "vi": "Chào bạn! Mình là {name}!", "ja": "こんにちは!{name}だよ!", "en": "Hi there! I'm {name}!" },
   { "key": "ui.great", "vi": "Giỏi quá!", "ja": "すごいね!", "en": "Great job!" },
-  { "key": "ui.sleep", "vi": "{name} buồn ngủ rồi. Mai mình chơi tiếp nhé!", "ja": "{name}はねむくなっちゃった。またあしたあそぼうね!", "en": "{name} is sleepy now. Let's play again tomorrow!" }
+  { "key": "ui.sleep", "vi": "{name} buồn ngủ rồi. Mai mình chơi tiếp nhé!", "ja": "{name}はねむくなっちゃった。またあしたあそぼうね!", "en": "{name} is sleepy now. Let's play again tomorrow!" },
+  { "key": "ui.train-hello", "vi": "Tu tu! Lên tàu nào! Bé chọn toa nào?", "ja": "ポッポー! きしゃに のろう! どの しゃりょうに する?", "en": "Choo choo! All aboard! Which car do you like?" }
 ]

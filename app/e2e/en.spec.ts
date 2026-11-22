@@ -7,7 +7,7 @@ mkdirSync('test-results/shots', { recursive: true });
 
 test('khu bố mẹ: chọn English rồi vào Ai kêu đấy, giọng đọc lấy từ /audio/en/; chụp en-settings, en-game', async ({ page }) => {
   // Bắt đầu ở màn chọn trò (2D) để không phụ thuộc WebGL của máy chạy test
-  await page.goto('./?e2e=1&picker=zoo');
+  await page.goto('./?menu=map&e2e=1&picker=zoo');
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 5000 });
   await openParentArea(page);
 
@@ -52,6 +52,6 @@ test('khu bố mẹ: chọn English rồi vào Ai kêu đấy, giọng đọc l�
   await page.screenshot({ path: 'test-results/shots/en-game.png' });
 
   // đã lưu: tải lại vẫn là tiếng Anh
-  await page.goto('./?e2e=1&picker=zoo');
+  await page.goto('./?menu=map&e2e=1&picker=zoo');
   await expect(page.getByLabel("Who's that sound?")).toBeVisible({ timeout: 5000 });
 });

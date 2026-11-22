@@ -18,7 +18,7 @@ declare global {
 
 /** Ghi tuổi bé vào idb (settings). */
 async function setAge(page: Page, ageMonths: number) {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await page.evaluate(
     (age) =>
       new Promise<void>((resolve, reject) => {
@@ -43,7 +43,7 @@ async function setAge(page: Page, ageMonths: number) {
 /** Vào thẳng bảng chọn trò của Nhà (2D, không qua bản đồ 3D) rồi chọn trò words. */
 async function openGame(page: Page, ageMonths: number): Promise<Locator> {
   await setAge(page, ageMonths);
-  await page.goto('./?e2e=1&picker=house');
+  await page.goto('./?menu=map&e2e=1&picker=house');
   await pickGame(page, 'words');
   const game = page.getByTestId('game-words');
   await expect(game).toBeVisible({ timeout: 10_000 });

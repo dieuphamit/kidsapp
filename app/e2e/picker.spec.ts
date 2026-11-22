@@ -18,7 +18,7 @@ function overlap(a: Box, b: Box, gap = 0): boolean {
 const ZOO_GAMES = ['world', 'animals', 'zoo3d', 'sound-quiz', 'shadow', 'peekaboo'];
 
 test('Thế giới thú → 6 thẻ trò 180×228 chia đều 2 hàng, bong bóng tên khu, Đậu Đậu hỏi; chụp T-034-picker', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   await expect(page.getByLabel('Thế giới thú')).toBeVisible();
   await page.getByLabel('Thế giới thú').click();
 
@@ -67,7 +67,7 @@ test('Thế giới thú → 6 thẻ trò 180×228 chia đều 2 hàng, bong bón
 });
 
 test('móc e2e ?picker=zoo mở màn chọn trò; nút quay lại về bản đồ', async ({ page }) => {
-  await page.goto('./?e2e=1&picker=zoo');
+  await page.goto('./?menu=map&e2e=1&picker=zoo');
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
   await expect(page.locator('[data-testid^="pick-"]')).toHaveCount(6);
   await page.getByLabel('Đậu Đậu').click();
@@ -76,7 +76,7 @@ test('móc e2e ?picker=zoo mở màn chọn trò; nút quay lại về bản đ�
 });
 
 test('chạm thẻ nói tên trò ngay rồi vào trò', async ({ page }) => {
-  await page.goto('./?e2e=1&picker=puzzle');
+  await page.goto('./?menu=map&e2e=1&picker=puzzle');
   const picker = page.getByTestId('game-picker');
   await expect(picker).toBeVisible({ timeout: 3000 });
   await page.waitForTimeout(600); // chờ hiệu ứng hiện thẻ
@@ -96,7 +96,7 @@ test('chạm thẻ nói tên trò ngay rồi vào trò', async ({ page }) => {
 });
 
 test('vào một trò, về nhà → nút chơi lại hiện icon trò, chạm vào thẳng trò; chụp T-034-replay', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   await expect(page.getByTestId('replay')).toHaveCount(0);
 
   // Góc đố → Lật hình
@@ -148,7 +148,7 @@ test('vào một trò, về nhà → nút chơi lại hiện icon trò, chạm v
 });
 
 test('nút chơi lại còn sau khi tải lại trang', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   await page.getByLabel('Nhà âm nhạc').click();
   await pickGame(page, 'music');
   await expect(page.getByTestId('game-music')).toBeVisible({ timeout: 10_000 });

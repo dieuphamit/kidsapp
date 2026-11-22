@@ -144,7 +144,22 @@ test('kệ đồ chơi: chạm thẻ nói tên trò ngay rồi vào đúng trò'
 });
 
 test('khu bố mẹ: chọn Kệ đồ chơi đổi ngay, đóng thì thấy kệ, tải lại vẫn là kệ; chụp T-035-settings', async ({ page }) => {
-  // Bắt đầu ở màn chọn trò (2D) để không phụ thuộc WebGL của máy chạy test
+  // Bắt đầu ở màn chọn trò (2D) để không phụ thuộc WebGL của máy chạy test.
+  // Mặc định giờ là đoàn tàu: lưu sẵn kiểu bản đồ (như máy đã chọn bản đồ trước đây) để kiểm tra đổi bản đồ → kệ
+  await page.goto('./?e2e=1');
+  await page.evaluate(async () => {
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open('keyval-store', 1);
+      request.onupgradeneeded = () => request.result.createObjectStore('keyval');
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        const tx = request.result.transaction('keyval', 'readwrite');
+        tx.objectStore('keyval').put({ lang: 'vi', ageMonths: 28, sessionMinutes: 15, menuStyle: 'map' }, 'behoc.settings');
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      };
+    });
+  });
   await page.goto('./?e2e=1&picker=zoo');
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
   await openParentArea(page);

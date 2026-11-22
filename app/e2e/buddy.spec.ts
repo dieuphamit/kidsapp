@@ -41,7 +41,7 @@ async function setBuddy(page: Page, character: string, name: string) {
 
 test('chọn thỏ + Mi Mi → màn chính hiện thỏ, Trốn ở đâu đọc file của Mi Mi; chụp buddy-chon, buddy-home-bunny', async ({ page }) => {
   test.setTimeout(120_000);
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await expect(page.getByTestId('home')).toBeVisible({ timeout: 10_000 });
   await expect(page.getByTestId('buddy')).toHaveAttribute('data-character', 'cat');
   await openParentArea(page);
@@ -100,7 +100,7 @@ test('chọn thỏ + Mi Mi → màn chính hiện thỏ, Trốn ở đâu đọc
   await page.screenshot({ path: 'test-results/shots/buddy-home-bunny.png' });
 
   // tải lại vẫn giữ lựa chọn; vào Trốn ở đâu
-  await page.goto('./?e2e=1&picker=house');
+  await page.goto('./?menu=map&e2e=1&picker=house');
   await expect(page.getByRole('button', { name: 'Mi Mi trốn ở đâu?' })).toBeVisible({ timeout: 10_000 });
   const speech2 = recordSpeech(page);
   await pickGame(page, 'hide');
@@ -120,7 +120,7 @@ for (const [character, name, label] of [
   ['bear', 'nana', 'Na Na'],
 ] as const) {
   test(`màn chính với ${character} (${label}); chụp buddy-home-${character}`, async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible({ timeout: 10_000 });
     await setBuddy(page, character, name);
     await page.reload();
@@ -134,7 +134,7 @@ for (const [character, name, label] of [
 
 test('tên đang chọn chạy offline: bộ giọng đọc của tên được nạp sẵn vào cache', async ({ page, context }) => {
   test.setTimeout(180_000);
-  await page.goto('./?e2e=1&picker=house');
+  await page.goto('./?menu=map&e2e=1&picker=house');
   await page.evaluate(() => navigator.serviceWorker.ready);
   await setBuddy(page, 'dog', 'kiki');
   await page.reload();

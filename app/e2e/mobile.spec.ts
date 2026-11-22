@@ -25,7 +25,7 @@ test.describe('iPhone ngang 932×430', () => {
   test.use({ viewport: { width: 932, height: 430 }, hasTouch: true, isMobile: true, deviceScaleFactor: 3 });
 
   test('bản đồ nằm trọn màn hình, chạm Trang trại vào được game', async ({ page }) => {
-    await page.goto('./');
+    await page.goto('./?menu=map&menu=map');
     await expect(page.getByTestId('home')).toBeVisible();
     await expect(page.getByTestId('stage')).not.toHaveAttribute('data-rotated', 'true');
     await expectPlacesInside(page, 932, 430);
@@ -40,7 +40,7 @@ test.describe('iPhone dọc 430×932', () => {
   test.use({ viewport: { width: 430, height: 932 }, hasTouch: true, isMobile: true, deviceScaleFactor: 3 });
 
   test('khung tự xoay ngang, nằm trọn màn hình, chạm được', async ({ page }) => {
-    await page.goto('./');
+    await page.goto('./?menu=map&menu=map');
     await expect(page.getByTestId('home')).toBeVisible();
     await expect(page.getByTestId('stage')).toHaveAttribute('data-rotated', 'true');
     await expectPlacesInside(page, 430, 932);
@@ -55,7 +55,7 @@ test.describe('Cài đặt ngôn ngữ', () => {
   test.use({ viewport: { width: 932, height: 430 }, hasTouch: true, isMobile: true });
 
   test('giữ ⚙️ 3 giây, chạm đáp án phép tính, đổi sang 日本語', async ({ page }) => {
-    await page.goto('./');
+    await page.goto('./?menu=map&menu=map');
     const gate = page.getByRole('button', { name: 'Khu phụ huynh' });
     await expect(gate).toBeVisible();
     await expect(gate).toContainText('⚙️');
@@ -75,7 +75,7 @@ for (const [name, vw, vh] of [["ngang", 932, 430], ["dọc", 430, 932]] as const
     test.use({ viewport: { width: vw, height: vh }, hasTouch: true, isMobile: true });
 
     test("canvas Trang trại phủ hết khung", async ({ page }) => {
-      await page.goto("./");
+      await page.goto("./?menu=map&menu=map");
       await page.getByRole("button", { name: "Thế giới thú" }).tap();
       await pickGame(page, 'animals');
       await expect(page.getByTestId("game-animals")).toBeVisible({ timeout: 15_000 });
@@ -92,7 +92,7 @@ test.describe("iPhone dọc: vẽ đúng chỗ ngón tay", () => {
   test.use({ viewport: { width: 430, height: 932 }, hasTouch: true, isMobile: true });
 
   test("nét vẽ nằm dưới điểm chạm", async ({ page }) => {
-    await page.goto("./");
+    await page.goto("./?menu=map&menu=map");
     await page.getByRole("button", { name: "Nhà âm nhạc" }).tap();
     await pickGame(page, 'music');
     const paper = page.locator("canvas").first();

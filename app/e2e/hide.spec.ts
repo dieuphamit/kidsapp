@@ -18,7 +18,7 @@ const askOf = (page: Page) => page.evaluate(() => (window as unknown as { __beho
 async function openHide(page: Page) {
   // mở thẳng bảng chọn trò của Nhà Đậu Đậu (bản đồ 3D nặng, nút còn đang nảy)
   // phòng đầu cố định là phòng khách (bình thường thứ tự phòng được xáo trộn)
-  await page.goto('./?e2e=1&picker=house&hroom=living');
+  await page.goto('./?menu=map&e2e=1&picker=house&hroom=living');
   await pickGame(page, 'hide');
   const game = page.getByTestId('game-hide');
   await expect(game).toBeVisible({ timeout: 10000 });
@@ -119,7 +119,7 @@ test.describe('iPhone dọc 430×932: kéo trong Trốn ở đâu', () => {
 
 test.describe('E4: phòng mới', () => {
   test('công viên: cầu trượt, ghế dài, lều; bé nhỏ có vùng gợi ý; chụp E4-hide.png', async ({ page }) => {
-    await page.goto('./?e2e=1&picker=house&hroom=park');
+    await page.goto('./?menu=map&e2e=1&picker=house&hroom=park');
     await pickGame(page, 'hide');
     const game = page.getByTestId('game-hide');
     await expect(game).toHaveAttribute('data-room', 'park', { timeout: 10000 });
@@ -142,7 +142,7 @@ test.describe('E4: phòng mới', () => {
   });
 
   test('bãi biển: dù, thuyền, xô; chụp E4-hide-beach.png', async ({ page }) => {
-    await page.goto('./?e2e=1&picker=house&hroom=beach');
+    await page.goto('./?menu=map&e2e=1&picker=house&hroom=beach');
     await pickGame(page, 'hide');
     const game = page.getByTestId('game-hide');
     await expect(game).toHaveAttribute('data-room', 'beach', { timeout: 10000 });

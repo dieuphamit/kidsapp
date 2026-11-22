@@ -10,7 +10,7 @@ if (!existsSync(shotsDir)) {
 
 test.describe('T-028: Bóng của ai?', () => {
   test('Sở thú → Bóng của ai?; chụp T-028-shadow.png', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm Sở thú
@@ -38,7 +38,7 @@ test.describe('T-028: Bóng của ai?', () => {
   });
 
   test('thả sai → không phát ui.great', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shadow
@@ -95,7 +95,7 @@ test.describe('T-028: Bóng của ai?', () => {
   });
 
   test('thả đúng → ui.great; chụp T-028-done.png', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shadow
@@ -121,7 +121,7 @@ test.describe('T-028: Bóng của ai?', () => {
   });
 
   test('kéo thật bằng page.mouse từ thẻ đúng vào bóng', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shadow
@@ -177,7 +177,7 @@ test.describe('iPhone dọc 430×932: kéo trong game shadow', () => {
   test.use({ viewport: { width: 430, height: 932 }, hasTouch: true, isMobile: true, deviceScaleFactor: 3 });
 
   test('kéo thẻ vào bóng trên điện thoại dọc', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shadow

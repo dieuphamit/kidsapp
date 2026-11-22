@@ -65,7 +65,7 @@ async function checkFps(page: Page, fps: number, label: string) {
 
 test.describe('Performance tests', () => {
   test('bản đồ (WorldMap) - FPS >= 50', async ({ page }) => {
-    await page.goto('./');
+    await page.goto('./?menu=map&menu=map');
     await expect(page.getByTestId('home')).toBeVisible();
 
     const fps = await measureFps(page);
@@ -77,7 +77,7 @@ test.describe('Performance tests', () => {
   });
 
   test('Trang trại (game-animals) - FPS >= 50', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm nút Trang trại
@@ -100,7 +100,7 @@ test.describe('Performance tests', () => {
   });
 
   test('Hồ nước (game-shapes) - FPS >= 50', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm nút Hồ nước
@@ -124,7 +124,7 @@ test.describe('Performance tests', () => {
 
   test('Vườn quả (game-counting 2.5D) - FPS >= 50', async ({ page }) => {
     // Đếm số đổi món theo lượt (E3): ép chủ đề trái cây, mức vừa để có "Quả 1..3"
-    await page.goto('./?e2e=1&level=medium&topic=fruits');
+    await page.goto('./?menu=map&e2e=1&level=medium&topic=fruits');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm nút Vườn quả
@@ -155,7 +155,7 @@ test.describe('Performance tests', () => {
   test('Ban nhạc thú chạy vòng lặp 10 giây không lỗi trang', async ({ page }) => {
     const errors: string[] = [];
     page.on('pageerror', (e) => errors.push(e.message));
-    await page.goto('./?e2e=1&picker=music&level=medium');
+    await page.goto('./?menu=map&e2e=1&picker=music&level=medium');
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10_000 });
     await page.getByTestId('pick-band').click();
     const game = page.getByTestId('game-band');

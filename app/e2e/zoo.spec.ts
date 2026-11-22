@@ -10,7 +10,7 @@ if (!existsSync(shotsDir)) {
 }
 
 test('vào Sở thú từ Home qua picker và chụp ảnh', async ({ page }) => {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await expect(page.getByTestId('home')).toBeVisible();
 
   // Chờ nút Sở thú hiện
@@ -44,7 +44,7 @@ test('vào Sở thú từ Home qua picker và chụp ảnh', async ({ page }) =>
 });
 
 test('chạm thú nghe animal.<id> rồi animal.<id>-sound (via hook)', async ({ page }) => {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await expect(page.getByTestId('home')).toBeVisible();
 
   // Chờ nút Sở thú hiện
@@ -92,7 +92,7 @@ test('chạm thú nghe animal.<id> rồi animal.<id>-sound (via hook)', async ({
 });
 
 test('nút Về nhà có kích thước đủ lớn và hoạt động', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   await expect(page.getByTestId('home')).toBeVisible();
 
   // Chờ nút Sở thú hiện
@@ -130,7 +130,7 @@ test('nút Về nhà có kích thước đủ lớn và hoạt động', async (
 test('thú đi dạo qua lại theo làn, chạm con đang đi thì nó dừng lại rồi đi tiếp', async ({ page }) => {
   test.setTimeout(120_000); // WebGL phần mềm: vài khung hình/giây
   // seed=5: hươu cao cổ, gấu túi, vẹt (nhảy lò cò) đi dạo; hổ, gấu, cánh cụt đứng yên
-  await page.goto('./?e2e=1&seed=5');
+  await page.goto('./?menu=map&e2e=1&seed=5');
   await page.getByLabel('Thế giới thú').click();
   await pickGame(page, 'zoo3d');
   const gameEl = page.getByTestId('game-zoo');

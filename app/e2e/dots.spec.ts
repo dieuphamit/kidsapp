@@ -18,7 +18,7 @@ declare global {
 
 /** Ghi tuổi vào idb-keyval trước khi vào app (trò từ 30 tháng). */
 async function setAge(page: Page, ageMonths: number) {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await page.evaluate(async (age) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open('keyval-store', 1);
@@ -40,7 +40,7 @@ async function setAge(page: Page, ageMonths: number) {
 
 async function openGame(page: Page, ageMonths: number) {
   await setAge(page, ageMonths);
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await expect(page.getByTestId('home')).toBeVisible();
   await page.getByLabel('Góc đố').click();
   await pickGame(page, 'dots');

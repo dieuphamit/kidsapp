@@ -13,7 +13,7 @@ test.beforeAll(() => {
 
 test.describe('Puzzle game', () => {
   test('Nhà Đậu Đậu → Ghép hình, chụp T-030-start.png', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm vào Nhà Đậu Đậu
@@ -41,7 +41,7 @@ test.describe('Puzzle game', () => {
   });
 
   test('mảnh ≥120px', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await page.getByLabel('Góc đố').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 5000 });
     await page.getByLabel('Ghép hình').tap();
@@ -64,7 +64,7 @@ test.describe('Puzzle game', () => {
   });
 
   test('kéo mảnh 1 vào đúng chỗ bằng mouse → mảnh hút vào', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await page.getByLabel('Góc đố').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 5000 });
     await page.getByLabel('Ghép hình').tap();
@@ -103,7 +103,7 @@ test.describe('Puzzle game', () => {
   });
 
   test('solveOne() hết mảnh → puzzle.done rồi tên hình, chụp T-030-done.png', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await page.getByLabel('Góc đố').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 5000 });
     await page.getByLabel('Ghép hình').tap();
@@ -140,7 +140,7 @@ test.describe('Puzzle game', () => {
   });
 
   test('nút Về nhà trở về home', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await page.getByLabel('Góc đố').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 5000 });
     await page.getByLabel('Ghép hình').tap();
@@ -159,7 +159,7 @@ test.describe('Puzzle iPhone dọc', () => {
   test.use({ viewport: { width: 430, height: 932 }, hasTouch: true, isMobile: true, deviceScaleFactor: 3 });
 
   test('kéo mảnh vào đúng chỗ trên màn hình xoay', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Stage đã xoay

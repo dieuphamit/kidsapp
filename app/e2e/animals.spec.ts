@@ -10,7 +10,7 @@ if (!existsSync(shotsDir)) {
 }
 
 test('chạm Trang trại mở game animals', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   await expect(page.getByTestId('home')).toBeVisible();
 
   // Chạm nút Trang trại
@@ -22,7 +22,7 @@ test('chạm Trang trại mở game animals', async ({ page }) => {
 });
 
 test('chụp ảnh trang trại sau khi model load xong', async ({ page }) => {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await expect(page.getByTestId('home')).toBeVisible();
 
   // Chờ nút Trang trại hiện trước khi click
@@ -46,7 +46,7 @@ test('chụp ảnh trang trại sau khi model load xong', async ({ page }) => {
 });
 
 test('cham con bo nghe animal.cow roi animal.cow-sound (via hook)', async ({ page }) => {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await expect(page.getByTestId('home')).toBeVisible();
 
   // Chờ nút Trang trại hiện
@@ -81,7 +81,7 @@ test('cham con bo nghe animal.cow roi animal.cow-sound (via hook)', async ({ pag
 });
 
 test('chạm thật vào canvas có phản hồi', async ({ page }) => {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await expect(page.getByTestId('home')).toBeVisible();
 
   // Chạm nút Trang trại
@@ -114,7 +114,7 @@ test('chạm thật vào canvas có phản hồi', async ({ page }) => {
 });
 
 test('nút Về nhà có kích thước đủ lớn và hoạt động', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?menu=map&menu=map');
   await expect(page.getByTestId('home')).toBeVisible();
 
   // Chạm nút Trang trại
@@ -140,7 +140,7 @@ test('nút Về nhà có kích thước đủ lớn và hoạt động', async (
 
 test('con vật đi dạo qua lại, chạm con đang đi thì nó dừng lại rồi đi tiếp', async ({ page }) => {
   test.setTimeout(120_000); // WebGL phần mềm: vài khung hình/giây
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await page.getByLabel('Thế giới thú').click();
   await pickGame(page, 'animals');
   const gameEl = page.getByTestId('game-animals');

@@ -13,7 +13,7 @@ test.beforeAll(() => {
 
 test.describe('Memory game - T-025', () => {
   test('từ Nhà Đậu Đậu vào game Memory, lật 1 cặp đúng, lật hết', async ({ page }) => {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm nút Nhà Đậu Đậu
@@ -31,7 +31,7 @@ test.describe('Memory game - T-025', () => {
 
     // Chụp T-025-preview.png lúc đang xem ngửa (trước khi úp)
     // Re-navigate để chụp đúng lúc preview
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
     await page.getByLabel('Góc đố').click();
     await pickGame(page, 'memory');
@@ -105,7 +105,7 @@ test.describe('Memory game - T-025', () => {
 
   test('đặt memory.level=4 qua idb → 12 thẻ, mọi thẻ ≥130px', async ({ page }) => {
     // Đặt level 4 vào idb trước khi vào game
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
 
     // Use native IndexedDB API (idb-keyval default store)
     await page.evaluate(async () => {
@@ -130,7 +130,7 @@ test.describe('Memory game - T-025', () => {
     });
 
     // Reload và vào game
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
     const houseBtn = page.getByLabel('Góc đố');
@@ -202,7 +202,7 @@ test.describe('Memory game - T-025', () => {
   });
 
   test('nút Về nhà có kích thước đủ lớn và hoạt động', async ({ page }) => {
-    await page.goto('./');
+    await page.goto('./?menu=map&menu=map');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game Memory

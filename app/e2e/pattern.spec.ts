@@ -16,7 +16,7 @@ mkdirSync('test-results/shots', { recursive: true });
 
 /** Đặt tuổi bé qua idb-keyval (store mặc định) trước khi vào app. */
 async function setAge(page: Page, ageMonths: number) {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await page.evaluate(async (age) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open('keyval-store', 1);
@@ -41,7 +41,7 @@ async function setAge(page: Page, ageMonths: number) {
 async function openPattern(page: Page, ageMonths = 48) {
   await setAge(page, ageMonths);
   // Các test dưới đây đọc chuỗi quả (fruit.*): ép loại hạt quả; loại khác có test riêng
-  await page.goto('./?e2e=1&pkind=fruit');
+  await page.goto('./?menu=map&e2e=1&pkind=fruit');
   await expect(page.getByTestId('home')).toBeVisible();
   await page.getByRole('button', { name: 'Vườn quả' }).tap();
   await pickGame(page, 'pattern');
@@ -168,7 +168,7 @@ async function dragTo(page: Page, from: ReturnType<Page['locator']>, to: ReturnT
 
 test.describe('E4: loại hạt mới và độ khó', () => {
   async function open(page: Page, query: string, settings: Record<string, unknown>) {
-    await page.goto('./?e2e=1');
+    await page.goto('./?menu=map&e2e=1');
     await page.evaluate(async (s) => {
       await new Promise<void>((resolve, reject) => {
         const request = indexedDB.open('keyval-store', 1);
@@ -187,7 +187,7 @@ test.describe('E4: loại hạt mới và độ khó', () => {
       });
     }, settings);
     // vào thẳng bảng chọn trò (2D), không qua bản đồ 3D
-    await page.goto(`./?e2e=1&picker=orchard${query}`);
+    await page.goto(`./?menu=map&e2e=1&picker=orchard${query}`);
     await pickGame(page, 'pattern');
     const game = page.getByTestId('game-pattern');
     await expect(game).toBeVisible({ timeout: 10_000 });

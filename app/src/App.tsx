@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { DEFAULT_SETTINGS, loadSettings, saveSettings, type Settings } from './core/settings';
+import { DEFAULT_SETTINGS, MENU_STYLES, loadSettings, saveSettings, type MenuStyle, type Settings } from './core/settings';
 import { CALM_SPEECH_RATE, createSpeaker, unlockAudioOnFirstGesture } from './core/audio';
 import { trackPlay } from './core/playTime';
 import { CalmContext, useApplyCalm } from './ui/calmContext';
@@ -11,6 +11,7 @@ import { startSession, isOver, readLocked, writeLocked } from './core/session';
 import { loadLastGame, saveLastGame } from './core/lastGame';
 import { WorldMap } from './ui/WorldMap';
 import { ShelfMenu } from './ui/ShelfMenu';
+import { TrainMenu } from './ui/TrainMenu';
 import { GamePicker } from './ui/GamePicker';
 import { SleepScreen } from './ui/SleepScreen';
 import { ParentGate } from './ui/ParentGate';
@@ -26,9 +27,10 @@ export default function App() {
   const [lastGameId, setLastGameId] = useState<string | null>(null);
   const [parentOpen, setParentOpen] = useState(false);
   const [locked, setLocked] = useState(readLocked);
-  const [forceShelf] = useState(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('e2e') === '1' && params.get('menu') === 'shelf';
+  // Móc kiểm thử ?menu=train|map|shelf: ép kiểu menu trong phiên này (không lưu, không đổi cài đặt bố mẹ)
+  const [forceMenu] = useState(() => {
+    const m = new URLSearchParams(window.location.search).get('menu');
+    return MENU_STYLES.find((s) => s === m) ?? null;
   });
   const langRef = useRef(settings.lang);
   const nameRef = useRef(settings.buddy.name);
@@ -88,8 +90,7 @@ export default function App() {
 
   const games = visibleGames(ALL_GAMES, settings.ageMonths, settings.games);
   const gameOptions = game ? optionsFor(game, gameSetting(settings.games, game.id)) : null;
-  // Móc e2e: ?e2e=1&menu=shelf ép kiểu kệ đồ chơi
-  const menuStyle = forceShelf ? 'shelf' : settings.menuStyle;
+  const menuStyle: MenuStyle = forceMenu ?? settings.menuStyle;
 
   return (
     <BuddyContext value={settings.buddy}>
@@ -118,6 +119,8 @@ export default function App() {
         />
       ) : menuStyle === 'shelf' ? (
         <ShelfMenu games={games} lang={settings.lang} speaker={speaker} onPick={openGame} />
+      ) : menuStyle === 'train' ? (
+        <TrainMenu games={games} lang={settings.lang} speaker={speaker} onPick={openGame} lastGameId={lastGameId} />
       ) : (
         <WorldMap
           games={games}

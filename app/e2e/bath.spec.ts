@@ -9,7 +9,7 @@ type Hook = { dirtyCells(): [number, number][]; brush: number };
 
 /** Ghi tuổi vào idb-keyval trước khi vào app (mẫu: tour.spec.ts). */
 async function setAge(page: Page, ageMonths: number) {
-  await page.goto('./?e2e=1');
+  await page.goto('./?menu=map&e2e=1');
   await page.evaluate(async (age) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open('keyval-store', 1);
@@ -30,7 +30,7 @@ async function setAge(page: Page, ageMonths: number) {
 }
 
 async function openBath(page: Page, animal = 'pig') {
-  await page.goto(`./?e2e=1&bath=${animal}`);
+  await page.goto(`./?menu=map&e2e=1&bath=${animal}`);
   await expect(page.getByTestId('home')).toBeVisible({ timeout: 10_000 });
   await page.getByLabel('Hồ nước', { exact: true }).click();
   await pickGame(page, 'bath');

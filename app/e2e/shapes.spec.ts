@@ -31,7 +31,7 @@ if (!existsSync(shotsDir)) {
 // T-018: Hồ nước đẹp hơn
 test.describe('T-018: Hồ nước đẹp hơn', () => {
   test('chụp hồ nước khi mới vào', async ({ page }) => {
-    await page.goto('./?e2e=1&level=medium');
+    await page.goto('./?menu=map&e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm nút Hồ nước
@@ -49,7 +49,7 @@ test.describe('T-018: Hồ nước đẹp hơn', () => {
   });
 
   test('chụp sau khi kéo đủ 4 khối', async ({ page }) => {
-    await page.goto('./?e2e=1&level=medium');
+    await page.goto('./?menu=map&e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
@@ -81,7 +81,7 @@ test.describe('T-018: Hồ nước đẹp hơn', () => {
 
 test.describe('Shapes game (Màu và hình)', () => {
   test('từ bản đồ chạm Hồ nước mở game shapes', async ({ page }) => {
-    await page.goto('./?e2e=1&level=medium');
+    await page.goto('./?menu=map&e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Chạm nút Hồ nước
@@ -103,7 +103,7 @@ test.describe('Shapes game (Màu và hình)', () => {
   });
 
   test('chạm khối qua e2e hook nghe color rồi shape', async ({ page }) => {
-    await page.goto('./?e2e=1&level=medium');
+    await page.goto('./?menu=map&e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
@@ -130,7 +130,7 @@ test.describe('Shapes game (Màu và hình)', () => {
   });
 
   test('chạm thật vào canvas có phản hồi', async ({ page }) => {
-    await page.goto('./?e2e=1&level=medium');
+    await page.goto('./?menu=map&e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
@@ -160,7 +160,7 @@ test.describe('Shapes game (Màu và hình)', () => {
   });
 
   test('nút Về nhà quay lại màn hình chính', async ({ page }) => {
-    await page.goto('./?e2e=1&level=medium');
+    await page.goto('./?menu=map&e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
@@ -180,7 +180,7 @@ test.describe('Shapes game (Màu và hình)', () => {
 
   // T-011: Drag and drop tests
   test('kéo khối tròn vào ô bóng tròn - snap thành công', async ({ page }) => {
-    await page.goto('./?e2e=1&level=medium');
+    await page.goto('./?menu=map&e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
@@ -206,7 +206,7 @@ test.describe('Shapes game (Màu và hình)', () => {
   });
 
   test('kéo khối vào ô sai - nghe pond.try-again', async ({ page }) => {
-    await page.goto('./?e2e=1&level=medium');
+    await page.goto('./?menu=map&e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
@@ -229,7 +229,7 @@ test.describe('Shapes game (Màu và hình)', () => {
   });
 
   test('kéo tất cả khối vào đúng ô - ăn mừng', async ({ page }) => {
-    await page.goto('./?e2e=1&level=medium');
+    await page.goto('./?menu=map&e2e=1&level=medium');
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game shapes
@@ -263,7 +263,7 @@ test.describe('Shapes game (Màu và hình)', () => {
 
 test.describe('E3: độ khó Màu và hình', () => {
   test('dễ (bé 28 tháng): 2 hình; kéo xong thì lượt mới đổi hình', async ({ page }) => {
-    await page.goto('./?e2e=1&picker=orchard');
+    await page.goto('./?menu=map&e2e=1&picker=orchard');
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10_000 });
     await page.getByTestId('pick-shapes').click();
     const gameEl = page.getByTestId('game-shapes');
@@ -284,7 +284,7 @@ test.describe('E3: độ khó Màu và hình', () => {
   });
 
   test('khó: 5 hình có cặp giống nhau; chụp E3-shapes.png', async ({ page }) => {
-    await page.goto('./?e2e=1&level=hard&picker=orchard');
+    await page.goto('./?menu=map&e2e=1&level=hard&picker=orchard');
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10_000 });
     await page.getByTestId('pick-shapes').click();
     const gameEl = page.getByTestId('game-shapes');
