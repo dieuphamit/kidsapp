@@ -1,0 +1,380 @@
+.scene {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  font-family: var(--font-kid);
+  user-select: none;
+  -webkit-user-select: none;
+  background: var(--scene-wall);
+}
+
+/* ---------- Phòng vẽ ---------- */
+.room {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, var(--scene-wall) 0 46px, var(--scene-wall-low) 46px 92px);
+  animation: fadeIn 300ms ease both;
+}
+
+.bunting {
+  position: absolute;
+  left: 170px;
+  right: 170px;
+  top: 0;
+  height: 70px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.bunting::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  right: -10px;
+  top: 10px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--scene-wood-dark);
+}
+
+.bunting span {
+  position: relative;
+  width: 44px;
+  height: 56px;
+  margin-top: 12px;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  animation: swing 2600ms ease-in-out infinite alternate;
+  transform-origin: top center;
+}
+
+.bunting span:nth-child(odd) {
+  animation-delay: -1300ms;
+}
+
+.floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 330px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 148px, var(--scene-wood-dark) 148px 151px),
+    linear-gradient(var(--scene-wood-light), var(--scene-wood));
+  box-shadow: inset 0 10px 0 var(--scene-fence-shade);
+}
+
+.cup,
+.plant {
+  position: absolute;
+  font-size: 64px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.cup {
+  left: 18px;
+  bottom: 380px;
+}
+
+.plant {
+  right: 22px;
+  bottom: 380px;
+}
+
+/* Giá vẽ: bảng là nút đất sét, chân và núm vẽ bằng CSS cùng màu */
+.easel {
+  position: absolute;
+  width: 210px;
+  height: 420px;
+  animation: popIn 420ms var(--ease-squish) both;
+}
+
+.easel:nth-of-type(2) { animation-delay: 60ms; }
+.easel:nth-of-type(3) { animation-delay: 120ms; }
+.easel:nth-of-type(4) { animation-delay: 180ms; }
+
+.knob {
+  position: absolute;
+  left: 85px;
+  top: -26px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--easel);
+  box-shadow: var(--shadow-clay);
+  pointer-events: none;
+}
+
+.legs {
+  position: absolute;
+  left: 0;
+  top: 190px;
+  width: 210px;
+  height: 230px;
+  pointer-events: none;
+}
+
+.legs i {
+  position: absolute;
+  top: 0;
+  width: 26px;
+  height: 230px;
+  border-radius: 13px;
+  background: var(--easel);
+  box-shadow: var(--shadow-clay);
+}
+
+.legs i:nth-child(1) { left: 26px; transform: rotate(8deg); transform-origin: top; }
+.legs i:nth-child(2) { left: 92px; height: 200px; filter: brightness(0.9); }
+.legs i:nth-child(3) { right: 26px; transform: rotate(-8deg); transform-origin: top; }
+
+.board {
+  position: relative;
+}
+
+.canvas {
+  width: 176px;
+  height: 176px;
+  border-radius: 18px;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 3px var(--scene-fence-shade);
+  display: block;
+  overflow: hidden;
+}
+
+.thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.badge {
+  position: absolute;
+  right: -14px;
+  top: -18px;
+  font-size: 48px;
+  line-height: 1;
+  animation: twinkle 1600ms ease-in-out infinite alternate;
+}
+
+.tray {
+  position: absolute;
+  left: 81px;
+  right: 81px;
+  bottom: 0;
+  height: 168px;
+  border-radius: var(--radius-clay) var(--radius-clay) 0 0;
+  background: var(--scene-wood-light);
+  box-shadow: var(--shadow-clay);
+  pointer-events: none;
+}
+
+.tab {
+  font-size: 60px;
+}
+
+.tab[aria-pressed='true'] {
+  outline: 6px solid var(--ink-soft);
+  outline-offset: 4px;
+}
+
+/* ---------- Màn tô ---------- */
+.studio {
+  position: absolute;
+  inset: 0;
+  background: var(--scene-wall-low);
+  animation: fadeIn 250ms ease both;
+}
+
+.paper {
+  position: absolute;
+  border-radius: var(--radius-clay);
+  background: var(--paper);
+  box-shadow: var(--shadow-clay);
+  touch-action: none;
+}
+
+.art {
+  position: absolute;
+  left: 40px;
+  top: 13px;
+  width: 760px;
+  height: 760px;
+  touch-action: none;
+}
+
+.current {
+  position: absolute;
+  left: 24px;
+  top: 340px;
+  width: 120px;
+  height: 160px;
+  pointer-events: none;
+}
+
+.currentDrop {
+  position: absolute;
+  left: 18px;
+  top: 0;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  box-shadow: var(--shadow-clay);
+}
+
+.currentBrush {
+  position: absolute;
+  left: 26px;
+  top: 82px;
+  font-size: 64px;
+  line-height: 1;
+}
+
+.off {
+  opacity: 0.45;
+}
+
+.palette {
+  position: absolute;
+  left: 1026px;
+  top: 144px;
+  bottom: 0;
+  width: 168px;
+  padding: 12px 24px 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  touch-action: pan-y;
+  scrollbar-width: none;
+  border-radius: var(--radius-clay) 0 0 0;
+  background: var(--scene-wood-light);
+  box-shadow: inset 6px 0 0 var(--scene-wood);
+}
+
+.palette::-webkit-scrollbar {
+  display: none;
+}
+
+.ballBtn {
+  position: relative;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+
+.ballBtn[aria-pressed='true'] {
+  outline: 6px solid var(--ink-soft);
+  outline-offset: 2px;
+}
+
+.ball {
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  box-shadow: var(--shadow-clay-pressed);
+}
+
+.ball::after {
+  content: '';
+  position: absolute;
+  left: 22%;
+  top: 16%;
+  width: 30%;
+  height: 20%;
+  border-radius: 50%;
+  background: var(--paint-white);
+  opacity: 0.55;
+  transform: rotate(-25deg);
+}
+
+.ballIcon {
+  position: relative;
+  font-size: 48px;
+}
+
+.ripple {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 6px solid var(--ink-soft);
+  opacity: 0;
+  pointer-events: none;
+  animation: ripple 500ms ease-out;
+}
+
+/* Ăn mừng tô xong */
+.party {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 30;
+}
+
+.confetti,
+.star {
+  position: absolute;
+  top: -40px;
+  animation: fall 2600ms ease-in both;
+}
+
+.confetti {
+  width: 18px;
+  height: 26px;
+  border-radius: 6px;
+}
+
+.star {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.buddy {
+  position: absolute;
+  left: 190px;
+  bottom: 20px;
+  width: 230px;
+  height: 230px;
+  object-fit: contain;
+  animation: buddyHop 900ms var(--ease-squish) both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.9); }
+}
+
+@keyframes swing {
+  from { transform: rotate(-5deg); }
+  to { transform: rotate(5deg); }
+}
+
+@keyframes twinkle {
+  from { transform: scale(0.9) rotate(-8deg); }
+  to { transform: scale(1.1) rotate(8deg); }
+}
+
+@keyframes ripple {
+  from { opacity: 0.8; transform: scale(0.3); }
+  to { opacity: 0; transform: scale(1.2); }
+}
+
+@keyframes fall {
+  0% { transform: translateY(0) rotate(0); opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(900px) rotate(540deg); opacity: 0; }
+}
+
+@keyframes buddyHop {
+  0% { transform: translateY(260px) scale(0.6); }
+  60% { transform: translateY(-20px) scale(1.05); }
+  100% { transform: translateY(0) scale(1); }
+}

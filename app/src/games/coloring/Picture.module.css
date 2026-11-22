@@ -1,0 +1,58 @@
+.region {
+  stroke: var(--paint-line);
+  stroke-width: 7;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  transition: fill 120ms ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Vùng vừa tô nảy nhẹ */
+.pop {
+  animation: pop 420ms var(--ease-squish);
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.06); }
+  65% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+
+/* Màu mới loang từ chỗ chạm */
+.splash {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: splash 420ms ease-out both;
+}
+
+@keyframes splash {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+/* Viền vẽ lại trên vệt loang để nét không bị che */
+.outline {
+  fill: none;
+  stroke: var(--paint-line);
+  stroke-width: 7;
+  stroke-linejoin: round;
+}
+
+.ink {
+  fill: var(--paint-line);
+}
+
+.glint {
+  fill: var(--paint-white);
+  opacity: 0.9;
+}
+
+.line {
+  fill: none;
+  stroke: var(--paint-line);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

@@ -123,3 +123,25 @@
   --print-ink: #000000;
   --print-paper: #ffffff;
 }
+
+/* Trò "Tô màu" (games/coloring): bảng màu tô, nét viền tranh, nền lấp lánh */
+:root {
+  --paint-red: #ff5a5f;
+  --paint-orange: #ff9f43;
+  --paint-yellow: #ffd93d;
+  --paint-lime: #b8e04a;
+  --paint-green: #4cc96f;
+  --paint-teal: #2ec4b6;
+  --paint-sky: #7fd4ff;
+  --paint-blue: #4a8cff;
+  --paint-purple: #9b6bff;
+  --paint-pink: #ff7eb6;
+  --paint-brown: #b07a52;
+  --paint-cream: #ffe9c7;
+  --paint-gray: #a7a9b8;
+  --paint-white: #ffffff;
+  --paint-black: #4a4458;
+  --paint-gold: #ffc94d;
+  --paint-glint: #fff8dc;
+  --paint-line: #2e2440;
+}

@@ -139,10 +139,10 @@ test('tên đang chọn chạy offline: bộ giọng đọc của tên được 
   await setBuddy(page, 'dog', 'kiki');
   await page.reload();
   await expect(page.getByRole('button', { name: 'Ki Ki trốn ở đâu?' })).toBeVisible({ timeout: 10_000 });
-  // đủ 93 câu có tên × 3 ngôn ngữ (E4 thêm 36 câu: chuyện, phòng mới của Trốn ở đâu)
+  // đủ 94 câu có tên × 3 ngôn ngữ (E4 thêm 36 câu: chuyện, phòng mới của Trốn ở đâu; Tô màu thêm 1 câu khen)
   await expect
     .poll(() => page.evaluate(async () => (await (await caches.open('buddy-audio')).keys()).length), { timeout: 90_000 })
-    .toBe(93 * 3);
+    .toBe(94 * 3);
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByRole('button', { name: 'Ki Ki trốn ở đâu?' })).toBeVisible({ timeout: 10_000 });

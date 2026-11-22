@@ -28,6 +28,20 @@ async function cardBoxes(page: Page) {
   return boxes;
 }
 
+
+/** Đợi mọi hiệu ứng hữu hạn (thẻ trồi lên trễ dần, nảy quá cỡ) chạy xong: đo giữa chừng thì thẻ to hơn thật. */
+async function cardsSettled(page: Page) {
+  await page.waitForTimeout(300);
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((a) => a.effect?.getComputedTiming().iterations !== Infinity)
+        .map((a) => a.finished.then(() => undefined, () => undefined)),
+    ),
+  );
+}
+
 function expectInsideAndApart(boxes: (Box & { id: string })[], vw: number, vh: number, gap: number) {
   for (const b of boxes) {
     expect(b.x, `${b.id} trái`).toBeGreaterThanOrEqual(0);
@@ -58,10 +72,10 @@ test('kệ đồ chơi: mọi thẻ ≥120px (132px khi ít trò), khe ≥24px, 
   const ids = await cards.evaluateAll((els) => els.map((e) => e.getAttribute('data-testid')!.slice('shelf-card-'.length)));
   // thứ tự khu: Thế giới thú trước, rồi ... Nhà âm nhạc, Trang trại cuối
   expect(ids.slice(0, 6)).toEqual(['world', 'animals', 'zoo3d', 'sound-quiz', 'shadow', 'peekaboo']);
-  expect(ids.slice(-4, -2).sort()).toEqual(['band', 'music']);
+  expect(ids.slice(-5, -2).sort()).toEqual(['band', 'coloring', 'music']);
   expect(ids.slice(-2)).toEqual(['mama', 'feed']);
 
-  await page.waitForTimeout(900); // chờ hiệu ứng hiện thẻ
+  await cardsSettled(page); // chờ hiệu ứng hiện thẻ (trễ dần 40ms/thẻ, nảy quá cỡ) chạy xong rồi mới đo
   const boxes = await cardBoxes(page);
   // ≤18 trò: 6 cột thẻ 132px; nhiều hơn: 7 cột thẻ 120px (sàn ClayButton)
   const min = (await shelf.getAttribute('data-cols')) === '6' ? 132 : 120;
@@ -104,7 +118,7 @@ test('60 tháng: đủ mọi trò, kệ gọn 4 tầng vẫn trọn khung, khe �
   const cards = page.locator('[data-testid^="shelf-card-"]');
   expect(await cards.count()).toBeGreaterThanOrEqual(22);
   await expect(shelf).toHaveAttribute('data-compact', 'true');
-  await page.waitForTimeout(900);
+  await cardsSettled(page); // chờ hiệu ứng hiện thẻ (trễ dần 40ms/thẻ, nảy quá cỡ) chạy xong rồi mới đo
   const boxes = await cardBoxes(page);
   for (const b of boxes) {
     expect(b.width, `${b.id} rộng`).toBeGreaterThanOrEqual(120);
@@ -204,7 +218,7 @@ test.describe('iPhone dọc 430×932', () => {
     await page.goto('./?e2e=1&menu=shelf');
     await expect(page.getByTestId('shelf')).toBeVisible({ timeout: 3000 });
     await expect(page.getByTestId('stage')).toHaveAttribute('data-rotated', 'true');
-    await page.waitForTimeout(900);
+    await cardsSettled(page); // chờ hiệu ứng hiện thẻ (trễ dần 40ms/thẻ, nảy quá cỡ) chạy xong rồi mới đo
     const boxes = await cardBoxes(page);
     expect(boxes.length).toBeGreaterThanOrEqual(11);
     expectInsideAndApart(boxes, 430, 932, 0);
