@@ -1,0 +1,894 @@
+.scene {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--scene-wall);
+  font-family: var(--font-kid);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ---- Quầy bếp: mặt gỗ sáng, mép gỗ đậm ---- */
+.counter {
+  position: absolute;
+  left: -20px;
+  right: -20px;
+  bottom: 0;
+  z-index: 3;
+  border-radius: 60px 60px 0 0;
+  background:
+    radial-gradient(ellipse 70% 40% at 50% 0%, var(--scene-wood-light), transparent 70%),
+    linear-gradient(var(--scene-wood-light), var(--scene-wood) 75%, var(--scene-wood-dark));
+  box-shadow: inset 0 14px 0 var(--scene-wood), inset 0 20px 0 var(--scene-wood-dark), 0 -6px 18px color-mix(in srgb, var(--ink) 18%, transparent);
+  pointer-events: none;
+}
+
+/* ---- Đầu bếp ---- */
+.chef {
+  position: absolute;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.chefMove {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 100%;
+}
+
+.chefMove[data-bounce] {
+  animation: hop 560ms var(--ease-squish);
+}
+
+.chefImg {
+  position: absolute;
+  inset: 12% 0 0 0;
+  width: 100%;
+  height: 88%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  animation: breathe 2.6s ease-in-out infinite alternate;
+}
+
+/* Mũ đầu bếp: ba cục mây trắng trên dải mũ */
+.chefHat {
+  position: absolute;
+  left: 30%;
+  top: 0;
+  width: 40%;
+  height: 26%;
+  z-index: 1;
+  border-radius: 50% 50% 14px 14px;
+  background:
+    radial-gradient(circle at 22% 46%, var(--paper) 28%, transparent 29%),
+    radial-gradient(circle at 78% 46%, var(--paper) 28%, transparent 29%),
+    radial-gradient(circle at 50% 34%, var(--paper) 34%, transparent 35%),
+    linear-gradient(transparent 62%, var(--paper) 62%);
+  filter: drop-shadow(0 4px 4px color-mix(in srgb, var(--ink) 22%, transparent));
+  pointer-events: none;
+}
+
+/* ---- Khách ---- */
+.customer {
+  position: absolute;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.customer[data-anim='in'] {
+  animation: walkIn 900ms var(--ease-squish) both;
+}
+
+.customer[data-anim='out'] {
+  animation: walkOut 700ms ease-in both;
+  pointer-events: none;
+}
+
+.customerBounce {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 100%;
+}
+
+.customerBounce[data-bounce] {
+  animation: hop 600ms var(--ease-squish);
+}
+
+.customer[data-pressed] .customerBounce {
+  scale: 0.97;
+}
+
+.customerImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  animation: breathe 2.4s ease-in-out infinite alternate;
+}
+
+.customerImg[data-eat] {
+  animation: chew 300ms ease-in-out 8;
+}
+
+/* Bong bóng ý muốn trên đầu khách */
+.wish {
+  position: absolute;
+  left: -132px;
+  top: -20px;
+  width: 132px;
+  height: 112px;
+  padding: 14px 16px 18px;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: var(--shadow-clay);
+  pointer-events: none;
+  animation: wishIn 700ms var(--ease-squish) 500ms both;
+}
+
+.wish::after {
+  content: '';
+  position: absolute;
+  right: -10px;
+  bottom: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: 10px 16px 0 -6px var(--paper);
+}
+
+.hearts {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hearts span {
+  position: absolute;
+  top: 30%;
+  font-size: 48px;
+  opacity: 0;
+  animation: floatUp 1800ms ease-out forwards;
+}
+
+/* ---- Thẻ công thức ---- */
+.card {
+  position: absolute;
+  z-index: 6;
+  cursor: pointer;
+  animation: cardIn 600ms var(--ease-squish) both;
+}
+
+.cardMove {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 12px;
+  border-radius: 28px;
+  background: var(--paper);
+  border: 6px solid var(--clay-peach);
+  box-shadow: var(--shadow-clay);
+  transform-origin: 50% 0;
+  rotate: 2deg;
+}
+
+.cardMove[data-bounce] {
+  animation: hop 520ms var(--ease-squish);
+}
+
+.cardDish {
+  position: relative;
+  width: 150px;
+  height: 116px;
+  flex: none;
+}
+
+.cardSlots {
+  display: grid;
+  grid-template-columns: repeat(2, 76px);
+  gap: 10px;
+  justify-content: center;
+}
+
+.slot {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  border-radius: 20px;
+  background: var(--scene-wall);
+  border: 3px dashed var(--scene-wood);
+}
+
+.slot img {
+  position: absolute;
+  inset: 6px;
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
+  object-fit: contain;
+  opacity: 0.5;
+  filter: grayscale(0.7);
+  pointer-events: none;
+  transition: opacity 300ms ease, filter 300ms ease;
+}
+
+.slot[data-done] {
+  border-style: solid;
+  border-color: var(--learn-green);
+  background: var(--clay-leaf);
+  animation: slotDone 520ms var(--ease-squish);
+}
+
+.slot[data-done] img {
+  opacity: 1;
+  filter: none;
+}
+
+.slot[data-hint] {
+  border-color: var(--learn-orange);
+  animation: slotHint 900ms ease-in-out infinite;
+}
+
+.check {
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--learn-green);
+  color: var(--paper);
+  font: 800 24px/34px var(--font-kid);
+  text-align: center;
+  box-shadow: 0 3px 6px color-mix(in srgb, var(--ink) 25%, transparent);
+  animation: heartFill 520ms var(--ease-squish) both;
+}
+
+/* ---- Bếp, nồi ---- */
+.burner {
+  position: absolute;
+  z-index: 6;
+  height: 40px;
+  border-radius: 20px;
+  background: linear-gradient(var(--ink-soft), var(--ink));
+  box-shadow: 0 10px 16px color-mix(in srgb, var(--ink) 28%, transparent);
+  pointer-events: none;
+}
+
+.flames {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: -30px;
+  height: 40px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.flame {
+  width: 30px;
+  height: 40px;
+  border-radius: 50% 50% 50% 50% / 64% 64% 36% 36%;
+  background: radial-gradient(ellipse at 50% 72%, var(--learn-yellow) 30%, var(--learn-orange) 62%, var(--learn-red));
+  transform-origin: 50% 100%;
+  animation: flicker 360ms ease-in-out infinite alternate;
+}
+
+.pot {
+  position: absolute;
+  z-index: 5;
+  cursor: pointer;
+}
+
+.potBody {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 34px;
+  bottom: 0;
+  border-radius: 24px 24px 120px 120px / 24px 24px 90px 90px;
+  background: radial-gradient(ellipse at 34% 30%, var(--world-water-light), var(--learn-blue) 46%, var(--world-sea-deep));
+  box-shadow: inset -14px -18px 28px color-mix(in srgb, var(--ink) 25%, transparent), inset 12px 10px 20px color-mix(in srgb, var(--paper) 50%, transparent);
+}
+
+.potRim {
+  position: absolute;
+  left: -14px;
+  right: -14px;
+  top: 0;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--world-sea-top);
+  box-shadow: inset 0 -6px 0 var(--world-sea-deep), 0 6px 10px color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+.water {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 6px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 40% 40%,
+    color-mix(in srgb, var(--paper) 40%, color-mix(in srgb, var(--broth) var(--cooked), var(--world-water-light))),
+    color-mix(in srgb, var(--broth) var(--cooked), var(--world-water))
+  );
+  box-shadow: inset 0 10px 14px color-mix(in srgb, var(--ink) 22%, transparent);
+  transition: background 400ms ease;
+}
+
+.water[data-slosh] {
+  animation: slosh 700ms ease-out;
+}
+
+.pot[data-cooking] .water {
+  animation: boil 520ms ease-in-out infinite alternate;
+}
+
+.handleL,
+.handleR {
+  position: absolute;
+  top: 74px;
+  width: 54px;
+  height: 34px;
+  border-radius: 18px;
+  background: var(--world-sea-deep);
+  box-shadow: inset 0 -5px 0 color-mix(in srgb, var(--ink) 30%, transparent);
+}
+
+.handleL {
+  left: -40px;
+}
+
+.handleR {
+  right: -40px;
+}
+
+.bubbles {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 8px;
+  height: 52px;
+  pointer-events: none;
+}
+
+.bubble {
+  position: absolute;
+  bottom: 12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid var(--paper);
+  background: color-mix(in srgb, var(--paper) 35%, transparent);
+  animation: bubble 760ms ease-out infinite;
+}
+
+.splash {
+  position: absolute;
+  left: 50%;
+  top: 34px;
+  pointer-events: none;
+}
+
+.ripple {
+  position: absolute;
+  left: -60px;
+  top: -16px;
+  width: 120px;
+  height: 32px;
+  border-radius: 50%;
+  border: 4px solid var(--paper);
+  animation: ripple 700ms ease-out forwards;
+}
+
+.drop {
+  position: absolute;
+  left: -9px;
+  top: -9px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: var(--world-water-light);
+  border: 2px solid var(--paper);
+  opacity: 0;
+  animation: drop 620ms ease-out forwards;
+}
+
+.drop[data-k='0'] { --dx: -90px; --dy: -70px; }
+.drop[data-k='1'] { --dx: -40px; --dy: -110px; }
+.drop[data-k='2'] { --dx: 10px; --dy: -130px; }
+.drop[data-k='3'] { --dx: 55px; --dy: -100px; }
+.drop[data-k='4'] { --dx: 95px; --dy: -64px; }
+
+.inPot {
+  position: absolute;
+  z-index: 5;
+  object-fit: contain;
+  pointer-events: none;
+  transition: left 120ms linear, top 120ms linear, opacity 400ms ease;
+  animation: bob 1.6s ease-in-out infinite alternate;
+}
+
+.steam {
+  position: absolute;
+  z-index: 5;
+  width: 240px;
+  height: 160px;
+  pointer-events: none;
+}
+
+.steam span {
+  position: absolute;
+  bottom: 0;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--paper);
+  filter: blur(10px);
+  opacity: 0;
+  animation: steam 1500ms ease-out infinite;
+}
+
+/* ---- Nút bật bếp ---- */
+.stoveWrap {
+  position: absolute;
+  z-index: 7;
+}
+
+.stoveWrap[data-wiggle] {
+  animation: shake 600ms ease-in-out;
+}
+
+.stove {
+  opacity: 0.9;
+}
+
+.stoveReady {
+  animation: pulse 900ms ease-in-out infinite;
+}
+
+.stoveIcon {
+  font-size: 68px;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.stoveReady .stoveIcon,
+.stoveIcon[data-on] {
+  opacity: 1;
+}
+
+/* ---- Vá khuấy ---- */
+.ladle {
+  position: absolute;
+  z-index: 9;
+  cursor: grab;
+  touch-action: none;
+  transition: left 300ms var(--ease-squish), top 300ms var(--ease-squish);
+  animation: foodIn 500ms var(--ease-squish) both;
+}
+
+.ladle[data-state='drag'] {
+  transition: none;
+  cursor: grabbing;
+  z-index: 20;
+}
+
+.ladleMove {
+  position: absolute;
+  inset: 0;
+  rotate: -35deg;
+  filter: drop-shadow(0 8px 8px color-mix(in srgb, var(--ink) 28%, transparent));
+}
+
+.ladleMove[data-nudge] {
+  animation: wiggle 500ms ease-in-out 3;
+}
+
+.ladleMove img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* ---- Bát / cốc ---- */
+.served {
+  position: absolute;
+  z-index: 10;
+  cursor: grab;
+  touch-action: none;
+  transition: left 480ms var(--ease-squish), top 480ms var(--ease-squish), width 480ms ease, height 480ms ease;
+  animation: scoop 700ms var(--ease-squish) both;
+}
+
+.served[data-state='drag'] {
+  transition: none;
+  cursor: grabbing;
+  z-index: 20;
+}
+
+.served[data-state='served'] {
+  pointer-events: none;
+}
+
+.served[data-state='ready'] .servedMove {
+  animation: wiggle 1100ms ease-in-out 900ms infinite;
+}
+
+.served[data-state='drag'] .servedMove {
+  transform: scale(1.08);
+  filter: drop-shadow(0 14px 14px color-mix(in srgb, var(--ink) 30%, transparent));
+}
+
+.servedMove {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 90%;
+}
+
+.bowl,
+.cup {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.bowlBody {
+  position: absolute;
+  left: 2%;
+  right: 2%;
+  top: 36%;
+  bottom: 0;
+  border-radius: 10px 10px 50% 50% / 10px 10px 100% 100%;
+  background:
+    linear-gradient(transparent 38%, var(--clay-mint) 38%, var(--clay-mint) 54%, transparent 54%),
+    radial-gradient(ellipse at 35% 20%, var(--paper), var(--scene-fence) 60%, var(--scene-fence-shade));
+  box-shadow: inset -6px -8px 12px color-mix(in srgb, var(--ink) 16%, transparent), 0 8px 10px color-mix(in srgb, var(--ink) 18%, transparent);
+}
+
+.bowlFood {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 22%;
+  height: 30%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 45% 40%, color-mix(in srgb, var(--paper) 30%, var(--broth)), var(--broth) 70%);
+  border: 4px solid var(--scene-fence);
+  transition: transform 1200ms ease-in;
+}
+
+.bowlTopping {
+  position: absolute;
+  width: 46%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.bowlTopping[data-k='0'] { left: 4%; top: -110%; }
+.bowlTopping[data-k='1'] { left: 30%; top: -150%; }
+.bowlTopping[data-k='2'] { left: 54%; top: -105%; }
+
+.bowl[data-eaten] .bowlTopping,
+.cup[data-eaten] .cupFruit {
+  transition: opacity 1200ms ease, transform 1200ms ease;
+  opacity: 0;
+  transform: translateY(20px) scale(0.6);
+}
+
+.cupGlass {
+  position: absolute;
+  left: 26%;
+  right: 26%;
+  top: 14%;
+  bottom: 0;
+  border-radius: 8px 8px 26px 26px;
+  background: color-mix(in srgb, var(--paper) 55%, transparent);
+  border: 4px solid var(--paper);
+  overflow: hidden;
+  box-shadow: 0 8px 10px color-mix(in srgb, var(--ink) 18%, transparent);
+}
+
+.cupDrink {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 82%;
+  background: linear-gradient(color-mix(in srgb, var(--paper) 25%, var(--broth)), var(--broth));
+  transition: height 1400ms ease-in;
+}
+
+.cup[data-eaten] .cupDrink {
+  height: 12%;
+}
+
+.straw {
+  position: absolute;
+  left: 52%;
+  top: 0;
+  width: 10px;
+  height: 56%;
+  border-radius: 5px;
+  background: repeating-linear-gradient(var(--learn-red) 0 10px, var(--paper) 10px 20px);
+  rotate: 14deg;
+  transform-origin: 50% 100%;
+}
+
+.cupFruit {
+  position: absolute;
+  left: 8%;
+  top: 4%;
+  width: 36%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  rotate: -14deg;
+}
+
+/* ---- Nguyên liệu trên quầy ---- */
+.item {
+  position: absolute;
+  z-index: 8;
+  cursor: grab;
+  touch-action: none;
+  transition: left 420ms var(--ease-squish), top 420ms var(--ease-squish), width 380ms ease, height 380ms ease;
+  animation: foodIn 520ms var(--ease-squish) both;
+}
+
+.item::before {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 2%;
+  height: 16%;
+  border-radius: 50%;
+  background: var(--scene-wood-dark);
+  opacity: 0.35;
+  filter: blur(3px);
+}
+
+.item[data-state='drag'] {
+  transition: none;
+  z-index: 20;
+  cursor: grabbing;
+}
+
+.item[data-state='drag']::before,
+.item[data-state='fly']::before {
+  opacity: 0;
+}
+
+.item[data-state='fly'] {
+  transition: left 380ms ease-in, top 380ms ease-in, width 380ms ease-in, height 380ms ease-in;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.itemMove {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 90%;
+}
+
+.itemMove[data-hop] {
+  animation: hop 380ms var(--ease-squish);
+}
+
+.itemMove[data-shake] {
+  animation: shake 700ms ease-in-out;
+}
+
+.item[data-state='drag'] .itemMove {
+  transform: scale(1.12) rotate(-5deg);
+  filter: drop-shadow(0 14px 14px color-mix(in srgb, var(--ink) 30%, transparent));
+}
+
+.item[data-hint] .itemImg {
+  animation: wiggle 900ms ease-in-out infinite;
+}
+
+.itemImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  transform-origin: 50% 90%;
+}
+
+/* ---- Ăn mừng cuối lượt ---- */
+.party {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.partyBuddy {
+  position: absolute;
+  left: calc(50% - 160px);
+  top: 120px;
+  width: 320px;
+  height: 320px;
+  object-fit: contain;
+  animation: cheer 700ms var(--ease-squish) infinite alternate;
+}
+
+.partyHeart {
+  position: absolute;
+  top: 66%;
+  font-size: 54px;
+  opacity: 0;
+  animation: floatUp 1900ms ease-out infinite;
+}
+
+/* ---- Hiệu ứng ---- */
+@keyframes breathe {
+  from { transform: scale(1, 1); }
+  to { transform: scale(1.012, 1.03); }
+}
+
+@keyframes chew {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.035, 0.955); }
+}
+
+@keyframes hop {
+  0% { transform: translateY(0) scale(1, 1); }
+  30% { transform: translateY(0) scale(1.06, 0.92); }
+  60% { transform: translateY(-22px) scale(0.97, 1.05); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(0) translateX(0); }
+  18% { transform: rotate(-8deg) translateX(-8px); }
+  40% { transform: rotate(8deg) translateX(8px); }
+  62% { transform: rotate(-5deg) translateX(-4px); }
+  82% { transform: rotate(3deg) translateX(2px); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0) translateY(0); }
+  25% { transform: rotate(-6deg) translateY(-8px); }
+  75% { transform: rotate(6deg) translateY(-8px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); box-shadow: var(--shadow-clay), 0 0 0 0 color-mix(in srgb, var(--learn-orange) 60%, transparent); }
+  50% { transform: scale(1.1); box-shadow: var(--shadow-clay), 0 0 0 22px color-mix(in srgb, var(--learn-orange) 0%, transparent); }
+}
+
+@keyframes flicker {
+  from { transform: scaleY(0.85) scaleX(1.05); }
+  to { transform: scaleY(1.15) scaleX(0.92); }
+}
+
+@keyframes boil {
+  from { transform: translateY(0) scaleY(1); }
+  to { transform: translateY(-2px) scaleY(1.06); }
+}
+
+@keyframes slosh {
+  0% { transform: scaleY(1); }
+  25% { transform: scaleY(1.25) rotate(-2deg); }
+  55% { transform: scaleY(0.9) rotate(1.5deg); }
+  100% { transform: scaleY(1); }
+}
+
+@keyframes bubble {
+  0% { transform: translateY(6px) scale(0.3); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: translateY(-26px) scale(1.15); opacity: 0; }
+}
+
+@keyframes ripple {
+  from { transform: scale(0.3); opacity: 1; }
+  to { transform: scale(1.8); opacity: 0; }
+}
+
+@keyframes drop {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 1; }
+  60% { opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; }
+}
+
+@keyframes bob {
+  from { translate: 0 0; rotate: -4deg; }
+  to { translate: 0 -6px; rotate: 4deg; }
+}
+
+@keyframes steam {
+  0% { transform: translateY(20px) scale(0.5); opacity: 0; }
+  30% { opacity: 0.75; }
+  100% { transform: translateY(-110px) scale(1.4); opacity: 0; }
+}
+
+@keyframes scoop {
+  0% { translate: -300px -40px; scale: 0.4; opacity: 0; }
+  60% { translate: -60px -70px; scale: 0.9; opacity: 1; }
+  100% { translate: 0 0; scale: 1; opacity: 1; }
+}
+
+@keyframes walkIn {
+  0% { translate: -620px 0; opacity: 0; }
+  70% { translate: 20px 0; opacity: 1; }
+  100% { translate: 0 0; opacity: 1; }
+}
+
+@keyframes walkOut {
+  from { translate: 0 0; opacity: 1; }
+  to { translate: 700px 0; opacity: 0; }
+}
+
+@keyframes wishIn {
+  from { scale: 0.3; opacity: 0; }
+  to { scale: 1; opacity: 1; }
+}
+
+@keyframes cardIn {
+  from { translate: 260px 0; opacity: 0; }
+  to { translate: 0 0; opacity: 1; }
+}
+
+@keyframes slotDone {
+  0% { transform: scale(0.8); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+@keyframes slotHint {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes heartFill {
+  0% { transform: scale(0.2); opacity: 0; }
+  60% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes foodIn {
+  0% { opacity: 0; scale: 0.4; }
+  100% { opacity: 1; scale: 1; }
+}
+
+@keyframes floatUp {
+  0% { opacity: 0; transform: translateY(0) scale(0.6); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-200px) scale(1.2); }
+}
+
+@keyframes cheer {
+  from { transform: translateY(0) rotate(-4deg); }
+  to { transform: translateY(-26px) rotate(4deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .customerImg,
+  .chefImg,
+  .inPot,
+  .item[data-hint] .itemImg,
+  .served[data-state='ready'] .servedMove,
+  .partyBuddy {
+    animation: none;
+  }
+}

@@ -24,6 +24,7 @@ export const GAME_SKILLS: Record<string, Skill[]> = {
   band: ['creativity', 'social'],
   bath: ['social', 'science'],
   coloring: ['creativity'],
+  cook: ['language', 'social'],
   counting: ['math'],
   dots: ['math', 'logic'],
   feed: ['science', 'social'],

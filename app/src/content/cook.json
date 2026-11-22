@@ -1,0 +1,36 @@
+[
+  { "key": "game.cook", "vi": "Bếp nấu ăn", "ja": "りょうりやさん", "en": "Cooking" },
+  { "key": "cook.hello", "vi": "Chào mừng bé đến nhà bếp! Mình cùng nấu món ngon cho các bạn nhé!", "ja": "キッチンへ ようこそ! みんなに おいしい りょうりを つくろう!", "en": "Welcome to the kitchen! Let's cook yummy food for our friends!" },
+  { "key": "cook.done", "vi": "Các bạn ăn no hết rồi! Bé là đầu bếp giỏi quá!", "ja": "みんな おなか いっぱい! すてきな コックさんだね!", "en": "Everyone is full! You are a great chef!" },
+
+  { "key": "cook.want.soup", "vi": "Bạn muốn ăn súp rau củ! Mình nấu nhé!", "ja": "やさいスープが たべたいって! つくろうね!", "en": "Our friend wants vegetable soup! Let's cook it!" },
+  { "key": "cook.want.noodles", "vi": "Bạn muốn ăn mì! Mình nấu nhé!", "ja": "ラーメンが たべたいって! つくろうね!", "en": "Our friend wants noodles! Let's cook them!" },
+  { "key": "cook.want.rice", "vi": "Bạn muốn ăn cơm chiên! Mình nấu nhé!", "ja": "チャーハンが たべたいって! つくろうね!", "en": "Our friend wants fried rice! Let's cook it!" },
+  { "key": "cook.want.fishsoup", "vi": "Bạn muốn ăn canh cá! Mình nấu nhé!", "ja": "おさかなスープが たべたいって! つくろうね!", "en": "Our friend wants fish soup! Let's cook it!" },
+  { "key": "cook.want.salad", "vi": "Bạn muốn ăn salad hoa quả! Mình làm nhé!", "ja": "フルーツサラダが たべたいって! つくろうね!", "en": "Our friend wants fruit salad! Let's make it!" },
+  { "key": "cook.want.smoothie", "vi": "Bạn muốn uống sinh tố! Mình làm nhé!", "ja": "スムージーが のみたいって! つくろうね!", "en": "Our friend wants a smoothie! Let's make it!" },
+
+  { "key": "cook.dish.soup", "vi": "Súp rau củ", "ja": "やさいスープ", "en": "Vegetable soup" },
+  { "key": "cook.dish.noodles", "vi": "Mì", "ja": "ラーメン", "en": "Noodles" },
+  { "key": "cook.dish.rice", "vi": "Cơm chiên", "ja": "チャーハン", "en": "Fried rice" },
+  { "key": "cook.dish.fishsoup", "vi": "Canh cá", "ja": "おさかなスープ", "en": "Fish soup" },
+  { "key": "cook.dish.salad", "vi": "Salad hoa quả", "ja": "フルーツサラダ", "en": "Fruit salad" },
+  { "key": "cook.dish.smoothie", "vi": "Sinh tố", "ja": "スムージー", "en": "Smoothie" },
+
+  { "key": "cook.food.potato", "vi": "Khoai tây", "ja": "じゃがいも", "en": "Potato" },
+  { "key": "cook.food.tomato", "vi": "Cà chua", "ja": "トマト", "en": "Tomato" },
+  { "key": "cook.food.broccoli", "vi": "Bông cải xanh", "ja": "ブロッコリー", "en": "Broccoli" },
+  { "key": "cook.food.noodles", "vi": "Sợi mì", "ja": "めん", "en": "Noodles" },
+  { "key": "cook.food.egg", "vi": "Quả trứng", "ja": "たまご", "en": "Egg" },
+  { "key": "cook.food.mushroom", "vi": "Cây nấm", "ja": "きのこ", "en": "Mushroom" },
+  { "key": "cook.food.rice", "vi": "Cơm trắng", "ja": "ごはん", "en": "Rice" },
+
+  { "key": "cook.nope", "vi": "Món này không có trong công thức. Bé thử món khác nhé!", "ja": "これは レシピに ないよ。 ほかのを ためしてね!", "en": "That's not in the recipe. Let's try another one!" },
+  { "key": "cook.look", "vi": "Bé nhìn thẻ công thức nhé! Mình cần thêm…", "ja": "レシピを みてね! あとは…", "en": "Look at the recipe card! We still need…" },
+  { "key": "cook.ready", "vi": "Đủ rồi! Bé bật bếp nào!", "ja": "そろったね! スイッチを おしてね!", "en": "That's everything! Turn on the stove!" },
+  { "key": "cook.notyet", "vi": "Mình cho nguyên liệu vào nồi trước đã nhé!", "ja": "まずは ざいりょうを おなべに いれようね!", "en": "Let's put the ingredients in the pot first!" },
+  { "key": "cook.stir", "vi": "Nồi sôi lục bục rồi! Bé cầm vá khuấy khuấy nào!", "ja": "ぐつぐつ! おたまで まぜまぜ しよう!", "en": "It's bubbling! Take the ladle and stir, stir, stir!" },
+  { "key": "cook.cooked", "vi": "Chín rồi! Thơm quá! Bé mang bát cho bạn nhé!", "ja": "できあがり! いい におい! おともだちに もっていってね!", "en": "It's ready! Smells yummy! Bring it to our friend!" },
+  { "key": "cook.serve", "vi": "Bé kéo bát đến cho bạn nhé!", "ja": "おともだちの ところへ はこんでね!", "en": "Drag it over to our friend!" },
+  { "key": "cook.yum", "vi": "Ngon quá! Cảm ơn bé nhé!", "ja": "おいしい! ありがとう!", "en": "So yummy! Thank you!" }
+]
