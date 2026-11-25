@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import type { Group } from 'three';
 import type { BuddyCharacter } from '../core/tokens';
-import { BUDDY_LOOKS, ballSegments, buddyParts, type Part, type PartRole } from './buddyModel';
+import { BUDDY_LOOKS, ballSegments, breatheScale, buddyParts, type Part, type PartRole } from './buddyModel';
 import { useCalm } from './calmContext';
 
 type Roles = Partial<Record<PartRole, Group | null>>;
@@ -64,7 +64,7 @@ type Props = {
   wave?: number;
 };
 
-/** Bạn đồng hành đất sét đang chọn: lắc lư nhẹ, chạm thì nhảy, `wave` đổi thì vẫy tay. */
+/** Bạn đồng hành đất sét đang chọn: lắc lư và thở nhẹ, chạm thì nhảy, `wave` đổi thì vẫy tay. */
 export function Buddy({ character, onTap, wave = 0 }: Props) {
   const ref = useRef<Group>(null);
   const roles = useRef<Roles>({});
@@ -93,8 +93,10 @@ export function Buddy({ character, onTap, wave = 0 }: Props) {
       const sq = 1 + Math.sin(p * Math.PI * 2) * 0.06;
       g.scale.set(sq, 1 / sq, sq);
     } else {
+      // đứng yên: "thở" nhẹ (phồng lên xẹp xuống theo sin) cho bạn trông như đang sống
+      const [bx, by] = breatheScale(t, calm);
       g.position.y = 0;
-      g.scale.set(1, 1, 1);
+      g.scale.set(bx, by, bx);
     }
     const arm = roles.current.wave;
     if (arm) {
