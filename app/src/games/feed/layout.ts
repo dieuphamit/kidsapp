@@ -20,7 +20,8 @@ export interface Box {
 /** Ô của con thú: giữa màn, chân chạm ngay trên khay. */
 export function animalBox(): Box {
   const size = 450;
-  return { x: Math.round(STAGE_W / 2 - size / 2), y: 148, size };
+  // đáy ô = mép trên hàng món (TRAY_Y): chân thú đứng trên dải cỏ trước hàng rào, không lơ lửng trên hàng rào
+  return { x: Math.round(STAGE_W / 2 - size / 2), y: TRAY_Y - size, size };
 }
 
 /** Ô của từng món trên khay, xếp đều quanh giữa khung. */
@@ -40,7 +41,7 @@ export function trayBox(count: number): { x: number; y: number; w: number; h: nu
   return { x: left, y: TRAY_Y + 26, w: right - left, h: FOOD_SIZE - 4 };
 }
 
-/** Điểm miệng thú trong khung, từ tỉ lệ miệng trong ảnh. */
+/** Điểm miệng thú trong khung, từ tỉ lệ miệng trong ô của con thú (ảnh đã hạ xuống cho chân chạm đất). */
 export function mouthPoint(animal: Box, mouth: readonly [number, number]): { x: number; y: number } {
   return { x: Math.round(animal.x + mouth[0] * animal.size), y: Math.round(animal.y + mouth[1] * animal.size) };
 }

@@ -35,13 +35,13 @@ export type FoodId = keyof typeof FOODS;
 export const FOOD_IDS = Object.keys(FOODS) as FoodId[];
 
 export const ANIMALS = [
-  { id: 'rabbit', card: 'bath/rabbit', food: 'carrot', sound: 'animal.rabbit-sound', mouth: [0.09, 0.52] },
-  { id: 'monkey', card: 'feed/monkey', food: 'banana', sound: 'animal.monkey-sound', mouth: [0.58, 0.37] },
-  { id: 'panda', card: 'bath/panda', food: 'bamboo', sound: 'animal.panda-sound', mouth: [0.31, 0.52] },
-  { id: 'dog', card: 'bath/dog', food: 'bone', sound: 'animal.dog-sound', mouth: [0.24, 0.47] },
-  { id: 'cat', card: 'feed/cat', food: 'fish', sound: 'feed.sound.cat', mouth: [0.16, 0.38] },
-  { id: 'chicken', card: 'feed/hen', food: 'corn', sound: 'animal.chicken-sound', mouth: [0.9, 0.28] },
-  { id: 'horse', card: 'feed/horse', food: 'apple', sound: 'animal.horse-sound', mouth: [0.09, 0.4] },
+  { id: 'rabbit', card: 'bath/rabbit', food: 'carrot', sound: 'animal.rabbit-sound', mouth: [0.09, 0.615] },
+  { id: 'monkey', card: 'feed/monkey', food: 'banana', sound: 'animal.monkey-sound', mouth: [0.58, 0.52] },
+  { id: 'panda', card: 'bath/panda', food: 'bamboo', sound: 'animal.panda-sound', mouth: [0.31, 0.59] },
+  { id: 'dog', card: 'bath/dog', food: 'bone', sound: 'animal.dog-sound', mouth: [0.24, 0.755] },
+  { id: 'cat', card: 'feed/cat', food: 'fish', sound: 'feed.sound.cat', mouth: [0.16, 0.565] },
+  { id: 'chicken', card: 'feed/hen', food: 'corn', sound: 'animal.chicken-sound', mouth: [0.9, 0.395] },
+  { id: 'horse', card: 'feed/horse', food: 'apple', sound: 'animal.horse-sound', mouth: [0.09, 0.58] },
 ] as const satisfies readonly Animal[];
 
 export type AnimalId = (typeof ANIMALS)[number]['id'];

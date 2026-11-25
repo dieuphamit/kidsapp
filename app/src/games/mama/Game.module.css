@@ -15,7 +15,10 @@
   height: 56px;
   border-radius: 50%;
   background: radial-gradient(ellipse at 50% 40%, var(--scene-wicker-light), var(--scene-wicker) 62%, var(--scene-wicker-dark));
-  box-shadow: inset 0 -6px 0 var(--scene-wicker-dark);
+  /* bóng đổ xuống cỏ: ổ nằm trên sườn đồi */
+  box-shadow:
+    inset 0 -6px 0 var(--scene-wicker-dark),
+    0 12px 14px -4px color-mix(in srgb, var(--ink) 26%, transparent);
   opacity: 0.92;
   z-index: 1;
 }
@@ -58,6 +61,69 @@
   transform-origin: 50% 96%;
   animation: breathe 2.6s ease-in-out infinite alternate;
 }
+
+/*
+ * Cỡ thú mẹ theo loài (ô chạm vẫn giữ nguyên ≥250px): ảnh thẻ nào cũng lấp kín khung nên gà mái, vịt to bằng
+ * ngựa, bò. Thu ảnh về phía chân (transform-origin ở đáy) và thu bóng theo; con rúc vào mẹ thu và xích lại tương ứng.
+ */
+.mama[data-mama='chick'] .mamaMove,
+.mama[data-mama='duckling'] .mamaMove {
+  scale: 0.6;
+}
+
+.mama[data-mama='puppy'] .mamaMove {
+  scale: 0.76;
+}
+
+.mama[data-mama='lamb'] .mamaMove {
+  scale: 0.8;
+}
+
+.mama[data-mama='piglet'] .mamaMove {
+  scale: 0.86;
+}
+
+.mama[data-mama='chick'] .shadow,
+.mama[data-mama='duckling'] .shadow {
+  left: 28%;
+  right: 28%;
+}
+
+.baby[data-phase='snuggle'][data-baby='chick'] .babyMove,
+.baby[data-phase='snuggle'][data-baby='duckling'] .babyMove {
+  scale: 0.62;
+}
+
+/* mẹ gà, mẹ vịt nhìn sang phải: con đứng bên phải, xích vào sát mẹ */
+.baby[data-phase='snuggle'][data-baby='chick'],
+.baby[data-phase='snuggle'][data-baby='duckling'] {
+  translate: -52px 0;
+}
+
+.baby[data-phase='snuggle'][data-baby='puppy'] .babyMove,
+.baby[data-phase='snuggle'][data-baby='lamb'] .babyMove {
+  scale: 0.8;
+}
+
+/*
+ * Ảnh thẻ vuông có lề trong suốt dưới chân (bò 25%, heo 27%…): hạ ảnh xuống đúng bằng lề đó để chân chạm cỏ,
+ * bóng nằm ngay dưới chân (số đo bằng kênh alpha của public/cards/<thẻ>.png).
+ */
+.mama[data-mama='calf'] .mamaImg { translate: 0 24%; }
+.mama[data-mama='chick'] .mamaImg { translate: 0 11%; }
+.mama[data-mama='duckling'] .mamaImg { translate: 0 6.5%; }
+.mama[data-mama='lamb'] .mamaImg { translate: 0 16.5%; }
+.mama[data-mama='piglet'] .mamaImg { translate: 0 26%; }
+.mama[data-mama='foal'] .mamaImg { translate: 0 17%; }
+.mama[data-mama='puppy'] .mamaImg { translate: 0 16%; }
+
+.baby[data-baby='calf'] .babyImg { translate: 0 14.5%; }
+.baby[data-baby='chick'] .babyImg,
+.baby[data-baby='duckling'] .babyImg,
+.baby[data-baby='foal'] .babyImg,
+.baby[data-baby='lamb'] .babyImg { translate: 0 6.5%; }
+.baby[data-baby='piglet'] .babyImg { translate: 0 25%; }
+.baby[data-baby='puppy'] .babyImg { translate: 0 8%; }
 
 .mama[data-pressed] .mamaMove {
   transform: scale(0.96);
