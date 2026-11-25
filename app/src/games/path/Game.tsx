@@ -195,8 +195,18 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
     later(() => setShake((s) => (s === k ? null : s)), 600);
   };
 
+  /** Chạm chính bạn đang đi: nhún ngay; đang rảnh thì nhắc lại việc cần làm. */
+  const tapWalker = () => {
+    setHop((h) => h + 1);
+    if (!busy) say(theme.hello);
+  };
+
   // Mức 1: chạm ô kề để đi
   const tapCell = (target: Pos) => {
+    if (samePos(target, pos)) {
+      tapWalker();
+      return;
+    }
     if (busy || mode !== 'step') return;
     if (isTree(map, target)) {
       shakeTree(target);
@@ -344,6 +354,7 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
               alt={theme.walker === 'buddy' ? buddy.name : ''}
               data-walker={theme.walker}
               data-testid="daudau"
+              data-hop={hop}
               data-scratch={scratch ? 'true' : undefined}
               className={styles.dau}
               draggable={false}

@@ -61,6 +61,8 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
   const [landed, setLanded] = useState<number | null>(null);
   const [glow, setGlow] = useState<number | null>(null);
   const [retelling, setRetelling] = useState(false);
+  /** Số lần bé chạm bạn đồng hành (đổi key → nhún lại ngay). */
+  const [poke, setPoke] = useState(0);
 
   const slotRefs = useRef<(HTMLDivElement | null)[]>([]);
   const trayRefs = useRef(new Map<number, HTMLDivElement>());
@@ -330,8 +332,23 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
         </div>
       )}
 
-      {/* Đậu Đậu nảy nhẹ mỗi lần nói (key đổi → chạy lại animation) */}
-      <img key={lastSay} src={buddy.img} alt="" draggable={false} className={styles.daudau} />
+      {/* Đậu Đậu nảy nhẹ mỗi lần nói (key đổi → chạy lại animation); chạm thì nhún và nhắc "Tiếp theo là gì nhỉ?" */}
+      <img
+        key={`${lastSay}-${poke}`}
+        src={buddy.img}
+        alt=""
+        draggable={false}
+        className={styles.daudau}
+        role="button"
+        aria-label="buddy"
+        data-testid="buddy"
+        data-poke={poke}
+        onPointerDown={() => {
+          setPoke((n) => n + 1);
+          // đang kể lại chuyện thì chỉ nhún, không cắt lời kể
+          if (!retelling) say('story.next');
+        }}
+      />
     </div>
   );
 }

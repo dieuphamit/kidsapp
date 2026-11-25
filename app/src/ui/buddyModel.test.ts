@@ -46,3 +46,24 @@ describe('buddyModel', () => {
     }
   });
 });
+
+describe('breatheScale (hoạt ảnh nghỉ: thở)', () => {
+  it('dao động nhẹ quanh 1, dọc phồng thì ngang thon, lặp lại theo chu kỳ', async () => {
+    const { breatheScale, BREATHE_AMP, BREATHE_PERIOD_S, BREATHE_PERIOD_CALM_S } = await import('./buddyModel');
+    expect(breatheScale(0)).toEqual([1, 1]);
+    const [x, y] = breatheScale(BREATHE_PERIOD_S / 4);
+    expect(y).toBeCloseTo(1 + BREATHE_AMP, 6);
+    expect(x).toBeCloseTo(1 - BREATHE_AMP / 2, 6);
+    for (let t = 0; t < 10; t += 0.07) {
+      const [sx, sy] = breatheScale(t);
+      expect(Math.abs(sy - 1)).toBeLessThanOrEqual(BREATHE_AMP + 1e-9);
+      expect(Math.abs(sx - 1)).toBeLessThanOrEqual(BREATHE_AMP / 2 + 1e-9);
+      expect(breatheScale(t + BREATHE_PERIOD_S)[1]).toBeCloseTo(sy, 6);
+    }
+    // nhẹ: bé không thấy "giật", chỉ thấy bạn đang sống
+    expect(BREATHE_AMP).toBeLessThanOrEqual(0.03);
+    // chế độ nhẹ nhàng thở chậm hơn
+    expect(BREATHE_PERIOD_CALM_S).toBeGreaterThan(BREATHE_PERIOD_S);
+    expect(breatheScale(BREATHE_PERIOD_CALM_S / 4, true)[1]).toBeCloseTo(1 + BREATHE_AMP, 6);
+  });
+});

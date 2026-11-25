@@ -195,3 +195,18 @@ export function estimateTriangles(parts: Part[]): number {
   walk(parts);
   return n;
 }
+
+/** Biên độ thở lúc đứng yên (tỉ lệ scale theo trục dọc). */
+export const BREATHE_AMP = 0.02;
+/** Chu kỳ một nhịp thở (giây); chế độ nhẹ nhàng thở chậm hơn. */
+export const BREATHE_PERIOD_S = 2.8;
+export const BREATHE_PERIOD_CALM_S = 4;
+
+/**
+ * Hoạt ảnh nghỉ "thở": scale [ngang, dọc] tại thời điểm t (giây). Dọc phồng lên thì ngang
+ * thon lại một nửa biên độ (giữ cảm giác khối đất sét mềm), luôn quanh 1 nên không trôi dần.
+ */
+export function breatheScale(t: number, calm = false): [number, number] {
+  const k = Math.sin((t * Math.PI * 2) / (calm ? BREATHE_PERIOD_CALM_S : BREATHE_PERIOD_S));
+  return [1 - k * BREATHE_AMP * 0.5, 1 + k * BREATHE_AMP];
+}

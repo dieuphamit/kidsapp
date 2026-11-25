@@ -13,6 +13,7 @@ Sinh lại: trong `app/` chạy `node scripts/animal-sounds.mjs` (manifest: `scr
 | duck | [Anas platyrhynchos - Mallard - XC62258.ogg](https://commons.wikimedia.org/wiki/File:Anas_platyrhynchos_-_Mallard_-_XC62258.ogg) | Jonathon Jongsma | CC BY-SA 3.0 | vịt trời (mallard) kêu cạp cạp | 1.13–2.65s |
 | pig | [Pig grunt - Erdie.ogg](https://commons.wikimedia.org/wiki/File:Pig_grunt_-_Erdie.ogg) | erdie | CC BY 3.0 | heo ủn ỉn (một tiếng, phát 2 lần) | 0–0.66s + 0–0.66s |
 | dog | [Barking of a dog.ogg](https://commons.wikimedia.org/wiki/File:Barking_of_a_dog.ogg) | Amada44 | CC BY-SA 3.0 | chó sủa 3 tiếng | 0.1–2.15s |
+| cat | [Meow.ogg](https://commons.wikimedia.org/wiki/File:Meow.ogg) | Dan Crosby (Dcrosby) | CC BY-SA 3.0 | mèo nhà (Silas) kêu "meo" (phát 2 lần) | 0.07–0.76s + 0.07–0.76s |
 | sheep | [Sheep bleating.ogg](https://commons.wikimedia.org/wiki/File:Sheep_bleating.ogg) | earthcalling | Public domain | cừu kêu be | 0.62–1.75s |
 | horse | [Wiehern.ogg](https://commons.wikimedia.org/wiki/File:Wiehern.ogg) | Hü. | Public domain | ngựa hí | 0.05–1.8s |
 | rabbit | [Rabbit oinks and squeaks.wav](https://commons.wikimedia.org/wiki/File:Rabbit_oinks_and_squeaks.wav) | kessir | CC0 | thỏ nhà kêu "ụt ụt" khe khẽ (honk/oink) — thỏ gần như không kêu | 20.15–21.5s |

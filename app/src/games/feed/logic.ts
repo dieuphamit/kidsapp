@@ -13,8 +13,8 @@ export interface Animal {
   /** Món thú thích (id trong FOODS). */
   food: FoodId;
   /**
-   * Tiếng kêu: key câu nói. Thú có ghi âm thật thì 'animal.<x>-sound'
-   * (public/audio/sfx/animal-<x>.mp3), chưa có thì câu TTS trong feed.json.
+   * Tiếng kêu: key câu nói 'animal.<x>-sound', là ghi âm thật
+   * (public/audio/sfx/animal-<x>.mp3), kể cả mèo.
    */
   sound: string;
   /** Vị trí miệng trong ảnh (tỉ lệ 0..1 theo khung vuông của thẻ), món bay vào đây. */
@@ -39,7 +39,7 @@ export const ANIMALS = [
   { id: 'monkey', card: 'feed/monkey', food: 'banana', sound: 'animal.monkey-sound', mouth: [0.58, 0.37] },
   { id: 'panda', card: 'bath/panda', food: 'bamboo', sound: 'animal.panda-sound', mouth: [0.31, 0.52] },
   { id: 'dog', card: 'bath/dog', food: 'bone', sound: 'animal.dog-sound', mouth: [0.24, 0.47] },
-  { id: 'cat', card: 'feed/cat', food: 'fish', sound: 'feed.sound.cat', mouth: [0.16, 0.38] },
+  { id: 'cat', card: 'feed/cat', food: 'fish', sound: 'animal.cat-sound', mouth: [0.16, 0.38] },
   { id: 'chicken', card: 'feed/hen', food: 'corn', sound: 'animal.chicken-sound', mouth: [0.9, 0.28] },
   { id: 'horse', card: 'feed/horse', food: 'apple', sound: 'animal.horse-sound', mouth: [0.09, 0.4] },
 ] as const satisfies readonly Animal[];

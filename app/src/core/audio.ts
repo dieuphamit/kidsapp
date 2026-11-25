@@ -41,17 +41,78 @@ export function speechUrl(
   return namedKeys.has(key) ? namedAudioUrl(key, lang, nameId, base) : audioUrl(key, lang, base);
 }
 
+/** Tuỳ chọn cho nói nối tiếp (sayThen). */
+export interface SayThenOptions {
+  /** Nghỉ giữa hai tiếng (ms), tính từ lúc tiếng trước THẬT SỰ hết. */
+  gapMs?: number;
+  /**
+   * Loa không báo được lúc hết tiếng (loa giả trong test unit): coi mỗi tiếng dài chừng này.
+   * Loa thật bỏ qua số này, chờ sự kiện kết thúc của file (có hẹn giờ an toàn khi file hỏng).
+   */
+  fallbackMs?: number;
+  /** Gọi ngay lúc bắt đầu phát từng key (để trò cập nhật data-last-say). */
+  onSay?(key: string, index: number): void;
+  /**
+   * Gọi đúng một lần khi chuỗi nói xong, hoặc khi bị một say()/sayThen() khác chen vào
+   * (phần còn lại của chuỗi bị bỏ). KHÔNG gọi nếu trò tự huỷ bằng hàm trả về.
+   */
+  onDone?(): void;
+}
+
 export interface Speaker {
   say(key: string): void;
+  /**
+   * Nói lần lượt các key, key sau chỉ bắt đầu khi tiếng trước phát hết (tiếng kêu thật dài
+   * 1–2,6s không còn bị câu kế cắt ngang). Trả về hàm huỷ (gọi khi unmount). Trò nên gọi qua
+   * hàm `sayThen(speaker, ...)` bên dưới để loa giả trong test vẫn chạy được bằng hẹn giờ.
+   */
+  sayThen?(keys: readonly string[], opts?: SayThenOptions): () => void;
   sfx(name: string): void;
   /**
    * Phát một nốt nhạc (file sfx) theo nhịp: không cắt lời đang nói của say(); nốt trước
    * tắt dần nhanh (NOTE_FADE_MS) để các nốt nối nhau mượt mà không dồn thành tiếng ồn.
    */
   note?(name: string): void;
+  /**
+   * Phát một tiếng theo nhịp cho ban nhạc: KHÔNG dừng tiếng của nhịp trước, mỗi tiếng được kêu
+   * tới BEAT_RING_MS rồi mới tắt dần (nhịp nhanh 450ms vẫn nghe rõ từng con). Không cắt lời say().
+   * Cùng lúc tối đa BEAT_VOICES tiếng, tiếng cũ nhất tắt dần trước để không dồn thành tiếng ồn.
+   */
+  beat?(name: string): void;
 }
 
 export const NOTE_FADE_MS = 150;
+/** Mỗi tiếng của beat() được kêu tối đa chừng này rồi tắt dần. */
+export const BEAT_RING_MS = 1000;
+/** Số tiếng beat() chồng nhau tối đa. */
+export const BEAT_VOICES = 3;
+
+/** Hẹn giờ an toàn cho một bước của sayThen khi file chưa tải xong / không tải được / âm thanh bị khoá. */
+export const SAY_STEP_MAX_MS = 6000;
+/** Dư ra sau độ dài file (đã biết) trước khi coi như sự kiện kết thúc bị lỡ. */
+export const SAY_END_SLACK_MS = 600;
+/** Độ dài một bước khi loa không báo được lúc hết tiếng và trò không truyền fallbackMs. */
+export const SAY_FALLBACK_MS = 2000;
+
+/**
+ * Nói nối tiếp: dùng speaker.sayThen nếu loa có (loa thật), không thì hẹn giờ fallbackMs giữa
+ * các key (loa giả trong test). Trả về hàm huỷ; nhớ gọi khi trò unmount.
+ */
+export function sayThen(speaker: Speaker, keys: readonly string[], opts: SayThenOptions = {}): () => void {
+  if (speaker.sayThen) return speaker.sayThen(keys, opts);
+  const step = opts.fallbackMs ?? SAY_FALLBACK_MS;
+  const timers: ReturnType<typeof setTimeout>[] = [];
+  keys.forEach((key, i) => {
+    const run = () => {
+      speaker.say(key);
+      opts.onSay?.(key, i);
+    };
+    if (i === 0) run();
+    else timers.push(setTimeout(run, i * step));
+  });
+  timers.push(setTimeout(() => opts.onDone?.(), keys.length * step));
+  return () => timers.forEach(clearTimeout);
+}
 
 /** Chế độ nhẹ nhàng: âm lượng tổng (Howler) và tốc độ giọng đọc. */
 export const CALM_VOLUME = 0.6;
@@ -76,6 +137,11 @@ export function createSpeaker(
   const cache = new Map<string, Howl>();
   let current: Howl | null = null;
   let lastNote: { h: Howl; id: number } | null = null;
+  let voices: { h: Howl; id: number; timer: ReturnType<typeof setTimeout> }[] = [];
+  const fadeOut = (h: Howl, id: number) => {
+    h.fade(1, 0, NOTE_FADE_MS, id);
+    setTimeout(() => h.stop(id), NOTE_FADE_MS);
+  };
   const get = (src: string) => {
     let h = cache.get(src);
     if (!h) {
@@ -84,12 +150,90 @@ export function createSpeaker(
     }
     return h;
   };
+  /** Chuỗi sayThen đang chạy: `cut` dừng chuỗi; có báo onDone hay không tuỳ ai dừng. */
+  let chain: { cut(notify: boolean): void } | null = null;
+  const speak = (key: string): { h: Howl; id: number } => {
+    current?.stop();
+    const h = get(speechUrl(key, getLang(), base, getName(), namedKeys));
+    current = h;
+    h.rate(getRate());
+    return { h, id: h.play() };
+  };
   return {
     say(key) {
-      current?.stop();
-      current = get(speechUrl(key, getLang(), base, getName(), namedKeys));
-      current.rate(getRate());
-      current.play();
+      const interrupted = chain;
+      chain = null;
+      speak(key);
+      // báo sau khi tiếng mới đã phát: trò biết chuỗi cũ kết thúc (không kẹt chờ onDone)
+      interrupted?.cut(true);
+    },
+    sayThen(keys, opts = {}) {
+      const interrupted = chain;
+      chain = null;
+      let dead = false;
+      let i = 0;
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      let unlisten: (() => void) | null = null;
+      const release = () => {
+        clearTimeout(timer);
+        unlisten?.();
+        unlisten = null;
+      };
+      const me = {
+        cut(notify: boolean) {
+          if (dead) return;
+          dead = true;
+          release();
+          if (chain === me) chain = null;
+          if (notify) opts.onDone?.();
+        },
+      };
+      const step = () => {
+        if (dead) return;
+        if (i >= keys.length) {
+          me.cut(true);
+          return;
+        }
+        const index = i++;
+        const key = keys[index];
+        const { h, id } = speak(key);
+        let moved = false;
+        const next = () => {
+          if (dead || moved) return;
+          moved = true;
+          release();
+          const gap = opts.gapMs ?? 0;
+          if (i >= keys.length || gap <= 0) step();
+          else timer = setTimeout(step, gap);
+        };
+        // đường lui: file chưa tải / hỏng / âm thanh bị khoá thì vẫn đi tiếp sau SAY_STEP_MAX_MS;
+        // khi tiếng thật sự bắt đầu thì hẹn lại theo đúng độ dài file
+        const arm = (ms: number) => {
+          clearTimeout(timer);
+          timer = setTimeout(next, ms);
+        };
+        const byLength = () => {
+          const d = h.duration();
+          if (d > 0) arm((d * 1000) / (getRate() || 1) + SAY_END_SLACK_MS);
+        };
+        h.once('end', next, id);
+        h.once('play', byLength, id);
+        h.once('loaderror', next);
+        h.once('playerror', next);
+        unlisten = () => {
+          h.off('end', next, id);
+          h.off('play', byLength, id);
+          h.off('loaderror', next);
+          h.off('playerror', next);
+        };
+        arm(SAY_STEP_MAX_MS);
+        if (h.state() === 'loaded') byLength();
+        opts.onSay?.(key, index);
+      };
+      chain = me;
+      step();
+      interrupted?.cut(true);
+      return () => me.cut(false);
     },
     sfx(name) {
       get(sfxUrl(name, base)).play();
@@ -104,6 +248,25 @@ export function createSpeaker(
       const id = h.play();
       h.volume(1, id);
       lastNote = { h, id };
+    },
+    beat(name) {
+      while (voices.length >= BEAT_VOICES) {
+        const old = voices.shift()!;
+        clearTimeout(old.timer);
+        fadeOut(old.h, old.id);
+      }
+      const h = get(sfxUrl(name, base));
+      const id = h.play();
+      h.volume(1, id);
+      const voice = {
+        h,
+        id,
+        timer: setTimeout(() => {
+          voices = voices.filter((v) => v !== voice);
+          fadeOut(h, id);
+        }, BEAT_RING_MS),
+      };
+      voices.push(voice);
     },
   };
 }

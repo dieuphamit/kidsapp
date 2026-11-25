@@ -101,6 +101,8 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
   const [filled, setFilled] = useState<string | null>(null);
   const [motion, setMotion] = useState<Motion | null>(null);
   const [mistake, setMistake] = useState(false);
+  /** Số lần bé chạm bạn đồng hành (đổi key → nhún lại ngay). */
+  const [poke, setPoke] = useState(0);
   const drag = useRef<Drag | null>(null);
   const timers = useRef<number[]>([]);
 
@@ -197,6 +199,15 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
       later(ROLL_MS, () => setMotion(null));
       readChain(round, kind, true, ROLL_MS);
     }
+  };
+
+  /** Chạm bạn đồng hành: nhún ngay, rồi đọc lại chuỗi hạt (đang bay/lăn hạt thì chỉ nhún). */
+  const onMascotDown = () => {
+    setPoke((n) => n + 1);
+    if (busy || motion) return;
+    clearTimers();
+    setActive(null);
+    readChain(round, kind, false, 0);
   };
 
   // E2E hook
@@ -331,12 +342,17 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
 
       {/* Đậu Đậu đọc chuỗi */}
       <img
-        key={sayCount}
+        key={`${sayCount}-${poke}`}
         className={styles.mascot}
         src={buddy.img}
         alt=""
         draggable={false}
-        data-talking={sayCount > 0 ? '' : undefined}
+        role="button"
+        aria-label="buddy"
+        data-testid="buddy"
+        data-poke={poke}
+        data-talking={sayCount > 0 || poke > 0 ? '' : undefined}
+        onPointerDown={onMascotDown}
       />
 
       {/* 3 lựa chọn */}

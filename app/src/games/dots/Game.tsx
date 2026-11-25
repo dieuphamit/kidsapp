@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import type { GameProps } from '../../core/games';
+import { useSayThen } from '../../ui/useSayThen';
 import { BackHome } from '../../ui/BackHome';
 import { Scenery } from '../../ui/Scenery';
 import { clientToStage } from '../../ui/Stage';
@@ -96,6 +97,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
     },
     [speaker],
   );
+  const sayAll = useSayThen(speaker, setLastSay);
 
   // Giá trị mới nhất cho các sự kiện kéo nhanh (nhiều pointermove trước khi React vẽ lại)
   // (cập nhật ngay trong touchDot/finish, không đợi render)
@@ -114,16 +116,22 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
       live.current.phase = 'reveal';
       setPhase('reveal');
       setFinger(null);
-      later(() => say(soundKey(id)), SOUND_MS);
-      later(() => say(isKey(id)), NAME_MS);
+      // tiếng kêu phát hết rồi mới đọc "Đây là …"; đọc xong mới sang hình mới
+      const step = NAME_MS - SOUND_MS;
       later(() => {
-        const fresh = newState(makePuzzle(nextAnimal(), ageMonths));
-        live.current = { state: fresh, phase: 'play' };
-        setState(fresh);
-        setPhase('play');
-      }, NEXT_MS);
+        sayAll([soundKey(id), isKey(id)], {
+          fallbackMs: step,
+          onDone: () =>
+            later(() => {
+              const fresh = newState(makePuzzle(nextAnimal(), ageMonths));
+              live.current = { state: fresh, phase: 'play' };
+              setState(fresh);
+              setPhase('play');
+            }, NEXT_MS - SOUND_MS - 2 * step),
+        });
+      }, SOUND_MS);
     },
-    [ageMonths, later, nextAnimal, say],
+    [ageMonths, later, nextAnimal, sayAll],
   );
 
   /** Chạm/kéo tới chấm i. down: ngón vừa đặt xuống (chạm sai thì chấm kế nhún gợi ý). */

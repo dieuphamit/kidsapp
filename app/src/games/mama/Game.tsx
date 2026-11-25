@@ -3,6 +3,7 @@ import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
 import { Scenery } from '../../ui/Scenery';
 import { clientToStage, stageRect } from '../../ui/Stage';
+import { useSayThen } from '../../ui/useSayThen';
 import { useBuddyLook } from '../../ui/buddyContext';
 import { recentPicks, rememberPicks } from '../../core/gameOptions';
 import {
@@ -28,7 +29,7 @@ const card = (id: string) => `${BASE}cards/${id}.png`;
 
 /** Chờ sau câu chào rồi mới hỏi con đầu tiên. */
 const HELLO_MS = 2600;
-/** Sau tiếng mẹ kêu thì đọc "Bò mẹ và bê con!". */
+/** Tiếng mẹ kêu xong mới đọc "Bò mẹ và bê con!"; số này chỉ dùng khi loa không báo được lúc hết tiếng. */
 const FOUND_SAY_MS = 1300;
 /** Con rúc vào mẹ bao lâu rồi sang con kế. */
 const SNUGGLE_MS = 3600;
@@ -94,6 +95,8 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
     [speaker],
   );
 
+  const sayAll = useSayThen(speaker, setLastSay);
+
   const live = useRef({ state, phase });
   live.current = { state, phase };
 
@@ -151,10 +154,12 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
       const result = drop(state, mama);
       if (result === 'ok') {
         setPhase('snuggle');
-        say(soundKey(mama));
+        // tiếng mẹ kêu phát hết rồi mới đọc câu "mẹ và con"; đọc xong mới sang con kế
+        sayAll([soundKey(mama), foundKey(t.baby)], {
+          fallbackMs: FOUND_SAY_MS,
+          onDone: () => later(() => nextTurn(state), SNUGGLE_MS - 2 * FOUND_SAY_MS),
+        });
         setBounce({ id: mama, n: Date.now() });
-        later(() => say(foundKey(t.baby)), FOUND_SAY_MS);
-        later(() => nextTurn(state), SNUGGLE_MS);
       } else {
         // Không âm báo sai: con nhẹ nhàng quay về, mẹ đúng lắc lư gọi con
         setPhase('return');
@@ -164,7 +169,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
       }
       return result;
     },
-    [state, phase, later, say, nextTurn],
+    [state, phase, later, say, sayAll, nextTurn],
   );
 
   // Móc cho e2e (?e2e=1)

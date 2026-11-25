@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { newQuestion, choiceCountForAge, SOUND_ANIMALS, ANSWER_MEMORY, type SoundAnimal } from './logic';
+import { newQuestion, choiceCountForAge, isRoundEnd, SOUND_ANIMALS, QUIZ_ANSWERS, UNCLEAR_SOUNDS, ROUND_SIZE, ANSWER_MEMORY, type SoundAnimal } from './logic';
 
 describe('choiceCountForAge', () => {
   it('trả về 2 cho bé dưới 36 tháng', () => {
@@ -130,6 +130,27 @@ describe('kho con vật và trí nhớ ngắn', () => {
       recent.push(q.answer);
       if (recent.length > ANSWER_MEMORY) recent.shift();
     }
-    expect(seen.size).toBeGreaterThanOrEqual(SOUND_ANIMALS.length - 2);
+    // kho đáp án là QUIZ_ANSWERS (bỏ con có tiếng không đoán được)
+    expect(seen.size).toBeGreaterThanOrEqual(QUIZ_ANSWERS.length - 2);
+  });
+
+  it('cá (tiếng nước sủi bọt), thỏ, hươu cao cổ không bao giờ là đáp án, nhưng vẫn có thẻ', () => {
+    expect(UNCLEAR_SOUNDS).toContain('fish');
+    for (const id of UNCLEAR_SOUNDS) {
+      expect(SOUND_ANIMALS).toContain(id);
+      expect(QUIZ_ANSWERS).not.toContain(id);
+    }
+    expect(QUIZ_ANSWERS.length).toBe(SOUND_ANIMALS.length - UNCLEAR_SOUNDS.length);
+    expect(QUIZ_ANSWERS.length).toBeGreaterThanOrEqual(20);
+    for (let seed = 0; seed < 400; seed++) {
+      const q = newQuestion(((seed % 3) + 2) as 2 | 3 | 4, seed);
+      expect(UNCLEAR_SOUNDS).not.toContain(q.answer);
+    }
+    for (let i = 0; i < 400; i++) expect(UNCLEAR_SOUNDS).not.toContain(newQuestion(4).answer);
+  });
+
+  it('ăn mừng sau mỗi lượt 5 câu đúng', () => {
+    expect(ROUND_SIZE).toBe(5);
+    expect([0, 1, 4, 5, 6, 9, 10, 15].map(isRoundEnd)).toEqual([false, false, false, true, false, false, true, true]);
   });
 });

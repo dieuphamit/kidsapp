@@ -9,7 +9,7 @@ import { FRUIT_IDS } from './fruitIds';
 
 export type FruitId = (typeof FRUIT_IDS)[number];
 
-export const FARM_ANIMAL_IDS = ['cow', 'chicken', 'duck', 'pig', 'dog', 'sheep', 'horse', 'rabbit'] as const;
+export const FARM_ANIMAL_IDS = ['cow', 'chicken', 'duck', 'pig', 'dog', 'cat', 'sheep', 'horse', 'rabbit'] as const;
 export const WILD_ANIMAL_IDS = [
   'elephant', 'giraffe', 'lion', 'tiger', 'monkey', 'panda', 'penguin', 'koala', 'fox', 'bear', 'parrot', 'fish',
   // thẻ ảnh thêm ở E4 (Ú òa) cho thú của thế giới 5 khu

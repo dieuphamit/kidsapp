@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import type { GameProps } from '../../core/games';
+import { useSayThen } from '../../ui/useSayThen';
 import { BackHome } from '../../ui/BackHome';
 import { Scenery } from '../../ui/Scenery';
 import { clientToStage, stageRect } from '../../ui/Stage';
@@ -41,10 +42,10 @@ const FLY_MS = 420;
 const LIKES_MS = 1150;
 /** Miếng cuối: nhai xong mới vui, kêu tiếng thật. */
 const HAPPY_MS = 1300;
-/** Sau tiếng kêu thì nói "Thỏ no căng bụng rồi!". */
+/** Tiếng kêu phát hết mới nói "Thỏ no căng bụng rồi!"; số này chỉ dùng khi loa không báo được lúc hết tiếng. */
 const FULL_SAY_MS = 1500;
-/** Vui bao lâu rồi sang con kế. */
-const FULL_MS = 4600;
+/** Nói xong "no rồi" (câu dài ~4,4s) thì nghỉ chừng này rồi sang con kế. */
+const FULL_REST_MS = 400;
 /** Ăn mừng cuối lượt. */
 const PARTY_MS = 4200;
 /** Kéo quá chừng này (px khung) mới tính là kéo, không thì là chạm. */
@@ -115,6 +116,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
     },
     [speaker],
   );
+  const sayAll = useSayThen(speaker, setLastSay);
 
   const live = useRef({ state, phase });
   live.current = { state, phase };
@@ -209,14 +211,16 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
         later(() => {
           sounds.happy();
           setBounce(Date.now());
-          say(soundKey(t.animal));
+          // tiếng kêu phát hết rồi mới nói "no rồi"; nói xong mới sang bạn kế
+          sayAll([soundKey(t.animal), fullKey(t.animal)], {
+            fallbackMs: FULL_SAY_MS,
+            onDone: () => later(() => nextAnimal(s), FULL_REST_MS),
+          });
         }, HAPPY_MS);
-        later(() => say(fullKey(t.animal)), HAPPY_MS + FULL_SAY_MS);
-        later(() => nextAnimal(s), HAPPY_MS + FULL_MS);
       }
       return result;
     },
-    [state, phase, later, say, sounds, nextAnimal],
+    [state, phase, later, say, sayAll, sounds, nextAnimal],
   );
 
   // Móc cho e2e (?e2e=1)

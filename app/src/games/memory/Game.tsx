@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
+import { useSayThen } from '../../ui/useSayThen';
 import {
   newRound,
   flip,
@@ -29,6 +30,10 @@ function getLayout(pairs: number): string {
   }
 }
 
+/** Độ dài ước lượng một câu khi loa không báo được lúc hết tiếng (test); loa thật chờ câu trước phát hết. */
+const SAY_MS = 1200;
+/** Khen xong chừng này thì sang ván mới. */
+const NEXT_ROUND_MS = 1000;
 
 export default function Game({ speaker, ageMonths, options, onExit }: GameProps) {
   const difficulty = options?.difficulty ?? 'auto';
@@ -48,6 +53,14 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
     speaker.say(key);
     setLastSay(key);
   }, [speaker]);
+  const sayAll = useSayThen(speaker, setLastSay);
+
+  // Mọi hẹn giờ gom lại, xoá khi thoát trò (không còn giọng đọc phát sau khi bé về nhà)
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const later = useCallback((fn: () => void, ms: number) => {
+    timers.current.push(setTimeout(fn, ms));
+  }, []);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   // Initialize level from storage or age
   useEffect(() => {
@@ -75,14 +88,17 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
     processing.current = false;
 
     // Say hello on first play of a level
-    setTimeout(() => say('memory.hello'), 500);
+    const hello = setTimeout(() => say('memory.hello'), 500);
 
     // Hide preview after 2s
     const timer = setTimeout(() => {
       setShowPreview(false);
     }, 2000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(hello);
+      clearTimeout(timer);
+    };
   }, [level, wins, say, topic]);
 
   // Expose reveal function for e2e testing
@@ -111,8 +127,10 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
 
     setState({ ...state });
 
-    // Say card name
-    say(pictureSayKey(card.id));
+    if (result !== 'match') {
+      // Say card name
+      say(pictureSayKey(card.id));
+    }
 
     if (result === 'first') {
       return;
@@ -124,42 +142,42 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
       // Match!
       const [idx1, idx2] = [state.flippedIndices[0], index];
       setJustMatched([idx1, idx2]);
+      const done = isDone(state);
+      // Đọc tên thẻ cho hết rồi mới "Giống nhau rồi!"; xong ván thì khen sau cùng, khen xong mới sang ván mới
+      sayAll([pictureSayKey(card.id), 'memory.match', ...(done ? ['memory.done'] : [])], {
+        fallbackMs: SAY_MS,
+        onDone: () => {
+          if (!done) return;
+          const { newLevel, wins: newWins } = progressLevel(state);
+          if (newLevel !== level) {
+            saveLevel(newLevel);
+          }
+          later(() => {
+            setShowStars(false);
+            setLevel(newLevel);
+            setWins(newWins);
+          }, NEXT_ROUND_MS);
+        },
+      });
 
-      setTimeout(() => {
-        say('memory.match');
+      later(() => {
         setJustMatched([]);
-
-        if (isDone(state)) {
+        if (done) {
           // Round complete!
-          setTimeout(() => {
-            say('memory.done');
-            setShowStars(true);
-
-            const { newLevel, wins: newWins } = progressLevel(state);
-            if (newLevel !== level) {
-              saveLevel(newLevel);
-            }
-
-            // Start new round after 3s
-            setTimeout(() => {
-              setShowStars(false);
-              setLevel(newLevel);
-              setWins(newWins);
-            }, 3000);
-          }, 500);
+          later(() => setShowStars(true), 500);
         } else {
           processing.current = false;
         }
       }, 300);
     } else {
       // No match - wait 1.2s then hide
-      setTimeout(() => {
+      later(() => {
         hideFlipped(state);
         setState({ ...state });
         processing.current = false;
       }, 1200);
     }
-  }, [state, showPreview, say, level]);
+  }, [state, showPreview, say, sayAll, later, level]);
 
   if (!state) {
     return <div className={styles.scene} data-testid="game-memory" data-last-say="" data-level="0" />;
