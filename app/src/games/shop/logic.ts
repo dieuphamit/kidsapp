@@ -61,7 +61,7 @@ export interface Customer {
 export const CUSTOMERS = [
   { id: 'rabbit', img: 'world-photos/rabbit.png', sound: 'animal.rabbit-sound', flip: false, w: 640, h: 613 },
   { id: 'panda', img: 'world-photos/panda.png', sound: 'animal.panda-sound', flip: true, w: 570, h: 640 },
-  { id: 'koala', img: 'world-photos/koala.png', sound: 'animal.koala-sound', flip: true, w: 594, h: 640 },
+  { id: 'koala', img: 'world-photos/koala.png', sound: 'animal.koala-sound', flip: true, w: 493, h: 532 },
   { id: 'penguin', img: 'world-photos/penguin.png', sound: 'animal.penguin-sound', flip: true, w: 377, h: 640 },
   { id: 'raccoon', img: 'world-photos/raccoon.png', sound: 'animal.raccoon-sound', flip: true, w: 640, h: 516 },
   { id: 'dog', img: 'world-photos/dog.png', sound: 'animal.dog-sound', flip: true, w: 640, h: 444 },
