@@ -7,6 +7,7 @@ import { createAgent, startReact, type Agent } from '../../core/steer';
 import type { Herd } from '../../core/herd';
 import { BackHome } from '../../ui/BackHome';
 import type { GameProps } from '../../core/games';
+import { SCENE_HEX } from '../../core/tokens';
 import { pickSixAnimals, placeZooAnimals, zooDef } from './wildAnimals';
 
 const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
@@ -19,11 +20,11 @@ function FencePost({ x, z }: { x: number; z: number }) {
     <group position={[x, 0, z]}>
       <mesh position={[0, 0.4, 0]}>
         <cylinderGeometry args={[0.06, 0.08, 0.8, 8]} />
-        <meshStandardMaterial color="#a08060" roughness={0.9} metalness={0} />
+        <meshStandardMaterial color={SCENE_HEX.bark} roughness={0.9} metalness={0} />
       </mesh>
       <mesh position={[0, 0.82, 0]}>
         <sphereGeometry args={[0.08, 8, 6]} />
-        <meshStandardMaterial color="#b89878" roughness={0.85} metalness={0} />
+        <meshStandardMaterial color={SCENE_HEX.woodDark} roughness={0.85} metalness={0} />
       </mesh>
     </group>
   );
@@ -36,7 +37,7 @@ function FenceRail({ x1, x2, z, y }: { x1: number; x2: number; z: number; y: num
   return (
     <mesh position={[midX, y, z]}>
       <boxGeometry args={[length, 0.06, 0.05]} />
-      <meshStandardMaterial color="#b89878" roughness={0.85} metalness={0} />
+      <meshStandardMaterial color={SCENE_HEX.woodDark} roughness={0.85} metalness={0} />
     </mesh>
   );
 }
@@ -48,17 +49,17 @@ function Tree({ x, z }: { x: number; z: number }) {
       {/* Thân cây */}
       <mesh position={[0, 0.5, 0]}>
         <cylinderGeometry args={[0.12, 0.18, 1.0, 8]} />
-        <meshStandardMaterial color="#a08060" roughness={0.9} metalness={0} />
+        <meshStandardMaterial color={SCENE_HEX.bark} roughness={0.9} metalness={0} />
       </mesh>
       {/* Tán lá dưới */}
       <mesh position={[0, 1.3, 0]}>
         <sphereGeometry args={[0.6, 12, 10]} />
-        <meshStandardMaterial color="#5bb34e" roughness={0.85} metalness={0} />
+        <meshStandardMaterial color={SCENE_HEX.leaf} roughness={0.85} metalness={0} />
       </mesh>
       {/* Tán lá trên */}
       <mesh position={[0, 1.8, 0]}>
         <sphereGeometry args={[0.45, 10, 8]} />
-        <meshStandardMaterial color="#6fd17a" roughness={0.85} metalness={0} />
+        <meshStandardMaterial color={SCENE_HEX.leafLight} roughness={0.85} metalness={0} />
       </mesh>
     </group>
   );
@@ -69,7 +70,7 @@ function Rock({ x, z, scale = 1 }: { x: number; z: number; scale?: number }) {
   return (
     <mesh position={[x, 0.15 * scale, z]} scale={scale}>
       <sphereGeometry args={[0.25, 10, 8]} />
-      <meshStandardMaterial color="#c0b0a0" roughness={0.9} metalness={0} />
+      <meshStandardMaterial color={SCENE_HEX.rock} roughness={0.9} metalness={0} />
     </mesh>
   );
 }
@@ -78,13 +79,13 @@ function Rock({ x, z, scale = 1 }: { x: number; z: number; scale?: number }) {
 function Pond({ x, z }: { x: number; z: number }) {
   return (
     <group position={[x, 0.01, z]}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} scale={[1, 0.6, 1]}>
-        <circleGeometry args={[0.85, 32]} />
-        <meshStandardMaterial color="#b8ecf2" roughness={0.6} metalness={0} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} scale={[1, 0.8, 1]}>
+        <circleGeometry args={[1.0, 32]} />
+        <meshStandardMaterial color={SCENE_HEX.waterLight} roughness={0.6} metalness={0} />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]} scale={[1, 0.6, 1]}>
-        <circleGeometry args={[0.7, 32]} />
-        <meshStandardMaterial color="#7fd3e6" roughness={0.5} metalness={0} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]} scale={[1, 0.8, 1]}>
+        <circleGeometry args={[0.85, 32]} />
+        <meshStandardMaterial color={SCENE_HEX.water} roughness={0.5} metalness={0} />
       </mesh>
     </group>
   );
@@ -98,7 +99,7 @@ function ZooGround() {
       {/* Mặt đất đồng cỏ vàng nhạt */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
         <planeGeometry args={[40, 30]} />
-        <meshStandardMaterial color="#d4e8a0" roughness={0.85} metalness={0} />
+        <meshStandardMaterial color={SCENE_HEX.leafShine} roughness={0.85} metalness={0} />
       </mesh>
 
       {/* Hàng rào thấp phía sau */}
@@ -121,15 +122,15 @@ function ZooGround() {
       {/* Vài hoa nhỏ pastel */}
       <mesh position={[-4.5, 0.08, 2.5]}>
         <sphereGeometry args={[0.1, 10, 8]} />
-        <meshStandardMaterial color="#ffb4a2" roughness={0.8} metalness={0} />
+        <meshStandardMaterial color={SCENE_HEX.peach} roughness={0.8} metalness={0} />
       </mesh>
       <mesh position={[4.2, 0.09, 0.5]}>
         <sphereGeometry args={[0.09, 10, 8]} />
-        <meshStandardMaterial color="#cdb4ff" roughness={0.8} metalness={0} />
+        <meshStandardMaterial color={SCENE_HEX.lilac} roughness={0.8} metalness={0} />
       </mesh>
       <mesh position={[-5.2, 0.08, -0.5]}>
         <sphereGeometry args={[0.1, 10, 8]} />
-        <meshStandardMaterial color="#ffe29a" roughness={0.8} metalness={0} />
+        <meshStandardMaterial color={SCENE_HEX.butter} roughness={0.8} metalness={0} />
       </mesh>
     </group>
   );
@@ -162,6 +163,8 @@ export default function Game({ speaker, onExit }: GameProps) {
         seed: walkSeed * 7 + i,
         maxSpeed: def.speed,
         radius: def.radius,
+        // cá: tâm thân thấp, bụng chạm mặt vũng nước (mặc định halfH = bán kính làm cá nổi cao trên vũng)
+        halfH: p.data.gait === 'swim' ? def.height * 0.62 : undefined,
       });
       return { key: p.data.id, def, agent };
     });
@@ -241,7 +244,7 @@ export default function Game({ speaker, onExit }: GameProps) {
       <Scene3D label="Sở thú" shadowScale={18} view={{ position: [0, 4.2, 10], target: [0, 0.5, -0.2], fov: 45 }}>
         <Suspense fallback={<ZooGround />}>
           <ZooGround />
-          {fishSpot && <Pond x={fishSpot[0]} z={fishSpot[2]} />}
+          {fishSpot && <Pond x={fishSpot[0]} z={fishSpot[2] - 0.25} />}
           <HybridHerd herd={herd} looks={PARK_LOOK} onTap={handleTap} onLoaded={handleAnimalLoaded} />
         </Suspense>
         <AgentProbe agents={herd.agents} />

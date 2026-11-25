@@ -93,6 +93,18 @@
   animation: breathe 2.4s ease-in-out infinite alternate;
 }
 
+/*
+ * Ảnh thẻ vuông có lề trong suốt dưới chân: hạ ảnh xuống đúng bằng lề đó để chân chạm cỏ, bóng nằm ngay dưới chân.
+ * Toạ độ miệng (ANIMALS[].mouth trong logic.ts) đã cộng cùng độ hạ này.
+ */
+.animal[data-animal='rabbit'] .animalImg { translate: 0 9.5%; }
+.animal[data-animal='monkey'] .animalImg { translate: 0 15%; }
+.animal[data-animal='panda'] .animalImg { translate: 0 7%; }
+.animal[data-animal='dog'] .animalImg { translate: 0 28.5%; }
+.animal[data-animal='cat'] .animalImg { translate: 0 18.5%; }
+.animal[data-animal='chicken'] .animalImg { translate: 0 11.5%; }
+.animal[data-animal='horse'] .animalImg { translate: 0 18%; }
+
 /* Nhai: nhún, giãn nhẹ theo nhịp "măm măm măm" */
 .chewMove[data-chew] {
   animation: chew 270ms ease-in-out 4;
@@ -191,10 +203,25 @@
   pointer-events: none;
 }
 
+/* bóng dưới chân bạn đồng hành lúc ăn mừng */
+.party::before {
+  content: '';
+  position: absolute;
+  left: calc(50% - 96px);
+  top: 628px;
+  width: 192px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--ink);
+  opacity: 0.16;
+  filter: blur(5px);
+}
+
 .buddy {
   position: absolute;
   left: calc(50% - 150px);
-  top: 250px;
+  /* chân chạm dải cỏ trước hàng rào (cùng mức với chân thú), bóng ở .party::before */
+  top: 350px;
   width: 300px;
   height: 300px;
   object-fit: contain;

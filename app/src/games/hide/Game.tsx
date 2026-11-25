@@ -23,7 +23,10 @@ import {
 
 const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
 
-const HOME = { x: 1060, y: 250 }; // chỗ Đậu Đậu đứng chờ đầu mỗi phòng
+/** Mặt trên của chỗ đứng chờ: kệ bếp, kệ tường trong nhà, đám mây ngoài trời (khớp `top` của .shelf/.perch trong css) */
+const PERCH_Y = 300;
+// chỗ bạn đồng hành đứng chờ đầu mỗi phòng: chân chạm mặt kệ/mây (ảnh có lề trong suốt ~4%), không treo giữa trời
+const HOME = { x: 1060, y: PERCH_Y - DAUDAU_SIZE / 2 + 6 };
 const HALF = DAUDAU_SIZE / 2;
 
 type Cat = { x: number; y: number; scale: number; hidden: boolean };
@@ -229,12 +232,13 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
         <>
           <div className={styles.tiles} />
           <div className={styles.shelf}>
-            <div className={styles.jar} style={{ left: 30, background: 'var(--clay-peach)' }} />
-            <div className={styles.jar} style={{ left: 104, background: 'var(--clay-butter)' }} />
-            <div className={styles.jar} style={{ left: 178, background: 'var(--clay-lilac)' }} />
+            <div className={styles.jar} style={{ left: 16, background: 'var(--clay-peach)' }} />
+            <div className={styles.jar} style={{ left: 82, background: 'var(--clay-butter)' }} />
+            <div className={styles.jar} style={{ left: 148, background: 'var(--clay-lilac)' }} />
           </div>
         </>
       )}
+      {room.id !== 'kitchen' && <div className={styles.perch} data-kind={room.id === 'living' ? 'shelf' : 'cloud'} aria-hidden="true" />}
 
       {room.objects.map((o) => (
         <Thing key={`${room.id}-${o.id}`} obj={o} />

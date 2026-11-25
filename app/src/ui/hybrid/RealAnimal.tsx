@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useAnimations, useGLTF } from '@react-three/drei';
-import { Box3, Group, BufferGeometry, Euler, Float32BufferAttribute, LoopRepeat, Matrix4, Vector3, type BufferAttribute, type Material, type Mesh, type Object3D, type SkinnedMesh } from 'three';
+import { Box3, Group, BufferGeometry, type Color, Euler, Float32BufferAttribute, LoopRepeat, Matrix4, Vector3, type BufferAttribute, type Material, type Mesh, type Object3D, type SkinnedMesh } from 'three';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { reactJump, type Agent } from '../../core/steer';
 import type { WorldAnimal } from '../../core/worldAnimals';
@@ -24,7 +24,14 @@ type Part = { geo: BufferGeometry; base: Float32Array; mat: Material };
 type Baked = { parts: Part[]; box: Box3 };
 
 /** Gộp mọi mesh tĩnh về hệ toạ độ của gốc model, xoay về chuẩn */
-function bake(scene: Object3D, rot: Matrix4, skip?: string): Baked {
+/** Bản sao vật liệu sáng hơn `k` lần (nhân màu nền; texture giữ nguyên, không đụng vật liệu trong cache của useGLTF) */
+function brighter(mat: Material, k: number): Material {
+  const c = mat.clone() as Material & { color?: Color };
+  c.color?.multiplyScalar(k);
+  return c;
+}
+
+function bake(scene: Object3D, rot: Matrix4, skip?: string, bright = 1): Baked {
   scene.updateMatrixWorld(true);
   const inv = new Matrix4().copy(scene.matrixWorld).invert();
   const parts: Part[] = [];
@@ -62,7 +69,7 @@ function bake(scene: Object3D, rot: Matrix4, skip?: string): Baked {
     g.applyMatrix4(new Matrix4().multiplyMatrices(rot, new Matrix4().multiplyMatrices(inv, m.matrixWorld)));
     g.computeBoundingBox();
     box.union(g.boundingBox!);
-    parts.push({ geo: g, base: Float32Array.from(g.attributes.position.array), mat });
+    parts.push({ geo: g, base: Float32Array.from(g.attributes.position.array), mat: bright !== 1 ? brighter(mat, bright) : mat });
   });
   return { parts, box };
 }
@@ -101,9 +108,9 @@ export function RealAnimal({ def, look, agent, active, phase, onTap, onLoaded }:
       tilt.updateMatrixWorld(true);
       return { skinned: tilt, baked: null, box: new Box3().setFromObject(tilt, true) };
     }
-    const b = bake(gltf.scene, new Matrix4().makeRotationX(pitch).multiply(new Matrix4().makeRotationY(turn)).multiply(new Matrix4().makeRotationFromEuler(new Euler(rx, ry, rz))), look.skip);
+    const b = bake(gltf.scene, new Matrix4().makeRotationX(pitch).multiply(new Matrix4().makeRotationY(turn)).multiply(new Matrix4().makeRotationFromEuler(new Euler(rx, ry, rz))), look.skip, look.bright);
     return { skinned: null, baked: b, box: b.box };
-  }, [animated, gltf.scene, rx, ry, rz, turn, pitch, look.skip]);
+  }, [animated, gltf.scene, rx, ry, rz, turn, pitch, look.skip, look.bright]);
   useEffect(() => () => baked?.parts.forEach((p) => p.geo.dispose()), [baked]);
 
   const { scale, offset, size } = useMemo(() => {

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { TOUCH_MIN_PX, TOUCH_GAP_PX, CLAY_COLORS, LEARN_COLORS, LEARN_HEX, BUDDY_CHARACTERS, BUDDY_HEX, BUDDY_INK, BUDDY_CHEEK } from './tokens';
+import { TOUCH_MIN_PX, TOUCH_GAP_PX, CLAY_COLORS, LEARN_COLORS, LEARN_HEX, BUDDY_CHARACTERS, BUDDY_HEX, BUDDY_INK, BUDDY_CHEEK, SCENE_HEX, SCENE_VARS } from './tokens';
 import { contentByKey } from './content';
 
 const tokensCss = readFileSync(join(import.meta.dirname, 'tokens.css'), 'utf-8');
@@ -53,5 +53,15 @@ describe('tokens', () => {
     }
     expect(tokensCss).toMatch(new RegExp(`--buddy-ink:\\s*${BUDDY_INK}`, 'i'));
     expect(tokensCss).toMatch(new RegExp(`--buddy-cheek:\\s*${BUDDY_CHEEK}`, 'i'));
+  });
+});
+
+describe('SCENE_HEX (màu cảnh 3D chép từ tokens.css)', () => {
+  it('mỗi màu khớp đúng biến gốc trong tokens.css', () => {
+    for (const [name, cssVar] of Object.entries(SCENE_VARS)) {
+      const m = new RegExp(`${cssVar}:\\s*(#[0-9a-f]{6})`, 'i').exec(tokensCss);
+      expect(m, `${cssVar} trong tokens.css`).not.toBeNull();
+      expect(SCENE_HEX[name as keyof typeof SCENE_HEX].toLowerCase(), name).toBe(m![1].toLowerCase());
+    }
   });
 });

@@ -25,9 +25,15 @@ export type Herd = { members: HerdMember[]; agents: Agent[] };
  */
 export const HERD_Z_WEIGHT = 0.1;
 
-/** Bán kính thân để đẩy nhau: nửa chiều dài thân */
+/**
+ * Thú vẽ to hơn khung thân một chút (FIT = 1.1 trong ui/hybrid) và cần một khe hở nhìn thấy được giữa hai con:
+ * bán kính đẩy nhau rộng hơn nửa chiều dài thân chừng này.
+ */
+export const BODY_MARGIN = 1.18;
+
+/** Bán kính thân để đẩy nhau: nửa chiều dài thân, nới thêm BODY_MARGIN */
 export function bodyRadius(def: WorldAnimal): number {
-  return def.radius ?? def.len * def.height * 0.5;
+  return def.radius ?? def.len * def.height * 0.5 * BODY_MARGIN;
 }
 
 /** Bề ngang một "chỗ": một con, hoặc cả đàn cá (các con xếp so le) */

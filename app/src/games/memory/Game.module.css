@@ -1,13 +1,36 @@
 .scene {
   position: fixed;
   inset: 0;
-  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 60%, var(--grass) 100%);
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 72%, var(--scene-hill-far) 100%);
   overflow: hidden;
   font-family: var(--font-kid);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+/*
+ * Cảnh nền (chỉ trang trí, vẽ bằng gradient từ màu tokens): mặt trời, mây, ba lớp đồi cỏ. Nằm dưới mọi thẻ
+ * (z-index âm trong stacking context của .scene) và không nhận chạm.
+ */
+.scene::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle 46px at 74% 13%, var(--scene-sun-core) 0%, var(--scene-sun) 70%, var(--scene-sun-edge) 99%, transparent 100%),
+    radial-gradient(circle 92px at 74% 13%, color-mix(in srgb, var(--scene-sun) 30%, transparent) 0%, transparent 100%),
+    radial-gradient(ellipse 74px 30px at 30% 12%, var(--paper) 99%, transparent 100%),
+    radial-gradient(ellipse 50px 34px at 27% 9.5%, var(--paper) 99%, transparent 100%),
+    radial-gradient(ellipse 44px 26px at 33% 10%, var(--paper) 99%, transparent 100%),
+    radial-gradient(ellipse 46% 21% at 18% 101%, var(--scene-hill-near) 99.5%, transparent 100%),
+    radial-gradient(ellipse 52% 25% at 84% 103%, var(--scene-hill-near) 99.5%, transparent 100%),
+    radial-gradient(ellipse 60% 26% at 52% 100%, var(--scene-hill-mid) 99.5%, transparent 100%),
+    radial-gradient(ellipse 58% 30% at 8% 96%, var(--scene-hill-far) 99.5%, transparent 100%),
+    radial-gradient(ellipse 62% 32% at 96% 94%, var(--scene-hill-far) 99.5%, transparent 100%);
 }
 
 .grid {

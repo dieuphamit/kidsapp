@@ -32,9 +32,10 @@ export function layoutMamas(count: number): Box[] {
   });
 }
 
-/** Ổ của thú con: giữa màn, phía trên hàng thú mẹ. */
+/** Ổ của thú con: giữa màn, trên sườn đồi phía trên hàng thú mẹ. */
 export function nestBox(): Box {
-  return { x: Math.round(STAGE_W / 2 - BABY_SIZE / 2), y: 262, size: BABY_SIZE };
+  // y = 318: ổ rơm nằm trên sườn đồi cỏ (đường chân trời của cảnh farm ~y 430), không lơ lửng giữa trời
+  return { x: Math.round(STAGE_W / 2 - BABY_SIZE / 2), y: 318, size: BABY_SIZE };
 }
 
 /**

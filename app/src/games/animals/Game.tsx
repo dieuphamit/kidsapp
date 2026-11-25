@@ -7,6 +7,7 @@ import { createAgent, startReact, type Agent } from '../../core/steer';
 import type { Herd } from '../../core/herd';
 import { BackHome } from '../../ui/BackHome';
 import type { GameProps } from '../../core/games';
+import { SCENE_HEX } from '../../core/tokens';
 import { ANIMALS, farmDef } from './animals';
 
 const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
@@ -18,12 +19,12 @@ function FencePost({ x, z }: { x: number; z: number }) {
       {/* Cột */}
       <mesh position={[0, 0.5, 0]}>
         <cylinderGeometry args={[0.08, 0.1, 1, 8]} />
-        <meshStandardMaterial color="#c8a87c" roughness={0.9} metalness={0} />
+        <meshStandardMaterial color={SCENE_HEX.woodDark} roughness={0.9} metalness={0} />
       </mesh>
       {/* Đỉnh cột tròn */}
       <mesh position={[0, 1.02, 0]}>
         <sphereGeometry args={[0.1, 8, 6]} />
-        <meshStandardMaterial color="#d4b896" roughness={0.85} metalness={0} />
+        <meshStandardMaterial color={SCENE_HEX.wood} roughness={0.85} metalness={0} />
       </mesh>
     </group>
   );
@@ -36,13 +37,13 @@ function FenceRail({ x1, x2, z, y }: { x1: number; x2: number; z: number; y: num
   return (
     <mesh position={[midX, y, z]} rotation={[0, 0, 0]}>
       <boxGeometry args={[length, 0.08, 0.06]} />
-      <meshStandardMaterial color="#d4b896" roughness={0.85} metalness={0} />
+      <meshStandardMaterial color={SCENE_HEX.wood} roughness={0.85} metalness={0} />
     </mesh>
   );
 }
 
 /** Bụi cây tròn đơn giản */
-function Bush({ x, z, scale = 1, color = '#6fd17a' }: { x: number; z: number; scale?: number; color?: string }) {
+function Bush({ x, z, scale = 1, color = SCENE_HEX.leafLight }: { x: number; z: number; scale?: number; color?: string }) {
   return (
     <group position={[x, 0, z]} scale={scale}>
       <mesh position={[0, 0.3, 0]}>
@@ -70,7 +71,7 @@ function GrassGround() {
       {/* Mặt đất phẳng rộng - plane kéo tới chân trời */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
         <planeGeometry args={[40, 30]} />
-        <meshStandardMaterial color="#9be38a" roughness={0.85} metalness={0} />
+        <meshStandardMaterial color={SCENE_HEX.grass} roughness={0.85} metalness={0} />
       </mesh>
 
       {/* Hàng rào gỗ phía sau */}
@@ -81,28 +82,28 @@ function GrassGround() {
       <FenceRail x1={-5} x2={5} z={-4} y={0.7} />
 
       {/* Bụi cây phía sau */}
-      <Bush x={-6} z={-5.5} scale={1.2} color="#5bb34e" />
-      <Bush x={-3.5} z={-5} scale={0.9} color="#6fd17a" />
-      <Bush x={1} z={-5.2} scale={1.1} color="#4da644" />
-      <Bush x={4} z={-4.8} scale={0.8} color="#6fd17a" />
-      <Bush x={6.5} z={-5.5} scale={1.3} color="#5bb34e" />
+      <Bush x={-6} z={-5.5} scale={1.2} color={SCENE_HEX.leaf} />
+      <Bush x={-3.5} z={-5} scale={0.9} color={SCENE_HEX.leafLight} />
+      <Bush x={1} z={-5.2} scale={1.1} color={SCENE_HEX.leafDark} />
+      <Bush x={4} z={-4.8} scale={0.8} color={SCENE_HEX.leafLight} />
+      <Bush x={6.5} z={-5.5} scale={1.3} color={SCENE_HEX.leaf} />
 
       {/* Vài hoa nhỏ pastel rải rác */}
       <mesh position={[-4, 0.08, 2.5]}>
         <sphereGeometry args={[0.12, 10, 8]} />
-        <meshStandardMaterial color="#ffb4a2" roughness={0.8} metalness={0} />
+        <meshStandardMaterial color={SCENE_HEX.peach} roughness={0.8} metalness={0} />
       </mesh>
       <mesh position={[4.5, 0.1, 0.5]}>
         <sphereGeometry args={[0.1, 10, 8]} />
-        <meshStandardMaterial color="#cdb4ff" roughness={0.8} metalness={0} />
+        <meshStandardMaterial color={SCENE_HEX.lilac} roughness={0.8} metalness={0} />
       </mesh>
       <mesh position={[-5, 0.09, -1]}>
         <sphereGeometry args={[0.11, 10, 8]} />
-        <meshStandardMaterial color="#ffe29a" roughness={0.8} metalness={0} />
+        <meshStandardMaterial color={SCENE_HEX.butter} roughness={0.8} metalness={0} />
       </mesh>
       <mesh position={[5.2, 0.08, 2]}>
         <sphereGeometry args={[0.1, 10, 8]} />
-        <meshStandardMaterial color="#a0e7e5" roughness={0.8} metalness={0} />
+        <meshStandardMaterial color={SCENE_HEX.mint} roughness={0.8} metalness={0} />
       </mesh>
     </group>
   );

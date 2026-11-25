@@ -64,6 +64,8 @@ export type ModelLook = {
   side?: boolean;
   /** bỏ mesh có tên (hoặc tên vật liệu) bắt đầu bằng chuỗi này: đĩa nền kèm theo model */
   skip?: string;
+  /** nhân độ sáng màu nền của vật liệu (texture quá tối: gấu nâu gần như đen dưới ánh sáng của cảnh) */
+  bright?: number;
   scale?: number;
 };
 
@@ -74,9 +76,10 @@ const photo = (style: PhotoStyle, extra: Partial<PhotoLook> = {}): PhotoLook => 
 export const WORLD_LOOK: Record<string, Look> = {
   // Đồng cỏ
   horse: { kind: 'model', file: 'horse', rot: [0, 0, 0], deform: 'walk' },
-  zebra: { kind: 'model', file: 'zebra', rot: [0, 0, 0], deform: 'walk' },
+  // ngựa vằn, cáo: model tìm được là low-poly (chân có khối đen vuông), lạc phong cách cạnh thú ảnh thật → ảnh thật 2.5D
+  zebra: photo('walk'),
   giraffe: { kind: 'model', file: 'giraffe', rot: [0, Math.PI, 0], deform: 'walk', bake: true, skip: 'Circle' },
-  elephant: { kind: 'model', file: 'elephant', rot: [0, -Math.PI / 2, 0], deform: 'walk', bake: true, stepAmp: 0.11, trunk: true, ears: true },
+  elephant: { kind: 'model', file: 'elephant', rot: [0, -Math.PI / 2, 0], deform: 'walk', bake: true, stepAmp: 0.07, trunk: true, ears: true },
   lion: photo('walk'),
   // Ao hồ
   frog: photo('hop'),
@@ -86,9 +89,9 @@ export const WORLD_LOOK: Record<string, Look> = {
   // Rừng
   deer: { kind: 'model', file: 'deer', rot: [0, 0, 0], deform: 'walk' },
   stag: { kind: 'model', file: 'stag', rot: [0, 0, 0], deform: 'walk' },
-  fox: { kind: 'model', file: 'fox', rot: [0, 0, 0], deform: 'none', move: 'Walk', idle: 'Survey' },
+  fox: photo('walk'),
   raccoon: photo('walk'),
-  bear: { kind: 'model', file: 'bear', rot: [0, -Math.PI / 2, 0], deform: 'walk' },
+  bear: { kind: 'model', file: 'bear', rot: [0, -Math.PI / 2, 0], deform: 'walk', bright: 2.4 },
   // Biển
   // clip bơi gốc lặn ngóc gần thẳng đứng: dùng dáng gốc + uốn đuôi lên xuống cho thân luôn nằm ngang
   whale: { kind: 'model', file: 'whale', rot: [0, 0, 0], turn: Math.PI / 2, pitch: 0.3, deform: 'fluke', bake: true, side: true },

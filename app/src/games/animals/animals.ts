@@ -22,10 +22,13 @@ export type AnimalData = {
 
 /**
  * Bố cục: 4 con đứng yên (cừu, thỏ, bò, vịt) và 4 con đi dạo, mỗi con một làn độ sâu riêng
- * (z = -2.1, -0.5, 0.8, 1.8) nên đi lướt qua nhau, trước/sau con khác mà không đâm vào nhau.
- * Hàng trước (z = 3.0) đứng yên: bò ở gần giữa (e2e chạm thật vào đó).
- * Làn tránh chỗ con đứng yên cùng độ sâu (cừu ở z = -0.6 bên trái → heo chỉ đi từ x = -2.4),
- * gà dừng ở x = 2.4 để không chui ra sau vịt. Điểm xuất phát so le để mỗi lúc chỉ hai con lướt qua nhau.
+ * (z = -3.0, -0.5, 1.3, 4.6). Các làn cách nhau đủ xa để trên màn hình (camera cao, nhìn chếch xuống) con làn
+ * trước không che con làn sau: chân con làn sau cao hơn đầu con làn trước, hoặc hai làn lệch nhau theo chiều ngang.
+ * Hàng z = 3.0 đứng yên: bò ở gần giữa (e2e chạm thật vào đó), thỏ và vịt ở hai góc.
+ * - ngựa (cao nhất) đi sát hàng rào, không tới chỗ cừu (x ≥ -3.2);
+ * - heo đi sau lưng bò/vịt một quãng xa, tránh cừu đứng cùng độ sâu (x ≥ -2.4);
+ * - gà chỉ đi ở nửa phải, giữa bò và vịt (trước đây chui ra sau lưng bò);
+ * - cún chạy ở làn sát bé nhất, phía trước bò (trước đây chạy ngang sau lưng bò, trông như đứng trên lưng bò).
  * Tốc độ 0.4–0.55 đơn vị/giây: đủ chậm cho bé 2 tuổi đuổi theo bằng ngón tay.
  */
 export const ANIMALS: AnimalData[] = [
@@ -35,10 +38,10 @@ export const ANIMALS: AnimalData[] = [
   { id: 'cow', model: 'cow.glb', pos: [-1.0, 0, 3.0], height: 1.15, rotY: 0.6 },
   { id: 'duck', model: 'duck.glb', pos: [3.4, 0, 3.0], height: 0.65, rotY: -0.7 },
   // Đi dạo (làn sau → trước)
-  { id: 'horse', model: 'horse.glb', pos: [3.6, 0, -2.1], height: 1.7, lane: { xMin: -4.6, xMax: 4.6, speed: 0.45, dir: -1 } },
-  { id: 'pig', model: 'pig.glb', pos: [3.8, 0, -0.5], height: 0.85, lane: { xMin: -2.4, xMax: 4.4, speed: 0.4, dir: 1 } },
-  { id: 'dog', model: 'dog.glb', pos: [-3.4, 0, 0.8], height: 0.8, lane: { xMin: -4.0, xMax: 4.0, speed: 0.55, dir: 1 } },
-  { id: 'chicken', model: 'chicken.glb', pos: [2.2, 0, 1.8], height: 0.75, lane: { xMin: -3.4, xMax: 2.4, speed: 0.4, dir: -1 }, gait: 'hop' },
+  { id: 'horse', model: 'horse.glb', pos: [3.6, 0, -3.0], height: 1.7, lane: { xMin: -3.2, xMax: 4.4, speed: 0.45, dir: -1 } },
+  { id: 'pig', model: 'pig.glb', pos: [-1.6, 0, -0.5], height: 0.85, lane: { xMin: -2.4, xMax: 4.2, speed: 0.4, dir: 1 } },
+  { id: 'chicken', model: 'chicken.glb', pos: [3.4, 0, 1.3], height: 0.75, lane: { xMin: 0.9, xMax: 3.6, speed: 0.4, dir: -1 }, gait: 'hop' },
+  { id: 'dog', model: 'dog.glb', pos: [-2.4, 0, 4.6], height: 0.8, lane: { xMin: -2.7, xMax: 2.7, speed: 0.55, dir: 1 } },
 ];
 
 /** Khung thân cho từng con, vẽ cùng kiểu với trò Thế giới (ui/hybrid PARK_LOOK); tốc độ lấy theo làn */
