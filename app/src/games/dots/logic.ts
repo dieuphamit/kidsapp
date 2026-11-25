@@ -46,7 +46,7 @@ export interface Placement {
  * Chấm nằm ngoài viền con vật chừng này (px khung): không che ảnh, và hai bên chỗ hẹp
  * (cổ hươu, đuôi cá) được đẩy xa nhau hơn.
  */
-export const OFFSET = 40;
+export const OFFSET = 58;
 
 /** Đẩy đường khép kín (chiều kim đồng hồ trên màn hình) ra ngoài d px theo pháp tuyến. */
 export function offsetPoly(poly: readonly Pt[], d: number): Pt[] {

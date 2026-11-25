@@ -22,7 +22,7 @@ export interface Pair {
 export const PAIRS = [
   { id: 'calf', mama: 'cow', baby: 'baby/calf', sound: 'cow', mamaFaces: -1, babyFaces: 1 },
   { id: 'chick', mama: 'mama/hen', baby: 'baby/chick', sound: 'chicken', mamaFaces: 1, babyFaces: 1 },
-  { id: 'duckling', mama: 'duck', baby: 'baby/duckling', sound: 'duck', mamaFaces: -1, babyFaces: -1 },
+  { id: 'duckling', mama: 'duck', baby: 'baby/duckling', sound: 'duck', mamaFaces: 1, babyFaces: -1 },
   { id: 'lamb', mama: 'mama/sheep', baby: 'baby/lamb', sound: 'sheep', mamaFaces: 1, babyFaces: 1 },
   { id: 'piglet', mama: 'mama/pig', baby: 'baby/piglet', sound: 'pig', mamaFaces: -1, babyFaces: 1 },
   { id: 'foal', mama: 'horse', baby: 'baby/foal', sound: 'horse', mamaFaces: -1, babyFaces: -1 },

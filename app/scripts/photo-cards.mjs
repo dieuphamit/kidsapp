@@ -27,7 +27,7 @@ const OK_LICENSE = /^(cc0|public domain|pd\b|cc by(-sa)? [0-9.]+)/i;
 const CARDS = {
   cow: { file: 'HF in der Rhön auf der Weide.jpg' },
   chicken: { file: 'Kogut na ulicy w Chintown w Singapurze, 20240122 0853 2966.jpg' },
-  duck: { file: 'Pekin duck in Buddha park lake, Eluru.jpg' },
+  duck: { file: 'Mallard Drake - Flickr - treegrow.jpg' },
   pig: { file: 'Pigs in the Altai Mountains. Village Ortolyk.jpg', crop: [0.73, 0.38, 0.975, 0.71] },
   dog: { file: '3-BerneseMountainDogInGrass.jpg' },
   sheep: { file: 'Lamb 09807-a.jpg' },
@@ -64,10 +64,10 @@ const CARDS = {
   peach: { file: 'White-Peaches-Bunch.jpg', keep: 'all' },
   // E4: thú có tiếng kêu thật cho Ú òa / Đường về nhà. Không nằm trong cards/index.json (Lật hình, Ghép hình giữ nguyên).
   zebra: { file: 'Plains zebra standing close up - DPLA - 5a17abfc936af2a7cad34115b462e9a3.jpg' },
-  deer: { file: 'White-tailed Deer - Odocoileus virginianus (51360828067).jpg', crop: [0.05, 0.05, 0.85, 1] },
+  deer: { file: '2025-11-10 15 11 40 A white-tailed deer doe standing on fallen Japanese Maple and Pin Oak leaves in autumn along Delaware Avenue in the Mountainview section of Ewing Township, Mercer County, New Jersey.jpg' },
   raccoon: { file: 'Raccoon in Central Park (35264).jpg' },
   frog: { file: 'Green treefrog.jpg' },
-  bee: { file: 'European honey bee extracts nectar.jpg', keep: 'all' },
+  bee: { file: 'Apis mellifera - Prunus padus - Keila.jpg', crop: [0.13, 0.03, 0.78, 0.63] },
   pigeon: { file: 'Common pigeon at Waterlow Park, London 01.jpg' },
   dolphin: { file: '010 Atlantic bottlenose dolphin jumping at Pelican point Photo by Giles Laurent.jpg' },
   whale: { file: '001 Humpback whale breaching in Ballena Marine National Park Photo by Giles Laurent.jpg' },
@@ -98,7 +98,7 @@ const CARDS = {
   // width: cỡ ảnh tải từ Commons, chỉ dùng cỡ thumbnail chuẩn 1920/3840 (tải ảnh gốc bị Wikimedia chặn 429);
   // work: cỡ làm việc khi tách nền (mặc định 1600).
   // Chọn thú lông sáng để vệt bùn nâu nhìn rõ. Không nằm trong cards/index.json.
-  'bath/pig': { file: 'Pigs in the Altai Mountains. Village Ortolyk.jpg', crop: [0.73, 0.38, 0.975, 0.71], width: 3840, size: 1024, limitKB: 450 },
+  'bath/pig': { file: 'Aschersleben, Zoo, Hausschwein, Ferkel.jpg', width: 1920, work: 1920, size: 1024, limitKB: 450 },
   'bath/dog': { file: 'Golden Retriever Puppy in the House.JPG', width: 1920, work: 1920, size: 1024, limitKB: 450 },
   'bath/sheep': { file: 'Lamb 09807-a.jpg', width: 1920, work: 1920, size: 1024, limitKB: 450 },
   'bath/duck': { file: 'Pekin duck in Buddha park lake, Eluru.jpg', width: 3840, work: 3200, size: 1024, limitKB: 450 },
