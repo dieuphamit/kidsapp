@@ -36,6 +36,7 @@ export const GAME_SKILLS: Record<string, Skill[]> = {
   pattern: ['logic', 'math'],
   peekaboo: ['social', 'language'],
   puzzle: ['logic'],
+  rescue: ['social', 'logic'],
   shadow: ['logic', 'science'],
   shapes: ['math', 'language'],
   sort: ['logic', 'math'],
