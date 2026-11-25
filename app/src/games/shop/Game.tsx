@@ -47,6 +47,12 @@ import {
   ITEM_SIZE,
   shelfSlots,
   CUSTOMER,
+  CUSTOMER_AREA,
+  fitArea,
+  partySlots,
+  PARTY_BUDDY,
+  PARTY_AREA,
+  PARTY_MAX_W,
   BUBBLE,
   wantSize,
   DESK,
@@ -70,6 +76,8 @@ const card = (id: ItemId) => `${BASE}cards/${ITEMS[id].card}.png`;
 
 /** Kéo quá chừng này (px khung) mới tính là kéo, không thì là chạm. */
 const MOVE_PX = 16;
+/** Ô kệ có chồng nhiều cái (mức khó): hình thu vào chừng này để cả chồng nằm gọn trong ô. */
+const PILE_INSET = 10;
 /** Nới vùng thả quanh giỏ cho tay bé. */
 const DROP_PAD = 48;
 /** Bé ngừng chừng này thì món cần lấy nhấp nháy gợi ý (không lời, không bàn tay chỉ). */
@@ -150,6 +158,7 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
   const [keeperBounce, setKeeperBounce] = useState(0);
   const [registerBounce, setRegisterBounce] = useState(0);
   const [basketBounce, setBasketBounce] = useState(0);
+  const [guestBounce, setGuestBounce] = useState<{ i: number; n: number } | null>(null);
   /** Túi hàng: hiện ở quầy rồi bay tới khách. */
   const [bag, setBag] = useState<'desk' | 'given' | null>(null);
 
@@ -439,6 +448,17 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
     else repeatWish();
   };
 
+  const onGuestDown = (i: number, sound: string) => {
+    setGuestBounce({ i, n: Date.now() });
+    say(sound);
+  };
+
+  const onPartyItemDown = (item: ItemId) => {
+    setHop({ item, n: Date.now() });
+    sounds.pick();
+    say(itemKey(item));
+  };
+
   const onBasketDown = () => {
     setBasketBounce(Date.now());
     sounds.boing();
@@ -452,6 +472,14 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
   const total = turn ? totalWanted(turn) : 0;
   const size = wantSize(total);
   const firstMissing = lacking[0]?.item;
+  const customerFit = customer ? fitArea(customer.w, customer.h, CUSTOMER_AREA, CUSTOMER.w, CUSTOMER.h) : { w: 0, h: 0 };
+
+  // Ăn mừng: các khách đã phục vụ đứng thành hàng, kệ bày lại vài món vừa bán
+  const guests = party ? state.turns.map((t) => customerById(t.customer)) : [];
+  const guestSlots = partySlots(guests.length);
+  const sold = party ? [...new Set(roundItems(state))] : [];
+  const partyItems = sold.slice(0, Math.max(4, Math.min(8, sold.length - (sold.length % 2))));
+  const partyItemSlots = shelfSlots(partyItems.length);
 
   let bagStyle: CSSProperties = { left: BASKET_DESK.x + 60, top: BASKET_DESK.y + 10 };
   if (bag === 'given') bagStyle = { left: CUSTOMER.x - 30, top: CUSTOMER.y + CUSTOMER.h - 150 };
@@ -514,7 +542,13 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
           <div className={styles.customerLean} style={{ rotate: `${lean}deg` }}>
             <div key={`b${customerBounce}`} className={styles.customerBounce} data-bounce={customerBounce ? '' : undefined}>
               <div className={styles.customerFace} data-flip={customer.flip ? '' : undefined}>
-                <img src={`${BASE}${customer.img}`} alt="" draggable={false} className={styles.customerImg} />
+                <img
+                  src={`${BASE}${customer.img}`}
+                  alt=""
+                  draggable={false}
+                  className={styles.customerImg}
+                  style={{ width: customerFit.w, height: customerFit.h, left: (CUSTOMER.w - customerFit.w) / 2 }}
+                />
               </div>
             </div>
           </div>
@@ -663,7 +697,7 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
                   src={card(it)}
                   alt=""
                   draggable={false}
-                  style={{ left: s.x + (k ? 14 : -14), top: s.y - 4 - k * 4, width: s.w, height: s.h }}
+                  style={{ left: s.x + PILE_INSET + (k ? 9 : -9), top: s.y + PILE_INSET - (k ? 4 : 8), width: s.w - 2 * PILE_INSET, height: s.h - 2 * PILE_INSET }}
                 />
               ))}
               <div
@@ -676,6 +710,7 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
                 data-item={it}
                 data-state={st}
                 data-stock={left}
+                data-pile={state.stock > 1 ? '' : undefined}
                 data-hint={hint && firstMissing === it && !dragging ? '' : undefined}
                 data-pressed={dragging ? '' : undefined}
                 onPointerDown={(e) => onItemDown(it, s, e)}
@@ -691,16 +726,81 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
           );
         })}
 
-      {/* Ăn mừng cuối lượt, có nút chơi lại */}
+      {/* Ăn mừng cuối lượt: khách đã phục vụ đứng thành hàng cầm túi, bạn đồng hành ở giữa, có nút chơi lại */}
       {party && (
         <div className={styles.party} data-testid="party">
-          <span className={styles.partyRug} aria-hidden="true" />
-          <img src={buddy.img} alt={buddy.name} className={styles.partyBuddy} draggable={false} />
+          {partyItems.map((it, i) => {
+            const s = partyItemSlots[i];
+            const h = hop?.item === it ? hop.n : 0;
+            return (
+              <div
+                key={it}
+                className={styles.partyItem}
+                style={{ left: s.x, top: s.y, width: s.w, height: s.h }}
+                role="button"
+                aria-label={`sold-${it}`}
+                data-testid={`sold-${it}`}
+                onPointerDown={() => onPartyItemDown(it)}
+              >
+                <div key={`h${h}`} className={styles.itemMove} data-hop={h ? '' : undefined}>
+                  <img src={card(it)} alt="" draggable={false} className={styles.itemImg} />
+                </div>
+              </div>
+            );
+          })}
           {[...Array(10)].map((_, k) => (
-            <span key={k} className={styles.partyHeart} style={{ left: `${8 + k * 9}%`, animationDelay: `${(k % 5) * 180}ms` }} aria-hidden="true">
-              {['🛍️', '❤️', '⭐', '🧺', '💛'][k % 5]}
+            <span key={k} className={styles.partyHeart} style={{ left: `${6 + k * 9.2}%`, animationDelay: `${(k * 370) % 1900}ms` }} aria-hidden="true">
+              {['🎈', '❤️', '⭐', '🛍️', '💛'][k % 5]}
             </span>
           ))}
+          {guests.map((g, i) => {
+            const s = guestSlots[i];
+            const fit = fitArea(g.w, g.h, PARTY_AREA, PARTY_MAX_W, s.h - 10);
+            const b = guestBounce?.i === i ? guestBounce.n : 0;
+            // khách đứng bên trái quay mặt sang phải, bên phải quay sang trái: cùng nhìn về bạn đồng hành
+            const faceLeft = i % 2 === 1;
+            return (
+              <div
+                key={`${i}-${g.id}`}
+                className={styles.guest}
+                style={{ left: s.x, top: s.y, width: s.w, height: s.h }}
+                role="button"
+                aria-label={`guest-${g.id}`}
+                data-testid={`guest-${i}`}
+                data-customer={g.id}
+                onPointerDown={() => onGuestDown(i, g.sound)}
+              >
+                <span className={styles.shadow} style={{ width: fit.w * 0.9, left: (s.w - fit.w * 0.9) / 2 }} aria-hidden="true" />
+                <div key={`gb${b}`} className={styles.guestMove} data-bounce={b ? '' : undefined}>
+                  <img
+                    src={`${BASE}${g.img}`}
+                    alt=""
+                    draggable={false}
+                    className={styles.guestImg}
+                    data-flip={g.flip === faceLeft ? '' : undefined}
+                    style={{ width: fit.w, height: fit.h, left: (s.w - fit.w) / 2, animationDelay: `${i * 130}ms` }}
+                  />
+                </div>
+                <span className={styles.guestBag} style={faceLeft ? { left: -44 } : { right: -44 }} aria-hidden="true">
+                  <span className={styles.bagHandle} />
+                  <span className={styles.bagBody}>❤️</span>
+                </span>
+              </div>
+            );
+          })}
+          <div
+            className={styles.partyBuddy}
+            style={{ left: PARTY_BUDDY.x, top: PARTY_BUDDY.y, width: PARTY_BUDDY.w, height: PARTY_BUDDY.h }}
+            role="button"
+            aria-label="party-buddy"
+            data-testid="party-buddy"
+            onPointerDown={onKeeperDown}
+          >
+            <span className={styles.shadow} style={{ width: PARTY_BUDDY.w * 0.8, left: PARTY_BUDDY.w * 0.1 }} aria-hidden="true" />
+            <div key={`kb${keeperBounce}`} className={styles.guestMove} data-bounce={keeperBounce ? '' : undefined}>
+              <img src={buddy.img} alt={buddy.name} className={styles.partyBuddyImg} draggable={false} />
+            </div>
+          </div>
           <ClayButton
             color="leaf"
             size={REPLAY.size}

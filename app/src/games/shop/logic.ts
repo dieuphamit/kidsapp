@@ -53,19 +53,22 @@ export interface Customer {
   sound: string;
   /** Ảnh gốc nhìn sang phải: lật ngang để khách quay mặt về phía kệ hàng. */
   flip: boolean;
+  /** Cỡ ảnh gốc (px): để cân cỡ hiển thị giữa khách dáng ngang và dáng đứng. */
+  w: number;
+  h: number;
 }
 
 export const CUSTOMERS = [
-  { id: 'rabbit', img: 'world-photos/rabbit.png', sound: 'animal.rabbit-sound', flip: false },
-  { id: 'panda', img: 'world-photos/panda.png', sound: 'animal.panda-sound', flip: true },
-  { id: 'koala', img: 'world-photos/koala.png', sound: 'animal.koala-sound', flip: true },
-  { id: 'penguin', img: 'world-photos/penguin.png', sound: 'animal.penguin-sound', flip: true },
-  { id: 'raccoon', img: 'world-photos/raccoon.png', sound: 'animal.raccoon-sound', flip: true },
-  { id: 'dog', img: 'world-photos/dog.png', sound: 'animal.dog-sound', flip: true },
-  { id: 'pig', img: 'world-photos/pig.png', sound: 'animal.pig-sound', flip: true },
-  { id: 'sheep', img: 'world-photos/sheep.png', sound: 'animal.sheep-sound', flip: false },
-  { id: 'cow', img: 'world-photos/cow.png', sound: 'animal.cow-sound', flip: true },
-  { id: 'chicken', img: 'world-photos/chicken.png', sound: 'animal.chicken-sound', flip: true },
+  { id: 'rabbit', img: 'world-photos/rabbit.png', sound: 'animal.rabbit-sound', flip: false, w: 640, h: 613 },
+  { id: 'panda', img: 'world-photos/panda.png', sound: 'animal.panda-sound', flip: true, w: 570, h: 640 },
+  { id: 'koala', img: 'world-photos/koala.png', sound: 'animal.koala-sound', flip: true, w: 594, h: 640 },
+  { id: 'penguin', img: 'world-photos/penguin.png', sound: 'animal.penguin-sound', flip: true, w: 377, h: 640 },
+  { id: 'raccoon', img: 'world-photos/raccoon.png', sound: 'animal.raccoon-sound', flip: true, w: 640, h: 516 },
+  { id: 'dog', img: 'world-photos/dog.png', sound: 'animal.dog-sound', flip: true, w: 640, h: 444 },
+  { id: 'pig', img: 'world-photos/pig.png', sound: 'animal.pig-sound', flip: true, w: 640, h: 319 },
+  { id: 'sheep', img: 'world-photos/sheep.png', sound: 'animal.sheep-sound', flip: false, w: 640, h: 500 },
+  { id: 'cow', img: 'world-photos/cow.png', sound: 'animal.cow-sound', flip: true, w: 640, h: 356 },
+  { id: 'chicken', img: 'world-photos/chicken.png', sound: 'animal.chicken-sound', flip: true, w: 640, h: 535 },
 ] as const satisfies readonly Customer[];
 
 export type CustomerId = (typeof CUSTOMERS)[number]['id'];

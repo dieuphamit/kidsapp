@@ -199,8 +199,8 @@ test('món lạ nhẹ nhàng về kệ; kéo đủ món → giỏ ra quầy → 
   await expect(page.getByTestId('basket')).toHaveAttribute('data-place', 'shop');
 });
 
-test('bé lớn: danh sách có số lượng, bong bóng đúng số hình, kệ 8 ô mỗi ô 3 cái; lấy thừa thì món về kệ; chụp shop-hard', async ({ page }) => {
-  test.setTimeout(90_000);
+test('bé lớn: danh sách có số lượng, bong bóng đúng số hình, kệ 8 ô mỗi ô 3 cái; lấy thừa thì món về kệ; đủ 5 khách thì ăn mừng; chụp shop-hard, shop-party-hard', async ({ page }) => {
+  test.setTimeout(180_000);
   const game = await openShop(page, 'hard');
   await imagesLoaded(page);
   await page.waitForTimeout(1200);
@@ -249,6 +249,21 @@ test('bé lớn: danh sách có số lượng, bong bóng đúng số hình, k�
   await tapRegister(page);
   await expect(game).toHaveAttribute('data-last-say', `number.${total}`, { timeout: 10_000 });
   await expect(game).toHaveAttribute('data-phase', 'paid');
+
+  // Phục vụ nốt 4 khách còn lại: màn ăn mừng có đủ 5 khách đứng hàng; chụp shop-party-hard
+  for (let i = 1; i < 5; i++) {
+    await expect.poll(async () => (await snap(page))?.index, { timeout: 12_000 }).toBe(i);
+    await expect(game).toHaveAttribute('data-phase', 'shop', { timeout: 10_000 });
+    const t = await snap(page);
+    for (const w of t.need) for (let k = 0; k < w.qty; k++) await page.evaluate((x) => window.__behocShop!.add(x), w.item);
+    expect(await page.evaluate(() => window.__behocShop!.pay())).toBe(true);
+    await expect(game).toHaveAttribute('data-phase', 'paid', { timeout: 10_000 });
+  }
+  await expect(page.getByTestId('party')).toBeVisible({ timeout: 12_000 });
+  await expect(page.locator('[data-testid^="guest-"]')).toHaveCount(5);
+  await imagesLoaded(page);
+  await page.waitForTimeout(900);
+  await page.screenshot({ path: 'test-results/shots/shop-party-hard.png' });
 });
 
 test('bé nhỏ: 1–2 món, kệ 4 ô; phục vụ đủ 3 khách → ăn mừng, bấm nút chơi lại → lượt mới; chụp shop-easy, shop-party', async ({ page }) => {
@@ -276,6 +291,19 @@ test('bé nhỏ: 1–2 món, kệ 4 ô; phục vụ đủ 3 khách → ăn mừn
   await expect(replay).toBeVisible();
   const box = (await replay.boundingBox())!;
   expect(box.width).toBeGreaterThanOrEqual(120);
+  // các khách vừa phục vụ đứng thành hàng trên sàn cùng Đậu Đậu; nút chơi lại không đè ai
+  await expect(page.locator('[data-testid^="guest-"]')).toHaveCount(3);
+  const cast = [...(await page.locator('[data-testid^="guest-"]').all()), page.getByTestId('party-buddy')];
+  for (const el of cast) {
+    const b = (await el.boundingBox())!;
+    expect(b.x).toBeGreaterThanOrEqual(0);
+    expect(b.x + b.width).toBeLessThanOrEqual(1194);
+    expect(b.y + b.height).toBeLessThanOrEqual(box.y);
+  }
+  // chạm một khách: con đó kêu tiếng của mình
+  await page.getByTestId('guest-1').dispatchEvent('pointerdown');
+  await expect(game).toHaveAttribute('data-last-say', `animal.${customers[1]}-sound`);
+  await imagesLoaded(page);
   await page.waitForTimeout(700);
   await page.screenshot({ path: 'test-results/shots/shop-party.png' });
 

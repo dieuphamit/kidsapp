@@ -42,7 +42,23 @@ export function shelfSlots(count: number): Rect[] {
 }
 
 /** Khách: đứng trên sàn bên phải. */
-export const CUSTOMER: Rect = { x: 880, y: 330, w: 300, h: 310 };
+export const CUSTOMER: Rect = { x: 856, y: 330, w: 336, h: 310 };
+/** Diện tích hiển thị (px²) của mọi khách: khách dáng ngang rộng hơn, khách dáng đứng cao hơn. */
+export const CUSTOMER_AREA = 60000;
+
+/**
+ * Cỡ hiển thị của ảnh `w`×`h` sao cho chiếm chừng `area` px², không vượt `maxW`×`maxH`
+ * (giữ tỉ lệ). Nhờ vậy heo, bò (ảnh ngang) không trông bé hơn gấu trúc, chim cánh cụt (ảnh đứng).
+ */
+export function fitArea(w: number, h: number, area: number, maxW: number, maxH: number): { w: number; h: number } {
+  const ar = w / h;
+  let dw = Math.sqrt(area * ar);
+  let dh = dw / ar;
+  const k = Math.min(1, maxW / dw, maxH / dh);
+  dw *= k;
+  dh *= k;
+  return { w: Math.round(dw), h: Math.round(dh) };
+}
 
 /** Bong bóng suy nghĩ (trên khách, lệch trái để tránh góc cổng phụ huynh). */
 export const BUBBLE: Rect = { x: 814, y: 118, w: 232, h: 168 };
@@ -76,5 +92,22 @@ export function basketSpot(i: number): { x: number; y: number } {
   return { x: 10 + col * 70 + (row % 2 ? 0 : 0), y: row === 0 ? 4 : -50 };
 }
 
-/** Nút chơi lại lúc ăn mừng. */
-export const REPLAY = { x: STAGE_W / 2 - 80, y: 610, size: 160 };
+/** Ăn mừng: mép dưới chân các nhân vật (trên sàn). */
+export const PARTY_FLOOR = 640;
+/** Bạn đồng hành đứng giữa hàng. */
+export const PARTY_BUDDY: Rect = { x: STAGE_W / 2 - 85, y: PARTY_FLOOR - 210, w: 170, h: 210 };
+export const PARTY_AREA = 21000;
+export const PARTY_MAX_W = 190;
+
+/** Chỗ đứng (vùng chạm) của các khách đã phục vụ: xếp hàng hai bên bạn đồng hành, xen kẽ trái phải. */
+export function partySlots(count: number): Rect[] {
+  return Array.from({ length: count }, (_, i) => {
+    const k = Math.floor(i / 2);
+    const side = i % 2 === 0 ? -1 : 1;
+    const cx = STAGE_W / 2 + side * (180 + k * 160);
+    return { x: cx - 68, y: PARTY_FLOOR - 200, w: 136, h: 200 };
+  });
+}
+
+/** Nút chơi lại lúc ăn mừng: dưới chân hàng nhân vật, không đè ai. */
+export const REPLAY = { x: STAGE_W / 2 - 75, y: 672, size: 150 };

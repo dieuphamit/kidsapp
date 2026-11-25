@@ -165,6 +165,14 @@ describe('Cửa hàng', () => {
       expect(screen.getByTestId('party')).toBeInTheDocument();
       expect(sp.say).toHaveBeenLastCalledWith('shop.done');
       expect(screen.getByTestId('game-shop')).toHaveAttribute('data-phase', 'party');
+      // các khách vừa phục vụ đứng thành hàng; chạm con nào thì con đó kêu
+      const guests = document.querySelectorAll<HTMLElement>('[data-testid^="guest-"]');
+      expect(guests).toHaveLength(3);
+      expect(new Set([...guests].map((g) => g.getAttribute('data-customer'))).size).toBe(3);
+      fireEvent.pointerDown(guests[1]);
+      expect(sp.say).toHaveBeenLastCalledWith(customerById(guests[1].getAttribute('data-customer') as CustomerId).sound);
+      expect(guests[1].querySelector('[data-bounce]')).not.toBeNull();
+      expect(screen.getByTestId('party-buddy')).toBeInTheDocument();
       // không tự chơi lại: chờ bé bấm
       act(() => {
         vi.advanceTimersByTime(20_000);

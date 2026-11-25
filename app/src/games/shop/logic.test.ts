@@ -49,6 +49,14 @@ import {
   BASKET_W,
   BASKET_H,
   REPLAY,
+  CUSTOMER_AREA,
+  PARTY_BUDDY,
+  PARTY_AREA,
+  PARTY_MAX_W,
+  PARTY_FLOOR,
+  FLOOR_Y,
+  fitArea,
+  partySlots,
   wantSize,
   STAGE_W,
   STAGE_H,
@@ -99,6 +107,9 @@ describe('dữ liệu món hàng và khách', () => {
     expect(new Set(CUSTOMERS.map((c) => c.id)).size).toBe(CUSTOMERS.length);
     for (const c of CUSTOMERS) {
       expect(existsSync(join(PUBLIC, c.img)), c.img).toBe(true);
+      // cỡ ảnh ghi trong dữ liệu khớp file thật (đầu file PNG)
+      const png = readFileSync(join(PUBLIC, c.img));
+      expect([png.readUInt32BE(16), png.readUInt32BE(20)], c.id).toEqual([c.w, c.h]);
       expect(c.sound).toBe(`animal.${c.id}-sound`);
       expect(existsSync(join(PUBLIC, 'audio', 'sfx', `animal-${c.id}.mp3`)), c.id).toBe(true);
     }
@@ -290,6 +301,44 @@ describe('bố cục', () => {
     expect(overlap(btn, desk, 24)).toBe(false);
     expect(overlap(btn, shop, 24)).toBe(false);
     expect(overlap(BUBBLE, CUSTOMER)).toBe(false);
+  });
+
+  it('khách dáng ngang và dáng đứng chiếm diện tích nhìn tương đương, chân chạm sàn, không tràn khung', () => {
+    const areas = CUSTOMERS.map((c) => {
+      const f = fitArea(c.w, c.h, CUSTOMER_AREA, CUSTOMER.w, CUSTOMER.h);
+      expect(f.w, c.id).toBeLessThanOrEqual(CUSTOMER.w);
+      expect(f.h, c.id).toBeLessThanOrEqual(CUSTOMER.h);
+      expect(f.w / f.h, c.id).toBeCloseTo(c.w / c.h, 1);
+      return f.w * f.h;
+    });
+    // con nhỏ nhất không dưới 85% con to nhất (trước đây heo chỉ bằng nửa gấu trúc)
+    expect(Math.min(...areas) / Math.max(...areas)).toBeGreaterThan(0.85);
+    expect(CUSTOMER.x + CUSTOMER.w).toBeLessThanOrEqual(STAGE_W);
+    expect(CUSTOMER.y + CUSTOMER.h).toBeGreaterThan(FLOOR_Y);
+  });
+
+  it('ăn mừng: khách xếp hàng trên sàn hai bên bạn đồng hành, cách nhau ≥24px, nút chơi lại không đè ai', () => {
+    const replay = { x: REPLAY.x, y: REPLAY.y, w: REPLAY.size, h: REPLAY.size };
+    for (const n of [3, 4, 5]) {
+      const slots = partySlots(n);
+      expect(slots).toHaveLength(n);
+      const all = [...slots, PARTY_BUDDY];
+      all.forEach((a, i) => {
+        expect(a.w).toBeGreaterThanOrEqual(120);
+        expect(a.h).toBeGreaterThanOrEqual(120);
+        expect(a.x).toBeGreaterThanOrEqual(0);
+        expect(a.x + a.w).toBeLessThanOrEqual(STAGE_W);
+        expect(a.y + a.h).toBe(PARTY_FLOOR);
+        expect(overlap(a, replay, 24)).toBe(false);
+        all.slice(i + 1).forEach((b) => expect(overlap(a, b, 24)).toBe(false));
+      });
+    }
+    expect(PARTY_FLOOR).toBeGreaterThan(FLOOR_Y);
+    for (const c of CUSTOMERS) {
+      const f = fitArea(c.w, c.h, PARTY_AREA, PARTY_MAX_W, 190);
+      expect(f.h, c.id).toBeLessThanOrEqual(190);
+      expect(f.w, c.id).toBeLessThanOrEqual(PARTY_MAX_W);
+    }
   });
 
   it('bong bóng chứa vừa mọi hình (tới MAX_TOTAL hình)', () => {
