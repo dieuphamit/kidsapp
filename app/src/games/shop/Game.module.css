@@ -628,13 +628,13 @@
   animation: partyHop 540ms ease-in-out infinite alternate;
 }
 
-/* Túi hàng nhỏ cạnh chân mỗi khách (dùng lại hình túi, thu nhỏ) */
+/* Túi hàng nhỏ cạnh chân mỗi khách (dùng lại hình túi, thu còn PARTY_BAG_W = 56px bề ngang) */
 .guestBag {
   position: absolute;
   bottom: -6px;
   width: 120px;
   height: 140px;
-  scale: 0.46;
+  scale: calc(56 / 120);
   transform-origin: 50% 100%;
   pointer-events: none;
 }

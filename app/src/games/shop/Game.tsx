@@ -4,6 +4,7 @@ import { BackHome } from '../../ui/BackHome';
 import { ClayButton } from '../../ui/ClayButton';
 import { clientToStage, stageRect } from '../../ui/Stage';
 import { useBuddyLook } from '../../ui/buddyContext';
+import { sayThen } from '../../core/audio';
 import { recentPicks, rememberPicks } from '../../core/gameOptions';
 import { playSetup, type Level } from '../../core/variety';
 import {
@@ -27,7 +28,6 @@ import {
   numberKey,
   ITEMS,
   HELLO_KEY,
-  WANT_KEY,
   NOPE_KEY,
   ENOUGH_KEY,
   NOT_YET_KEY,
@@ -52,7 +52,9 @@ import {
   partySlots,
   PARTY_BUDDY,
   PARTY_AREA,
-  PARTY_MAX_W,
+  PARTY_BAG_W,
+  PARTY_BAG_GAP,
+  STAGE_W,
   BUBBLE,
   wantSize,
   DESK,
@@ -74,6 +76,8 @@ import styles from './Game.module.css';
 const BASE = import.meta.env.BASE_URL;
 const card = (id: ItemId) => `${BASE}cards/${ITEMS[id].card}.png`;
 
+/** Bề rộng hộp hình túi hàng (CSS .guestBag, trước khi thu nhỏ còn PARTY_BAG_W). */
+const GUEST_BAG_BOX = 120;
 /** Kéo quá chừng này (px khung) mới tính là kéo, không thì là chạm. */
 const MOVE_PX = 16;
 /** Ô kệ có chồng nhiều cái (mức khó): hình thu vào chừng này để cả chồng nằm gọn trong ô. */
@@ -92,14 +96,8 @@ const THANKS_MS = 3300;
 const LEAVE_MS = 6000;
 const NEXT_MS = 6700;
 
-/** Khoảng chờ sau mỗi câu trong một chuỗi câu nói (ms). */
-function gapAfter(key: string): number {
-  if (key === HELLO_KEY) return 3900;
-  if (key === WANT_KEY) return 1500;
-  if (key.startsWith('number.')) return 850;
-  if (key.startsWith('shop.got.')) return 1900;
-  return 1250;
-}
+/** Nghỉ giữa hai câu của một chuỗi (tính từ lúc câu trước THẬT SỰ đọc xong). */
+const SAY_GAP_MS = 250;
 
 type Drag = { item: ItemId; startX: number; startY: number; dx: number; dy: number; x: number; y: number };
 type CustomerAnim = 'in' | 'out';
@@ -169,33 +167,38 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
   }, []);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
-  /** Số thứ tự câu nói: câu mới làm chuỗi câu đang đọc dở dừng lại. */
-  const seq = useRef(0);
+  /** Chuỗi câu đang đọc dở (hàm huỷ của sayThen): câu mới làm chuỗi này dừng lại. */
+  const chain = useRef<(() => void) | null>(null);
+  const stopChain = useCallback(() => {
+    chain.current?.();
+    chain.current = null;
+  }, []);
+  useEffect(() => stopChain, [stopChain]);
   const say = useCallback(
     (key: string) => {
-      seq.current += 1;
+      stopChain();
       speaker.say(key);
       setLastSay(key);
     },
-    [speaker],
+    [speaker, stopChain],
   );
-  /** Đọc lần lượt nhiều câu; bé làm gì khác (có câu mới) thì thôi phần còn lại. */
+  /**
+   * Đọc nối tiếp nhiều câu: câu sau chỉ bắt đầu khi câu trước đọc xong (không đoán độ dài file
+   * bằng số cố định); bé làm gì khác (có câu mới) thì thôi phần còn lại.
+   */
   const sayAll = useCallback(
     (keys: readonly string[]) => {
-      const id = (seq.current += 1);
-      let at = 0;
-      for (const key of keys) {
-        const speak = () => {
-          if (seq.current !== id) return;
-          speaker.say(key);
-          setLastSay(key);
-        };
-        if (at === 0) speak();
-        else later(speak, at);
-        at += gapAfter(key);
-      }
+      stopChain();
+      const cancel = sayThen(speaker, keys, {
+        gapMs: SAY_GAP_MS,
+        onSay: (k) => setLastSay(k),
+        onDone: () => {
+          if (chain.current === cancel) chain.current = null;
+        },
+      });
+      chain.current = cancel;
     },
-    [speaker, later],
+    [speaker, stopChain],
   );
 
   const live = useRef(state);
@@ -348,7 +351,7 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
     }
     live.current = s;
     setState(s);
-    seq.current += 1;
+    stopChain();
     for (let i = 0; i < s.basket.length; i++) later(scanStep, 120 + i * SCAN_MS);
     return true;
   };
@@ -755,10 +758,12 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
           ))}
           {guests.map((g, i) => {
             const s = guestSlots[i];
-            const fit = fitArea(g.w, g.h, PARTY_AREA, PARTY_MAX_W, s.h - 10);
+            const fit = fitArea(g.w, g.h, PARTY_AREA, s.w, s.h - 10);
             const b = guestBounce?.i === i ? guestBounce.n : 0;
             // khách đứng bên trái quay mặt sang phải, bên phải quay sang trái: cùng nhìn về bạn đồng hành
-            const faceLeft = i % 2 === 1;
+            const faceLeft = s.x + s.w / 2 > STAGE_W / 2;
+            // túi đặt sát bên phải ảnh (không che chân): hình túi 120px thu còn PARTY_BAG_W quanh tâm
+            const bagLeft = (s.w + fit.w) / 2 + PARTY_BAG_GAP - (GUEST_BAG_BOX - PARTY_BAG_W) / 2;
             return (
               <div
                 key={`${i}-${g.id}`}
@@ -781,7 +786,7 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
                     style={{ width: fit.w, height: fit.h, left: (s.w - fit.w) / 2, animationDelay: `${i * 130}ms` }}
                   />
                 </div>
-                <span className={styles.guestBag} style={faceLeft ? { left: -44 } : { right: -44 }} aria-hidden="true">
+                <span className={styles.guestBag} style={{ left: bagLeft }} data-testid={`party-bag-${i}`} aria-hidden="true">
                   <span className={styles.bagHandle} />
                   <span className={styles.bagBody}>❤️</span>
                 </span>
