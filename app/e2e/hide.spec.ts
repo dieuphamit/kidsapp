@@ -43,6 +43,10 @@ async function dragDaudauTo(page: Page, zoneTestId: string) {
 test.describe('T-036: Đậu Đậu trốn ở đâu?', () => {
   test('kéo Đậu Đậu xuống gầm bàn → hide.under-table; chụp T-036-room.png', async ({ page }) => {
     const game = await openHide(page);
+    // chỗ chờ đầu phòng: Đậu Đậu (vật kéo được) không nằm trong dải 144px mép phải ở nửa trên (cổng bố mẹ)
+    const home = (await page.getByTestId('hide-daudau').boundingBox())!;
+    expect(home.x + home.width).toBeLessThanOrEqual(1194 - 144);
+    await page.screenshot({ path: 'test-results/shots/T-036-home.png' });
     await dragDaudauTo(page, 'zone-under-table');
     await expect(game).toHaveAttribute('data-last-say', 'hide.under-table', { timeout: 2000 });
     await page.waitForTimeout(600);
@@ -109,6 +113,10 @@ test.describe('iPhone dọc 430×932: kéo trong Trốn ở đâu', () => {
 
   test('kéo Đậu Đậu xuống gầm bàn trên điện thoại dọc', async ({ page }) => {
     const game = await openHide(page);
+    // chỗ chờ đầu phòng: Đậu Đậu (vật kéo được) không nằm trong dải 144px mép phải ở nửa trên (cổng bố mẹ)
+    const home = (await page.getByTestId('hide-daudau').boundingBox())!;
+    expect(home.x + home.width).toBeLessThanOrEqual(1194 - 144);
+    await page.screenshot({ path: 'test-results/shots/T-036-home.png' });
     await dragDaudauTo(page, 'zone-under-table');
     await expect(game).toHaveAttribute('data-last-say', 'hide.under-table', { timeout: 2000 });
     await dragDaudauTo(page, 'zone-in-box');

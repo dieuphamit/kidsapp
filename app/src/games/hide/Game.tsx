@@ -25,8 +25,9 @@ const IS_E2E = typeof window !== 'undefined' && window.location.search.includes(
 
 /** Mặt trên của chỗ đứng chờ: kệ bếp, kệ tường trong nhà, đám mây ngoài trời (khớp `top` của .shelf/.perch trong css) */
 const PERCH_Y = 300;
-// chỗ bạn đồng hành đứng chờ đầu mỗi phòng: chân chạm mặt kệ/mây (ảnh có lề trong suốt ~4%), không treo giữa trời
-const HOME = { x: 1060, y: PERCH_Y - DAUDAU_SIZE / 2 + 6 };
+// chỗ bạn đồng hành đứng chờ đầu mỗi phòng: chân chạm mặt kệ/mây (ảnh có lề trong suốt ~4%), không treo giữa trời.
+// Tâm x = giữa .perch (left 832 + 196/2) để mép phải Đậu Đậu (vật kéo được) cách mép phải khung ≥144px (cổng bố mẹ).
+const HOME = { x: 930, y: PERCH_Y - DAUDAU_SIZE / 2 + 6 };
 const HALF = DAUDAU_SIZE / 2;
 
 type Cat = { x: number; y: number; scale: number; hidden: boolean };
