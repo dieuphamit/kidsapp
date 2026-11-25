@@ -4,20 +4,40 @@ import { ClayButton } from '../../ui/ClayButton';
 import { Scenery } from '../../ui/Scenery';
 import { recentPicks, rememberPicks } from '../../core/gameOptions';
 import { pictureUrl } from '../../content/pictures';
-import { newQuestion, choiceCountForAge, ANSWER_MEMORY, type SoundAnimal, type QuizQuestion } from './logic';
+import { useSayThen } from '../../ui/useSayThen';
+import { useBuddyLook } from '../../ui/buddyContext';
+import { newQuestion, choiceCountForAge, isRoundEnd, ANSWER_MEMORY, type SoundAnimal, type QuizQuestion } from './logic';
 import styles from './Game.module.css';
 
+/**
+ * Các số dưới đây là độ dài ước lượng của từng câu, chỉ dùng khi loa không báo được lúc hết
+ * tiếng (test unit). Loa thật chờ câu trước phát hết rồi mới nói câu sau.
+ */
+const HELLO_SAY_MS = 1500;
+const NAME_SAY_MS = 1200;
+const AGAIN_SAY_MS = 1200;
+/** Khen xong chừng này thì ra câu mới; câu mới hiện chừng này thì phát tiếng kêu. */
+const NEXT_MS = 500;
+const NEXT_SOUND_MS = 500;
+/** Ăn mừng sau mỗi lượt: câu chúc mừng dài chừng này (loa giả), nói xong nghỉ chút rồi chơi tiếp. */
+const PARTY_SAY_MS = 3200;
+const PARTY_REST_MS = 900;
+const DONE_KEY = 'quiz.done';
 
 interface CardState {
   animClass: string;
   sparkles: { id: number; x: number; y: number }[];
 }
 
-export default function Game({ speaker, ageMonths, onExit }: GameProps) {
+export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
+  const buddy = useBuddyLook(lang);
   const [question, setQuestion] = useState<QuizQuestion | null>(null);
   const [lastSay, setLastSay] = useState('');
   const [cardStates, setCardStates] = useState<Map<SoundAnimal, CardState>>(new Map());
   const [locked, setLocked] = useState(false);
+  const [party, setParty] = useState(false);
+  /** Số câu đúng từ lúc vào trò: chỉ để biết lúc nào ăn mừng, không hiện ra cho bé. */
+  const correct = useRef(0);
   const sparkleIdRef = useRef(0);
   const isFirstRef = useRef(true);
   const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e');
@@ -40,6 +60,14 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
     speaker.say(key);
     setLastSay(key);
   }, [speaker]);
+  const sayAll = useSayThen(speaker, setLastSay);
+
+  // Mọi hẹn giờ gom lại, xoá khi thoát trò (không còn giọng đọc phát sau khi bé về nhà)
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const later = useCallback((fn: () => void, ms: number) => {
+    timers.current.push(setTimeout(fn, ms));
+  }, []);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   const playSoundKey = useCallback(() => {
     if (question) {
@@ -64,12 +92,8 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
     // Say hello only on first question
     if (isFirstRef.current) {
       isFirstRef.current = false;
-      saySpeaker('quiz.hello');
-      // Play sound after hello
-      const timer = setTimeout(() => {
-        saySpeaker(`animal.${q.answer}-sound`);
-      }, 1500);
-      return () => clearTimeout(timer);
+      // Câu chào nói hết rồi mới phát tiếng kêu
+      sayAll(['quiz.hello', `animal.${q.answer}-sound`], { fallbackMs: HELLO_SAY_MS });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -96,21 +120,28 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
       return next;
     });
 
-    // Say animal name then "great"
-    saySpeaker(`animal.${animal}`);
-    setTimeout(() => {
-      saySpeaker('ui.great');
-    }, 1200);
-
-    // New question after 2s
-    setTimeout(() => {
+    const nextQuestion = () => {
+      setParty(false);
       const q = generateNewQuestion();
-      // Play new sound
-      setTimeout(() => {
-        saySpeaker(`animal.${q.answer}-sound`);
-      }, 500);
-    }, 2000);
-  }, [generateNewQuestion, saySpeaker]);
+      later(() => saySpeaker(`animal.${q.answer}-sound`), NEXT_SOUND_MS);
+    };
+    const roundEnd = isRoundEnd(++correct.current);
+
+    // Đọc tên con vật cho hết rồi mới khen; khen xong mới ra câu mới (hoặc ăn mừng cuối lượt)
+    sayAll([`animal.${animal}`, 'ui.great'], {
+      fallbackMs: NAME_SAY_MS,
+      onDone: () =>
+        later(() => {
+          if (!roundEnd) {
+            nextQuestion();
+            return;
+          }
+          // Hết một lượt: bạn đồng hành nhảy mừng, rồi chơi tiếp
+          setParty(true);
+          sayAll([DONE_KEY], { fallbackMs: PARTY_SAY_MS, onDone: () => later(nextQuestion, PARTY_REST_MS) });
+        }, NEXT_MS),
+    });
+  }, [generateNewQuestion, saySpeaker, sayAll, later]);
 
   const handleWrong = useCallback((animal: SoundAnimal) => {
     setCardStates((prev) => {
@@ -119,21 +150,18 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
       return next;
     });
 
-    // Say "again" then replay sound
-    saySpeaker('quiz.again');
-    setTimeout(() => {
-      playSoundKey();
-    }, 1200);
+    // "Nghe lại nào!" nói hết rồi mới phát lại tiếng kêu
+    if (question) sayAll(['quiz.again', `animal.${question.answer}-sound`], { fallbackMs: AGAIN_SAY_MS });
 
     // Clear animation after it finishes
-    setTimeout(() => {
+    later(() => {
       setCardStates((prev) => {
         const next = new Map(prev);
         next.delete(animal);
         return next;
       });
     }, 400);
-  }, [saySpeaker, playSoundKey]);
+  }, [question, sayAll, later]);
 
   const handleCardPress = useCallback((animal: SoundAnimal, e: React.PointerEvent<HTMLButtonElement>) => {
     if (locked || !question) return;
@@ -150,7 +178,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
   if (!question) return null;
 
   return (
-    <div className={styles.container} data-testid="game-sound-quiz" data-last-say={lastSay}>
+    <div className={styles.container} data-testid="game-sound-quiz" data-last-say={lastSay} data-party={party ? '' : undefined}>
       {/* Sân trại: đồi, kho thóc, hàng rào */}
       <Scenery variant="farm" />
 
@@ -204,6 +232,18 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
           );
         })}
       </div>
+
+      {/* Ăn mừng sau mỗi lượt: bạn đồng hành nhảy, sao bay; không điểm số */}
+      {party && (
+        <div className={styles.party} data-testid="party">
+          <img src={buddy.img} alt={buddy.name} className={styles.partyBuddy} draggable={false} />
+          {[...Array(10)].map((_, k) => (
+            <span key={k} className={styles.partyStar} style={{ left: `${8 + k * 9}%`, animationDelay: `${(k % 5) * 180}ms` }} aria-hidden="true">
+              {k % 2 ? '⭐' : '🎵'}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

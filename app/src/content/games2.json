@@ -13,6 +13,7 @@
   { "key": "memory.done", "vi": "Bé nhớ giỏi quá!", "ja": "よく おぼえたね!", "en": "What a great memory!" },
   { "key": "quiz.hello", "vi": "Ai kêu thế nhỉ? Bé nghe nhé!", "ja": "だれの こえかな?きいてね!", "en": "Who's making that sound? Let's listen!" },
   { "key": "quiz.again", "vi": "Nghe lại nào!", "ja": "もう いちど きいてね!", "en": "Listen again!" },
+  { "key": "quiz.done", "vi": "Tai bé thính quá! Mình nghe tiếp nhé!", "ja": "よく きこえたね! もっと きいてみよう!", "en": "What great listening! Let's hear some more!" },
   { "key": "peek.hello", "vi": "Bạn nào đang trốn nhỉ?", "ja": "だれが かくれてるかな?", "en": "Who's hiding?" },
   { "key": "peek.empty", "vi": "Không có ở đây!", "ja": "ここには いないよ!", "en": "Not here!" },
   { "key": "peek.found", "vi": "Ú òa!", "ja": "ばあ!", "en": "Peekaboo!" },
