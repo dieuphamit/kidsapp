@@ -6,7 +6,7 @@
  * Cổng phụ huynh chiếm góc trên-phải 120×120 nên thứ chạm được ở phần trên đều cách mép phải ≥144px.
  */
 import type { Level } from '../../core/variety';
-import type { MissionId, Step, VehicleId } from './logic';
+import { animalById, type Animal, type AnimalId, type MissionId, type Step, type VehicleId } from './logic';
 
 export const STAGE_W = 1194;
 export const STAGE_H = 834;
@@ -142,11 +142,35 @@ export const ROCK: Rect = { x: 800, y: 512, w: 300, h: 240 };
 export const MEDKIT: Rect = { x: 452, y: 588, w: 150, h: 112 };
 export const HOME_PAD: Rect = { x: 196, y: 664, w: 280, h: 62 };
 
-const center = (spot: Pt, size: { w: number; h: number }): Pt => ({ x: spot.x + size.w / 2, y: spot.y + size.h / 2 });
+/** Phóng to ảnh thẻ vuông có viền trống (khớp CSS .animalImg[data-padded]). */
+export const PADDED_ZOOM = 1.36;
+/** Hạ ảnh thẻ vuông xuống (tỉ lệ chiều cao ô, trước khi nhân cỡ) cho chân chạm đáy ô. */
+export const PADDED_DROP = 0.185;
+
+/**
+ * Điểm neo thứ `k` trên thân con vật, tính trong ô `box` (px, gốc là góc trên-trái ô), đúng như
+ * ảnh được vẽ: object-fit contain, đáy giữa, phóng `scale` quanh đáy giữa (ảnh thẻ vuông thêm
+ * PADDED_ZOOM và hạ PADDED_DROP). Chỗ đau, vệt bùn, giọt nước, chỗ móc dây đều dùng điểm này.
+ */
+export function bodyPoint(animal: Animal, box: { w: number; h: number }, k: number): Pt {
+  const [fx, fy] = animal.body[k % animal.body.length];
+  const imgAr = animal.padded ? 1 : animal.ar;
+  const dw = imgAr > box.w / box.h ? box.w : box.h * imgAr;
+  const dh = dw / imgAr;
+  const px = (box.w - dw) / 2 + fx * dw;
+  const py = box.h - dh + fy * dh;
+  const s = animal.scale ?? 1;
+  const zoom = animal.padded ? s * PADDED_ZOOM : s;
+  const drop = animal.padded ? PADDED_DROP * s * PADDED_ZOOM * box.h : 0;
+  return { x: Math.round(box.w / 2 + zoom * (px - box.w / 2)), y: Math.round(box.h + drop + zoom * (py - box.h)) };
+}
+
+const add = (a: Pt, b: Pt): Pt => ({ x: a.x + b.x, y: a.y + b.y });
 
 /** Bố cục phần cứu hộ của một nhiệm vụ theo mức chơi và các bước của nó. */
-export function rescueLayout(mission: MissionId, level: Level, steps: readonly Step[]): RescueLayout {
+export function rescueLayout(mission: MissionId, level: Level, steps: readonly Step[], animalId: AnimalId): RescueLayout {
   const n = steps.length;
+  const who = animalById(animalId);
   switch (mission) {
     case 'fire': {
       const vehicle = PARKED;
@@ -169,7 +193,7 @@ export function rescueLayout(mission: MissionId, level: Level, steps: readonly S
       const top = BRANCH_Y[level] - 78;
       const geo: Record<string, DragGeo> = {
         ladderUp: { kind: 'drag', from: { x: TREE.ladderX, y: LADDER_REST_Y }, to: { x: TREE.ladderX, y: top }, r: 30, axis: 'y', carry: false },
-        animalDown: { kind: 'drag', from: center(branch, animal), to: center(ground, animal), r: 100, axis: 'free', carry: true },
+        animalDown: { kind: 'drag', from: add(branch, bodyPoint(who, animal, 0)), to: add(ground, bodyPoint(who, animal, 0)), r: 100, axis: 'free', carry: true },
         ladderDown: { kind: 'drag', from: { x: TREE.ladderX, y: top }, to: { x: TREE.ladderX, y: LADDER_REST_Y }, r: 30, axis: 'y', carry: false },
       };
       const down = steps.findIndex((s) => s.act === 'animalDown');
@@ -191,7 +215,8 @@ export function rescueLayout(mission: MissionId, level: Level, steps: readonly S
       const animal = mud ? { w: 230, h: 210 } : { w: 200, h: 200 };
       const stuck = mud ? { x: 826, y: GROUND_Y + 16 - animal.h } : { x: 880, y: WATER_Y + 22 - animal.h };
       const safe = mud ? { x: 500, y: GROUND_Y - animal.h } : { x: PIER.x + 44, y: PIER.y + 6 - animal.h };
-      const grab: Pt = { x: stuck.x + animal.w * 0.42, y: stuck.y + animal.h * 0.56 };
+      // móc/phao bám vào giữa thân con vật (điểm neo riêng từng con)
+      const grab: Pt = add(stuck, bodyPoint(who, animal, 0));
       const off = { x: grab.x - stuck.x, y: grab.y - stuck.y };
       const home: Pt = { x: safe.x + off.x, y: safe.y + off.y };
       const start: Pt = { x: mount.x + 78, y: mount.y + (mud ? 4 : -8) };
@@ -200,8 +225,8 @@ export function rescueLayout(mission: MissionId, level: Level, steps: readonly S
         buoy: { kind: 'drag', from: start, to: grab, r: 118, axis: 'free', carry: false },
         pull: { kind: 'drag', from: grab, to: home, r: 104, axis: 'free', carry: true },
         tow: { kind: 'drag', from: grab, to: home, r: 104, axis: 'free', carry: true },
-        wash: { kind: 'rub', targets: [center(safe, animal)], r: 150 },
-        dry: { kind: 'rub', targets: [center(safe, animal)], r: 150 },
+        wash: { kind: 'rub', targets: [add(safe, bodyPoint(who, animal, 0))], r: 150 },
+        dry: { kind: 'rub', targets: [add(safe, bodyPoint(who, animal, 0))], r: 150 },
       };
       return {
         vehicle,
@@ -217,10 +242,8 @@ export function rescueLayout(mission: MissionId, level: Level, steps: readonly S
       const vehicle = PARKED;
       const animal = { w: 250, h: 250 };
       const spot = { x: 812, y: GROUND_Y - animal.h };
-      const sore: Pt[] = [
-        { x: spot.x + animal.w * 0.3, y: spot.y + animal.h * 0.76 },
-        { x: spot.x + animal.w * 0.72, y: spot.y + animal.h * 0.7 },
-      ];
+      // chỗ đau nằm trên thân (điểm neo riêng từng con), không lệch ra chân hay khoảng trống
+      const sore: Pt[] = [add(spot, bodyPoint(who, animal, 0)), add(spot, bodyPoint(who, animal, 1))];
       const tray: Pt = { x: MEDKIT.x + MEDKIT.w / 2, y: MEDKIT.y - 52 };
       return {
         vehicle,

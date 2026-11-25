@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
 import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
 import { ClayButton } from '../../ui/ClayButton';
@@ -54,6 +54,7 @@ import {
   ROAD_Y,
   STAGE_H,
   STAGE_W,
+  bodyPoint,
   clampHandle,
   layoutGarage,
   reached,
@@ -64,6 +65,7 @@ import {
   type RubGeo,
 } from './layout';
 import { createRescueSounds } from './sounds';
+import { useGlide } from './tween';
 import { Vehicle } from './Vehicles';
 import { Bell, Emote, Flame, Heart, Helmet, Plaster, SceneBack, SceneFront, Tool } from './Props';
 import styles from './Game.module.css';
@@ -120,16 +122,40 @@ function visibleHeight(animal: Animal, box: { w: number; h: number }): number {
   return Math.min(box.h * 1.1, (animal.padded ? box.h * 0.86 : Math.min(box.h, box.w / animal.ar)) * s);
 }
 
-function AnimalPic({ animal, box, mood, raft = false, mud = 0, wet = 0 }: { animal: Animal; box: { w: number; h: number }; mood: Mood; raft?: boolean; mud?: number; wet?: number }) {
+/**
+ * Ảnh bạn thú với biểu cảm. Vệt bùn, giọt nước và `marks` (chỗ đau, băng dán, vết bẩn; toạ độ trong
+ * ô) nằm bên trong phần lắc lư của con vật nên luôn dính trên thân, kể cả lúc con vật run hay nhún.
+ */
+function AnimalPic({
+  animal,
+  box,
+  mood,
+  raft = false,
+  mud = 0,
+  wet = 0,
+  marks,
+}: {
+  animal: Animal;
+  box: { w: number; h: number };
+  mood: Mood;
+  raft?: boolean;
+  mud?: number;
+  wet?: number;
+  marks?: ReactNode;
+}) {
   const vh = visibleHeight(animal, box);
+  const body = animal.body.map((_, k) => bodyPoint(animal, box, k));
   return (
     <div className={styles.animalMood} data-mood={mood} style={{ '--vh': `${Math.round(vh)}px`, '--s': animal.scale ?? 1 } as CSSProperties}>
       {raft && <span className={styles.raft} aria-hidden="true" />}
       <img src={`${BASE}${animal.img}`} alt="" draggable={false} className={styles.animalImg} data-padded={animal.padded ? '' : undefined} />
       {mud > 0 &&
-        [0, 1, 2].map((k) => <span key={k} className={styles.mudBlob} data-k={k} style={{ opacity: mud }} aria-hidden="true" />)}
+        body.map((p, k) => (
+          <span key={k} className={styles.mudBlob} data-k={k} data-testid="mud" style={{ opacity: mud, left: p.x, top: p.y }} aria-hidden="true" />
+        ))}
       {wet > 0 &&
-        [0, 1, 2, 3].map((k) => <span key={k} className={styles.wetDrop} data-k={k} style={{ opacity: wet }} aria-hidden="true" />)}
+        body.map((p, k) => <span key={k} className={styles.wetDrop} data-k={k} style={{ opacity: wet, left: p.x, top: p.y }} aria-hidden="true" />)}
+      {marks}
       <span className={styles.emote} key={mood} aria-hidden="true">
         <Emote mood={mood} />
       </span>
@@ -260,7 +286,7 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
   const phase = state.phase;
   const step = currentStep(state);
   const animal = mission ? animalById(mission.animal) : null;
-  const layout = useMemo(() => (mission ? rescueLayout(mission.id, level, mission.steps) : null), [mission, level]);
+  const layout = useMemo(() => (mission ? rescueLayout(mission.id, level, mission.steps, mission.animal) : null), [mission, level]);
   const geo = layout && step ? layout.steps[state.step] : null;
   const dragGeo: DragGeo | null = geo?.kind === 'drag' ? geo : null;
   const rubGeo: RubGeo | null = geo?.kind === 'rub' ? geo : null;
@@ -459,7 +485,7 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
       const m = currentMission(s);
       const st = currentStep(s);
       if (!m || st?.kind !== 'rub') return;
-      const g = rescueLayout(m.id, s.level, m.steps).steps[s.step];
+      const g = rescueLayout(m.id, s.level, m.steps, m.animal).steps[s.step];
       if (g.kind !== 'rub') return;
       if (rubTicks.current++ % 6 === 0) (st.act === 'spray' ? sounds.spray : sounds.wipe)();
       for (let i = 0; i < g.targets.length; i++) {
@@ -634,12 +660,24 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
           ? 'basketDown'
           : null
     : null;
-  /** Móc/phao/giỏ: theo tay khi đang là bước kéo, không thì nằm ở chỗ nghỉ (bám theo bạn thú). */
-  const toolAt: Pt | null = toolAct && layout ? (cur ?? layout.rest) : null;
+  /**
+   * Bạn thú và vật kéo trượt êm bằng JS (useGlide) chứ không bằng CSS transition: đầu dây, móc và
+   * con vật đọc cùng toạ độ ở mỗi khung hình nên không bao giờ lệch nhau giữa chừng.
+   */
+  const animalShown = useGlide(animalAt, dragging && !!dragGeo?.carry);
+  const curShown = useGlide(cur, dragging);
+  /** Móc/phao/giỏ: theo tay khi đang là bước kéo, không thì nằm ở chỗ nghỉ. */
+  const toolGlide = useGlide(toolAct && layout ? (cur ?? layout.rest) : null, dragging);
+  /** Móc/phao đã bám vào con vật (sau bước móc/ném phao): đi theo đúng điểm neo trên thân. */
+  const hookOn = layout && (toolAct === 'hook' || toolAct === 'buoy') && (state.step > 0 || saved) && layout.steps[0].kind === 'drag' ? layout.steps[0] : null;
+  const toolAt: Pt | null =
+    hookOn && animalShown && layout
+      ? { x: animalShown.x + hookOn.to.x - layout.spots[0].x, y: animalShown.y + hookOn.to.y - layout.spots[0].y }
+      : toolGlide;
   const upGeo = layout && mission?.id === 'tree' ? layout.steps[acts.indexOf('ladderUp')] : null;
   let ladderTop: number | null = null;
   if (layout && mission?.id === 'tree' && upGeo?.kind === 'drag') {
-    ladderTop = saved ? (layout.rest?.y ?? upGeo.to.y) : step?.act === 'ladderUp' || step?.act === 'ladderDown' ? cur!.y : upGeo.to.y;
+    ladderTop = saved ? (layout.rest?.y ?? upGeo.to.y) : step?.act === 'ladderUp' || step?.act === 'ladderDown' ? curShown!.y : upGeo.to.y;
   }
   const plasters = layout && mission?.id === 'hurt' ? mission.steps.map((s, i) => ({ s, i, g: layout.steps[i] })).filter((x) => x.s.act === 'plaster') : [];
   const cleanIdx = acts.indexOf('clean');
@@ -651,7 +689,7 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
     else dirty = state.step < washIdx ? 1 : state.step === washIdx && !saved ? rubLeft(state, 0) : 0;
   }
   /** Vật kéo trên màn: đang là bước kéo thì ở tay bé, không thì (móc/phao/giỏ) ở chỗ nghỉ. */
-  const handleAt: Pt | null = cur ?? (toolAct ? toolAt : null);
+  const handleAt: Pt | null = toolAct ? toolAt : curShown;
   const handleAct: Act = dragGeo && step ? step.act : (toolAct ?? 'hook');
   /** Đầu dây: tâm móc/phao, riêng giỏ thì buộc vào đỉnh quai giỏ. */
   const ropeEnd: Pt | null = toolAt ? (toolAct === 'basketDown' ? { x: toolAt.x, y: toolAt.y - 86 } : toolAt) : null;
@@ -784,7 +822,16 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
             >
               <SceneBack mission={mission.id} level={level} mini />
               <div className={styles.animal} style={{ left: mini0.x, top: mini0.y, width: layout.animal.w, height: layout.animal.h }}>
-                <AnimalPic animal={animal} box={layout.animal} mood="worried" raft={mission.id === 'lake'} mud={mission.id === 'mud' ? 1 : 0} />
+                <AnimalPic
+                  animal={animal}
+                  box={layout.animal}
+                  mood="worried"
+                  raft={mission.id === 'lake'}
+                  mud={mission.id === 'mud' ? 1 : 0}
+                  marks={plasters.slice(0, 1).map(
+                    ({ g, i }) => g.kind === 'drag' && <span key={i} className={styles.sore} style={{ left: g.to.x - mini0.x, top: g.to.y - mini0.y }} />,
+                  )}
+                />
               </div>
               <SceneFront mission={mission.id} />
               {mission.id === 'fire' &&
@@ -794,14 +841,13 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
                     <Flame left={1} />
                   </div>
                 ))}
-              {plasters.slice(0, 1).map(({ g, i }) => g.kind === 'drag' && <span key={i} className={styles.sore} style={{ left: g.to.x - 34, top: g.to.y - 34 }} />)}
             </div>
           </div>
         </div>
       )}
 
       {/* ================= Cứu hộ ================= */}
-      {view === 'rescue' && mission && animal && layout && animalAt && (
+      {view === 'rescue' && mission && animal && layout && animalShown && (
         <div key={`rescue-${state.index}`} className={styles.fade}>
           <SceneBack mission={mission.id} level={level} />
 
@@ -844,7 +890,7 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
           {/* Bạn thú cần giúp */}
           <div
             className={styles.animal}
-            style={{ left: animalAt.x, top: animalAt.y, width: layout.animal.w, height: layout.animal.h }}
+            style={{ left: animalShown.x, top: animalShown.y, width: layout.animal.w, height: layout.animal.h }}
             role="button"
             aria-label={`animal-${mission.animal}`}
             data-testid="animal"
@@ -862,6 +908,29 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
                 raft={mission.id === 'lake' && state.step === 0 && !saved}
                 mud={mission.id === 'mud' ? dirty : 0}
                 wet={mission.id === 'lake' ? dirty : 0}
+                marks={
+                  <>
+                    {/* Chỗ đau và băng dán: ở trong ô con vật (đứng yên ở spot) nên lắc lư theo thân */}
+                    {plasters.map(({ g, i }) => {
+                      if (g.kind !== 'drag') return null;
+                      const at = { left: g.to.x - layout.spots[0].x, top: g.to.y - layout.spots[0].y };
+                      return state.step > i || saved ? (
+                        <span key={i} className={styles.stuck} style={at} data-testid={`plaster-${i}`} aria-hidden="true">
+                          <Plaster />
+                        </span>
+                      ) : (
+                        <span key={i} className={styles.sore} style={at} data-testid={`sore-${i}`} aria-hidden="true" />
+                      );
+                    })}
+                    {cleanIdx >= 0 && state.step === cleanIdx && rubGeo && (
+                      <span
+                        className={styles.smudge}
+                        style={{ left: rubGeo.targets[0].x - layout.spots[0].x, top: rubGeo.targets[0].y - layout.spots[0].y, opacity: rubLeft(state, 0) }}
+                        aria-hidden="true"
+                      />
+                    )}
+                  </>
+                }
               />
             </div>
             {mood === 'happy' && (
@@ -896,21 +965,6 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
               );
             })}
 
-          {/* Chỗ đau và băng dán */}
-          {plasters.map(({ g, i }) => {
-            if (g.kind !== 'drag') return null;
-            const stuck = state.step > i;
-            return stuck ? (
-              <span key={i} className={styles.stuck} style={{ left: g.to.x - 45, top: g.to.y - 45 }} data-testid={`plaster-${i}`} aria-hidden="true">
-                <Plaster />
-              </span>
-            ) : (
-              <span key={i} className={styles.sore} style={{ left: g.to.x - 34, top: g.to.y - 34 }} aria-hidden="true" />
-            );
-          })}
-          {cleanIdx >= 0 && state.step === cleanIdx && rubGeo && (
-            <span className={styles.smudge} style={{ left: rubGeo.targets[0].x - 50, top: rubGeo.targets[0].y - 44, opacity: rubLeft(state, 0) }} aria-hidden="true" />
-          )}
 
           {/* Đích của bước kéo */}
           {dragGeo && (

@@ -377,11 +377,6 @@
     linear-gradient(90deg, var(--scene-wicker) 0 13px, transparent 13px calc(100% - 13px), var(--scene-wicker) calc(100% - 13px)),
     repeating-linear-gradient(0deg, transparent 0 24px, var(--scene-wicker) 24px 35px);
   filter: drop-shadow(0 0 2px var(--scene-wicker-dark)) drop-shadow(0 5px 5px color-mix(in srgb, var(--ink) 24%, transparent));
-  transition: top 500ms ease, height 500ms ease;
-}
-
-.ladder[data-drag] {
-  transition: none;
 }
 
 .parked {
@@ -398,11 +393,6 @@
   background: var(--scene-wicker-dark);
   transform-origin: 0 50%;
   pointer-events: none;
-  transition: width 900ms cubic-bezier(0.3, 0.1, 0.3, 1), transform 900ms cubic-bezier(0.3, 0.1, 0.3, 1);
-}
-
-.rope[data-drag] {
-  transition: none;
 }
 
 /* ---- Bạn thú ---- */
@@ -410,11 +400,6 @@
   position: absolute;
   z-index: 5;
   cursor: pointer;
-  transition: left 900ms cubic-bezier(0.3, 0.1, 0.3, 1), top 900ms cubic-bezier(0.3, 0.1, 0.3, 1);
-}
-
-.animal[data-drag] {
-  transition: none;
 }
 
 .animal[data-hint] .animalImg {
@@ -493,6 +478,8 @@
 
 .mudBlob {
   position: absolute;
+  /* left/top là tâm (điểm neo trên thân) */
+  translate: -50% -50%;
   width: 46px;
   height: 34px;
   border-radius: 50% 60% 45% 55%;
@@ -502,27 +489,20 @@
   transition: opacity 500ms ease;
 }
 
-.mudBlob[data-k='0'] {
-  left: 20%;
-  bottom: calc(var(--vh) * 0.24);
-}
-
 .mudBlob[data-k='1'] {
-  left: 44%;
-  bottom: calc(var(--vh) * 0.46);
   width: 38px;
   height: 30px;
 }
 
 .mudBlob[data-k='2'] {
-  left: 64%;
-  bottom: calc(var(--vh) * 0.2);
   width: 52px;
   height: 36px;
 }
 
 .wetDrop {
   position: absolute;
+  /* left/top là tâm (điểm neo trên thân) */
+  translate: -50% -50%;
   width: 18px;
   height: 26px;
   border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
@@ -533,26 +513,15 @@
   animation: drip 1.1s ease-in infinite;
 }
 
-.wetDrop[data-k='0'] {
-  left: 16%;
-  bottom: calc(var(--vh) * 0.5);
-}
-
 .wetDrop[data-k='1'] {
-  left: 40%;
-  bottom: calc(var(--vh) * 0.72);
   animation-delay: 300ms;
 }
 
 .wetDrop[data-k='2'] {
-  left: 62%;
-  bottom: calc(var(--vh) * 0.56);
   animation-delay: 600ms;
 }
 
 .wetDrop[data-k='3'] {
-  left: 82%;
-  bottom: calc(var(--vh) * 0.4);
   animation-delay: 850ms;
 }
 
@@ -687,7 +656,6 @@
   z-index: 10;
   touch-action: none;
   pointer-events: none;
-  transition: left 900ms cubic-bezier(0.3, 0.1, 0.3, 1), top 900ms cubic-bezier(0.3, 0.1, 0.3, 1);
 }
 
 .handle[data-live] {
@@ -696,7 +664,6 @@
 }
 
 .handle[data-drag] {
-  transition: none;
   cursor: grabbing;
 }
 
@@ -772,6 +739,8 @@
 
 .stuck {
   position: absolute;
+  /* left/top là tâm (điểm neo trên thân) */
+  translate: -50% -50%;
   width: 90px;
   height: 90px;
   z-index: 7;
@@ -781,6 +750,8 @@
 
 .sore {
   position: absolute;
+  /* left/top là tâm (điểm neo trên thân) */
+  translate: -50% -50%;
   width: 68px;
   height: 68px;
   z-index: 7;
@@ -797,6 +768,8 @@
 
 .smudge {
   position: absolute;
+  /* left/top là tâm (điểm neo trên thân) */
+  translate: -50% -50%;
   width: 100px;
   height: 88px;
   z-index: 7;

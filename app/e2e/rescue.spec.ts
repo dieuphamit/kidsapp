@@ -283,6 +283,70 @@ test('bé nhỏ: ga-ra 2 xe, xe đúng nhấp nháy ngay, thao tác 1 bước; c
   await expect(page.locator('[data-testid^="party-animal-"]')).toHaveCount(3);
 });
 
+/** Làm nốt nhiệm vụ đang cứu bằng móc logic (nhiệm vụ đã soát rồi, chỉ cần qua nhanh). */
+async function finishFast(page: Page) {
+  const game = page.getByTestId('game-rescue');
+  for (let k = 0; k < 6; k++) {
+    const s = await snap(page);
+    if (s.phase !== 'rescue') break;
+    if (RUB_ACTS.includes(s.acts[s.step])) for (let i = 0; i < s.hp.length; i++) await page.evaluate((t) => window.__behocRescue!.rub(t, 99_999), i);
+    else {
+      await page.waitForTimeout(950);
+      await page.evaluate(() => window.__behocRescue!.dragDone());
+    }
+  }
+  await expect(game).toHaveAttribute('data-phase', 'saved');
+}
+
+for (const level of ['easy', 'medium', 'hard'] as const) {
+  test(`soát từng nhiệm vụ ở mức ${level}: thao tác bằng chuột thật, chụp mọi bước; chụp rescue-${level}-<nhiệm vụ>-*`, async ({ page }) => {
+    test.setTimeout(420_000);
+    const game = await openRescue(page, level);
+    const want = ['fire', 'tree', 'mud', 'lake', 'hurt', 'sky'];
+    const seen = new Set<string>();
+    for (let round = 0; round < 3 && seen.size < want.length; round++) {
+      const count = (await snap(page)).count;
+      for (let i = 0; i < count; i++) {
+        await expect.poll(async () => (await snap(page))?.index, { timeout: 15_000 }).toBe(i);
+        await expect(game).toHaveAttribute('data-phase', 'pick', { timeout: 10_000 });
+        await skipToRescue(page);
+        const s = await snap(page);
+        if (seen.has(s.mission)) await finishFast(page);
+        else {
+          seen.add(s.mission);
+          for (let k = 0; k < s.acts.length; k++) {
+            await expect(game).toHaveAttribute('data-step', String(k));
+            await page.waitForTimeout(1000);
+            // trước mỗi bước: chỗ đau / vệt bùn / móc nằm trên thân con vật
+            if (s.mission === 'hurt') {
+              for (const el of await page.locator('[data-testid^="sore-"], [data-testid^="plaster-"]').all()) {
+                const b = (await el.boundingBox())!;
+                const a = (await page.getByTestId('animal').boundingBox())!;
+                expect(b.x + b.width / 2).toBeGreaterThan(a.x);
+                expect(b.x + b.width / 2).toBeLessThan(a.x + a.width);
+                expect(b.y + b.height / 2).toBeGreaterThan(a.y);
+                expect(b.y + b.height / 2).toBeLessThan(a.y + a.height);
+              }
+            }
+            await doStep(page, `test-results/shots/rescue-${level}-${s.mission}-${k}.png`);
+          }
+          await expect(game).toHaveAttribute('data-phase', 'saved');
+          await page.waitForTimeout(1300);
+          await page.screenshot({ path: `test-results/shots/rescue-${level}-${s.mission}-saved.png` });
+        }
+        await expect(game).toHaveAttribute('data-last-say', `rescue.done.${s.mission}`, { timeout: 8000 });
+      }
+      if (seen.size < want.length) {
+        await expect(page.getByTestId('party')).toBeVisible({ timeout: 15_000 });
+        const replay = (await page.getByRole('button', { name: 'Chơi lại' }).boundingBox())!;
+        await page.mouse.click(replay.x + replay.width / 2, replay.y + replay.height / 2);
+        await expect(game).toHaveAttribute('data-phase', 'pick');
+      }
+    }
+    expect([...seen].sort()).toEqual([...want].sort());
+  });
+}
+
 test.describe('iPhone dọc 430×932: kéo dụng cụ cứu hộ', () => {
   test.use({ viewport: { width: 430, height: 932 }, hasTouch: true, isMobile: true });
 

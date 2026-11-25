@@ -22,19 +22,25 @@ export interface Animal {
   scale?: number;
   /** Tỉ lệ rộng/cao của phần thấy được (để đặt biểu cảm ngay trên đầu). */
   ar: number;
+  /**
+   * Điểm neo nằm chắc trên thân con vật (tỉ lệ x, y trong file ảnh; tâm các vòng tròn lớn nhất lọt
+   * trong hình, đo từ kênh alpha): chỗ đau/băng dán, vệt bùn, giọt nước, chỗ móc dây đặt theo đây
+   * nên luôn nằm trên thân dù con vật dáng ngang hay dáng đứng. Điểm đầu là giữa thân.
+   */
+  body: readonly (readonly [number, number])[];
 }
 
 export const ANIMALS = [
-  { id: 'cow', img: 'world-photos/cow.png', sound: 'animal.cow-sound', ar: 1.8, scale: 1.18 },
-  { id: 'pig', img: 'world-photos/pig.png', sound: 'animal.pig-sound', ar: 2.0, scale: 1.1 },
-  { id: 'sheep', img: 'world-photos/sheep.png', sound: 'animal.sheep-sound', ar: 1.28 },
-  { id: 'horse', img: 'cards/feed/horse.png', sound: 'animal.horse-sound', ar: 1.3, padded: true, scale: 1.12 },
-  { id: 'chicken', img: 'world-photos/chicken.png', sound: 'animal.chicken-sound', ar: 1.2, scale: 0.86 },
-  { id: 'cat', img: 'cards/feed/cat.png', sound: 'animal.cat-sound', ar: 1.3, padded: true },
-  { id: 'raccoon', img: 'world-photos/raccoon.png', sound: 'animal.raccoon-sound', ar: 1.24, scale: 0.95 },
-  { id: 'duck', img: 'world-photos/farm-duck.png', sound: 'animal.duck-sound', ar: 1.42, scale: 0.9 },
-  { id: 'rabbit', img: 'world-photos/rabbit.png', sound: 'animal.rabbit-sound', ar: 1.04, scale: 0.9 },
-  { id: 'dog', img: 'world-photos/dog.png', sound: 'animal.dog-sound', ar: 1.44 },
+  { id: 'cow', img: 'world-photos/cow.png', sound: 'animal.cow-sound', ar: 1.8, scale: 1.18, body: [[0.4, 0.33], [0.63, 0.32], [0.2, 0.54]] },
+  { id: 'pig', img: 'world-photos/pig.png', sound: 'animal.pig-sound', ar: 2.0, scale: 1.1, body: [[0.31, 0.37], [0.66, 0.42], [0.83, 0.59]] },
+  { id: 'sheep', img: 'world-photos/sheep.png', sound: 'animal.sheep-sound', ar: 1.28, body: [[0.64, 0.41], [0.36, 0.38], [0.2, 0.13]] },
+  { id: 'horse', img: 'cards/feed/horse.png', sound: 'animal.horse-sound', ar: 1.3, padded: true, scale: 1.12, body: [[0.4, 0.44], [0.62, 0.42], [0.21, 0.29]] },
+  { id: 'chicken', img: 'world-photos/chicken.png', sound: 'animal.chicken-sound', ar: 1.2, scale: 0.86, body: [[0.58, 0.62], [0.3, 0.51], [0.74, 0.49]] },
+  { id: 'cat', img: 'cards/feed/cat.png', sound: 'animal.cat-sound', ar: 1.3, padded: true, body: [[0.51, 0.49], [0.31, 0.45], [0.18, 0.32]] },
+  { id: 'raccoon', img: 'world-photos/raccoon.png', sound: 'animal.raccoon-sound', ar: 1.24, scale: 0.95, body: [[0.6, 0.47], [0.28, 0.69], [0.86, 0.16]] },
+  { id: 'duck', img: 'world-photos/farm-duck.png', sound: 'animal.duck-sound', ar: 1.42, scale: 0.9, body: [[0.46, 0.52], [0.74, 0.64], [0.26, 0.14]] },
+  { id: 'rabbit', img: 'world-photos/rabbit.png', sound: 'animal.rabbit-sound', ar: 1.04, scale: 0.9, body: [[0.68, 0.7], [0.36, 0.63], [0.16, 0.44]] },
+  { id: 'dog', img: 'world-photos/dog.png', sound: 'animal.dog-sound', ar: 1.44, body: [[0.63, 0.48], [0.3, 0.45], [0.18, 0.64]] },
 ] as const satisfies readonly Animal[];
 
 export type AnimalId = (typeof ANIMALS)[number]['id'];
@@ -99,7 +105,7 @@ export interface MissionDef {
   vehicle: VehicleId;
   /** Con vật có thể gặp trong tình huống này (đổi ngẫu nhiên giữa các lượt). */
   animals: readonly AnimalId[];
-  /** Thao tác theo mức: dễ 1 bước ngắn, vừa dài hơn, khó 3 bước nhỏ. Viết 'spray*2' = 2 chỗ. */
+  /** Thao tác theo mức: dễ 1 bước ngắn, vừa 2 phần việc, khó 3 bước nhỏ. Viết 'spray*2' = 2 chỗ. */
   plan: Record<Level, readonly string[]>;
 }
 
@@ -114,7 +120,7 @@ export const MISSIONS = [
     id: 'tree',
     vehicle: 'ladder',
     animals: ['cat', 'raccoon', 'chicken'],
-    plan: { easy: ['ladderUp'], medium: ['ladderUp'], hard: ['ladderUp', 'animalDown', 'ladderDown'] },
+    plan: { easy: ['ladderUp'], medium: ['ladderUp', 'animalDown'], hard: ['ladderUp', 'animalDown', 'ladderDown'] },
   },
   {
     id: 'mud',
