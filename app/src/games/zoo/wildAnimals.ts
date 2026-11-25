@@ -25,17 +25,18 @@ export type WildAnimalData = {
  */
 export const WILD_ANIMALS: WildAnimalData[] = [
   { id: 'elephant', model: 'elephant.glb', height: 1.9 },
-  { id: 'giraffe', model: 'giraffe.glb', height: 2.5 },
+  { id: 'giraffe', model: 'giraffe.glb', height: 2.6 },
   { id: 'lion', model: 'lion.glb', height: 1.1 },
   { id: 'tiger', model: 'tiger.glb', height: 1.1 },
   { id: 'monkey', model: 'monkey.glb', height: 1 },
-  { id: 'panda', model: 'panda.glb', height: 1.1 },
-  { id: 'penguin', model: 'penguin.glb', height: 0.9, gait: 'waddle' },
+  { id: 'panda', model: 'panda.glb', height: 1.0 },
+  { id: 'penguin', model: 'penguin.glb', height: 0.95, gait: 'waddle' },
   { id: 'koala', model: 'koala.glb', height: 0.75 },
   { id: 'fox', model: 'world/fox.glb', height: 0.8, world: 'fox' },
-  { id: 'bear', model: 'bear.glb', height: 1.5 },
+  { id: 'bear', model: 'bear.glb', height: 1.25 },
   { id: 'parrot', model: 'parrot.glb', height: 0.7, gait: 'hop' },
-  { id: 'fish', model: 'fish.glb', height: 0.6, gait: 'swim', canWander: false },
+  // cá nhỏ hơn hẳn chim cánh cụt; ảnh dài gấp đôi cao nên vẫn rộng ~150px để bé chạm
+  { id: 'fish', model: 'fish.glb', height: 0.45, gait: 'swim', canWander: false },
 ];
 
 /**
@@ -83,23 +84,24 @@ export type ZooPlacement = {
 };
 
 /**
- * 3 vùng đi dạo ở 3 dải độ sâu khác nhau (sau → trước): mỗi con tự chọn đích trong vùng của mình, đi chéo
+ * 3 vùng đi dạo ở 3 dải độ sâu cách xa nhau (sau → trước): mỗi con tự chọn đích trong vùng của mình, đi chéo
  * nhẹ, nghỉ, rồi đi tiếp; các con lướt qua nhau ở dải khác nhau nên ít che nhau. Con to (hươu, voi) đi dải
  * sau cùng để không che con khác. Mỗi con bắt đầu ở chỗ khác nhau.
  */
 const ZOO_ZONES: { pos: [number, number, number]; area: Area }[] = [
-  { pos: [0.5, 0, -2.1], area: { xMin: -4.6, xMax: 4.6, zMin: -2.6, zMax: -1.6 } },
-  // dải giữa tránh hai chỗ đứng yên ở hai góc (x = ±4)
-  { pos: [-2.8, 0, 0.8], area: { xMin: -3.0, xMax: 3.0, zMin: 0.3, zMax: 1.3 } },
-  // dải trước dừng ở x = 2.2 để không chui ra sau con đứng góc phải hàng trước
-  { pos: [1.8, 0, 2.0], area: { xMin: -3.4, xMax: 2.2, zMin: 1.7, zMax: 2.4 } },
+  { pos: [0.5, 0, -2.8], area: { xMin: -4.2, xMax: 4.2, zMin: -3.2, zMax: -2.4 } },
+  // dải giữa tránh hai chỗ đứng yên ở hai góc (x = ±4.2)
+  { pos: [-2.0, 0, 0], area: { xMin: -2.2, xMax: 2.2, zMin: -0.4, zMax: 0.4 } },
+  // dải trước ở sát bé (chân thú thấp hơn đầu thú dải giữa ~40px trên màn hình: hai dải không đè nhau); dừng ở
+  // x = 0.4 để con dài (hổ) không chạm con đứng góc phải hàng trước (x = 3.1: con dài như cáo vẫn nằm trọn khung hình)
+  { pos: [-0.6, 0, 4.0], area: { xMin: -2.4, xMax: 0.4, zMin: 3.7, zMax: 4.3 } },
 ];
 
 /** 3 chỗ đứng yên: hai góc hàng giữa và góc phải hàng trước (giữa cảnh để trống cho các con đi qua lại) */
 const ZOO_SPOTS: { pos: [number, number, number]; rotY: number }[] = [
-  { pos: [-4.0, 0, -0.6], rotY: 0.7 },
-  { pos: [4.0, 0, -0.6], rotY: -0.7 },
-  { pos: [3.6, 0, 3.0], rotY: -0.6 },
+  { pos: [-4.2, 0, -0.6], rotY: 0.7 },
+  { pos: [4.2, 0, -0.6], rotY: -0.7 },
+  { pos: [3.1, 0, 3.2], rotY: -0.6 },
 ];
 
 /**

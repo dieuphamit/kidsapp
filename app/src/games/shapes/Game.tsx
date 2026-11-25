@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { Scene3D } from '../../ui/Scene3D';
 import { BackHome } from '../../ui/BackHome';
 import type { GameProps } from '../../core/games';
-import { LEARN_HEX, type LearnColor } from '../../core/tokens';
+import { LEARN_HEX, SCENE_HEX, type LearnColor } from '../../core/tokens';
 import { playSetup, type Level } from '../../core/variety';
 import {
   newShapesRound,
@@ -30,9 +30,9 @@ function startRound(level: Level): { round: ShapesRound; state: ShapesState } {
   return { round, state: { colors: round.colors, tapped: new Set(), placed: new Set(), shapes: round.shapes } };
 }
 
-const POND_COLOR = '#a0e7e5';
-const SHORE_COLOR = '#9be38a';
-const SLOT_COLOR = '#3b2a6b'; // --ink
+const POND_COLOR = SCENE_HEX.mint;
+const SHORE_COLOR = SCENE_HEX.grass;
+const SLOT_COLOR = SCENE_HEX.ink;
 
 const DRAG_THRESHOLD = 12; // pixels on screen to start drag
 const DRAG_Y = 0.4; // y position of drag plane
@@ -227,7 +227,7 @@ function ShapeMesh({
       case 'square':
         return (
           <RoundedBox
-            args={[1.1, 1.1, 1.1]}
+            args={[1.0, 1.0, 1.0]}
             radius={0.15}
             onPointerDown={handlePointerDown}
             onPointerMove={onPointerMove}
@@ -259,7 +259,7 @@ function ShapeMesh({
       case 'rectangle':
         return (
           <RoundedBox
-            args={[1.5, 0.75, 0.75]}
+            args={[1.3, 0.7, 0.7]}
             radius={0.12}
             onPointerDown={handlePointerDown}
             onPointerMove={onPointerMove}
@@ -397,7 +397,7 @@ function CelebrationStars({ active }: { active: boolean }) {
   const starsRef = useRef<THREE.Group>(null);
   const [stars] = useState(() => {
     const arr: { x: number; z: number; vx: number; vy: number; vz: number; color: string }[] = [];
-    const colors = ['#ffb4a2', '#a0e7e5', '#ffe29a', '#b4f8c8', '#cdb4ff'];
+    const colors = [SCENE_HEX.peach, SCENE_HEX.mint, SCENE_HEX.butter, SCENE_HEX.clayLeaf, SCENE_HEX.lilac];
     for (let i = 0; i < 40; i++) {
       arr.push({
         x: (Math.random() - 0.5) * 6,
@@ -460,8 +460,9 @@ function Pond() {
         <meshStandardMaterial color={SHORE_COLOR} roughness={0.8} />
       </mesh>
       {/* Water surface - y=-0.03: trên cỏ (-0.06), dưới ContactShadows (0) để không z-fighting */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.03, 0]}>
-        <circleGeometry args={[3.5, 64]} />
+      {/* Hồ bầu dục: rộng theo chiều ngang (đủ cho 5 hình ở x = ±3), mép trước dừng ở z = 2.7 để không che các ô bóng trên bờ (z = 3.5) */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.03, 0]} scale={[1.35, 1, 1]}>
+        <circleGeometry args={[2.7, 64]} />
         <meshStandardMaterial color={POND_COLOR} roughness={0.3} />
       </mesh>
     </group>
@@ -483,7 +484,7 @@ function Ripple({ delay }: { delay: number }) {
   return (
     <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
       <torusGeometry args={[1.5, 0.02, 8, 64]} />
-      <meshStandardMaterial color="#ffffff" transparent opacity={0.3} />
+      <meshStandardMaterial color={SCENE_HEX.paper} transparent opacity={0.3} />
     </mesh>
   );
 }

@@ -61,9 +61,9 @@ const W = 'world/';
 
 export const WORLD_ANIMALS: Record<string, WorldAnimal> = {
   // Biển
-  // cá voi: con lớn nhất khu Biển (bố mẹ góp ý 18/11: trước 0.62 trông nhỏ)
-  whale: { id: 'whale', model: W + 'whale.glb', habitat: 'sea', height: 1.0, len: 3.01, band: [0.55, 1], motion: 'swim', clips: ['Swim'], anchor: { Swim: 0.35 }, speed: 0.45, tris: 447 },
-  dolphin: { id: 'dolphin', model: W + 'dolphin.glb', habitat: 'sea', height: 0.5, len: 3.04, band: [0.3, 0.75], motion: 'swim', clips: ['Swim'], anchor: { Swim: 1 }, speed: 0.7, tris: 436 },
+  // cá voi: con lớn nhất khu Biển (bố mẹ góp ý 18/11: trước 0.62 trông nhỏ); dài gấp ~2.7 lần cá heo (1.15 × 3.01 so với 0.42 × 3.04)
+  whale: { id: 'whale', model: W + 'whale.glb', habitat: 'sea', height: 1.15, len: 3.01, band: [0.55, 1], motion: 'swim', clips: ['Swim'], anchor: { Swim: 0.35 }, speed: 0.45, tris: 447 },
+  dolphin: { id: 'dolphin', model: W + 'dolphin.glb', habitat: 'sea', height: 0.42, len: 3.04, band: [0.3, 0.75], motion: 'swim', clips: ['Swim'], anchor: { Swim: 1 }, speed: 0.7, tris: 436 },
   manta: { id: 'manta', model: W + 'manta.glb', habitat: 'sea', height: 0.4, len: 4.2, band: [0, 0.35], motion: 'swim', clips: ['Swim'], anchor: { Swim: 1 }, speed: 0.4, tris: 696 },
   clownfish: { id: 'clownfish', model: W + 'clownfish.glb', habitat: 'sea', height: 0.42, len: 1.64, motion: 'school', clips: ['Swim', 'Run', 'Jump'], anchor: { Swim: 1.6, Run: 3.2 }, speed: 0.55, tris: 1528 },
   puffer: { id: 'puffer', model: W + 'puffer.glb', habitat: 'sea', height: 0.45, len: 1.46, motion: 'school', clips: ['Swim', 'Run', 'Jump'], anchor: { Swim: 1.4, Run: 2.8 }, speed: 0.45, tris: 2138 },
@@ -77,22 +77,22 @@ export const WORLD_ANIMALS: Record<string, WorldAnimal> = {
   // Rừng
   deer: { id: 'deer', model: W + 'deer.glb', habitat: 'forest', height: 1.0, len: 1.03, motion: 'walk', clips: ['Idle', 'Walk', 'Run', 'Eat', 'Jump'], anchor: { Walk: 0.79, Run: 2.5 }, speed: 0.6, canEat: true, tris: 2098 },
   stag: { id: 'stag', model: W + 'stag.glb', habitat: 'forest', height: 1.2, len: 0.9, motion: 'walk', clips: ['Idle', 'Walk', 'Run', 'Eat', 'Jump'], anchor: { Walk: 0.62, Run: 2 }, speed: 0.6, canEat: true, tris: 3670 },
-  fox: { id: 'fox', model: W + 'fox.glb', habitat: 'forest', height: 0.65, len: 2.1, motion: 'walk', clips: ['Idle', 'Walk', 'Run', 'Eat', 'Jump'], anchor: { Walk: 1.06, Run: 3.4 }, speed: 0.5, canEat: true, tris: 1848 },
+  fox: { id: 'fox', model: W + 'fox.glb', habitat: 'forest', height: 0.62, len: 2.1, motion: 'walk', clips: ['Idle', 'Walk', 'Run', 'Eat', 'Jump'], anchor: { Walk: 1.06, Run: 3.4 }, speed: 0.5, canEat: true, tris: 1848 },
   raccoon: { id: 'raccoon', model: W + 'raccoon.glb', habitat: 'forest', height: 0.6, len: 2.31, motion: 'walk', clips: ['Idle', 'Walk', 'Run', 'Eat', 'Jump'], anchor: { Walk: 1.42, Run: 2.3 }, speed: 0.45, canEat: true, tris: 2698 },
   bear: { id: 'bear', model: 'bear.glb', habitat: 'forest', height: 0.95, len: 1.54, motion: 'walk', clips: [], fake: 'walk', speed: 0.4, canEat: true, tris: 568 },
   // Trời
-  // ong to hơn thật cho bé dễ thấy, dễ chạm (luật 1)
-  bee: { id: 'bee', model: W + 'bee.glb', habitat: 'sky', height: 1.1, len: 1.43, band: [0, 0.3], motion: 'fly', clips: ['Fly'], anchor: { Fly: 1.6 }, speed: 0.7, tris: 2996 },
+  // ong to hơn thật cho bé dễ thấy, dễ chạm (luật 1: cạnh ngắn của ảnh ≥ 0.95 đơn vị ≈ 125px), nhưng không to hơn vẹt
+  bee: { id: 'bee', model: W + 'bee.glb', habitat: 'sky', height: 0.88, len: 1.43, band: [0, 0.3], motion: 'fly', clips: ['Fly'], anchor: { Fly: 1.6 }, speed: 0.7, tris: 2996 },
   // dơi (ảnh thật dang cánh): khung thân rộng theo sải cánh
   bat: { id: 'bat', model: W + 'bat.glb', habitat: 'sky', height: 0.6, len: 2.7, band: [0.7, 1], motion: 'fly', clips: ['Fly'], anchor: { Fly: 1.4 }, speed: 0.8, tris: 1046 },
-  pigeon: { id: 'pigeon', model: W + 'pigeon.glb', habitat: 'sky', height: 0.6, len: 1.29, motion: 'walk', clips: ['Idle', 'Walk', 'Jump', 'Happy'], anchor: { Walk: 1.26 }, speed: 0.4, tris: 2164 },
-  parrot: { id: 'parrot', model: 'parrot.glb', habitat: 'sky', height: 0.95, len: 1.31, band: [0.35, 0.65], motion: 'fly', clips: [], fake: 'flap', speed: 0.7, tris: 649 },
+  pigeon: { id: 'pigeon', model: W + 'pigeon.glb', habitat: 'sky', height: 0.7, len: 1.29, motion: 'walk', clips: ['Idle', 'Walk', 'Jump', 'Happy'], anchor: { Walk: 1.26 }, speed: 0.4, tris: 2164 },
+  parrot: { id: 'parrot', model: 'parrot.glb', habitat: 'sky', height: 1.15, len: 1.31, band: [0.35, 0.65], motion: 'fly', clips: [], fake: 'flap', speed: 0.7, tris: 649 },
   // Đồng cỏ
-  zebra: { id: 'zebra', model: W + 'zebra.glb', habitat: 'meadow', height: 0.95, len: 1.31, motion: 'walk', clips: ['Idle', 'Walk', 'Run', 'Jump'], anchor: { Walk: 0.5, Run: 1.77 }, speed: 0.55, tris: 1354 },
-  horse: { id: 'horse', model: W + 'horse.glb', habitat: 'meadow', height: 1.0, len: 1.14, motion: 'walk', clips: ['Idle', 'Walk', 'Run', 'Eat', 'Jump'], anchor: { Walk: 1.14, Run: 1.8 }, speed: 0.6, canEat: true, tris: 2244 },
-  elephant: { id: 'elephant', model: 'elephant.glb', habitat: 'meadow', height: 1.3, len: 1.41, motion: 'walk', clips: [], fake: 'walk', speed: 0.4, tris: 1116 },
-  giraffe: { id: 'giraffe', model: 'giraffe.glb', habitat: 'meadow', height: 1.7, len: 0.71, motion: 'walk', clips: [], fake: 'walk', speed: 0.4, tris: 810 },
-  lion: { id: 'lion', model: 'lion.glb', habitat: 'meadow', height: 0.75, len: 2.14, motion: 'walk', clips: [], fake: 'walk', speed: 0.45, tris: 1350 },
+  zebra: { id: 'zebra', model: W + 'zebra.glb', habitat: 'meadow', height: 0.9, len: 1.67, motion: 'walk', clips: ['Idle', 'Walk', 'Run', 'Jump'], anchor: { Walk: 0.5, Run: 1.77 }, speed: 0.55, tris: 1354 },
+  horse: { id: 'horse', model: W + 'horse.glb', habitat: 'meadow', height: 1.15, len: 1.14, motion: 'walk', clips: ['Idle', 'Walk', 'Run', 'Eat', 'Jump'], anchor: { Walk: 1.14, Run: 1.8 }, speed: 0.6, canEat: true, tris: 2244 },
+  elephant: { id: 'elephant', model: 'elephant.glb', habitat: 'meadow', height: 1.4, len: 1.41, motion: 'walk', clips: [], fake: 'walk', speed: 0.4, tris: 1116 },
+  giraffe: { id: 'giraffe', model: 'giraffe.glb', habitat: 'meadow', height: 1.85, len: 0.71, motion: 'walk', clips: [], fake: 'walk', speed: 0.4, tris: 810 },
+  lion: { id: 'lion', model: 'lion.glb', habitat: 'meadow', height: 0.7, len: 1.75, motion: 'walk', clips: [], fake: 'walk', speed: 0.45, tris: 1350 },
 };
 
 export type RosterEntry = { id: string; count?: number };
@@ -114,7 +114,9 @@ export type HabitatDef = {
  * theo kích thước thân thật, nên tổng chiều dài thân của một khu phải nhỏ hơn bề ngang vùng.
  */
 const VIEW_GROUND = { position: [0, 3, 8.2] as [number, number, number], target: [0, 0.8, 0] as [number, number, number], fov: 42 };
-const GROUND_WIDE: Area = { xMin: -3.9, xMax: 3.9, zMin: -1.4, zMax: 1.0 };
+// Vùng sâu (z -2.4 → 1.8, chân thú trải ~180px theo chiều dọc màn hình): đủ chỗ cho hai hàng trước/sau, thú né nhau
+// theo hình chiếu màn hình nên không phải chen thành một hàng ngang rồi đè lên nhau
+const GROUND_WIDE: Area = { xMin: -3.9, xMax: 3.9, zMin: -2.4, zMax: 1.8 };
 
 /** Thứ tự trong roster quyết định chỗ đứng lúc xuất hiện (rải từ trái sang phải, xen kẽ hàng sau/trước) */
 export const HABITATS: Record<Habitat, HabitatDef> = {

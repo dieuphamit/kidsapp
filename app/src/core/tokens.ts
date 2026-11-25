@@ -28,3 +28,49 @@ export const BUDDY_HEX: Record<BuddyCharacter, BuddyPalette> = {
 /** Mắt và má hồng dùng chung cho mọi bạn đồng hành. */
 export const BUDDY_INK = '#3a2a40';
 export const BUDDY_CHEEK = '#ff9fb2';
+
+/**
+ * Màu cho cảnh 3D (three không đọc được biến CSS): chép từ tokens.css, mỗi mục ghi tên biến gốc.
+ * Test tokens.test.ts đối chiếu từng mã với tokens.css, nên đổi màu thì đổi ở cả hai nơi.
+ */
+export const SCENE_VARS = {
+  grass: '--grass',
+  leaf: '--scene-leaf',
+  leafLight: '--scene-leaf-light',
+  leafDark: '--scene-leaf-dark',
+  leafShine: '--scene-leaf-shine',
+  bark: '--scene-bark',
+  wood: '--scene-wood',
+  woodDark: '--scene-wood-dark',
+  rock: '--world-rock',
+  water: '--world-water',
+  waterLight: '--world-water-light',
+  peach: '--clay-peach',
+  mint: '--clay-mint',
+  butter: '--clay-butter',
+  clayLeaf: '--clay-leaf',
+  lilac: '--clay-lilac',
+  ink: '--ink',
+  paper: '--paper',
+} as const;
+export type SceneColor = keyof typeof SCENE_VARS;
+export const SCENE_HEX: Record<SceneColor, string> = {
+  grass: '#9be38a',
+  leaf: '#5fc163',
+  leafLight: '#98de78',
+  leafDark: '#3a9550',
+  leafShine: '#d4f7b0',
+  bark: '#a8774f',
+  wood: '#e2b282',
+  woodDark: '#c08a5c',
+  rock: '#c7b8a8',
+  water: '#7fd3e6',
+  waterLight: '#b8ecf2',
+  peach: '#ffb4a2',
+  mint: '#a0e7e5',
+  butter: '#ffe29a',
+  clayLeaf: '#b4f8c8',
+  lilac: '#cdb4ff',
+  ink: '#3b2a6b',
+  paper: '#ffffff',
+};
