@@ -47,7 +47,7 @@ test('bản đồ có các khu trong 7 khu (zoo, house, orchard, pond, puzzle, m
 
   // dải icon trò: Thế giới thú có 6 trò nhưng chỉ hiện 4 icon đầu
   await expect(page.getByTestId('place-zoo').getByTestId('strip')).toHaveText('🌍🐄🦁🔊');
-  await expect(page.getByTestId('place-orchard').getByTestId('strip')).toHaveText('🍎🧺🔺');
+  await expect(page.getByTestId('place-orchard').getByTestId('strip')).toHaveText('🍎🧺🔺🛒');
   await expect(page.getByTestId('place-puzzle').getByTestId('strip')).toHaveText('🃏🧩');
   await expect(page.getByTestId('place-farm').getByTestId('strip')).toHaveText('🐣🥕');
 

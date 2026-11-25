@@ -38,6 +38,7 @@ export const GAME_SKILLS: Record<string, Skill[]> = {
   puzzle: ['logic'],
   shadow: ['logic', 'science'],
   shapes: ['math', 'language'],
+  shop: ['math', 'social'],
   sort: ['logic', 'math'],
   'sound-quiz': ['science', 'language'],
   story: ['language', 'logic'],
