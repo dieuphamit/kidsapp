@@ -8,6 +8,9 @@ import {
   animalOrder,
   dotAt,
   dotCountsForAge,
+  faceClearance,
+  faceOf,
+  FACES,
   isDone,
   makePuzzle,
   minSpacing,
@@ -114,6 +117,30 @@ describe('đặt chấm trên đường viền', () => {
         }
       }
     }
+  });
+});
+
+describe('không che mặt con vật', () => {
+  it('con có khai báo vùng mặt (gà): mọi tuổi, chấm và nét nối đều nằm ngoài vùng mặt', () => {
+    for (const id of Object.keys(FACES) as (typeof ANIMALS)[number][]) {
+      for (const age of [30, 40, 60]) {
+        const pz = makePuzzle(id, age);
+        const face = faceOf(id, pz.img)!;
+        expect(face.r, id).toBeGreaterThan(40);
+        expect(faceClearance(pz.dots, face), `${id} ${age}`).toBeGreaterThanOrEqual(0);
+      }
+    }
+  });
+
+  it('faceClearance âm khi chấm hay nét nối đè lên vùng mặt', () => {
+    const dots: Pt[] = [
+      [100, 100],
+      [300, 100],
+      [300, 300],
+    ];
+    expect(faceClearance(dots, { x: 200, y: 100, r: 20 })).toBeLessThan(0); // nét 1→2 đi qua
+    expect(faceClearance(dots, { x: 300, y: 300, r: 10 })).toBeLessThan(0); // đè chấm 3
+    expect(faceClearance(dots, { x: 600, y: 600, r: 20 })).toBeGreaterThan(0);
   });
 });
 
