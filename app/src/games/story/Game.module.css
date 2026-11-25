@@ -188,14 +188,16 @@
   pointer-events: none;
 }
 
-/* Đậu Đậu ngồi góc trái dưới, nảy mỗi lần nói */
+/* Đậu Đậu ngồi góc trái dưới, nảy mỗi lần nói; chạm được (nằm dưới khay tranh z-index 4 nên không chặn kéo thả) */
 .daudau {
   position: absolute;
   left: 32px;
   bottom: 24px;
   width: 200px;
   z-index: 3;
-  pointer-events: none;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-touch-callout: none;
   transform-origin: 50% 100%;
   filter: drop-shadow(0 10px 12px color-mix(in srgb, var(--ink) 25%, transparent));
   animation: hop 600ms var(--ease-squish);

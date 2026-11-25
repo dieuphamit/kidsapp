@@ -150,7 +150,10 @@
   width: 190px;
   height: 190px;
   object-fit: contain;
-  pointer-events: none;
+  /* chạm được; nằm dưới các hạt lựa chọn (z-index 10) nên không chặn kéo thả */
+  cursor: pointer;
+  touch-action: none;
+  -webkit-touch-callout: none;
   z-index: 2;
   transform-origin: 50% 100%;
   filter: drop-shadow(0 8px 6px color-mix(in srgb, var(--ink) 25%, transparent));
