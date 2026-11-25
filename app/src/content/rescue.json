@@ -1,0 +1,52 @@
+[
+  { "key": "game.rescue", "vi": "Đội cứu hộ", "ja": "レスキューたい", "en": "Rescue team" },
+  { "key": "rescue.hello", "vi": "Reng reng! Đội cứu hộ ơi, có bạn đang cần giúp!", "ja": "リンリン! レスキューたい、だれかが たすけを まっているよ!", "en": "Ring ring! Rescue team, a friend needs our help!" },
+  { "key": "rescue.party", "vi": "Cả đội cứu hộ hoan hô bé! Hôm nay bạn nào cũng an toàn rồi!", "ja": "レスキューたい、だいかつやく! みんな ぶじだよ!", "en": "Hooray for the rescue team! Everyone is safe today!" },
+
+  { "key": "rescue.call.fire", "vi": "Chuồng của bạn đang bốc khói! Xe nào dập lửa được nhỉ?", "ja": "おともだちの こやから けむりが でているよ! ひを けせるのは どの くるま?", "en": "Our friend's barn is smoking! Which truck can put out the fire?" },
+  { "key": "rescue.call.tree", "vi": "Bạn trèo lên cây cao mà không xuống được! Xe nào có thang nhỉ?", "ja": "おともだちが たかい きから おりられないよ! はしごが あるのは どの くるま?", "en": "Our friend is stuck up in a tall tree! Which truck has a ladder?" },
+  { "key": "rescue.call.mud", "vi": "Bạn bị sa vào vũng bùn rồi! Xe nào kéo bạn ra được nhỉ?", "ja": "おともだちが どろんこに はまっちゃった! ひっぱって あげられるのは どの くるま?", "en": "Our friend is stuck in the mud! Which one can pull our friend out?" },
+  { "key": "rescue.call.lake", "vi": "Bạn đang trôi giữa hồ! Mình đi bằng gì ra đón bạn nhỉ?", "ja": "おともだちが いけの まんなかで ながされているよ! なにに のって むかえに いこうかな?", "en": "Our friend is drifting in the middle of the lake! What can we ride to get there?" },
+  { "key": "rescue.call.hurt", "vi": "Bạn bị đau chân rồi! Xe nào chở bác sĩ tới nhỉ?", "ja": "おともだちが あしを いたがっているよ! おいしゃさんを はこぶのは どの くるま?", "en": "Our friend has a sore leg! Which one brings the doctor?" },
+  { "key": "rescue.call.sky", "vi": "Bạn kẹt trên mỏm đá cao quá! Ai bay lên đón bạn được nhỉ?", "ja": "おともだちが たかい いわの うえで うごけないよ! とんで むかえに いけるのは どれかな?", "en": "Our friend is stuck on a high rock! Who can fly up there?" },
+
+  { "key": "rescue.car.firetruck", "vi": "Xe cứu hỏa", "ja": "しょうぼうしゃ", "en": "Fire engine" },
+  { "key": "rescue.car.ladder", "vi": "Xe thang", "ja": "はしごしゃ", "en": "Ladder truck" },
+  { "key": "rescue.car.tractor", "vi": "Máy kéo", "ja": "トラクター", "en": "Tractor" },
+  { "key": "rescue.car.boat", "vi": "Xuồng cứu hộ", "ja": "レスキューボート", "en": "Rescue boat" },
+  { "key": "rescue.car.ambulance", "vi": "Xe cứu thương", "ja": "きゅうきゅうしゃ", "en": "Ambulance" },
+  { "key": "rescue.car.heli", "vi": "Trực thăng", "ja": "ヘリコプター", "en": "Helicopter" },
+
+  { "key": "rescue.other", "vi": "Bíp bíp! Xe này chào bé đấy! Lần này mình nhờ xe đang nhấp nháy nhé!", "ja": "プップー! この くるまも あいさつ しているよ! こんかいは ぴかぴか ひかっている くるまに おねがい しよう!", "en": "Beep beep! This one says hello! This time, let's ask the one that is blinking!" },
+
+  { "key": "rescue.go.firetruck", "vi": "Xe cứu hỏa lên đường! Bé giữ tay để xe chạy nào!", "ja": "しょうぼうしゃ、しゅつどう! ゆびで おさえて はしらせよう!", "en": "Fire engine, let's go! Hold your finger down to drive!" },
+  { "key": "rescue.go.ladder", "vi": "Xe thang lên đường! Bé giữ tay để xe chạy nào!", "ja": "はしごしゃ、しゅつどう! ゆびで おさえて はしらせよう!", "en": "Ladder truck, let's go! Hold your finger down to drive!" },
+  { "key": "rescue.go.tractor", "vi": "Máy kéo lên đường! Bé giữ tay để xe chạy nào!", "ja": "トラクター、しゅつどう! ゆびで おさえて はしらせよう!", "en": "Tractor, let's go! Hold your finger down to drive!" },
+  { "key": "rescue.go.boat", "vi": "Xuồng cứu hộ ra khơi! Bé giữ tay để xuồng chạy nào!", "ja": "レスキューボート、しゅっぱつ! ゆびで おさえて すすもう!", "en": "Rescue boat, off we go! Hold your finger down to sail!" },
+  { "key": "rescue.go.ambulance", "vi": "Xe cứu thương lên đường! Bé giữ tay để xe chạy nào!", "ja": "きゅうきゅうしゃ、しゅつどう! ゆびで おさえて はしらせよう!", "en": "Ambulance, let's go! Hold your finger down to drive!" },
+  { "key": "rescue.go.heli", "vi": "Trực thăng cất cánh! Bé giữ tay để bay nào!", "ja": "ヘリコプター、りりく! ゆびで おさえて とばそう!", "en": "Helicopter, take off! Hold your finger down to fly!" },
+  { "key": "rescue.drive", "vi": "Bé giữ tay trên màn hình để đi tiếp nhé!", "ja": "がめんを ゆびで おさえると すすむよ!", "en": "Hold your finger on the screen to keep going!" },
+
+  { "key": "rescue.do.spray", "vi": "Tới nơi rồi! Bé chạm vào ngọn lửa để phun nước nào!", "ja": "ついたよ! ひを さわって みずを かけよう!", "en": "We're here! Touch the fire to spray water!" },
+  { "key": "rescue.do.ladder-up", "vi": "Tới nơi rồi! Bé kéo thang lên cao tới chỗ bạn nào!", "ja": "ついたよ! はしごを おともだちの ところまで のばそう!", "en": "We're here! Pull the ladder up to our friend!" },
+  { "key": "rescue.do.animal-down", "vi": "Thang tới rồi! Bé đưa bạn xuống đất nhé!", "ja": "はしごが とどいたよ! おともだちを じめんまで おろして あげよう!", "en": "The ladder is there! Bring our friend down to the ground!" },
+  { "key": "rescue.do.ladder-down", "vi": "Bạn xuống rồi! Bé kéo thang xuống cất đi nào!", "ja": "おりられたね! はしごを さげて かたづけよう!", "en": "Our friend is down! Pull the ladder back down!" },
+  { "key": "rescue.do.hook", "vi": "Tới nơi rồi! Bé kéo cái móc tới chỗ bạn nào!", "ja": "ついたよ! フックを おともだちの ところまで ひっぱろう!", "en": "We're here! Drag the hook over to our friend!" },
+  { "key": "rescue.do.pull", "vi": "Móc được rồi! Bé kéo bạn ra khỏi vũng bùn nào!", "ja": "かかったよ! どろんこから ひっぱりだそう!", "en": "Hooked! Now pull our friend out of the mud!" },
+  { "key": "rescue.do.wash", "vi": "Bạn lấm bùn quá! Bé lau sạch cho bạn nhé!", "ja": "どろだらけだね! きれいに ふいて あげよう!", "en": "So muddy! Wipe our friend clean!" },
+  { "key": "rescue.do.buoy", "vi": "Tới nơi rồi! Bé kéo phao tới chỗ bạn nào!", "ja": "ついたよ! うきわを おともだちの ところまで はこぼう!", "en": "We're here! Drag the life ring over to our friend!" },
+  { "key": "rescue.do.tow", "vi": "Bạn bám phao rồi! Bé kéo bạn vào bờ nào!", "ja": "つかまったよ! きしまで ひっぱろう!", "en": "Our friend is holding on! Pull our friend to the shore!" },
+  { "key": "rescue.do.dry", "vi": "Bạn ướt hết rồi! Bé lau khô cho bạn nhé!", "ja": "びしょびしょだね! タオルで ふいて あげよう!", "en": "All wet! Dry our friend with the towel!" },
+  { "key": "rescue.do.clean", "vi": "Tới nơi rồi! Bé lau sạch chỗ đau cho bạn nhé!", "ja": "ついたよ! いたい ところを きれいに ふいて あげよう!", "en": "We're here! Gently wipe the sore spot clean!" },
+  { "key": "rescue.do.plaster", "vi": "Bé dán băng lên chỗ đau cho bạn nhé!", "ja": "いたい ところに ばんそうこうを はって あげよう!", "en": "Put a bandage on the sore spot!" },
+  { "key": "rescue.do.basket-down", "vi": "Tới nơi rồi! Bé kéo giỏ xuống chỗ bạn nào!", "ja": "ついたよ! かごを おともだちの ところまで おろそう!", "en": "We're here! Pull the basket down to our friend!" },
+  { "key": "rescue.do.basket-up", "vi": "Bạn vào giỏ rồi! Bé kéo giỏ lên trực thăng nào!", "ja": "かごに のったよ! ヘリコプターまで ひきあげよう!", "en": "Our friend is in! Pull the basket up to the helicopter!" },
+  { "key": "rescue.do.basket-home", "vi": "Giỏi lắm! Bé đưa bạn về bãi cỏ nhé!", "ja": "じょうず! おともだちを くさの うえに おろして あげよう!", "en": "Well done! Now bring our friend down to the grass!" },
+
+  { "key": "rescue.done.fire", "vi": "Bé dập lửa rồi! Chuồng của bạn an toàn rồi!", "ja": "ひが きえたよ! こやは もう だいじょうぶ!", "en": "You put out the fire! The barn is safe now!" },
+  { "key": "rescue.done.tree", "vi": "Bé đưa bạn xuống đất rồi! Giỏi quá!", "ja": "おともだちが おりられたよ! すごいね!", "en": "You helped our friend down! Well done!" },
+  { "key": "rescue.done.mud", "vi": "Bé kéo bạn ra khỏi bùn rồi! Bạn vui quá!", "ja": "どろんこから たすけだしたよ! おともだち、うれしそう!", "en": "You pulled our friend out of the mud! So happy!" },
+  { "key": "rescue.done.lake", "vi": "Bé đưa bạn vào bờ rồi! Bạn an toàn rồi!", "ja": "きしまで たすけたよ! もう あんしんだね!", "en": "You brought our friend to the shore! Safe now!" },
+  { "key": "rescue.done.hurt", "vi": "Bé dán băng cho bạn rồi! Bạn hết đau rồi!", "ja": "ばんそうこうを はって あげたね! もう いたくないよ!", "en": "You put the bandage on! Our friend feels better!" },
+  { "key": "rescue.done.sky", "vi": "Bé đón bạn xuống rồi! Bạn cảm ơn bé nhiều lắm!", "ja": "おともだちを たすけたよ! ありがとうって いっているよ!", "en": "You brought our friend down! Our friend says thank you!" }
+]
