@@ -11,7 +11,9 @@
 }
 
 .paperWrapper {
-  width: min(1000px, calc(100% - 48px));
+  /* 880px giữa khung 1194: mép trái 157 (không chui dưới nút Về nhà), mép phải 1037 (cách mép phải ≥144, không lấn
+     góc cổng bố mẹ 120×120) */
+  width: min(880px, calc(100% - 48px));
   height: min(560px, calc(100% - 200px));
   flex-shrink: 0;
 }

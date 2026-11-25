@@ -166,7 +166,8 @@
 .panel {
   padding: 32px 40px;
   border-radius: 64px;
-  background: color-mix(in srgb, var(--paper) 55%, transparent);
+  /* gần như đục: mây của cảnh nền không còn hiện xuyên qua khay, trông như mây đè lên con vật */
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
   box-shadow: var(--shadow-clay);
 }
 
@@ -213,12 +214,22 @@
 
 .countDisplay {
   position: absolute;
-  bottom: 50px;
-  left: calc(50% + 200px);
-  font-size: 72px;
+  /* nhãn tròn gắn vào mép phải giỏ: con số không còn nằm trơ trọi ngoài khung */
+  bottom: 62px;
+  left: calc(50% + 162px);
+  min-width: 96px;
+  height: 96px;
+  padding: 0 18px;
+  box-sizing: border-box;
+  border-radius: 48px;
+  background: var(--paper);
+  box-shadow: var(--shadow-clay);
+  line-height: 96px;
+  text-align: center;
+  font-size: 64px;
   font-weight: 700;
   color: var(--ink);
-  text-shadow: 2px 2px 0 var(--paper);
+  z-index: 2;
 }
 
 .fruitEmoji {
