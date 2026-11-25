@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import type { GameProps } from '../../core/games';
+import { useSayThen } from '../../ui/useSayThen';
 import { BackHome } from '../../ui/BackHome';
 import { ClayButton } from '../../ui/ClayButton';
 import { Scenery } from '../../ui/Scenery';
@@ -76,10 +77,12 @@ const READY_SAY_MS = 1500;
 const LOOK_NAME_MS = 2100;
 /** Món chín: múc ra bát mất bao lâu. */
 const SCOOP_MS = 700;
-/** Khách ăn: nhai trước, rồi vui, rồi cảm ơn, rồi đi. */
+/**
+ * Khách ăn: nhai trước, rồi vui và kêu, kêu xong mới cảm ơn, cảm ơn xong mới đi.
+ * EAT_THANKS_MS chỉ dùng khi loa không báo được lúc hết tiếng (loa thật chờ tiếng kêu phát hết).
+ */
 const EAT_HAPPY_MS = 1400;
 const EAT_THANKS_MS = 2900;
-const EAT_LEAVE_MS = 5200;
 const LEAVE_MS = 700;
 /** Ăn mừng cuối lượt. */
 const PARTY_MS = 4600;
@@ -203,6 +206,7 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
     },
     [speaker],
   );
+  const sayAll = useSayThen(speaker, setLastSay);
 
   const live = useRef(state);
   live.current = state;
@@ -374,13 +378,17 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
       setHappy(true);
       setCustomerBounce(Date.now());
       sounds.happy();
-      say(customerById(t.customer).sound);
+      // tiếng khách kêu phát hết rồi mới cảm ơn; cảm ơn xong khách mới ra về
+      sayAll([customerById(t.customer).sound, YUM_KEY], {
+        fallbackMs: EAT_THANKS_MS - EAT_HAPPY_MS,
+        onDone: () => {
+          setCustomerAnim('out');
+          later(() => nextCustomer(s), LEAVE_MS);
+        },
+      });
     }, EAT_HAPPY_MS);
-    later(() => say(YUM_KEY), EAT_THANKS_MS);
-    later(() => setCustomerAnim('out'), EAT_LEAVE_MS);
-    later(() => nextCustomer(s), EAT_LEAVE_MS + LEAVE_MS);
     return true;
-  }, [later, say, sounds, nextCustomer]);
+  }, [later, sayAll, sounds, nextCustomer]);
 
   // Móc cho e2e (?e2e=1)
   useEffect(() => {

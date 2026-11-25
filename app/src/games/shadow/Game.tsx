@@ -3,6 +3,7 @@ import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
 import { Scenery } from '../../ui/Scenery';
 import { STAGE_W, STAGE_H, clientToStage } from '../../ui/Stage';
+import { useSayThen } from '../../ui/useSayThen';
 import { recentPicks, rememberPicks } from '../../core/gameOptions';
 import { pictureSayKey, pictureUrl } from '../../content/pictures';
 import { newRound, dropResult, choiceCountForAge, type AnimalId, type Round } from './logic';
@@ -19,6 +20,11 @@ const CARD_GAP = 24;
 
 // Drop radius (px from shadow center)
 const DROP_RADIUS = 150;
+
+/** Tên hình đọc xong mới khen; số này chỉ dùng khi loa không báo được lúc hết tiếng. */
+const GREAT_SAY_MS = 900;
+/** Khen xong chừng này thì sang ván mới. */
+const NEXT_ROUND_MS = 1600;
 
 // Position of shadow (center top area)
 const SHADOW_X = STAGE_W / 2;
@@ -56,6 +62,14 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
     },
     [speaker]
   );
+  const sayAll = useSayThen(speaker, setLastSay);
+
+  // Mọi hẹn giờ gom lại, xoá khi thoát trò (không còn giọng đọc phát sau khi bé về nhà)
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const later = useCallback((fn: () => void, ms: number) => {
+    timers.current.push(setTimeout(fn, ms));
+  }, []);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   // Initialize round
   const startRound = useCallback(
@@ -83,6 +97,18 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
     [ageMonths, topic]
   );
 
+  /** Ghép đúng: đọc tên hình cho hết rồi mới khen, khen xong sang ván mới. */
+  const celebrate = useCallback(
+    (id: AnimalId) => {
+      setSnapped(true);
+      sayAll([pictureSayKey(id), 'ui.great'], {
+        fallbackMs: GREAT_SAY_MS,
+        onDone: () => later(startRound, NEXT_ROUND_MS),
+      });
+    },
+    [sayAll, later, startRound]
+  );
+
   // Bắt đầu ván đầu khi vào trò
   useEffect(() => {
     startRound();
@@ -104,19 +130,14 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
         drop: (id: string) => {
           const animalId = id as AnimalId;
           const result = dropResult(animalId, round.answer, 0, DROP_RADIUS);
-          if (result === 'snap') {
-            setSnapped(true);
-            say(pictureSayKey(animalId));
-            setTimeout(() => say('ui.great'), 900);
-            setTimeout(() => startRound(), 3400);
-          }
+          if (result === 'snap') celebrate(animalId);
         },
       };
       return () => {
         delete (window as unknown as { __behocShadow?: unknown }).__behocShadow;
       };
     }
-  }, [round, say, startRound]);
+  }, [round, celebrate]);
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent, id: AnimalId) => {
@@ -161,16 +182,13 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
       const result = dropResult(drag.id, round.answer, dist, DROP_RADIUS);
 
       if (result === 'snap') {
-        setSnapped(true);
-        say(pictureSayKey(drag.id));
-        setTimeout(() => say('ui.great'), 900);
-        setTimeout(() => startRound(), 3400);
+        celebrate(drag.id);
       } else {
         // Return to home - do nothing, animation handles it
       }
       setDrag(null);
     },
-    [drag, round, say, startRound]
+    [drag, round, celebrate]
   );
 
   const handleTap = useCallback(

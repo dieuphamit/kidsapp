@@ -7,6 +7,7 @@ import { contentByKey } from '../../core/content';
 import { BackHome } from '../../ui/BackHome';
 import { ClayButton } from '../../ui/ClayButton';
 import { clientToStage } from '../../ui/Stage';
+import { useSayThen } from '../../ui/useSayThen';
 import { BACKDROP, HABITAT_ICON } from './scenery';
 import { arrived, createSwipe, dragEnd, dragMove, dragStart, go, mountedRange, stepSwipe, visibleRange } from './swipe';
 import styles from './world.module.css';
@@ -15,9 +16,10 @@ import { speciesCount, voiceId } from './voice';
 const WorldScene = lazy(() => import('./WorldScene'));
 
 const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
-/** Tiếng kêu thật dài 1–2.6s; đọc tên sau tiếng kêu */
+/** Tiếng kêu thật dài 1–2.6s; tên đọc khi tiếng kêu phát hết (số này chỉ dùng khi loa không báo được lúc hết tiếng) */
 const NAME_DELAY = 2000;
-const ALL_FRIENDS_DELAY = 1700;
+/** Nghỉ một nhịp sau khi đọc tên con cuối rồi cả khu mới nhảy mừng. */
+const ALL_FRIENDS_DELAY = 400;
 
 type Sparkle = { id: number; x: number; y: number };
 
@@ -42,6 +44,8 @@ export default function Game({ speaker, onExit }: GameProps) {
   const pendingTap = useRef<{ index: number; id: string; agent: Agent } | null>(null);
   const pointer = useRef<{ id: number; x: number; y: number } | null>(null);
   const sparkleId = useRef(0);
+  /** Lượt nói hiện tại: chạm con khác hay sang khu khác thì lời hẹn của lượt cũ bị bỏ. */
+  const speech = useRef(0);
 
   const say = useCallback(
     (key: string) => {
@@ -50,6 +54,7 @@ export default function Game({ speaker, onExit }: GameProps) {
     },
     [speaker],
   );
+  const sayAll = useSayThen(speaker, setLastSay);
   const later = useCallback((fn: () => void, ms: number) => {
     timers.current.push(setTimeout(fn, ms));
   }, []);
@@ -89,6 +94,7 @@ export default function Game({ speaker, onExit }: GameProps) {
       setIndex(swipe.target);
       if (arrived(swipe) && swipe.target !== announced.current) {
         announced.current = swipe.target;
+        speech.current++;
         clearTimers();
         say(`world.${HABITAT_IDS[swipe.target]}`);
         setBadge((b) => ({ n: b.n + 1, index: swipe.target }));
@@ -112,22 +118,26 @@ export default function Game({ speaker, onExit }: GameProps) {
     (i: number, id: string) => {
       setLastTap(id);
       clearTimers();
+      const turn = ++speech.current;
       const [sound, name] = animalVoiceKeys(voiceId(id), (k) => content.has(k));
-      if (sound) say(sound);
-      if (name) later(() => say(name), NAME_DELAY);
       const seen = greeted.current[i];
       const first = !seen.has(id);
       seen.add(id);
-      if (first && seen.size === speciesCount(i)) {
-        // chào đủ các bạn trong khu: cả khu nhảy mừng
-        later(() => {
-          say('world.all-friends');
-          for (const a of herds[i].agents) startReact(a);
-        }, NAME_DELAY + ALL_FRIENDS_DELAY);
-      }
+      const allFriends = first && seen.size === speciesCount(i);
+      // tiếng kêu phát hết rồi mới đọc tên; đọc tên xong (đã chào đủ các bạn) thì cả khu nhảy mừng
+      sayAll([sound, name].filter((k): k is string => !!k), {
+        fallbackMs: NAME_DELAY,
+        onDone: () => {
+          if (!allFriends || speech.current !== turn) return;
+          later(() => {
+            say('world.all-friends');
+            for (const a of herds[i].agents) startReact(a);
+          }, ALL_FRIENDS_DELAY);
+        },
+      });
       return first;
     },
-    [content, say, later, clearTimers, herds],
+    [content, say, sayAll, later, clearTimers, herds],
   );
 
   const endPointer = useCallback(
