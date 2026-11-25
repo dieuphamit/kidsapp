@@ -13,7 +13,7 @@ const { play, stop, fade, volume, rate, Howl, Howler } = vi.hoisted(() => {
 });
 vi.mock('howler', () => ({ Howl, Howler }));
 
-import { audioUrl, sfxUrl, speechUrl, createSpeaker, unlockAudioOnFirstGesture, preferPlaybackAudioSession, NOTE_FADE_MS, applyCalmVolume, CALM_VOLUME, CALM_SPEECH_RATE } from './audio';
+import { audioUrl, sfxUrl, speechUrl, createSpeaker, unlockAudioOnFirstGesture, preferPlaybackAudioSession, NOTE_FADE_MS, BEAT_RING_MS, BEAT_VOICES, applyCalmVolume, CALM_VOLUME, CALM_SPEECH_RATE } from './audio';
 
 describe('audio', () => {
   beforeEach(() => { Howl.mockClear(); play.mockClear(); stop.mockClear(); fade.mockClear(); volume.mockClear(); rate.mockClear(); });
@@ -48,6 +48,53 @@ describe('audio', () => {
       vi.advanceTimersByTime(NOTE_FADE_MS);
       expect(stop).toHaveBeenCalledTimes(1);
       expect(stop).toHaveBeenCalledWith(dogId);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  it('beat() không dừng tiếng nhịp trước: mỗi tiếng kêu đủ BEAT_RING_MS rồi mới tắt dần; không cắt lời say()', () => {
+    vi.useFakeTimers();
+    try {
+      const sp = createSpeaker(() => 'vi', '/b/');
+      sp.say('band.fast');
+      sp.beat!('animal-dog');
+      expect(Howl).toHaveBeenLastCalledWith({ src: ['/b/audio/sfx/animal-dog.mp3'] });
+      const dogId = play.mock.results.at(-1)!.value as number;
+      vi.advanceTimersByTime(450); // nhịp nhanh
+      sp.beat!('animal-cow');
+      const cowId = play.mock.results.at(-1)!.value as number;
+      // tiếng chó vẫn kêu khi tiếng bò bắt đầu
+      expect(fade).not.toHaveBeenCalled();
+      expect(stop).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(BEAT_RING_MS - 450);
+      expect(fade).toHaveBeenCalledTimes(1);
+      expect(fade).toHaveBeenCalledWith(1, 0, NOTE_FADE_MS, dogId);
+      vi.advanceTimersByTime(NOTE_FADE_MS);
+      expect(stop).toHaveBeenCalledTimes(1);
+      expect(stop).toHaveBeenCalledWith(dogId);
+      vi.advanceTimersByTime(450);
+      expect(fade).toHaveBeenLastCalledWith(1, 0, NOTE_FADE_MS, cowId);
+      expect(BEAT_RING_MS).toBeGreaterThanOrEqual(1000);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  it('beat() giữ tối đa BEAT_VOICES tiếng: quá thì tiếng cũ nhất tắt dần', () => {
+    vi.useFakeTimers();
+    try {
+      const sp = createSpeaker(() => 'vi', '/b/');
+      const ids: number[] = [];
+      for (let i = 0; i < BEAT_VOICES; i++) {
+        sp.beat!('animal-dog');
+        ids.push(play.mock.results.at(-1)!.value as number);
+      }
+      expect(fade).not.toHaveBeenCalled();
+      sp.beat!('animal-cow');
+      expect(fade).toHaveBeenCalledTimes(1);
+      expect(fade).toHaveBeenCalledWith(1, 0, NOTE_FADE_MS, ids[0]);
+      vi.advanceTimersByTime(BEAT_RING_MS + NOTE_FADE_MS);
+      // mỗi tiếng chỉ tắt dần đúng một lần
+      expect(fade).toHaveBeenCalledTimes(BEAT_VOICES + 1);
     } finally {
       vi.useRealTimers();
     }

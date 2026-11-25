@@ -73,9 +73,19 @@ export interface Speaker {
    * tắt dần nhanh (NOTE_FADE_MS) để các nốt nối nhau mượt mà không dồn thành tiếng ồn.
    */
   note?(name: string): void;
+  /**
+   * Phát một tiếng theo nhịp cho ban nhạc: KHÔNG dừng tiếng của nhịp trước, mỗi tiếng được kêu
+   * tới BEAT_RING_MS rồi mới tắt dần (nhịp nhanh 450ms vẫn nghe rõ từng con). Không cắt lời say().
+   * Cùng lúc tối đa BEAT_VOICES tiếng, tiếng cũ nhất tắt dần trước để không dồn thành tiếng ồn.
+   */
+  beat?(name: string): void;
 }
 
 export const NOTE_FADE_MS = 150;
+/** Mỗi tiếng của beat() được kêu tối đa chừng này rồi tắt dần. */
+export const BEAT_RING_MS = 1000;
+/** Số tiếng beat() chồng nhau tối đa. */
+export const BEAT_VOICES = 3;
 
 /** Hẹn giờ an toàn cho một bước của sayThen khi file chưa tải xong / không tải được / âm thanh bị khoá. */
 export const SAY_STEP_MAX_MS = 6000;
@@ -127,6 +137,11 @@ export function createSpeaker(
   const cache = new Map<string, Howl>();
   let current: Howl | null = null;
   let lastNote: { h: Howl; id: number } | null = null;
+  let voices: { h: Howl; id: number; timer: ReturnType<typeof setTimeout> }[] = [];
+  const fadeOut = (h: Howl, id: number) => {
+    h.fade(1, 0, NOTE_FADE_MS, id);
+    setTimeout(() => h.stop(id), NOTE_FADE_MS);
+  };
   const get = (src: string) => {
     let h = cache.get(src);
     if (!h) {
@@ -233,6 +248,25 @@ export function createSpeaker(
       const id = h.play();
       h.volume(1, id);
       lastNote = { h, id };
+    },
+    beat(name) {
+      while (voices.length >= BEAT_VOICES) {
+        const old = voices.shift()!;
+        clearTimeout(old.timer);
+        fadeOut(old.h, old.id);
+      }
+      const h = get(sfxUrl(name, base));
+      const id = h.play();
+      h.volume(1, id);
+      const voice = {
+        h,
+        id,
+        timer: setTimeout(() => {
+          voices = voices.filter((v) => v !== voice);
+          fadeOut(h, id);
+        }, BEAT_RING_MS),
+      };
+      voices.push(voice);
     },
   };
 }

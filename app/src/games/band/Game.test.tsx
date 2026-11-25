@@ -124,6 +124,22 @@ describe('Ban nhạc thú', () => {
     expect(screen.getByTestId('game-band')).toHaveAttribute('data-last-say', 'animal.dog-sound');
   });
 
+  it('speaker có beat(): nhịp phát bằng beat (tiếng các nhịp chồng nhau), không dùng note/say', () => {
+    const speaker = { ...mockSpeaker(), note: vi.fn<(name: string) => void>(), beat: vi.fn<(name: string) => void>() };
+    render(<Game lang="vi" speaker={speaker} ageMonths={36} onExit={() => {}} />);
+    act(() => {
+      vi.advanceTimersByTime(LOOP_START_MS);
+    });
+    fireEvent.pointerDown(screen.getByLabelText('Nhanh'));
+    act(() => {
+      vi.advanceTimersByTime(450 * 4);
+    });
+    expect(speaker.beat).toHaveBeenCalledWith('animal-dog');
+    expect(speaker.note).not.toHaveBeenCalled();
+    expect(sounds(speaker)).toEqual([]);
+    expect(screen.getByTestId('game-band')).toHaveAttribute('data-last-say', 'animal.dog-sound');
+  });
+
   it('chạm con vật ở khay (không kéo) → nghe tiếng kêu một lần', () => {
     const speaker = mockSpeaker();
     render(<Game lang="vi" speaker={speaker} ageMonths={36} onExit={() => {}} />);

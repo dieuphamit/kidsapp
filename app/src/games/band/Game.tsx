@@ -101,8 +101,12 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
       setTick((n) => n + 1);
       const animal = slotsRef.current[b];
       if (!animal) return;
-      // Nốt nhạc: không cắt lời Đậu Đậu, nốt trước tắt dần thay vì bị cắt cụt.
-      if (speaker.note) {
+      // Tiếng theo nhịp: không cắt lời Đậu Đậu; nhịp sau KHÔNG dừng tiếng nhịp trước (beat),
+      // nên nhịp nhanh vẫn nghe rõ từng con. Loa cũ chỉ có note(): nốt trước tắt dần.
+      if (speaker.beat) {
+        speaker.beat(`animal-${animal}`);
+        setLastSay(`animal.${animal}-sound`);
+      } else if (speaker.note) {
         speaker.note(`animal-${animal}`);
         setLastSay(`animal.${animal}-sound`);
       } else {
