@@ -30,7 +30,7 @@ export const ANIMALS = [
   { id: 'sheep', img: 'world-photos/sheep.png', sound: 'animal.sheep-sound', ar: 1.28 },
   { id: 'horse', img: 'cards/feed/horse.png', sound: 'animal.horse-sound', ar: 1.3, padded: true, scale: 1.12 },
   { id: 'chicken', img: 'world-photos/chicken.png', sound: 'animal.chicken-sound', ar: 1.2, scale: 0.86 },
-  { id: 'cat', img: 'cards/feed/cat.png', sound: 'feed.sound.cat', ar: 1.3, padded: true },
+  { id: 'cat', img: 'cards/feed/cat.png', sound: 'animal.cat-sound', ar: 1.3, padded: true },
   { id: 'raccoon', img: 'world-photos/raccoon.png', sound: 'animal.raccoon-sound', ar: 1.24, scale: 0.95 },
   { id: 'duck', img: 'world-photos/farm-duck.png', sound: 'animal.duck-sound', ar: 1.42, scale: 0.9 },
   { id: 'rabbit', img: 'world-photos/rabbit.png', sound: 'animal.rabbit-sound', ar: 1.04, scale: 0.9 },
