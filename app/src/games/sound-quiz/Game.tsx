@@ -16,7 +16,7 @@ import styles from './Game.module.css';
 const HELLO_SAY_MS = 1500;
 const NAME_SAY_MS = 1200;
 const AGAIN_SAY_MS = 1200;
-/** Khen xong chừng này thì ra câu mới; câu mới hiện chừng này thì phát tiếng kêu. */
+/** Bắt đầu khen chừng này thì hiện thẻ câu mới; khen xong chừng này thì phát tiếng kêu của câu mới. */
 const NEXT_MS = 500;
 const NEXT_SOUND_MS = 500;
 /** Ăn mừng sau mỗi lượt: câu chúc mừng dài chừng này (loa giả), nói xong nghỉ chút rồi chơi tiếp. */
@@ -38,6 +38,8 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
   const [party, setParty] = useState(false);
   /** Số câu đúng từ lúc vào trò: chỉ để biết lúc nào ăn mừng, không hiện ra cho bé. */
   const correct = useRef(0);
+  /** Câu đang hiện và đã được trả lời đúng chưa (để lời hẹn cũ không phát tiếng của câu đã qua). */
+  const live = useRef<{ q: QuizQuestion | null; answered: boolean }>({ q: null, answered: false });
   const sparkleIdRef = useRef(0);
   const isFirstRef = useRef(true);
   const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e');
@@ -80,6 +82,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
     // Trí nhớ ngắn: không ra lại con vật của vài ván gần đây (kể cả lần vào trò trước)
     const q = newQuestion(count, undefined, recentPicks<SoundAnimal>('sound-quiz'));
     rememberPicks('sound-quiz', [q.answer], ANSWER_MEMORY);
+    live.current = { q, answered: false };
     setQuestion(q);
     setCardStates(new Map());
     setLocked(false);
@@ -100,6 +103,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
 
   const handleCorrect = useCallback((animal: SoundAnimal, cardEl: HTMLButtonElement) => {
     setLocked(true);
+    live.current.answered = true;
 
     // Create sparkles
     // Kích thước trong khung Stage (không dùng getBoundingClientRect vì khung bị co giãn/xoay)
@@ -120,26 +124,41 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
       return next;
     });
 
-    const nextQuestion = () => {
+    // Câu mới chỉ dựng một lần, dù được gọi từ lúc khen hay lúc chuỗi nói kết thúc
+    let nextQ: QuizQuestion | null = null;
+    const showNext = () => {
+      if (nextQ) return nextQ;
       setParty(false);
-      const q = generateNewQuestion();
-      later(() => saySpeaker(`animal.${q.answer}-sound`), NEXT_SOUND_MS);
+      nextQ = generateNewQuestion();
+      return nextQ;
+    };
+    const playNext = () => {
+      const q = showNext();
+      later(() => {
+        // bé đã kịp trả lời câu này (thẻ hiện từ lúc khen) thì thôi, không phát chen vào
+        if (live.current.q === q && !live.current.answered) saySpeaker(`animal.${q.answer}-sound`);
+      }, NEXT_SOUND_MS);
     };
     const roundEnd = isRoundEnd(++correct.current);
 
-    // Đọc tên con vật cho hết rồi mới khen; khen xong mới ra câu mới (hoặc ăn mừng cuối lượt)
+    // Đọc tên con vật cho hết rồi mới khen. Thẻ câu mới hiện ngay trong lúc khen (không để bé chờ),
+    // còn tiếng kêu của câu mới chỉ phát khi lời khen đã hết. Cuối lượt thì ăn mừng trước.
     sayAll([`animal.${animal}`, 'ui.great'], {
       fallbackMs: NAME_SAY_MS,
-      onDone: () =>
+      onStep: (_key, i) => {
+        if (i === 1 && !roundEnd) later(showNext, NEXT_MS);
+      },
+      onDone: () => {
+        if (!roundEnd) {
+          playNext();
+          return;
+        }
+        // Hết một lượt: bạn đồng hành nhảy mừng, rồi chơi tiếp
         later(() => {
-          if (!roundEnd) {
-            nextQuestion();
-            return;
-          }
-          // Hết một lượt: bạn đồng hành nhảy mừng, rồi chơi tiếp
           setParty(true);
-          sayAll([DONE_KEY], { fallbackMs: PARTY_SAY_MS, onDone: () => later(nextQuestion, PARTY_REST_MS) });
-        }, NEXT_MS),
+          sayAll([DONE_KEY], { fallbackMs: PARTY_SAY_MS, onDone: () => later(playNext, PARTY_REST_MS) });
+        }, NEXT_MS);
+      },
     });
   }, [generateNewQuestion, saySpeaker, sayAll, later]);
 

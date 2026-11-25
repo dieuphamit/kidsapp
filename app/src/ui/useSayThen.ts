@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { sayThen, type SayThenOptions, type Speaker } from '../core/audio';
 
+/** Tuỳ chọn của hook: như sayThen, thêm `onStep` báo lúc từng key bắt đầu phát. */
+export type SayAllOptions = Omit<SayThenOptions, 'onSay'> & { onStep?(key: string, index: number): void };
+
 /**
  * Nói nối tiếp cho một trò: key sau chỉ phát khi tiếng trước hết (tiếng kêu thật không bị câu
  * kế cắt ngang). `onSay` nhận từng key lúc bắt đầu phát (trò cập nhật data-last-say). Mọi chuỗi
@@ -9,7 +12,7 @@ import { sayThen, type SayThenOptions, type Speaker } from '../core/audio';
 export function useSayThen(
   speaker: Speaker,
   onSay: (key: string) => void,
-): (keys: readonly string[], opts?: Omit<SayThenOptions, 'onSay'>) => void {
+): (keys: readonly string[], opts?: SayAllOptions) => void {
   const cancels = useRef<(() => void)[]>([]);
   const onSayRef = useRef(onSay);
   onSayRef.current = onSay;
@@ -26,7 +29,10 @@ export function useSayThen(
       let cancel: () => void = () => {};
       cancel = sayThen(speaker, keys, {
         ...opts,
-        onSay: (k) => onSayRef.current(k),
+        onSay: (k, i) => {
+          onSayRef.current(k);
+          opts?.onStep?.(k, i);
+        },
         onDone: () => {
           cancels.current = cancels.current.filter((c) => c !== cancel);
           opts?.onDone?.();
