@@ -69,7 +69,7 @@ export const CUSTOMERS = [
   { id: 'penguin', img: 'world-photos/penguin.png', sound: 'animal.penguin-sound' },
   { id: 'rabbit', img: 'world-photos/rabbit.png', sound: 'animal.rabbit-sound' },
   { id: 'dog', img: 'world-photos/dog.png', sound: 'animal.dog-sound' },
-  { id: 'cat', img: 'cards/feed/cat.png', sound: 'feed.sound.cat' },
+  { id: 'cat', img: 'world-photos/cat.png', sound: 'feed.sound.cat' },
   { id: 'pig', img: 'world-photos/pig.png', sound: 'animal.pig-sound' },
 ] as const satisfies readonly Customer[];
 

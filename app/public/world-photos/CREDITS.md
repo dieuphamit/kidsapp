@@ -2,7 +2,7 @@
 
 Ảnh chụp thật lấy từ Wikimedia Commons, tách nền (BiRefNet-lite), cắt sát thân và thu nhỏ bằng
 `scripts/world-photos.mjs` (thay đổi so với ảnh gốc: cắt nền, cắt khung, đổi cỡ, giảm màu). Giấy phép giữ
-nguyên như ảnh gốc; ảnh CC BY-SA khi đã chỉnh sửa vẫn theo CC BY-SA.
+nguyên như ảnh gốc; ảnh CC BY-SA khi đã chỉnh sửa vẫn theo CC BY-SA. Riêng fox.png bo tròn chóp đuôi (ảnh gốc cắt mất chóp đuôi), koala.png khử ám xanh ở mép lông.
 
 | File | Ảnh gốc | Tác giả | Giấy phép | Dung lượng |
 |---|---|---|---|---|
@@ -14,11 +14,13 @@ nguyên như ảnh gốc; ảnh CC BY-SA khi đã chỉnh sửa vẫn theo CC BY
 | koi.png | [Japan-Koi.jpg](https://commons.wikimedia.org/wiki/File:Japan-Koi.jpg) | Immanuel Giel | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | 37 KB |
 | frog.png | [Green treefrog.jpg](https://commons.wikimedia.org/wiki/File:Green_treefrog.jpg) | Brian Gratwicke | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | 53 KB |
 | duck.png | [Mallard Drake (Anas Platyrhynchos).jpg](https://commons.wikimedia.org/wiki/File:Mallard_Drake_(Anas_Platyrhynchos).jpg) | David Merrett | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | 34 KB |
-| bee.png | [Honey bee flying.JPG](https://commons.wikimedia.org/wiki/File:Honey_bee_flying.JPG) | Devcore | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | 52 KB |
+| bee.png | [Apis mellifera - Prunus padus - Keila.jpg](https://commons.wikimedia.org/wiki/File:Apis_mellifera_-_Prunus_padus_-_Keila.jpg) | Ivar Leidus | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | 76 KB |
 | parrot.png | [Scarlet Macaws -11 100- (33404691865).jpg](https://commons.wikimedia.org/wiki/File:Scarlet_Macaws_-11_100-_(33404691865).jpg) | Tim Sackton from Somerville, MA | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | 29 KB |
 | bat.png | [Mauritian flying fox (Pteropus niger) in flight 3.jpg](https://commons.wikimedia.org/wiki/File:Mauritian_flying_fox_(Pteropus_niger)_in_flight_3.jpg) | Charles J. Sharp | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | 22 KB |
 | pigeon.png | [Common pigeon at Waterlow Park, London 01.jpg](https://commons.wikimedia.org/wiki/File:Common_pigeon_at_Waterlow_Park,_London_01.jpg) | Satdeep Gill | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | 75 KB |
 | raccoon.png | [Raccoon in Central Park (35264).jpg](https://commons.wikimedia.org/wiki/File:Raccoon_in_Central_Park_(35264).jpg) | Rhododendrites | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | 117 KB |
+| fox.png | [Red fox walking across the sand and rocks. (cd648e7a-155d-451f-67c2-22e947c5a1c6).jpg](https://commons.wikimedia.org/wiki/File:Red_fox_walking_across_the_sand_and_rocks._(cd648e7a-155d-451f-67c2-22e947c5a1c6).jpg) | NPS | Public domain | 60 KB |
+| zebra.png | [A plains zebra 3.jpg](https://commons.wikimedia.org/wiki/File:A_plains_zebra_3.jpg) | Jozef020 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | 54 KB |
 | lion.png | [Lion (Panthera leo) walking on the road ... (50133447418).jpg](https://commons.wikimedia.org/wiki/File:Lion_(Panthera_leo)_walking_on_the_road_..._(50133447418).jpg) | Bernard DUPONT from FRANCE | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | 68 KB |
 | tiger.png | [Bengal tiger in Sanjay Dubri Tiger Reserve December 2024 by Tisha Mukherjee 15.jpg](https://commons.wikimedia.org/wiki/File:Bengal_tiger_in_Sanjay_Dubri_Tiger_Reserve_December_2024_by_Tisha_Mukherjee_15.jpg) | Tisha Mukherjee | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | 55 KB |
 | sheep.png | [Ovella. Galiza.jpg](https://commons.wikimedia.org/wiki/File:Ovella._Galiza.jpg) | Luis Miguel Bugallo Sánchez (Lmbuga) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | 101 KB |
@@ -29,7 +31,8 @@ nguyên như ảnh gốc; ảnh CC BY-SA khi đã chỉnh sửa vẫn theo CC BY
 | rabbit.png | [Heimtier 004 2023 08 26.jpg](https://commons.wikimedia.org/wiki/File:Heimtier_004_2023_08_26.jpg) | Friedrich Haag | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | 114 KB |
 | panda.png | [Panda Walking 4.jpg](https://commons.wikimedia.org/wiki/File:Panda_Walking_4.jpg) | Amaury Laporte | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | 77 KB |
 | monkey.png | [20160802 - Rhesus macaque - Mount Popa, Myanmar - 7170.jpg](https://commons.wikimedia.org/wiki/File:20160802_-_Rhesus_macaque_-_Mount_Popa,_Myanmar_-_7170.jpg) | Jakub Hałun | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | 59 KB |
-| koala.png | [AUS koala1.jpg](https://commons.wikimedia.org/wiki/File:AUS_koala1.jpg) | Bgabel | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | 73 KB |
+| koala.png | [AUS koala1.jpg](https://commons.wikimedia.org/wiki/File:AUS_koala1.jpg) | Bgabel | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | 134 KB |
 | penguin.png | [Aptenodytes patagonicus Nils Olav at Edinburgh zoo.jpg](https://commons.wikimedia.org/wiki/File:Aptenodytes_patagonicus_Nils_Olav_at_Edinburgh_zoo.jpg) | Grendelkhan | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | 49 KB |
 | parrot-stand.png | [Scarlet macaw (Ara macao macao) Yasuni.jpg](https://commons.wikimedia.org/wiki/File:Scarlet_macaw_(Ara_macao_macao)_Yasuni.jpg) | Charles J. Sharp | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | 82 KB |
 | chicken.png | [Kogut na ulicy w Chintown w Singapurze, 20240122 0853 2966.jpg](https://commons.wikimedia.org/wiki/File:Kogut_na_ulicy_w_Chintown_w_Singapurze,_20240122_0853_2966.jpg) | Jakub Hałun | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | 78 KB |
+| cat.png | [Felis catus-cat on snow.jpg](https://commons.wikimedia.org/wiki/File:Felis_catus-cat_on_snow.jpg) | Von.grzanka | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | 78 KB |
