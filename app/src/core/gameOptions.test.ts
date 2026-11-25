@@ -70,7 +70,7 @@ describe('manifest options', () => {
       [
         'bakery', 'band', 'bath', 'cook', 'counting', 'dots', 'feed', 'hide', 'mama', 'memory', 'music', 'path', 'pattern',
         'peekaboo', 'puzzle',
-        'shadow', 'shapes', 'sort', 'sound-quiz', 'story', 'words',
+        'shadow', 'shapes', 'shop', 'sort', 'sound-quiz', 'story', 'words',
       ],
     );
   });

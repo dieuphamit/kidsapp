@@ -53,6 +53,7 @@ describe('places', () => {
       ['counting', 'place.orchard', 0],
       ['sort', 'place.orchard', 1],
       ['shapes', 'place.orchard', 2],
+      ['shop', 'place.orchard', 4],
       ['bath', 'place.pond', 0],
       ['memory', 'place.puzzle', 0],
       ['puzzle', 'place.puzzle', 1],

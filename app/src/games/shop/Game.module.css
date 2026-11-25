@@ -1,0 +1,747 @@
+.scene {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--scene-wall-low);
+  font-family: var(--font-kid);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ---- Tiệm: tường bạc hà chấm bi, mái hiên sọc đỏ trắng, sàn gỗ sáng ---- */
+.wall {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  background:
+    radial-gradient(circle at 30px 30px, color-mix(in srgb, var(--paper) 55%, transparent) 7px, transparent 8px) 0 0 / 90px 90px,
+    linear-gradient(color-mix(in srgb, var(--clay-mint) 70%, var(--paper)), color-mix(in srgb, var(--clay-mint) 45%, var(--paper)));
+  pointer-events: none;
+}
+
+.awning {
+  position: absolute;
+  left: -10px;
+  right: -10px;
+  top: 0;
+  height: 40px;
+  background: repeating-linear-gradient(90deg, var(--learn-red) 0 60px, var(--paper) 60px 120px);
+  filter: drop-shadow(0 6px 6px color-mix(in srgb, var(--ink) 20%, transparent));
+  pointer-events: none;
+}
+
+/* Diềm mái hiên: hàng nửa hình tròn đỏ trắng xen kẽ */
+.awning::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 30px;
+  background:
+    radial-gradient(circle at 30px 0, var(--learn-red) 29px, transparent 30px) 0 0 / 120px 30px repeat-x,
+    radial-gradient(circle at 30px 0, var(--paper) 29px, transparent 30px) 60px 0 / 120px 30px repeat-x;
+}
+
+.floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 196px, color-mix(in srgb, var(--scene-wood-dark) 35%, transparent) 196px 199px),
+    linear-gradient(var(--scene-wood), var(--scene-wood-light) 30%, var(--scene-wood-light));
+  box-shadow: inset 0 10px 0 var(--scene-wood-dark);
+  pointer-events: none;
+}
+
+.rug {
+  position: absolute;
+  height: 84px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, var(--clay-peach) 0 52%, var(--paper) 53% 62%, var(--clay-peach) 63%);
+  box-shadow: 0 6px 10px color-mix(in srgb, var(--ink) 16%, transparent);
+  pointer-events: none;
+}
+
+/* ---- Kệ hàng gỗ hai tầng ---- */
+.shelf {
+  position: absolute;
+  z-index: 1;
+  border-radius: 26px;
+  border: 14px solid var(--scene-wood-dark);
+  background: linear-gradient(color-mix(in srgb, var(--scene-wood) 55%, var(--scene-wood-light)), var(--scene-wood-light));
+  box-shadow: 0 14px 20px color-mix(in srgb, var(--ink) 22%, transparent), inset 0 10px 18px color-mix(in srgb, var(--ink) 14%, transparent);
+  pointer-events: none;
+}
+
+.board {
+  position: absolute;
+  left: -14px;
+  right: -14px;
+  margin-top: -14px;
+  height: 22px;
+  border-radius: 8px;
+  background: linear-gradient(var(--scene-wood), var(--scene-wood-dark));
+  box-shadow: 0 8px 10px color-mix(in srgb, var(--ink) 18%, transparent);
+}
+
+/* ---- Chủ tiệm ---- */
+.keeper {
+  position: absolute;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.keeperMove {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 100%;
+}
+
+.keeperMove[data-bounce] {
+  animation: hop 560ms var(--ease-squish);
+}
+
+.keeperImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  animation: breathe 2.6s ease-in-out infinite alternate;
+}
+
+/* ---- Khách ---- */
+.customer {
+  position: absolute;
+  z-index: 4;
+  cursor: pointer;
+}
+
+.customer[data-anim='in'] {
+  animation: walkIn 1000ms var(--ease-squish) both;
+}
+
+.customer[data-anim='out'] {
+  animation: walkOut 700ms ease-in both;
+  pointer-events: none;
+}
+
+.customerLean {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 100%;
+  transition: rotate 260ms ease-out;
+}
+
+.customerBounce {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 100%;
+}
+
+.customerBounce[data-bounce] {
+  animation: hop 600ms var(--ease-squish);
+}
+
+.customer[data-pressed] .customerBounce {
+  scale: 0.97;
+}
+
+.customerFace {
+  position: absolute;
+  inset: 0;
+}
+
+.customerFace[data-flip] {
+  scale: -1 1;
+}
+
+/* Hoạt ảnh nghỉ: thở; vui dần thì nhún nhanh hơn; nhận túi thì nhảy mừng */
+.customerImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 10px 8px color-mix(in srgb, var(--ink) 22%, transparent));
+  animation: breathe 2.4s ease-in-out infinite alternate;
+}
+
+.customer[data-mood='1'] .customerImg {
+  animation: sway 1.5s ease-in-out infinite alternate;
+}
+
+.customer[data-mood='2'] .customerImg {
+  animation: bounce 760ms ease-in-out infinite alternate;
+}
+
+.customer[data-mood='3'] .customerImg {
+  animation: joy 520ms ease-in-out infinite alternate;
+}
+
+.cheer {
+  position: absolute;
+  left: 38%;
+  top: 4%;
+  font-size: 46px;
+  opacity: 0;
+  pointer-events: none;
+  animation: floatUp 1300ms ease-out forwards;
+}
+
+.hearts {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hearts span {
+  position: absolute;
+  top: 34%;
+  font-size: 48px;
+  opacity: 0;
+  animation: floatUp 1800ms ease-out infinite;
+}
+
+/* ---- Bong bóng suy nghĩ ---- */
+.wish {
+  position: absolute;
+  z-index: 5;
+  cursor: pointer;
+  animation: wishIn 600ms var(--ease-squish) 700ms both;
+}
+
+.wishMove {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 46px;
+  background: var(--paper);
+  border: 5px solid var(--clay-lilac);
+  box-shadow: 0 12px 18px color-mix(in srgb, var(--ink) 22%, transparent);
+  transform-origin: 80% 100%;
+}
+
+.wishMove[data-bounce] {
+  animation: hop 520ms var(--ease-squish);
+}
+
+.wishTail {
+  position: absolute;
+  right: 28px;
+  bottom: -30px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 5px solid var(--clay-lilac);
+  box-shadow: 22px 26px 0 -8px var(--paper), 22px 26px 0 -3px var(--clay-lilac);
+  pointer-events: none;
+}
+
+.want {
+  position: relative;
+  flex: none;
+  border-radius: 18px;
+  background: var(--scene-wall);
+  border: 3px dashed var(--scene-wood);
+}
+
+.want img {
+  position: absolute;
+  inset: 4px;
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.want[data-done] {
+  border-style: solid;
+  border-color: var(--learn-green);
+  background: var(--clay-leaf);
+  animation: wantDone 520ms var(--ease-squish);
+}
+
+.want[data-hint] {
+  border-color: var(--learn-orange);
+  animation: blink 900ms ease-in-out infinite;
+}
+
+.check {
+  position: absolute;
+  right: -9px;
+  top: -9px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--learn-green);
+  color: var(--paper);
+  font: 800 22px/30px var(--font-kid);
+  text-align: center;
+  box-shadow: 0 3px 6px color-mix(in srgb, var(--ink) 25%, transparent);
+  animation: checkIn 520ms var(--ease-squish) both;
+}
+
+/* ---- Quầy tính tiền ---- */
+.desk {
+  position: absolute;
+  z-index: 3;
+  border-radius: 0 44px 0 0;
+  background: linear-gradient(var(--clay-lilac) 0 78px, var(--ink-soft) 78px 86px, color-mix(in srgb, var(--clay-lilac) 62%, var(--ink-soft)) 86px);
+  box-shadow: 0 -6px 16px color-mix(in srgb, var(--ink) 18%, transparent), inset 0 8px 0 color-mix(in srgb, var(--paper) 45%, transparent);
+  pointer-events: none;
+}
+
+.register {
+  position: absolute;
+  z-index: 6;
+  border-radius: 30px 30px 22px 22px;
+  background: linear-gradient(var(--world-sea-top), var(--learn-blue));
+  box-shadow: inset -8px -10px 16px color-mix(in srgb, var(--ink) 22%, transparent), inset 8px 10px 16px color-mix(in srgb, var(--paper) 40%, transparent), 0 12px 16px color-mix(in srgb, var(--ink) 26%, transparent);
+  pointer-events: none;
+}
+
+.screen {
+  position: absolute;
+  left: 26px;
+  right: 26px;
+  top: 16px;
+  height: 62px;
+  border-radius: 16px;
+  background: var(--ink);
+  box-shadow: inset 0 4px 8px color-mix(in srgb, var(--print-ink) 40%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.screen b {
+  font: 800 50px/1 var(--font-kid);
+  color: var(--clay-leaf);
+  animation: checkIn 380ms var(--ease-squish) both;
+}
+
+.screen i {
+  width: 34px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--clay-leaf);
+  opacity: 0.7;
+  animation: cursor 1200ms ease-in-out infinite;
+}
+
+.registerBtn {
+  position: absolute;
+  z-index: 7;
+}
+
+.registerBtn[data-bounce] {
+  animation: squish 360ms var(--ease-squish);
+}
+
+.registerIdle {
+  opacity: 0.92;
+}
+
+.registerReady {
+  animation: pulse 900ms ease-in-out infinite;
+}
+
+.registerIcon {
+  font-size: 70px;
+  line-height: 1;
+}
+
+/* ---- Giỏ mây ---- */
+.basket {
+  position: absolute;
+  z-index: 6;
+  cursor: pointer;
+  transition: left 700ms var(--ease-squish), top 700ms var(--ease-squish);
+}
+
+.basketMove {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 100%;
+}
+
+.basketMove[data-bounce] {
+  animation: squish 420ms var(--ease-squish);
+}
+
+.basketHandle {
+  position: absolute;
+  left: 34px;
+  right: 34px;
+  top: -52px;
+  height: 190px;
+  border: 13px solid var(--scene-wicker-dark);
+  border-bottom: 0;
+  border-radius: 110px 110px 0 0 / 120px 120px 0 0;
+  box-shadow: inset 0 4px 0 color-mix(in srgb, var(--paper) 30%, transparent);
+}
+
+.basketBack {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 46px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--scene-wicker-dark);
+  box-shadow: inset 0 10px 14px color-mix(in srgb, var(--ink) 30%, transparent);
+}
+
+.basketFront {
+  position: absolute;
+  z-index: 3;
+  left: 4px;
+  right: 4px;
+  top: 72px;
+  bottom: 0;
+  border-radius: 12px 12px 70px 70px / 12px 12px 60px 60px;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 20px, color-mix(in srgb, var(--scene-wicker-dark) 55%, transparent) 20px 24px),
+    repeating-linear-gradient(90deg, var(--scene-wicker) 0 22px, var(--scene-wicker-light) 22px 44px);
+  box-shadow: inset -10px -12px 18px color-mix(in srgb, var(--ink) 20%, transparent), inset 0 8px 0 var(--scene-wicker-light), 0 10px 12px color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+.basket[data-over] .basketFront {
+  box-shadow: inset -10px -12px 18px color-mix(in srgb, var(--ink) 20%, transparent), inset 0 8px 0 var(--scene-wicker-light), 0 0 0 8px color-mix(in srgb, var(--learn-yellow) 70%, transparent);
+}
+
+.inBasket {
+  position: absolute;
+  object-fit: contain;
+  pointer-events: none;
+  transform-origin: 50% 90%;
+  animation: dropIn 420ms var(--ease-squish) both;
+}
+
+.inBasket[data-scanned] {
+  animation: scanned 520ms var(--ease-squish) both;
+  filter: drop-shadow(0 0 8px var(--learn-yellow));
+}
+
+/* ---- Túi hàng ---- */
+.bag {
+  position: absolute;
+  z-index: 9;
+  width: 120px;
+  height: 140px;
+  pointer-events: none;
+  transition: left 520ms var(--ease-squish), top 520ms var(--ease-squish);
+  animation: checkIn 420ms var(--ease-squish) both;
+}
+
+.bag[data-anim='out'] {
+  animation: walkOut 700ms ease-in both;
+}
+
+.bag[data-state='given'] .bagBody {
+  animation: bounce 520ms ease-in-out infinite alternate;
+}
+
+.bagHandle {
+  position: absolute;
+  left: 34px;
+  right: 34px;
+  top: 0;
+  height: 50px;
+  border: 8px solid var(--scene-wicker-dark);
+  border-bottom: 0;
+  border-radius: 30px 30px 0 0;
+}
+
+.bagBody {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 32px;
+  bottom: 0;
+  border-radius: 8px 8px 16px 16px;
+  background: linear-gradient(var(--scene-wicker-light), var(--scene-wicker));
+  box-shadow: inset -8px -8px 12px color-mix(in srgb, var(--ink) 16%, transparent), inset 0 10px 0 color-mix(in srgb, var(--paper) 40%, transparent), 0 8px 10px color-mix(in srgb, var(--ink) 22%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44px;
+  transform-origin: 50% 100%;
+}
+
+/* ---- Món hàng trên kệ ---- */
+.spare {
+  position: absolute;
+  z-index: 7;
+  object-fit: contain;
+  pointer-events: none;
+  filter: brightness(0.94);
+}
+
+.item {
+  position: absolute;
+  z-index: 8;
+  cursor: grab;
+  touch-action: none;
+  transition: left 480ms var(--ease-squish), top 480ms var(--ease-squish);
+  animation: itemIn 460ms var(--ease-squish) both;
+}
+
+.item[data-state='drag'] {
+  transition: none;
+  z-index: 20;
+  cursor: grabbing;
+}
+
+.item[data-state='return'] {
+  z-index: 19;
+}
+
+.itemMove {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 90%;
+}
+
+.itemMove[data-hop] {
+  animation: hop 380ms var(--ease-squish);
+}
+
+.item[data-state='drag'] .itemMove {
+  animation: none;
+  transform: scale(1.12) rotate(-5deg);
+  filter: drop-shadow(0 14px 14px color-mix(in srgb, var(--ink) 30%, transparent));
+}
+
+.itemImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  transform-origin: 50% 90%;
+  filter: drop-shadow(0 6px 5px color-mix(in srgb, var(--ink) 22%, transparent));
+}
+
+/* Gợi ý không lời: món cần lấy nhấp nháy, nhún nhẹ, có quầng sáng */
+.item[data-hint] .itemImg {
+  animation: nudge 900ms ease-in-out infinite;
+}
+
+.item[data-hint]::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--learn-yellow) 85%, transparent) 30%, transparent 70%);
+  animation: blink 900ms ease-in-out infinite;
+}
+
+/* ---- Ăn mừng cuối lượt ---- */
+.party {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: radial-gradient(ellipse at 50% 40%, color-mix(in srgb, var(--scene-sun-core) 80%, transparent), color-mix(in srgb, var(--scene-sun) 35%, transparent) 60%, transparent 85%);
+  pointer-events: none;
+  animation: fadeIn 500ms ease-out both;
+}
+
+.partyBuddy {
+  position: absolute;
+  left: calc(50% - 170px);
+  top: 170px;
+  width: 340px;
+  height: 340px;
+  object-fit: contain;
+  animation: cheerUp 700ms var(--ease-squish) infinite alternate;
+}
+
+.partyHeart {
+  position: absolute;
+  top: 60%;
+  font-size: 54px;
+  opacity: 0;
+  animation: floatUp 1900ms ease-out infinite;
+}
+
+.replay {
+  pointer-events: auto;
+  animation: pulse 1100ms ease-in-out 900ms infinite;
+}
+
+.replayIcon {
+  font-size: 76px;
+  line-height: 1;
+}
+
+/* ---- Hiệu ứng ---- */
+@keyframes breathe {
+  from { transform: scale(1, 1); }
+  to { transform: scale(1.014, 1.035); }
+}
+
+@keyframes sway {
+  from { transform: rotate(-1.6deg) scale(1, 1); }
+  to { transform: rotate(1.6deg) scale(1.01, 1.03); }
+}
+
+@keyframes bounce {
+  from { transform: translateY(0) scale(1.02, 0.98); }
+  to { transform: translateY(-12px) scale(0.99, 1.03); }
+}
+
+@keyframes joy {
+  from { transform: translateY(0) rotate(-3deg) scale(1.04, 0.96); }
+  to { transform: translateY(-34px) rotate(3deg) scale(0.98, 1.04); }
+}
+
+@keyframes hop {
+  0% { transform: translateY(0) scale(1, 1); }
+  30% { transform: translateY(0) scale(1.06, 0.92); }
+  60% { transform: translateY(-22px) scale(0.97, 1.05); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+@keyframes squish {
+  0% { transform: scale(1, 1); }
+  35% { transform: scale(1.08, 0.9); }
+  70% { transform: scale(0.97, 1.05); }
+  100% { transform: scale(1, 1); }
+}
+
+@keyframes nudge {
+  0%, 100% { transform: rotate(0) translateY(0) scale(1); }
+  25% { transform: rotate(-6deg) translateY(-8px) scale(1.06); }
+  75% { transform: rotate(6deg) translateY(-8px) scale(1.06); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; scale: 1; }
+  50% { opacity: 0.45; scale: 1.08; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); box-shadow: var(--shadow-clay), 0 0 0 0 color-mix(in srgb, var(--learn-orange) 60%, transparent); }
+  50% { transform: scale(1.08); box-shadow: var(--shadow-clay), 0 0 0 22px color-mix(in srgb, var(--learn-orange) 0%, transparent); }
+}
+
+@keyframes cursor {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes walkIn {
+  0% { translate: 380px 0; opacity: 0; }
+  35% { translate: 250px -16px; opacity: 1; }
+  55% { translate: 150px 0; }
+  75% { translate: 50px -12px; }
+  100% { translate: 0 0; opacity: 1; }
+}
+
+@keyframes walkOut {
+  from { translate: 0 0; opacity: 1; }
+  to { translate: 420px 0; opacity: 0; }
+}
+
+@keyframes wishIn {
+  from { scale: 0.3; opacity: 0; }
+  to { scale: 1; opacity: 1; }
+}
+
+@keyframes wantDone {
+  0% { transform: scale(0.8); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+@keyframes checkIn {
+  0% { transform: scale(0.2); opacity: 0; }
+  60% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes itemIn {
+  0% { opacity: 0; scale: 0.4; }
+  100% { opacity: 1; scale: 1; }
+}
+
+@keyframes dropIn {
+  0% { transform: translateY(-60px) scale(1.2); opacity: 0; }
+  60% { transform: translateY(6px) scale(1.06, 0.92); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes scanned {
+  0% { transform: translateY(0) scale(1); }
+  45% { transform: translateY(-30px) scale(1.18); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes floatUp {
+  0% { opacity: 0; transform: translateY(0) scale(0.6); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-190px) scale(1.2); }
+}
+
+@keyframes cheerUp {
+  from { transform: translateY(0) rotate(-4deg); }
+  to { transform: translateY(-26px) rotate(4deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .customerImg,
+  .customer[data-mood] .customerImg,
+  .keeperImg,
+  .item[data-hint] .itemImg,
+  .partyBuddy,
+  .registerReady,
+  .replay {
+    animation: none;
+  }
+}
+
+/* Lúc ăn mừng: cất quầy, máy, giỏ và chủ tiệm nhỏ để chỉ còn bạn đồng hành to và nút chơi lại */
+.scene[data-phase='party'] .keeper,
+.scene[data-phase='party'] .desk,
+.scene[data-phase='party'] .register,
+.scene[data-phase='party'] .registerBtn,
+.scene[data-phase='party'] .basket,
+.scene[data-phase='party'] .rug {
+  display: none;
+}
+
+.partyRug {
+  position: absolute;
+  left: calc(50% - 230px);
+  top: 446px;
+  width: 460px;
+  height: 96px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, var(--clay-peach) 0 52%, var(--paper) 53% 62%, var(--clay-peach) 63%);
+  box-shadow: 0 6px 10px color-mix(in srgb, var(--ink) 16%, transparent);
+}
