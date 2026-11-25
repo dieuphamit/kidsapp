@@ -167,9 +167,10 @@ describe('Cho thú ăn: lượt chơi', () => {
     expect(currentTurn(s)).toBeUndefined();
   });
 
-  it('soundKey trả tiếng thật hoặc câu TTS', () => {
+  it('soundKey trả tiếng kêu thật (ghi âm), kể cả mèo', () => {
     expect(soundKey('horse')).toBe('animal.horse-sound');
-    expect(soundKey('cat')).toBe('feed.sound.cat');
+    expect(soundKey('cat')).toBe('animal.cat-sound');
+    for (const id of ANIMAL_IDS) expect(soundKey(id)).toBe(`animal.${id}-sound`);
   });
 });
 

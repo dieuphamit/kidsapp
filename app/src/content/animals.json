@@ -4,6 +4,7 @@
   { "key": "animal.duck", "vi": "Con vịt", "ja": "あひるさん", "en": "Duck" },
   { "key": "animal.pig", "vi": "Con heo", "ja": "ぶたさん", "en": "Pig" },
   { "key": "animal.dog", "vi": "Con chó", "ja": "いぬさん", "en": "Dog" },
+  { "key": "animal.cat", "vi": "Con mèo", "ja": "ねこさん", "en": "Cat" },
   { "key": "animal.sheep", "vi": "Con cừu", "ja": "ひつじさん", "en": "Sheep" },
   { "key": "animal.horse", "vi": "Con ngựa", "ja": "うまさん", "en": "Horse" },
   { "key": "animal.rabbit", "vi": "Con thỏ", "ja": "うさぎさん", "en": "Rabbit" },
