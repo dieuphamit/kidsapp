@@ -39,7 +39,7 @@
 /* Chỗ bạn đồng hành đứng chờ ở phòng không có kệ bếp: kệ tường (trong nhà) hoặc đám mây (ngoài trời) */
 .perch {
   position: absolute;
-  left: 962px;
+  left: 832px;
   top: 300px;
   width: 196px;
   pointer-events: none;

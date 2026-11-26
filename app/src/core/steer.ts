@@ -148,6 +148,15 @@ function ease(cur: number, target: number, rate: number, dt: number): number {
   return cur + (target - cur) * (1 - Math.exp(-dt * rate));
 }
 
+/**
+ * Quay mặt theo hướng đi: đi đường ngắn nhất (heading vừa vượt ±π thì không xoay vọt gần một vòng
+ * qua lưng), và giữ yaw trong (-π, π] để các lần ngoảnh về bé (ease thẳng tới góc gần 0) luôn
+ * quay qua phía camera chứ không quay nhiều vòng.
+ */
+function easeYaw(cur: number, target: number, rate: number, dt: number): number {
+  return wrapAngle(ease(cur, cur + wrapAngle(target - cur), rate, dt));
+}
+
 export type AgentOptions = {
   id: string;
   motion: Motion;
@@ -587,7 +596,7 @@ function stepGround(a: Agent, all: readonly Agent[], dt: number): void {
   clampToArea(a);
   resolveOverlap(a, all);
   clampToArea(a);
-  a.yaw = ease(a.yaw, faceYaw(a.heading), 6, dt);
+  a.yaw = easeYaw(a.yaw, faceYaw(a.heading), 6, dt);
   // Ngóc/chúc theo độ dốc là 0 trên mặt đất; nghiêng nhẹ vào khúc cua cho sống động
   a.roll = ease(a.roll, 0, 6, dt);
 
@@ -640,7 +649,7 @@ function stepSwim(a: Agent, all: readonly Agent[], dt: number): void {
   // Nghiêng vào khúc lượn
   const turnRate = dt > 0 ? wrapAngle(a.heading - before) / dt : 0;
   a.roll = ease(a.roll, clamp(-turnRate * 0.35, -0.4, 0.4), 3, dt);
-  a.yaw = ease(a.yaw, faceYaw(a.heading), 5, dt);
+  a.yaw = easeYaw(a.yaw, faceYaw(a.heading), 5, dt);
   if (Math.hypot(dh, dy) < 0.5) pickTarget(a);
 }
 
@@ -815,7 +824,7 @@ function stepSchool(a: Agent, all: readonly Agent[], dt: number): void {
   const turn = dt > 0 ? wrapAngle(a.heading - before) / dt : 0;
   a.pitch = ease(a.pitch, clamp(Math.atan2(a.vy, Math.hypot(a.vx, a.vz)), -0.4, 0.4), 4, dt);
   a.roll = ease(a.roll, clamp(-turn * 0.3, -0.4, 0.4), 3, dt);
-  a.yaw = ease(a.yaw, faceYaw(a.heading), 6, dt);
+  a.yaw = easeYaw(a.yaw, faceYaw(a.heading), 6, dt);
 }
 
 /** Đặt con bay lên quỹ đạo theo theta; cập nhật heading theo đạo hàm */
@@ -873,5 +882,5 @@ function stepFly(a: Agent, dt: number): void {
   // Nghiêng thân vào phía trong vòng cua (nhiều hơn khi bay nhanh)
   a.roll = ease(a.roll, clamp(-turn * a.speed * 0.6, -0.6, 0.6), 4, dt);
   a.pitch = ease(a.pitch, clamp(Math.cos(a.dur * 1.6 + (a.seed % 100) * 0.1) * 0.25, -0.3, 0.3), 4, dt);
-  a.yaw = ease(a.yaw, faceYaw(a.heading), 6, dt);
+  a.yaw = easeYaw(a.yaw, faceYaw(a.heading), 6, dt);
 }

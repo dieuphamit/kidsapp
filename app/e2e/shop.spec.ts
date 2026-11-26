@@ -46,6 +46,35 @@ async function imagesLoaded(page: Page) {
   );
 }
 
+type Box = { x: number; y: number; width: number; height: number };
+const touches = (a: Box, b: Box) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+
+/**
+ * Màn ăn mừng: mọi nhân vật nằm trong khung; ảnh và túi của các khách không chạm nhau, không chạm
+ * bạn đồng hành hay nút chơi lại; túi của mỗi khách đặt cạnh chứ không che ảnh khách đó.
+ */
+async function expectPartyApart(page: Page, replay: Box) {
+  const guests = await page.locator('[data-testid^="guest-"]').all();
+  const buddy = (await page.getByTestId('party-buddy').boundingBox())!;
+  const shapes: { owner: number; box: Box }[] = [];
+  for (const [i, g] of guests.entries()) {
+    const img = (await g.locator('img').boundingBox())!;
+    const bag = (await page.getByTestId(`party-bag-${i}`).boundingBox())!;
+    expect(touches(img, bag), `túi che khách ${i}`).toBe(false);
+    shapes.push({ owner: i, box: img }, { owner: i, box: bag });
+  }
+  for (const [k, a] of shapes.entries()) {
+    expect(a.box.x).toBeGreaterThanOrEqual(0);
+    expect(a.box.x + a.box.width).toBeLessThanOrEqual(1194);
+    expect(a.box.y + a.box.height).toBeLessThanOrEqual(834);
+    expect(touches(a.box, replay), `khách ${a.owner} đè nút chơi lại`).toBe(false);
+    expect(touches(a.box, buddy), `khách ${a.owner} đè bạn đồng hành`).toBe(false);
+    for (const b of shapes.slice(k + 1)) {
+      if (b.owner !== a.owner) expect(touches(a.box, b.box), `khách ${a.owner} chạm khách ${b.owner}`).toBe(false);
+    }
+  }
+}
+
 async function center(page: Page, testId: string) {
   const box = (await page.getByTestId(testId).boundingBox())!;
   return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
@@ -261,6 +290,7 @@ test('bé lớn: danh sách có số lượng, bong bóng đúng số hình, k�
   }
   await expect(page.getByTestId('party')).toBeVisible({ timeout: 12_000 });
   await expect(page.locator('[data-testid^="guest-"]')).toHaveCount(5);
+  await expectPartyApart(page, (await page.getByRole('button', { name: 'replay' }).boundingBox())!);
   await imagesLoaded(page);
   await page.waitForTimeout(900);
   await page.screenshot({ path: 'test-results/shots/shop-party-hard.png' });
@@ -291,15 +321,9 @@ test('bé nhỏ: 1–2 món, kệ 4 ô; phục vụ đủ 3 khách → ăn mừn
   await expect(replay).toBeVisible();
   const box = (await replay.boundingBox())!;
   expect(box.width).toBeGreaterThanOrEqual(120);
-  // các khách vừa phục vụ đứng thành hàng trên sàn cùng Đậu Đậu; nút chơi lại không đè ai
+  // các khách vừa phục vụ đứng trên sàn cùng Đậu Đậu (hai hàng so le); nút chơi lại không đè ai
   await expect(page.locator('[data-testid^="guest-"]')).toHaveCount(3);
-  const cast = [...(await page.locator('[data-testid^="guest-"]').all()), page.getByTestId('party-buddy')];
-  for (const el of cast) {
-    const b = (await el.boundingBox())!;
-    expect(b.x).toBeGreaterThanOrEqual(0);
-    expect(b.x + b.width).toBeLessThanOrEqual(1194);
-    expect(b.y + b.height).toBeLessThanOrEqual(box.y);
-  }
+  await expectPartyApart(page, box);
   // chạm một khách: con đó kêu tiếng của mình
   await page.getByTestId('guest-1').dispatchEvent('pointerdown');
   await expect(game).toHaveAttribute('data-last-say', `animal.${customers[1]}-sound`);

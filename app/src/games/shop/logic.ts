@@ -140,7 +140,7 @@ function kindCount(level: Level, i: number, rand: () => number): number {
 
 /** Số lượng từng loại ở mức khó: mỗi loại 1–3 cái, ít nhất một loại ≥2, tổng ≤ MAX_TOTAL. */
 function quantities(kinds: number, rand: () => number): number[] {
-  const q = Array.from({ length: kinds }, () => 1 + Math.min(2, Math.floor(rand() * 3)));
+  const q = Array.from({ length: kinds }, () => 1 + Math.min(MAX_QTY - 1, Math.floor(rand() * MAX_QTY)));
   if (!q.some((n) => n > 1)) q[0] = 2;
   let i = 0;
   while (q.reduce((a, b) => a + b, 0) > MAX_TOTAL) {
@@ -269,7 +269,15 @@ export const PAY_KEY = 'shop.pay';
 export const THANKS_KEY = 'shop.thanks';
 export const DONE_KEY = 'shop.done';
 
-/** Chuỗi câu đọc danh sách của khách: "Bạn muốn mua…", rồi (số lượng nếu >1) và tên từng món. */
+/** Số cái nhiều nhất của một món trong danh sách (mức khó). */
+export const MAX_QTY = 3;
+/**
+ * Câu đọc "số lượng + tên món" thành một câu trọn (vi "Hai quả táo", ja "りんごを ふたつ",
+ * en "Two apples"): ghép hai key rời "に" + "りんご" nghe cụt và sai ngữ pháp tiếng Nhật.
+ */
+export const qtyKey = (i: ItemId, n: number) => `shop.qty.${i}.${n}`;
+
+/** Chuỗi câu đọc danh sách của khách: "Bạn muốn mua…", rồi từng món (món mua nhiều cái đọc kèm số lượng). */
 export function wantKeys(turn: Turn): string[] {
-  return [WANT_KEY, ...turn.need.flatMap((w) => (w.qty > 1 ? [numberKey(w.qty), itemKey(w.item)] : [itemKey(w.item)]))];
+  return [WANT_KEY, ...turn.need.map((w) => (w.qty > 1 ? qtyKey(w.item, w.qty) : itemKey(w.item)))];
 }

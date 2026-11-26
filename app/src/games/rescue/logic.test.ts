@@ -34,10 +34,13 @@ import {
   OTHER_KEY,
   DRIVE_KEY,
   PARTY_KEY,
+  missionById,
+  animalById,
   type Act,
   type State,
 } from './logic';
-import { CAPTAIN, CAPTAIN_PICK, HANDLE, STAGE_H, STAGE_W, clampHandle, layoutGarage, reached, rescueLayout } from './layout';
+import sharp from 'sharp';
+import { CAPTAIN, CAPTAIN_PICK, HANDLE, STAGE_H, STAGE_W, bodyPoint, clampHandle, layoutGarage, reached, rescueLayout } from './layout';
 import type { Level } from '../../core/variety';
 
 const PUBLIC = join(import.meta.dirname, '..', '..', '..', 'public');
@@ -138,12 +141,14 @@ describe('Đội cứu hộ: độ khó', () => {
     for (const m of MISSION_IDS) {
       const units = (l: Level) => stepsFor(m, l).reduce((n, s) => n + s.targets, 0);
       expect(units('easy'), m).toBe(1);
-      expect(units('medium'), m).toBeGreaterThanOrEqual(1);
+      // mức vừa: mọi nhiệm vụ đều 2 phần việc (trước đây "kẹt trên cây" chỉ có 1 bước)
+      expect(units('medium'), m).toBe(2);
       expect(units('hard'), m).toBe(3);
       for (const l of LEVELS) for (const s of stepsFor(m, l)) expect(s.kind).toBe(ACT_KIND[s.act]);
     }
     expect(stepsFor('fire', 'medium')[0].targets).toBe(2);
     expect(stepsFor('hurt', 'medium').map((s) => s.n)).toEqual([0, 1]);
+    expect(stepsFor('tree', 'medium').map((s) => s.act)).toEqual(['ladderUp', 'animalDown']);
     expect(GARAGE_COUNT).toEqual({ easy: 2, medium: 3, hard: 4 });
     expect(MISSIONS_PER_ROUND).toEqual({ easy: 3, medium: 4, hard: 5 });
     expect(DRIVE_NEED.easy).toBeLessThan(DRIVE_NEED.hard);
@@ -305,9 +310,9 @@ describe('Đội cứu hộ: bố cục trong khung 1194×834', () => {
   it('mọi nhiệm vụ, mọi mức: vật kéo và đích nằm trong khung, tránh góc cổng bố mẹ, chưa kéo thì chưa tới đích', () => {
     expect(HANDLE).toBeGreaterThanOrEqual(120);
     for (const m of MISSION_IDS) {
-      for (const level of LEVELS) {
+      for (const level of LEVELS) for (const who of missionById(m).animals) {
         const steps = stepsFor(m, level);
-        const lay = rescueLayout(m, level, steps);
+        const lay = rescueLayout(m, level, steps, who);
         expect(lay.steps, `${m}/${level}`).toHaveLength(steps.length);
         expect(lay.spots).toHaveLength(steps.length + 1);
         for (const spot of lay.spots) {
@@ -342,9 +347,52 @@ describe('Đội cứu hộ: bố cục trong khung 1194×834', () => {
     }
   });
 
+  it('điểm neo thân của từng con vật nằm trên phần ảnh có hình (cả một vùng quanh điểm), nên băng dán, vệt bùn, móc dây luôn ở trên thân', async () => {
+    for (const a of ANIMALS) {
+      const { data, info } = await sharp(join(PUBLIC, a.img)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+      const alpha = (fx: number, fy: number) => {
+        const x = Math.min(info.width - 1, Math.max(0, Math.round(fx * info.width)));
+        const y = Math.min(info.height - 1, Math.max(0, Math.round(fy * info.height)));
+        return data[(y * info.width + x) * info.channels + 3];
+      };
+      expect(a.body.length, a.id).toBeGreaterThanOrEqual(3);
+      for (const [fx, fy] of a.body) {
+        // tâm và 8 điểm trên vòng bán kính 5% bề ngang ảnh đều có hình (không rơi ra nền trong suốt)
+        for (let k = 0; k <= 8; k++) {
+          const ang = (k * Math.PI) / 4;
+          const r = k === 8 ? 0 : 0.05;
+          expect(alpha(fx + r * Math.cos(ang), fy + (r * Math.sin(ang) * info.width) / info.height), `${a.id} ${fx},${fy}`).toBeGreaterThan(128);
+        }
+      }
+    }
+  });
+
+  it('chỗ đau, chỗ móc dây, chỗ lau nằm trong ô con vật đúng như điểm neo thân', () => {
+    for (const level of LEVELS) {
+      for (const who of missionById('hurt').animals) {
+        const lay = rescueLayout('hurt', level, stepsFor('hurt', level), who);
+        const spot = lay.spots[0];
+        lay.steps.forEach((g, i) => {
+          const p = g.kind === 'drag' ? g.to : g.targets[0];
+          const k = g.kind === 'drag' ? stepsFor('hurt', level)[i].n % 2 : 0;
+          const b = bodyPoint(animalById(who), lay.animal, k);
+          expect(p, `${who}/${level}/${i}`).toEqual({ x: spot.x + b.x, y: spot.y + b.y });
+        });
+      }
+      for (const m of ['mud', 'lake'] as const) {
+        for (const who of missionById(m).animals) {
+          const lay = rescueLayout(m, level, stepsFor(m, level), who);
+          const g = lay.steps[0];
+          const b = bodyPoint(animalById(who), lay.animal, 0);
+          if (g.kind === 'drag') expect(g.to, `${m}/${who}`).toEqual({ x: lay.spots[0].x + b.x, y: lay.spots[0].y + b.y });
+        }
+      }
+    }
+  });
+
   it('thang cho bé lớn cao hơn cho bé nhỏ', () => {
     const up = (level: Level) => {
-      const g = rescueLayout('tree', level, stepsFor('tree', level)).steps[0];
+      const g = rescueLayout('tree', level, stepsFor('tree', level), 'cat').steps[0];
       return g.kind === 'drag' ? g.from.y - g.to.y : 0;
     };
     expect(up('medium')).toBeGreaterThan(up('easy') + 60);

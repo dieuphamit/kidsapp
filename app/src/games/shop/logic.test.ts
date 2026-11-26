@@ -26,6 +26,8 @@ import {
   itemKey,
   gotKey,
   numberKey,
+  qtyKey,
+  MAX_QTY,
   HELLO_KEY,
   WANT_KEY,
   NOPE_KEY,
@@ -54,6 +56,9 @@ import {
   PARTY_AREA,
   PARTY_MAX_W,
   PARTY_FLOOR,
+  PARTY_FRONT_FLOOR,
+  PARTY_BAG_W,
+  PARTY_BAG_GAP,
   FLOOR_Y,
   fitArea,
   partySlots,
@@ -243,15 +248,26 @@ describe('vòng chơi', () => {
     expect(currentTurn(s)).toBeUndefined();
   });
 
-  it('chuỗi câu đọc danh sách: có số đếm khi mua nhiều cái', () => {
+  it('chuỗi câu đọc danh sách: món mua nhiều cái đọc thành một câu "số lượng + tên" trọn vẹn', () => {
     const s = start('hard');
     const t = currentTurn(s)!;
     const keys = wantKeys(t);
     expect(keys[0]).toBe(WANT_KEY);
-    for (const w of t.need) {
-      const at = keys.indexOf(itemKey(w.item));
-      expect(at).toBeGreaterThan(0);
-      if (w.qty > 1) expect(keys[at - 1]).toBe(numberKey(w.qty));
+    expect(keys).toHaveLength(t.need.length + 1);
+    t.need.forEach((w, i) => {
+      expect(keys[i + 1]).toBe(w.qty > 1 ? qtyKey(w.item, w.qty) : itemKey(w.item));
+    });
+    expect(t.need.some((w) => w.qty > 1)).toBe(true);
+    // không còn ghép số rời trước tên ("に、りんご")
+    expect(keys.some((k) => k.startsWith('number.'))).toBe(false);
+    // mọi câu số lượng có thể xuất hiện đều có đủ vi/ja/en trong content
+    const content = JSON.parse(readFileSync(join(CONTENT, 'shop.json'), 'utf8')) as Record<string, string>[];
+    for (const id of ITEM_IDS) {
+      for (let n = 2; n <= MAX_QTY; n++) {
+        const e = content.find((c) => c.key === qtyKey(id, n));
+        expect(e, qtyKey(id, n)).toBeDefined();
+        expect(e!.vi && e!.ja && e!.en).toBeTruthy();
+      }
     }
     const easy = currentTurn(start('easy'))!;
     expect(wantKeys(easy)).toEqual([WANT_KEY, itemKey(easy.need[0].item)]);
@@ -328,8 +344,10 @@ describe('bố cục', () => {
         expect(a.h).toBeGreaterThanOrEqual(120);
         expect(a.x).toBeGreaterThanOrEqual(0);
         expect(a.x + a.w).toBeLessThanOrEqual(STAGE_W);
-        expect(a.y + a.h).toBe(PARTY_FLOOR);
+        expect([PARTY_FLOOR, PARTY_FRONT_FLOOR]).toContain(a.y + a.h);
+        expect(a.y + a.h).toBeLessThanOrEqual(STAGE_H);
         expect(overlap(a, replay, 24)).toBe(false);
+        expect(overlap(a, GATE)).toBe(false);
         all.slice(i + 1).forEach((b) => expect(overlap(a, b, 24)).toBe(false));
       });
     }
@@ -338,6 +356,39 @@ describe('bố cục', () => {
       const f = fitArea(c.w, c.h, PARTY_AREA, PARTY_MAX_W, 190);
       expect(f.h, c.id).toBeLessThanOrEqual(190);
       expect(f.w, c.id).toBeLessThanOrEqual(PARTY_MAX_W);
+    }
+  });
+
+  it('ăn mừng: dù khách nào đứng cạnh nhau (kể cả hai con dáng ngang), ảnh và túi hàng không chạm nhau, túi không che chân', () => {
+    // ảnh vẽ đúng như Game.tsx: căn giữa chỗ đứng, chân ở mép dưới; túi sát bên phải ảnh
+    const drawn = (s: { x: number; y: number; w: number; h: number }, c: (typeof CUSTOMERS)[number]) => {
+      const f = fitArea(c.w, c.h, PARTY_AREA, s.w, s.h - 10);
+      const img = { x: s.x + (s.w - f.w) / 2, y: s.y + s.h - f.h, w: f.w, h: f.h };
+      const bag = { x: img.x + img.w + PARTY_BAG_GAP, y: s.y + s.h - 64, w: PARTY_BAG_W, h: 64 };
+      return { img, bag };
+    };
+    const widest = [...CUSTOMERS].sort((a, b) => b.w / b.h - a.w / a.h)[0];
+    const tallest = [...CUSTOMERS].sort((a, b) => b.h / b.w - a.h / a.w)[0];
+    const buddy = { x: PARTY_BUDDY.x, y: PARTY_BUDDY.y, w: PARTY_BUDDY.w, h: PARTY_BUDDY.h };
+    const replay = { x: REPLAY.x, y: REPLAY.y, w: REPLAY.size, h: REPLAY.size };
+    for (const n of [3, 4, 5]) {
+      for (const c of [widest, tallest]) {
+        const shapes = partySlots(n).flatMap((s) => {
+          const d = drawn(s, c);
+          expect(overlap(d.img, d.bag)).toBe(false); // túi cạnh chân, không đè ảnh
+          return [d.img, d.bag];
+        });
+        shapes.forEach((a, i) => {
+          expect(a.x).toBeGreaterThanOrEqual(0);
+          expect(a.x + a.w).toBeLessThanOrEqual(STAGE_W);
+          expect(overlap(a, buddy)).toBe(false);
+          expect(overlap(a, replay)).toBe(false);
+          // ảnh/túi của các khách khác nhau không chạm nhau
+          shapes.slice(i + 1).forEach((b, j) => {
+            if (Math.floor(i / 2) !== Math.floor((i + 1 + j) / 2)) expect(overlap(a, b, 8), `${c.id} ${n}`).toBe(false);
+          });
+        });
+      }
     }
   });
 

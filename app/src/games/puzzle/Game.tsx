@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
 import { Scenery } from '../../ui/Scenery';
@@ -17,54 +17,13 @@ import {
 import { recentPicks, rememberPicks } from '../../core/gameOptions';
 import { pictureUrl } from '../../content/pictures';
 import styles from './Game.module.css';
+import { FRAME_SIZE, KEEP_IN, PIECE_MIN_SIZE, STAGE_H, STAGE_W, initialTrayPositions, pieceDimensions, type PiecePosition } from './layout';
 
-const FRAME_SIZE = 360; // px, khung ghép ≥ 360px theo spec
-const PIECE_MIN_SIZE = 120; // luật UX: vùng chạm ≥ 120px
-
-interface PiecePosition {
-  x: number; // toạ độ tâm trong stage
-  y: number;
-}
 
 interface DragState {
   pieceIdx: number;
   offsetX: number;
   offsetY: number;
-}
-
-/** Tính kích thước một mảnh. */
-function pieceDimensions(pieceCount: 2 | 3 | 4): { w: number; h: number } {
-  if (pieceCount === 2) return { w: FRAME_SIZE / 2, h: FRAME_SIZE };
-  if (pieceCount === 3) return { w: FRAME_SIZE / 3, h: FRAME_SIZE };
-  // pieceCount === 4
-  return { w: FRAME_SIZE / 2, h: FRAME_SIZE / 2 };
-}
-
-/** Vị trí ban đầu của các mảnh ở ngăn trái/phải. */
-function initialTrayPositions(pieceCount: 2 | 3 | 4): PiecePosition[] {
-  const { w, h } = pieceDimensions(pieceCount);
-  const positions: PiecePosition[] = [];
-  const centerY = 834 / 2; // Stage height / 2
-
-  if (pieceCount === 2) {
-    // Mảnh 0 bên trái, mảnh 1 bên phải
-    positions.push({ x: 100 + w / 2, y: centerY });
-    positions.push({ x: 1194 - 100 - w / 2, y: centerY });
-  } else if (pieceCount === 3) {
-    // 2 mảnh bên trái, 1 bên phải (hoặc ngược lại)
-    const gap = 24;
-    positions.push({ x: 80 + w / 2, y: centerY - h / 2 - gap / 2 });
-    positions.push({ x: 80 + w / 2, y: centerY + h / 2 + gap / 2 });
-    positions.push({ x: 1194 - 80 - w / 2, y: centerY });
-  } else {
-    // 4 mảnh: 2 bên trái, 2 bên phải
-    const gap = 24;
-    positions.push({ x: 80 + w / 2, y: centerY - h / 2 - gap / 2 });
-    positions.push({ x: 80 + w / 2, y: centerY + h / 2 + gap / 2 });
-    positions.push({ x: 1194 - 80 - w / 2, y: centerY - h / 2 - gap / 2 });
-    positions.push({ x: 1194 - 80 - w / 2, y: centerY + h / 2 + gap / 2 });
-  }
-  return positions;
 }
 
 /** URL ảnh card (thẻ png hoặc hình khối svg). */
@@ -120,6 +79,14 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
   const [completeAnim, setCompleteAnim] = useState(false);
   const doneHandled = useRef(false);
   const dragRef = useRef<DragState | null>(null);
+  /** Mảnh đang được kéo (state để mảnh phóng to ngay lúc chạm, phản hồi trong 100ms). */
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  /** Hẹn giờ của màn hoàn thành: huỷ khi bé thoát trò để không còn giọng đọc phát sau đó. */
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  const later = useCallback((fn: () => void, ms: number) => {
+    timers.current.push(setTimeout(fn, ms));
+  }, []);
   const frameRef = useRef<HTMLDivElement>(null);
 
   const say = useCallback(
@@ -178,14 +145,14 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
       setCompleteAnim(true);
       setShowStars(true);
 
-      setTimeout(() => {
+      later(() => {
         say('puzzle.done');
         // Sau đó nói tên hình
-        setTimeout(() => {
+        later(() => {
           say(cardContentKey(state.cardId));
 
           // 3s sau → ván mới
-          setTimeout(() => {
+          later(() => {
             setShowStars(false);
             setCompleteAnim(false);
             const next = nextRound(state, 0, topic, recentPicks<string>('puzzle'));
@@ -198,7 +165,7 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
         }, 1500);
       }, 500);
     }
-  }, [state, say, topic]);
+  }, [state, say, topic, later]);
 
   // Pointer handlers
   const handlePointerDown = useCallback(
@@ -213,6 +180,7 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
         offsetX: stagePos.x - piecePos.x,
         offsetY: stagePos.y - piecePos.y,
       };
+      setDragIdx(pieceIdx);
     },
     [state.pieces, piecePositions]
   );
@@ -224,9 +192,10 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
       const stagePos = clientToStage(e.clientX, e.clientY);
       setPiecePositions((pos) => {
         const newPos = [...pos];
+        // giữ mảnh trong khung: kéo ra mép thì mảnh dừng lại, không mất khỏi màn hình
         newPos[pieceIdx] = {
-          x: stagePos.x - offsetX,
-          y: stagePos.y - offsetY,
+          x: Math.min(STAGE_W - KEEP_IN, Math.max(KEEP_IN, stagePos.x - offsetX)),
+          y: Math.min(STAGE_H - KEEP_IN, Math.max(KEEP_IN, stagePos.y - offsetY)),
         };
         return newPos;
       });
@@ -239,6 +208,7 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
       if (!dragRef.current) return;
       const { pieceIdx } = dragRef.current;
       dragRef.current = null;
+      setDragIdx(null);
 
       // Kiểm tra snap
       const piecePos = piecePositions[pieceIdx];
@@ -272,6 +242,11 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
   );
 
   const { w: pieceW, h: pieceH } = pieceDimensions(state.pieceCount);
+  // vị trí sao cố định cho mỗi lần hoàn thành (trước đây random trong lúc render nên sao nhảy chỗ mỗi lần vẽ lại)
+  const stars = useMemo(() => {
+    const k = [...state.cardId].reduce((n, c) => n + c.charCodeAt(0), 0);
+    return Array.from({ length: 8 }, (_, i) => ({ left: 10 + i * 10 + ((i * 37 + k * 13) % 5), top: 40 + ((i * 53 + k * 7) % 20) }));
+  }, [state.cardId]);
   const displayPieceW = Math.max(pieceW, PIECE_MIN_SIZE);
   const displayPieceH = Math.max(pieceH, PIECE_MIN_SIZE);
   const frameLeft = (1194 - FRAME_SIZE) / 2;
@@ -333,8 +308,7 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
       {state.pieces.map((piece) => {
         const pos = piecePositions[piece.index];
         const bgStyle = pieceBackgroundStyle(piece.index, state.pieceCount);
-        const isDragging =
-          dragRef.current?.pieceIdx === piece.index && !piece.placed;
+        const isDragging = dragIdx === piece.index && !piece.placed;
 
         // Nếu mảnh đã đặt vào khung, render tại vị trí trong khung
         if (piece.placed) {
@@ -395,13 +369,13 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
       {/* Stars khi hoàn thành */}
       {showStars && (
         <div className={styles.stars}>
-          {[...Array(8)].map((_, i) => (
+          {stars.map((p, i) => (
             <span
               key={i}
               className={styles.star}
               style={{
-                left: `${10 + i * 10 + Math.random() * 5}%`,
-                top: `${40 + Math.random() * 20}%`,
+                left: `${p.left}%`,
+                top: `${p.top}%`,
                 animationDelay: `${i * 100}ms`,
               }}
             >

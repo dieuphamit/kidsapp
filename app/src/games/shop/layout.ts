@@ -92,22 +92,52 @@ export function basketSpot(i: number): { x: number; y: number } {
   return { x: 10 + col * 70 + (row % 2 ? 0 : 0), y: row === 0 ? 4 : -50 };
 }
 
-/** Ăn mừng: mép dưới chân các nhân vật (trên sàn). */
-export const PARTY_FLOOR = 640;
-/** Bạn đồng hành đứng giữa hàng. */
-export const PARTY_BUDDY: Rect = { x: STAGE_W / 2 - 85, y: PARTY_FLOOR - 210, w: 170, h: 210 };
+/**
+ * Ăn mừng: hai hàng so le trên sàn. Hàng sau (chân ở PARTY_FLOOR) có bạn đồng hành ở giữa và hai
+ * khách hai bên; hàng trước (chân ở PARTY_FRONT_FLOOR) xen vào giữa các chỗ của hàng sau.
+ * Mỗi chỗ rộng bằng ảnh rộng nhất (PARTY_MAX_W) cộng túi hàng đặt bên phải, các chỗ cùng hàng cách
+ * nhau PARTY_STEP nên không con nào chạm con nào, túi không che chân ai.
+ */
+export const PARTY_FLOOR = 630;
+export const PARTY_FRONT_FLOOR = 818;
+/** Bạn đồng hành đứng giữa hàng sau. */
+export const PARTY_BUDDY: Rect = { x: STAGE_W / 2 - 85, y: PARTY_FLOOR - 200, w: 170, h: 200 };
 export const PARTY_AREA = 21000;
+/** Ảnh khách không rộng quá chừng này (cũng là bề rộng vùng chạm của mỗi khách). */
 export const PARTY_MAX_W = 190;
+/** Túi hàng nhỏ cạnh chân khách (bên phải ảnh): bề rộng nhìn thấy và khe hở với ảnh. */
+export const PARTY_BAG_W = 56;
+export const PARTY_BAG_GAP = 8;
+/** Khoảng cách tâm hai chỗ cạnh nhau trong cùng một hàng. */
+export const PARTY_STEP = 300;
+const PARTY_H = { back: 170, front: 164 };
+/** Tâm các chỗ (theo thứ tự khách) cho 3, 4, 5 khách: [x tâm, hàng]. */
+const PARTY_SPOTS: Record<number, [number, 'back' | 'front'][]> = {
+  3: [[STAGE_W / 2 - PARTY_STEP, 'back'], [STAGE_W / 2 + PARTY_STEP, 'back'], [STAGE_W / 2, 'front']],
+  4: [
+    [STAGE_W / 2 - PARTY_STEP, 'back'],
+    [STAGE_W / 2 + PARTY_STEP, 'back'],
+    [STAGE_W / 2 - PARTY_STEP / 2, 'front'],
+    [STAGE_W / 2 + PARTY_STEP / 2, 'front'],
+  ],
+  5: [
+    [STAGE_W / 2 - PARTY_STEP, 'back'],
+    [STAGE_W / 2 + PARTY_STEP, 'back'],
+    [STAGE_W / 2 - PARTY_STEP / 2, 'front'],
+    [STAGE_W / 2 + PARTY_STEP / 2, 'front'],
+    [STAGE_W / 2 - (PARTY_STEP * 3) / 2, 'front'],
+  ],
+};
 
-/** Chỗ đứng (vùng chạm) của các khách đã phục vụ: xếp hàng hai bên bạn đồng hành, xen kẽ trái phải. */
+/** Chỗ đứng (vùng chạm) của các khách đã phục vụ: hai hàng so le quanh bạn đồng hành. */
 export function partySlots(count: number): Rect[] {
-  return Array.from({ length: count }, (_, i) => {
-    const k = Math.floor(i / 2);
-    const side = i % 2 === 0 ? -1 : 1;
-    const cx = STAGE_W / 2 + side * (180 + k * 160);
-    return { x: cx - 68, y: PARTY_FLOOR - 200, w: 136, h: 200 };
+  const spots = PARTY_SPOTS[Math.max(3, Math.min(5, count))].slice(0, count);
+  return spots.map(([cx, row]) => {
+    const h = PARTY_H[row];
+    const floor = row === 'back' ? PARTY_FLOOR : PARTY_FRONT_FLOOR;
+    return { x: Math.round(cx - PARTY_MAX_W / 2), y: floor - h, w: PARTY_MAX_W, h };
   });
 }
 
-/** Nút chơi lại lúc ăn mừng: dưới chân hàng nhân vật, không đè ai. */
-export const REPLAY = { x: STAGE_W / 2 - 75, y: 672, size: 150 };
+/** Nút chơi lại lúc ăn mừng: góc dưới-phải, cạnh hàng trước, không đè ai. */
+export const REPLAY = { x: 1000, y: 664, size: 150 };

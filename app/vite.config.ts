@@ -10,19 +10,17 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      workbox: {
+      // SW tự viết (sw/sw.js): precache song song thay vì tuần tự như Workbox generateSW
+      // (~2700 file, lần cài đầu mất vài phút; xem chú thích đầu sw/sw.js). Vẫn precache đủ mọi file.
+      strategies: 'injectManifest',
+      srcDir: 'sw',
+      filename: 'sw.js',
+      injectManifest: {
         globPatterns: ['**/*.{js,css,html,png,svg,mp3,glb,woff2}'],
         // Giọng đọc của tên bạn đồng hành khác tên mặc định (<key>~<nameId>.mp3, ~22MB cho 7 tên)
         // không precache: app nạp sẵn bộ của tên đang chọn vào cache 'buddy-audio' (src/core/buddyAudio.ts)
         // và service worker phục vụ CacheFirst từ đó, nên tên đang chọn vẫn chạy offline.
         globIgnores: ['**/audio/*/*~*.mp3'],
-        runtimeCaching: [
-          {
-            urlPattern: ({ url }) => /\/audio\/[a-z]+\/[^/]+~[a-z0-9]+\.mp3$/.test(url.pathname),
-            handler: 'CacheFirst',
-            options: { cacheName: 'buddy-audio' },
-          },
-        ],
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
       },
       manifest: {

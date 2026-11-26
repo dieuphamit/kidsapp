@@ -286,3 +286,25 @@ describe('steer: bay', () => {
     expect(Math.hypot(a.x - x, a.z - z)).toBeGreaterThan(0.3);
   });
 });
+
+describe('steer: quay mặt mượt', () => {
+  it('hướng đi vượt qua ±π (đi ra xa camera rồi rẽ) thì mặt không xoay vọt qua lưng, yaw luôn trong (-π, π]', () => {
+    for (const motion of ['walk', 'hop', 'swim', 'fly'] as const) {
+      const area = motion === 'swim' ? WATER : motion === 'fly' ? { ...AREA, yMin: 1, yMax: 3 } : AREA;
+      let worst = 0;
+      let outside = 0;
+      for (let seed = 1; seed < 40; seed++) {
+        const a = createAgent({ id: 'a', motion, area, seed });
+        let prev = a.yaw;
+        run([a], 60, 1 / 30, () => {
+          worst = Math.max(worst, Math.abs(wrapAngle(a.yaw - prev)));
+          if (Math.abs(a.yaw) > Math.PI + 1e-9) outside += 1;
+          prev = a.yaw;
+        });
+      }
+      // một khung hình 1/30s: quay tối đa chừng 0.35 rad (trước đây có lúc vọt >1 rad)
+      expect(worst, motion).toBeLessThan(0.35);
+      expect(outside, motion).toBe(0);
+    }
+  });
+});
