@@ -204,15 +204,22 @@ export function RealAnimal({ def, look, agent, active, phase, onTap, onLoaded }:
           } else {
             const v = (y0 - min.y) / Hh;
             const LEG = 0.45;
-            if (v < LEG) {
-              const k = (LEG - v) / LEG;
+            const head = (z0 - (max.z - L * 0.4)) / (L * 0.4); // 0..1 trong 40% phía đầu
+            // Mỗi chân bước theo nhịp riêng (trước/sau, trái/phải ngược pha). Đỉnh gần mặt phẳng chia nhóm (giữa bụng,
+            // khe giữa hai chân) đứng yên dần: nếu không, một tam giác có đỉnh ở hai nhóm bị kéo ngược chiều nhau thành
+            // mảng tối kéo dài dưới bụng/chân (khối đen ở chân voi). Vòi buông thấp không bước theo chân.
+            const legW =
+              Math.min(1, Math.abs(x0 - midX) / (Wd * 0.12)) *
+              Math.min(1, Math.abs(z0 - (min.z + L / 2)) / (L * 0.1)) *
+              (look.trunk && head > 0.55 ? 0 : 1);
+            if (v < LEG && legW > 0) {
+              const k = ((LEG - v) / LEG) * legW;
               const front = z0 > min.z + L / 2 ? 0 : Math.PI;
               const side = x0 > midX ? Math.PI : 0;
               z += Math.sin(st + front + side) * L * stepAmp * k * m;
               // nhấc chân lên ở nửa nhịp bước về phía trước
               y += Math.max(0, Math.cos(st + front + side)) * Hh * stepAmp * 0.5 * k * k * m;
             }
-            const head = (z0 - (max.z - L * 0.4)) / (L * 0.4); // 0..1 trong 40% phía đầu
             if (look.trunk && head > 0.55 && v < 0.75) {
               // vòi đung đưa: càng xa đầu (thấp, phía trước) càng lắc nhiều
               const k = (head - 0.55) / 0.45;
