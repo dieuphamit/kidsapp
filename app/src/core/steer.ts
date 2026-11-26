@@ -392,8 +392,19 @@ function medium(a: Agent): 0 | 1 | 2 {
  * rs = tổng nửa chiều dài thân, hs = tổng nửa chiều cao (khi chiếu: theo kích thước trên mặt phẳng chiếu). `proj` giữ hệ số chiếu của a, o: [ka, ko, camY].
  */
 const nd = [0, 0, 0, 0, 0, 0];
+/**
+ * Bậc của chuẩn đo khi né nhau theo màn hình (2 = elip, càng lớn càng gần chữ nhật). Thân trên màn hình là tấm
+ * ảnh/model gần chữ nhật: hai con lệch chéo (một trước-thấp, một sau-cao) theo elip là chưa chạm nhưng góc ảnh đã
+ * chạm. Chỉ dùng cho lực né (separation, đàn cá); tách cứng (resolveOverlap) vẫn theo elip để khu chật không bị
+ * con này đẩy dồn sang con kia.
+ */
+export const SCREEN_P = 4;
+/** Theo màn hình: nới nửa chiều cao thân khi đo chồng nhau (ảnh vẽ cao hơn khung thân) */
+export const SCREEN_V_MARGIN = 1.18;
+const pnorm = (x: number, y: number, z: number) =>
+  (Math.abs(x) ** SCREEN_P + Math.abs(y) ** SCREEN_P + Math.abs(z) ** SCREEN_P) ** (1 / SCREEN_P);
 const proj = [1, 1, 0];
-function normDist(a: Agent, o: Agent): void {
+function normDist(a: Agent, o: Agent, boxy = false): void {
   const zw = Math.min(a.zWeight, o.zWeight);
   const ground = medium(a) === 0;
   const cam = zw < 1 ? a.area.cam : undefined;
@@ -408,7 +419,8 @@ function normDist(a: Agent, o: Agent): void {
   }
   // con gần camera trông to hơn: kích thước trên mặt phẳng chiếu cũng nhân hệ số chiếu
   const rs = a.radius * ka + o.radius * ko;
-  const hs = a.halfH * ka + o.halfH * ko;
+  // theo màn hình: ảnh/model vẽ cao hơn khung thân (FIT 1.1), nới thêm cho có khe nhìn thấy được
+  const hs = (a.halfH * ka + o.halfH * ko) * (cam ? SCREEN_V_MARGIN : 1);
   const dx = a.x * ka - o.x * ko;
   // mặt đất: chân cùng chạm đất, so tâm thân; khi có camera thì luôn tính theo hình chiếu
   const ya = ground && !cam ? 0 : a.y + a.halfH;
@@ -417,7 +429,7 @@ function normDist(a: Agent, o: Agent): void {
   nd[0] = dx / rs;
   nd[1] = dy / hs;
   nd[2] = ((a.z - o.z) * (cam ? zw : 1)) / rs;
-  nd[3] = Math.hypot(nd[0], nd[1], nd[2]);
+  nd[3] = cam && boxy ? pnorm(nd[0], nd[1], nd[2]) : Math.hypot(nd[0], nd[1], nd[2]);
   nd[4] = rs;
   nd[5] = hs;
   proj[0] = ka;
@@ -435,7 +447,7 @@ function separation(a: Agent, all: readonly Agent[]): void {
   for (let i = 0; i < all.length; i++) {
     const o = all[i];
     if (o === a || medium(o) !== m) continue;
-    normDist(a, o);
+    normDist(a, o, true);
     const n = nd[3];
     if (n < SEP_MULT && n > 1e-6) {
       const w = (SEP_MULT - n) / SEP_MULT / n;
@@ -456,7 +468,7 @@ function resolveOverlap(a: Agent, all: readonly Agent[]): void {
   for (let i = 0; i < all.length; i++) {
     const o = all[i];
     if (o === a || medium(o) !== m) continue;
-    normDist(a, o);
+    normDist(a, o, true);
     const [ex, ev, ez, n, rs, hs] = nd;
     if (n >= 1) continue;
     if (a.zWeight >= 1 && o.zWeight >= 1) {
@@ -475,13 +487,14 @@ function resolveOverlap(a: Agent, all: readonly Agent[]): void {
     let px = ex;
     let pv = flat ? 0 : ev;
     const fixedV = flat ? ev : 0;
-    let p = Math.hypot(px, pv);
+    // cùng chuẩn bậc SCREEN_P với normDist: |px·k|^P + |pv·k|^P + |ez|^P + |fixedV|^P = 1
+    let p = pnorm(px, pv, 0);
     if (p < 1e-6) {
       px = a.seed % 2 ? 1 : -1;
       pv = 0;
       p = 1;
     }
-    const need = Math.sqrt(Math.max(0, 1 - ez * ez - fixedV * fixedV)) / p;
+    const need = Math.max(0, 1 - Math.abs(ez) ** SCREEN_P - Math.abs(fixedV) ** SCREEN_P) ** (1 / SCREEN_P) / p;
     // vị trí cần có trên mặt phẳng chiếu, đổi lại về toạ độ thật của a
     let x = (o.x * ko + px * need * rs) / ka;
     if (x < a.area.xMin || x > a.area.xMax) {
@@ -642,6 +655,8 @@ const MAX_ACC = 1.6;
 /** Đàn cá tránh con bơi khác/đàn khác trong khoảng (r1 + r2) × AVOID_MULT */
 const AVOID_MULT = 1.5;
 const W_AVOID = 3;
+/** Cá cùng đàn bắt đầu đẩy nhau khi thân cách nhau dưới chừng này (1 = vừa chạm) */
+const SCHOOL_SEP = 1.5;
 
 function updateFlock(f: Flock, a: Agent, all: readonly Agent[], dt: number): void {
   if (f.tick === tick) return;
@@ -705,10 +720,10 @@ function stepSchool(a: Agent, all: readonly Agent[], dt: number): void {
       sy += dy * w;
       sz += dz * w;
     }
-    // giữ thân cá trong đàn không chồng nhau (theo kích thước thật)
-    normDist(a, o);
-    if (nd[3] < 1.2 && nd[3] > 1e-6) {
-      const w = (1.2 - nd[3]) / 1.2 / nd[3];
+    // giữ thân cá trong đàn không chồng nhau (theo kích thước thật), chừa khe nhìn thấy được
+    normDist(a, o, true);
+    if (nd[3] < SCHOOL_SEP && nd[3] > 1e-6) {
+      const w = (SCHOOL_SEP - nd[3]) / SCHOOL_SEP / nd[3];
       sx += nd[0] * w;
       sy += nd[1] * w;
       sz += nd[2] * w;
@@ -742,7 +757,7 @@ function stepSchool(a: Agent, all: readonly Agent[], dt: number): void {
   for (let i = 0; i < all.length; i++) {
     const o = all[i];
     if (o === a || o.flock === a.flock || medium(o) !== 1) continue;
-    normDist(a, o);
+    normDist(a, o, true);
     const n = nd[3];
     if (n < AVOID_MULT && n > 1e-6) {
       const w = ((AVOID_MULT - n) / AVOID_MULT / n) * W_AVOID;

@@ -75,7 +75,6 @@ const photo = (style: PhotoStyle, extra: Partial<PhotoLook> = {}): PhotoLook => 
 
 export const WORLD_LOOK: Record<string, Look> = {
   // Đồng cỏ
-  horse: { kind: 'model', file: 'horse', rot: [0, 0, 0], deform: 'walk' },
   // ngựa vằn, cáo: model tìm được là low-poly (chân có khối đen vuông), lạc phong cách cạnh thú ảnh thật → ảnh thật 2.5D
   zebra: photo('walk'),
   giraffe: { kind: 'model', file: 'giraffe', rot: [0, Math.PI, 0], deform: 'walk', bake: true, skip: 'Circle' },
@@ -126,8 +125,8 @@ export const PARK_LOOK: Record<string, Look> = {
   parrot: photo('walk', { photo: 'parrot-stand' }),
   // cá quẫy tại chỗ, nổi trên vũng nước (Sở thú vẽ vũng dưới chỗ đứng của cá)
   fish: photo('fish', { photo: 'goldfish' }),
-  // Trang trại
-  horse: WORLD_LOOK.horse,
+  // Trang trại (ngựa: model có texture, trước ở Đồng cỏ của trò Thế giới)
+  horse: { kind: 'model', file: 'horse', rot: [0, 0, 0], deform: 'walk' },
   sheep: photo('walk'),
   rabbit: photo('hop'),
   cow: photo('walk'),
