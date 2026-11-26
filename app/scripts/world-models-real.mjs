@@ -1,6 +1,7 @@
 // Thú "3D có texture" của trò Thế giới: chuyển model nguồn trong ../assets-src/models-demo/ thành
 // public/models/world/real/<id>.glb (meshopt + texture WebP, giảm tam giác), mỗi file ≤ 1MB.
 //   node scripts/world-models-real.mjs [id...]
+//   node scripts/world-models-real.mjs --fix-alpha [id...]   → chỉ sửa vật liệu BLEND của file đã có (không cần nguồn)
 // Nguồn GLB đi thẳng qua `gltf-transform optimize`; OBJ (ngựa) và FBX (hươu) đọc bằng loader của three
 // rồi ghi GLB tạm bằng @gltf-transform/core (chỉ hình + texture màu, không xương). Nguồn/giấy phép: public/models/CREDITS.md.
 import { readFileSync, writeFileSync, statSync, mkdirSync, existsSync } from 'node:fs';
@@ -18,8 +19,6 @@ const OUT = join(APP, 'public', 'models', 'world', 'real');
 const MODELS = {
   whale: { glb: 'whale.glb', ratio: 1, tex: 1024 },
   dolphin: { glb: 'dolphin.glb', ratio: 1, tex: 1024 },
-  zebra: { glb: 'zebra.glb', ratio: 0.5, tex: 1024 },
-  fox: { glb: 'fox.glb', ratio: 1, tex: 512 },
   horse: { obj: 'horse/LD_HorseRtime02.obj', maps: { default: 'horse/HorseMain2k00.png', hair: 'horse/Hair12Main2k.png', eye: 'horse/eye_texture.png' }, ratio: 0.5, tex: 1024 },
   stag: { glb: 'stag.glb', ratio: 1, tex: 1024 },
   bear: { glb: 'bear.glb', ratio: 1, tex: 1024 },
@@ -143,9 +142,47 @@ async function decimate(id, file, target) {
   return tmp;
 }
 
+/**
+ * Vật liệu alphaMode BLEND (voi, hươu cao cổ trong bản nguồn): GLTFLoader của three tắt depthWrite cho vật liệu
+ * trong suốt, nên các mặt của cùng một model vẽ theo thứ tự chỉ số chứ không theo chiều sâu: đuôi, chân phía sau
+ * hiện đè lên thân/chân phía trước thành khối đen. Texture chỉ dùng alpha để cắt (lông tơ, phần trống của atlas)
+ * nên đổi sang MASK (cắt ở 0.5): vẽ đục, ghi chiều sâu, vẫn khoét đúng chỗ trong suốt.
+ * Vật liệu không texture màu đen tuyệt đối (chùm lông đuôi hươu cao cổ) không nhận chút ánh sáng nào, trông như
+ * một lỗ/khối đen phẳng cạnh chân: đổi sang nâu rất sẫm để còn thấy khối tròn có sáng tối.
+ */
+async function fixAlpha(file) {
+  const { ALL_EXTENSIONS } = await import('@gltf-transform/extensions');
+  const { MeshoptDecoder, MeshoptEncoder } = await import('meshoptimizer');
+  await Promise.all([MeshoptDecoder.ready, MeshoptEncoder.ready]);
+  const io = new NodeIO()
+    .registerExtensions(ALL_EXTENSIONS)
+    .registerDependencies({ 'meshopt.decoder': MeshoptDecoder, 'meshopt.encoder': MeshoptEncoder });
+  const doc = await io.read(file);
+  let n = 0;
+  for (const m of doc.getRoot().listMaterials()) {
+    const [r, g, b, a] = m.getBaseColorFactor();
+    if (!m.getBaseColorTexture() && r + g + b < 0.02) {
+      m.setBaseColorFactor([0.1, 0.07, 0.05, a]);
+      n++;
+    }
+    if (m.getAlphaMode() !== 'BLEND') continue;
+    m.setAlphaMode('MASK').setAlphaCutoff(0.5);
+    n++;
+  }
+  if (n) {
+    await io.write(file, doc);
+    console.log(`  ${file.split(/[\/]/).pop()}: sửa ${n} vật liệu (BLEND → MASK, đen tuyệt đối → nâu sẫm)`);
+  }
+}
+
 async function main() {
   mkdirSync(OUT, { recursive: true });
-  const ids = process.argv.slice(2).length ? process.argv.slice(2) : Object.keys(MODELS);
+  const argv = process.argv.slice(2);
+  if (argv[0] === '--fix-alpha') {
+    for (const id of argv.length > 1 ? argv.slice(1) : Object.keys(MODELS)) await fixAlpha(join(OUT, `${id}.glb`));
+    return;
+  }
+  const ids = argv.length ? argv : Object.keys(MODELS);
   for (const id of ids) {
     const cfg = MODELS[id];
     if (!cfg) throw new Error('không có model ' + id);
@@ -156,6 +193,7 @@ async function main() {
     if (cfg.ratio < 1) args.push('--simplify-ratio', String(cfg.ratio), '--simplify-error', String(cfg.error ?? 0.001), '--simplify-lock-border', 'false');
     const r = spawnSync('npx', args, { cwd: APP, stdio: 'inherit', shell: true });
     if (r.status !== 0) throw new Error(`${id}: optimize lỗi`);
+    await fixAlpha(out);
     console.log(`${id}.glb ${(statSync(out).size / 1024).toFixed(0)} KB`);
   }
   void writeFileSync;
