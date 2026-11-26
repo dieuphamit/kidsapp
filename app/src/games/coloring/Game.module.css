@@ -198,19 +198,11 @@
 
 .art {
   position: absolute;
-  left: 40px;
-  top: 13px;
-  width: 760px;
-  height: 760px;
   touch-action: none;
 }
 
 .current {
   position: absolute;
-  left: 24px;
-  top: 340px;
-  width: 120px;
-  height: 160px;
   pointer-events: none;
 }
 
@@ -236,40 +228,73 @@
   opacity: 0.45;
 }
 
+/* Bảng màu chữ L: nửa trên chỉ cột trong, chừa dải sát mép phải cho cổng bố mẹ */
 .palette {
   position: absolute;
-  left: 1026px;
-  top: 144px;
-  bottom: 0;
-  width: 168px;
-  padding: 12px 24px 24px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  touch-action: pan-y;
-  scrollbar-width: none;
-  border-radius: var(--radius-clay) 0 0 0;
-  background: var(--scene-wood-light);
-  box-shadow: inset 6px 0 0 var(--scene-wood);
+  inset: 0;
+  pointer-events: none;
 }
 
-.palette::-webkit-scrollbar {
-  display: none;
+.palette > button {
+  pointer-events: auto;
+}
+
+.trayTall,
+.trayLow {
+  position: absolute;
+  background: var(--scene-wood-light);
+  box-shadow: inset 6px 0 0 var(--scene-wood);
+  pointer-events: none;
+}
+
+.trayTall {
+  left: 894px;
+  width: 144px;
+  top: 12px;
+  bottom: 0;
+  border-radius: var(--radius-clay) var(--radius-clay) 0 0;
+}
+
+.trayLow {
+  left: 1038px;
+  right: 0;
+  top: 510px;
+  bottom: 0;
+  border-radius: 0 var(--radius-clay) 0 0;
+  box-shadow: none;
 }
 
 .ballBtn {
-  position: relative;
-  flex: 0 0 auto;
+  border-radius: 50%;
+  animation: popIn 280ms var(--ease-squish) backwards;
+}
+
+.swapBtn {
   border-radius: 50%;
 }
 
+.swapDots {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  display: block;
+}
+
+.swapDot {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  box-shadow: var(--shadow-clay-pressed);
+}
+
+.swapDot:nth-child(1) { left: 0; top: 4px; }
+.swapDot:nth-child(2) { left: 40px; top: 4px; }
+.swapDot:nth-child(3) { left: 20px; top: 38px; }
+
 .ballBtn[aria-pressed='true'] {
-  outline: 6px solid var(--ink-soft);
-  outline-offset: 2px;
+  outline: 8px solid var(--ink-soft);
+  outline-offset: 3px;
 }
 
 .ball {
