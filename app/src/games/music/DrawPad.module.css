@@ -33,12 +33,16 @@
   opacity: 0;
 }
 
+/* Nút của trò cách mép phải khung ≥144 (quy ước app, xa góc cổng bố mẹ): dồn hàng nút sang phải, chừa 120px
+   (+ 24px padding của .container). 6 màu (6×120 + 5×24) + khe 32 + bọt xoá 140 = 1012px, mép trái còn ~38px. */
 .toolbar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 48px;
+  justify-content: flex-end;
+  gap: 32px;
   width: 100%;
+  padding-right: 120px;
+  box-sizing: border-box;
   flex-wrap: wrap;
 }
 

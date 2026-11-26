@@ -26,7 +26,8 @@ const OK_LICENSE = /^(cc0|public domain|pd\b|cc by(-sa)? [0-9.]+)/i;
 // keep: 'all' khi chủ thể có nhiều phần rời (quả + nửa quả, chùm quả nhỏ).
 const CARDS = {
   cow: { file: 'HF in der Rhön auf der Weide.jpg' },
-  chicken: { file: 'Kogut na ulicy w Chintown w Singapurze, 20240122 0853 2966.jpg' },
+  // Nối điểm phóng gà ~730px khung (~1460px màn retina): thẻ 512 bảng màu bị vỡ hạt → thẻ 1024 từ ảnh gốc 3107px
+  chicken: { file: 'Kogut na ulicy w Chintown w Singapurze, 20240122 0853 2966.jpg', width: 3840, work: 3107, size: 1024, limitKB: 900 },
   duck: { file: 'Mallard Drake - Flickr - treegrow.jpg' },
   pig: { file: 'Pigs in the Altai Mountains. Village Ortolyk.jpg', crop: [0.73, 0.38, 0.975, 0.71] },
   dog: { file: '3-BerneseMountainDogInGrass.jpg' },

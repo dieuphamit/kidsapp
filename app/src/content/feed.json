@@ -2,7 +2,6 @@
   { "key": "game.feed", "vi": "Cho thú ăn", "ja": "ごはん あげよう", "en": "Feed the animals" },
   { "key": "feed.hello", "vi": "Các bạn thú đói bụng rồi! Bé cho các bạn ăn nhé!", "ja": "どうぶつさんたち おなかが すいたって! ごはん あげよう!", "en": "The animals are hungry! Let's feed them!" },
   { "key": "feed.done", "vi": "Các bạn thú no hết rồi! Bé giỏi quá!", "ja": "みんな おなか いっぱい! じょうずだね!", "en": "Everyone is full! Great job!" },
-  { "key": "feed.sound.cat", "vi": "Meo meo!", "ja": "にゃー にゃー!", "en": "Meow, meow!" },
 
   { "key": "feed.hungry.rabbit", "vi": "Thỏ đói rồi! Thỏ thích ăn gì nhỉ?", "ja": "うさぎさん おなか ぺこぺこ! なにが すきかな?", "en": "Bunny is hungry! What does bunny like to eat?" },
   { "key": "feed.hungry.monkey", "vi": "Khỉ đói rồi! Khỉ thích ăn gì nhỉ?", "ja": "おさるさん おなか ぺこぺこ! なにが すきかな?", "en": "Monkey is hungry! What does monkey like to eat?" },

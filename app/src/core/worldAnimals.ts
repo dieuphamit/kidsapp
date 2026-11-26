@@ -121,7 +121,8 @@ const GROUND_WIDE: Area = { xMin: -3.9, xMax: 3.9, zMin: -2.4, zMax: 1.8 };
 /** Thứ tự trong roster quyết định chỗ đứng lúc xuất hiện (rải từ trái sang phải, xen kẽ hàng sau/trước) */
 export const HABITATS: Record<Habitat, HabitatDef> = {
   meadow: {
-    roster: [{ id: 'giraffe' }, { id: 'zebra' }, { id: 'elephant' }, { id: 'lion' }, { id: 'horse' }],
+    // Ngựa đã bỏ khỏi đồng cỏ (vẫn ở Trang trại): 5 con không đủ chỗ đứng mà ảnh thật không chạm nhau; đồng cỏ châu Phi còn 4 con
+    roster: [{ id: 'giraffe' }, { id: 'zebra' }, { id: 'elephant' }, { id: 'lion' }],
     areas: { ground: GROUND_WIDE },
     view: VIEW_GROUND,
   },

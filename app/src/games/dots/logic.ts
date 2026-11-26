@@ -86,6 +86,62 @@ export function minSpacing(dots: readonly Pt[]): number {
   return m;
 }
 
+/**
+ * Vùng mặt con vật (toạ độ 0..1 theo cạnh ảnh thẻ, bán kính theo cạnh thẻ): chấm và nét nối tránh xa
+ * để không che mặt, nhất là lúc ảnh thật hiện ra (nét nối còn mờ 25%).
+ */
+export const FACES: Partial<Record<AnimalId, { x: number; y: number; r: number }>> = {
+  // mắt, mỏ, yếm của gà trống (cards/chicken.png)
+  chicken: { x: 0.875, y: 0.245, r: 0.055 },
+};
+
+/** Vùng mặt tính bằng px khung. */
+export interface Face {
+  x: number;
+  y: number;
+  r: number;
+}
+
+/** Bán kính chấm thấy được lúc phồng to nhất (76/2 × 1.16) và nửa nét nối (12/2 + hở). */
+export const DOT_R = 44;
+export const LINE_R = 10;
+
+function segDist(p: Pt, a: Pt, b: Pt): number {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const l2 = dx * dx + dy * dy || 1;
+  const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2));
+  return Math.hypot(p[0] - (a[0] + t * dx), p[1] - (a[1] + t * dy));
+}
+
+/**
+ * Khoảng hở nhỏ nhất (px) giữa vùng mặt và các chấm / nét nối vòng kín; ≥ 0 là không che mặt.
+ * only: chỉ xét chấm i cùng hai nét nối vào/ra chấm đó.
+ */
+export function faceClearance(dots: readonly Pt[], face: Face | undefined, only?: number): number {
+  if (!face) return Infinity;
+  const n = dots.length;
+  const c: Pt = [face.x, face.y];
+  let m = Infinity;
+  const ids = only === undefined ? dots.map((_, i) => i) : [only];
+  for (const i of ids) {
+    m = Math.min(m, Math.hypot(dots[i][0] - c[0], dots[i][1] - c[1]) - DOT_R - face.r);
+    m = Math.min(m, segDist(c, dots[i], dots[(i + 1) % n]) - LINE_R - face.r);
+    m = Math.min(m, segDist(c, dots[(i - 1 + n) % n], dots[i]) - LINE_R - face.r);
+  }
+  return m;
+}
+
+/** Tối ưu tới khi hở mặt thêm chừng này px (khỏi dừng sát mép rồi lệch vì làm tròn). */
+const FACE_SLACK = 8;
+
+/** So sánh (che mặt ít hơn trước, rồi mới tới thưa hơn): a tốt hơn b? */
+const better = (aClear: number, aSp: number, bClear: number, bSp: number) => {
+  const ac = Math.min(aClear - FACE_SLACK, 0);
+  const bc = Math.min(bClear - FACE_SLACK, 0);
+  return ac > bc + 1e-9 || (Math.abs(ac - bc) <= 1e-9 && aSp > bSp + 1e-9);
+};
+
 const PHASES = 48;
 /** Khoảng cách theo chu vi giữa hai chấm liền nhau được co giãn trong [GAP_MIN, GAP_MAX] × đều. */
 const GAP_MIN = 0.6;
@@ -100,16 +156,20 @@ const TRIES = 24;
  *    tới chỗ xa các chấm khác nhất, lặp vài vòng (chỗ hẹp như hai bên cổ hươu được giãn ra).
  * Chấm số 1 là chấm cao nhất (thường là đầu/tai), đánh số theo chiều kim đồng hồ.
  */
-export function pickDots(poly: readonly Pt[], n: number): { dots: Pt[]; spacing: number } {
+export function pickDots(poly: readonly Pt[], n: number, face?: Face): { dots: Pt[]; spacing: number } {
   const total = perimeter(poly);
   const even = total / n;
   let pos: number[] = [];
   let bestScore = -1;
+  let bestClear = -Infinity;
   for (let ph = 0; ph < PHASES; ph++) {
     const p = Array.from({ length: n }, (_, i) => (ph / PHASES + i) * even);
-    const score = minSpacing(p.map((s) => pointAt(poly, s, total)));
-    if (score > bestScore + 1e-9) {
+    const q = p.map((s) => pointAt(poly, s, total));
+    const score = minSpacing(q);
+    const clear = faceClearance(q, face);
+    if (better(clear, score, bestClear, bestScore)) {
       bestScore = score;
+      bestClear = clear;
       pos = p;
     }
   }
@@ -128,12 +188,18 @@ export function pickDots(poly: readonly Pt[], n: number): { dots: Pt[]; spacing:
       const hi = Math.min(next - GAP_MIN * even, prev + GAP_MAX * even);
       let bestS = pos[i];
       let bestD = nearest(pts[i], i);
+      let bestC = faceClearance(pts, face, i);
+      const keep = pts[i];
       for (let k = 0; k <= TRIES && hi > lo; k++) {
         const s = lo + ((hi - lo) * k) / TRIES;
         const q = pointAt(poly, s, total);
         const d = nearest(q, i);
-        if (d > bestD + 1e-9) {
+        pts[i] = q;
+        const c = faceClearance(pts, face, i);
+        pts[i] = keep;
+        if (better(c, d, bestC, bestD)) {
           bestD = d;
+          bestC = c;
           bestS = s;
         }
       }
@@ -157,13 +223,20 @@ export interface Puzzle {
 }
 
 /** Con vật + vị trí chấm cho tuổi này: số chấm nhiều nhất trong dotCountsForAge mà vẫn đủ thưa. */
+/** Vùng mặt của con vật theo px khung (ảnh đặt ở img), hoặc undefined nếu chưa khai báo. */
+export function faceOf(animal: AnimalId, img: Placement['img']): Face | undefined {
+  const f = FACES[animal];
+  return f && { x: img.x + f.x * img.size, y: img.y + f.y * img.size, r: f.r * img.size };
+}
+
 export function makePuzzle(animal: AnimalId, ageMonths: number): Puzzle {
   const place = placeOutline(outlineOf(animal));
+  const face = faceOf(animal, place.img);
   const counts = dotCountsForAge(ageMonths);
-  let pick = pickDots(place.poly, counts[counts.length - 1]);
+  let pick = pickDots(place.poly, counts[counts.length - 1], face);
   for (const n of counts) {
-    const p = pickDots(place.poly, n);
-    if (p.spacing >= MIN_SPACING) {
+    const p = pickDots(place.poly, n, face);
+    if (p.spacing >= MIN_SPACING && faceClearance(p.dots, face) >= 0) {
       pick = p;
       break;
     }

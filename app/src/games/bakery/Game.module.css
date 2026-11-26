@@ -355,7 +355,8 @@
 /* ---- Chuông ---- */
 .bell {
   position: absolute;
-  right: 40px;
+  /* nút của trò cách mép phải ≥144 (quy ước app, xa góc cổng bố mẹ) */
+  right: 150px;
   bottom: 40px;
   z-index: 20;
 }
