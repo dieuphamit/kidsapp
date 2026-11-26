@@ -43,13 +43,36 @@ test('màn hình chính đạt luật UX', async ({ page }) => {
 });
 
 test('chạy offline sau lần tải đầu', async ({ page, context }) => {
-  test.setTimeout(180_000); // precache nhiều model/mp3 (vi/ja/en), máy chạy song song nên chậm
-  await page.goto('./?menu=map&menu=map');
+  // ~2700 file precache (giọng đọc vi/ja/en, ảnh, model 3D): sw/sw.js tải song song nên cài xong trong
+  // vài chục giây; vẫn để dư thời gian cho máy chạy song song nhiều trình duyệt
+  test.setTimeout(180_000);
+  // lần tải đầu ở menu mặc định (đoàn tàu, 2D): bản đồ 3D vẽ WebGL bằng CPU trên máy không GPU sẽ tranh
+  // CPU với lúc service worker tải ~2700 file; bản đồ 3D vẫn được kiểm offline ở cuối test
+  await page.goto('./');
+  await expect(page.getByTestId('train-menu')).toBeVisible();
+  // service worker cài xong (mọi file đã vào cache) và đã kích hoạt: chờ bằng sự kiện, không đợi cố định
   await page.evaluate(() => navigator.serviceWorker.ready);
+  // đủ MỌI file trong danh sách precache đã nằm trong cache (không chỉ trang chủ)
+  const listed = await page.evaluate(async () => new Set((await (await fetch('/sw.js')).text()).match(/"url":"[^"]+"/g)).size);
+  expect(listed).toBeGreaterThan(1000);
+  const cached = await page.evaluate(async () => (await (await caches.open('behoc-precache-v1')).keys()).length);
+  expect(cached).toBe(listed);
   await page.reload();
   await context.setOffline(true);
   await page.reload();
+  await expect(page.getByTestId('train-menu')).toBeVisible();
+  // bản đồ 3D (model GLB) cũng mở được khi offline
+  await page.goto('./?menu=map&menu=map');
   await expect(page.getByTestId('home')).toBeVisible();
+  // tài sản trò chơi (giọng đọc 3 thứ tiếng, ảnh, model 3D) vẫn tải được khi offline
+  const offline = await page.evaluate(async () =>
+    Promise.all(
+      ['/audio/vi/shop.hello.mp3', '/audio/ja/shop.qty.apple.2.mp3', '/audio/en/rescue.hello.mp3', '/world-photos/cow.png', '/models/cow.glb'].map(
+        async (u) => (await fetch(u)).ok,
+      ),
+    ),
+  );
+  expect(offline).toEqual([true, true, true, true, true]);
 });
 
 test('đang khóa thì hiện màn hình ngủ', async ({ page }) => {
