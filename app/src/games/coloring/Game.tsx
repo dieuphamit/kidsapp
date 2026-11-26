@@ -9,7 +9,6 @@ import { clientToStage } from '../../ui/Stage';
 import { useBuddyLook } from '../../ui/buddyContext';
 import { GROUPS, PICTURES, VIEW, picturesOf, type GroupId, type Picture } from './pictures';
 import {
-  FILL_IDS,
   canRedo,
   canUndo,
   fillKey,
@@ -25,6 +24,7 @@ import {
 import { loadArt, saveArt, withFills, type Art } from './store';
 import { playPop } from './sound';
 import { PictureSvg, type Splash } from './Picture';
+import { ART, CURRENT, LEFT, PALETTE_SETS, PAPER, SWAP_SLOT, SWATCH_SLOTS, setOf } from './layout';
 import styles from './Game.module.css';
 
 const content = contentByKey();
@@ -36,18 +36,14 @@ const DONE_KEY = 'coloring.done';
 const groupKey = (g: GroupId) => `coloring.group.${g}`;
 const picKey = (id: string) => `coloring.pic.${id}`;
 
-/** Khung tranh trong màn tô (toạ độ khung Stage 1194×834). */
-const PAPER = { left: 168, top: 24, width: 840, height: 786 };
-const ART = { size: 760, left: PAPER.left + (PAPER.width - 760) / 2, top: PAPER.top + (PAPER.height - 760) / 2 };
-
 const EASEL_COLORS: ClayColor[] = ['peach', 'mint', 'butter', 'leaf'];
 const EASEL = { size: 210, top: 180, gap: 48 };
 const TAB = { size: 120, gap: 24, top: 690 };
 
-const LABELS: Record<Lang, { easel: string; undo: string; redo: string }> = {
-  vi: { easel: 'Về giá vẽ', undo: 'Hoàn tác', redo: 'Làm lại' },
-  ja: { easel: 'えらぶ がめんへ', undo: 'もどす', redo: 'やりなおす' },
-  en: { easel: 'Back to easels', undo: 'Undo', redo: 'Redo' },
+const LABELS: Record<Lang, { easel: string; undo: string; redo: string; swap: string }> = {
+  vi: { easel: 'Về giá vẽ', undo: 'Hoàn tác', redo: 'Làm lại', swap: 'Đổi bộ màu' },
+  ja: { easel: 'えらぶ がめんへ', undo: 'もどす', redo: 'やりなおす', swap: 'ほかの いろ' },
+  en: { easel: 'Back to easels', undo: 'Undo', redo: 'Redo', swap: 'More colors' },
 };
 
 const CONFETTI_COLORS = ['red', 'orange', 'yellow', 'lime', 'teal', 'sky', 'purple', 'pink'];
@@ -73,6 +69,7 @@ export default function Game({ lang, speaker, onExit }: GameProps) {
   const [pic, setPic] = useState<Picture>(PICTURES[0]);
   const [hist, setHist] = useState<History>(() => newHistory());
   const [color, setColor] = useState<FillId>('red');
+  const [colorSet, setColorSet] = useState(() => setOf('red'));
   const [splash, setSplash] = useState<Splash | null>(null);
   const [pop, setPop] = useState<{ region: string; n: number } | null>(null);
   const [celebrate, setCelebrate] = useState<number | null>(null);
@@ -148,6 +145,7 @@ export default function Game({ lang, speaker, onExit }: GameProps) {
     setSplash(null);
     setPop(null);
     setCelebrate(null);
+    setColorSet(setOf(live.current.color));
     setScreen('paint');
     say(picKey(p.id));
     cancelHint();
@@ -197,6 +195,13 @@ export default function Game({ lang, speaker, onExit }: GameProps) {
       later(() => say(DONE_KEY), 450);
       later(() => setCelebrate((c) => (c === n ? null : c)), CELEBRATE_MS);
     }
+  };
+
+  /** Đổi sang bộ màu kế: bụp + các ô màu mới nảy lên (phản hồi ngay lúc chạm). */
+  const swapColors = () => {
+    cancelHint();
+    setColorSet((i) => (i + 1) % PALETTE_SETS.length);
+    playPop(++tick.current);
   };
 
   const step = (dir: 'undo' | 'redo') => {
@@ -252,13 +257,18 @@ export default function Game({ lang, speaker, onExit }: GameProps) {
             size={120}
             label={LABELS[lang].easel}
             onPress={backToEasels}
-            style={{ position: 'absolute', left: 24, top: 168 }}
+            style={{ position: 'absolute', ...LEFT.easel }}
           >
             🖼️
           </ClayButton>
 
           {/* Màu đang cầm (chỉ để nhìn) */}
-          <div className={styles.current} aria-hidden="true">
+          <div
+            className={styles.current}
+            style={{ left: CURRENT.left, top: CURRENT.top, width: CURRENT.width, height: CURRENT.height }}
+            aria-hidden="true"
+            data-testid="coloring-current"
+          >
             <span className={styles.currentDrop} style={ballStyle(color)} />
             <span className={styles.currentBrush}>🖌️</span>
           </div>
@@ -269,7 +279,7 @@ export default function Game({ lang, speaker, onExit }: GameProps) {
             label={LABELS[lang].undo}
             onPress={() => step('undo')}
             className={canUndo(hist) ? undefined : styles.off}
-            style={{ position: 'absolute', left: 24, top: 546 }}
+            style={{ position: 'absolute', ...LEFT.undo }}
           >
             ↩️
           </ClayButton>
@@ -279,7 +289,7 @@ export default function Game({ lang, speaker, onExit }: GameProps) {
             label={LABELS[lang].redo}
             onPress={() => step('redo')}
             className={canRedo(hist) ? undefined : styles.off}
-            style={{ position: 'absolute', left: 24, top: 690 }}
+            style={{ position: 'absolute', ...LEFT.redo }}
           >
             ↪️
           </ClayButton>
@@ -294,6 +304,7 @@ export default function Game({ lang, speaker, onExit }: GameProps) {
               pic={pic}
               fills={hist.present}
               className={styles.art}
+              style={{ left: ART.left - PAPER.left, top: ART.top - PAPER.top, width: ART.size, height: ART.size }}
               onRegionDown={fillRegion}
               splash={splash}
               pop={pop}
@@ -305,22 +316,39 @@ export default function Game({ lang, speaker, onExit }: GameProps) {
             <span key={ripple.n} className={styles.ripple} style={{ left: ripple.x - 40, top: ripple.y - 40 }} aria-hidden="true" />
           )}
 
-          <div className={styles.palette} data-testid="coloring-palette">
-            {FILL_IDS.map((f) => (
+          <div className={styles.palette} data-testid="coloring-palette" data-set={colorSet}>
+            <span className={styles.trayTall} aria-hidden="true" />
+            <span className={styles.trayLow} aria-hidden="true" />
+            {PALETTE_SETS[colorSet].map((f, i) => (
               <ClayButton
-                key={f}
+                key={`${colorSet}-${f}`}
                 color="butter"
                 size={120}
                 label={text(fillKey(f), lang)}
                 onPress={() => pickColor(f)}
                 selected={color === f}
-                activateOn="release"
                 className={styles.ballBtn}
+                style={{ position: 'absolute', ...SWATCH_SLOTS[i], animationDelay: `${i * 40}ms` }}
               >
                 <span className={styles.ball} style={ballStyle(f)} data-testid={`paint-${f}`} />
                 {f === 'sparkle' && <span className={styles.ballIcon}>✨</span>}
               </ClayButton>
             ))}
+            <ClayButton
+              color="lilac"
+              size={120}
+              label={LABELS[lang].swap}
+              onPress={swapColors}
+              className={styles.swapBtn}
+              style={{ position: 'absolute', ...SWAP_SLOT }}
+            >
+              {/* Hé lộ bộ màu kế tiếp: ba giọt màu nhỏ */}
+              <span className={styles.swapDots} data-testid="coloring-swap">
+                {PALETTE_SETS[(colorSet + 1) % PALETTE_SETS.length].slice(0, 3).map((f) => (
+                  <span key={f} className={styles.swapDot} style={ballStyle(f)} />
+                ))}
+              </span>
+            </ClayButton>
           </div>
 
           {celebrate !== null && (

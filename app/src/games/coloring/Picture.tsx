@@ -1,4 +1,4 @@
-import { useId, type PointerEvent } from 'react';
+import { useId, type CSSProperties, type PointerEvent } from 'react';
 import { VIEW, type Picture } from './pictures';
 import type { FillId, Fills } from './paint';
 import styles from './Picture.module.css';
@@ -10,6 +10,7 @@ type Props = {
   pic: Picture;
   fills: Fills;
   className?: string;
+  style?: CSSProperties;
   onRegionDown?(region: string, e: PointerEvent<SVGPathElement>): void;
   splash?: Splash | null;
   /** Vùng vừa tô nảy nhẹ (n đổi để chạy lại hiệu ứng). */
@@ -27,12 +28,12 @@ function fillStyle(f: FillId | undefined, ids: { rainbow: string; sparkle: strin
 const RAINBOW = ['red', 'orange', 'yellow', 'green', 'sky', 'blue', 'purple'] as const;
 const STAR = 'M10 2 L12.4 7.6 L18 10 L12.4 12.4 L10 18 L7.6 12.4 L2 10 L7.6 7.6 Z';
 
-export function PictureSvg({ pic, fills, className, onRegionDown, splash, pop, testId }: Props) {
+export function PictureSvg({ pic, fills, className, style, onRegionDown, splash, pop, testId }: Props) {
   const uid = useId().replace(/:/g, '');
   const ids = { rainbow: `rb${uid}`, sparkle: `sp${uid}`, clip: `cl${uid}` };
   const splashRegion = splash ? pic.regions.find((r) => r.id === splash.region) : undefined;
   return (
-    <svg viewBox={`0 0 ${VIEW} ${VIEW}`} className={className} data-testid={testId} data-picture={pic.id}>
+    <svg viewBox={`0 0 ${VIEW} ${VIEW}`} className={className} style={style} data-testid={testId} data-picture={pic.id}>
       <defs>
         <linearGradient id={ids.rainbow} x1="0" y1="0" x2="1" y2="1">
           {RAINBOW.map((c, i) => (

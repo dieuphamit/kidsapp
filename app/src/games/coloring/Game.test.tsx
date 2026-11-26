@@ -20,8 +20,9 @@ function speaker(): Speaker {
   return { say: vi.fn(), sfx: vi.fn() };
 }
 
-/** Bút màu bấm khi nhả tay (cột màu cuộn được). */
+/** Chọn màu: bấm "Đổi bộ màu" tới khi màu đó hiện (mỗi bộ hiện đủ, không cuộn). */
 function choose(label: string) {
+  for (let i = 0; i < 3 && !screen.queryByLabelText(label); i++) fireEvent.pointerDown(screen.getByLabelText('Đổi bộ màu'));
   const btn = screen.getByLabelText(label);
   fireEvent.pointerDown(btn);
   fireEvent.pointerUp(btn);
@@ -66,6 +67,7 @@ describe('Tô màu', () => {
     choose('Màu hồng');
     expect(sp.say).toHaveBeenLastCalledWith('color.pink');
     expect(game).toHaveAttribute('data-color', 'pink');
+    vi.mocked(playPop).mockClear(); // bỏ tiếng bụp của nút đổi bộ màu
 
     fireEvent.pointerDown(screen.getByTestId('region-head'), { clientX: 600, clientY: 400 });
     expect(screen.getByTestId('region-head')).toHaveAttribute('data-fill', 'pink');
@@ -114,6 +116,34 @@ describe('Tô màu', () => {
     expect(screen.getByTestId('easel-pig')).toHaveAttribute('data-filled', '2');
     fireEvent.pointerDown(screen.getByLabelText('Bạn heo con!'));
     expect(screen.getByTestId('region-head')).toHaveAttribute('data-fill', 'blue');
+  });
+
+  it('bảng màu: 3 bộ, mỗi bộ hiện đủ; đổi bộ có bụp, giữ màu đang cầm; mở tranh thì hiện bộ chứa màu đang cầm', async () => {
+    const sp = speaker();
+    render(<Game lang="vi" speaker={sp} ageMonths={36} onExit={() => {}} />);
+    await flush();
+    fireEvent.pointerDown(screen.getByLabelText('Bạn heo con!'));
+    const palette = screen.getByTestId('coloring-palette');
+    expect(palette).toHaveAttribute('data-set', '0');
+    expect(screen.getByLabelText('Màu đỏ')).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.queryByLabelText('Màu hồng')).toBeNull();
+    const seen = new Set<string>();
+    for (let i = 0; i < 3; i++) {
+      for (const el of screen.getAllByTestId(/^paint-/)) seen.add(el.getAttribute('data-testid')!);
+      const pops = vi.mocked(playPop).mock.calls.length;
+      fireEvent.pointerDown(screen.getByLabelText('Đổi bộ màu'));
+      expect(vi.mocked(playPop).mock.calls.length).toBe(pops + 1);
+    }
+    expect(seen.size).toBe(17);
+    expect(palette).toHaveAttribute('data-set', '0');
+    expect(screen.getByTestId('game-coloring')).toHaveAttribute('data-color', 'red');
+
+    choose('Lấp lánh!');
+    expect(palette).toHaveAttribute('data-set', '2');
+    fireEvent.pointerDown(screen.getByLabelText('Về giá vẽ'));
+    fireEvent.pointerDown(screen.getByLabelText('Bạn heo con!'));
+    expect(screen.getByTestId('coloring-palette')).toHaveAttribute('data-set', '2');
+    expect(screen.getByLabelText('Lấp lánh!')).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('nút Về nhà gọi onExit', async () => {
