@@ -278,3 +278,60 @@ describe('Đội cứu hộ', () => {
     for (const f of Object.values(sounds)) expect(f).not.toHaveBeenCalled();
   });
 });
+
+describe('Đội cứu hộ: câu app tự nói chờ câu đang đọc xong', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    clearRecentPicks();
+    vi.useFakeTimers();
+    window.history.replaceState(null, '', '/?e2e=1');
+  });
+  afterEach(() => {
+    window.history.replaceState(null, '', '/');
+    vi.useRealTimers();
+  });
+
+  /** Loa giả như loa thật: chỉ báo hết tiếng khi gọi done(). */
+  function chainSpeaker() {
+    const chains: { keys: readonly string[]; done(): void }[] = [];
+    const sayThen = vi.fn((keys: readonly string[], opts?: { onSay?(k: string, i: number): void; onDone?(): void }) => {
+      keys.forEach((k, i) => opts?.onSay?.(k, i));
+      chains.push({ keys, done: () => opts?.onDone?.() });
+      return () => {};
+    });
+    return { sp: { say: vi.fn(), sfx: vi.fn(), sayThen } satisfies Speaker, chains };
+  }
+
+  it('câu chào dài: tình huống chờ câu chào đọc xong mới nói (không cắt ngang)', () => {
+    const { sp, chains } = chainSpeaker();
+    render(<Game lang="vi" speaker={sp} ageMonths={60} onExit={() => {}} />);
+    const s = hook().snapshot()!;
+    expect(chains.map((c) => c.keys)).toEqual([['rescue.hello']]);
+    act(() => {
+      vi.advanceTimersByTime(5000);
+    });
+    expect(chains).toHaveLength(1); // câu chào chưa xong: chưa chen vào
+    act(() => chains[0].done());
+    expect(chains[1].keys).toEqual([`rescue.call.${s.mission}`]);
+  });
+
+  it('"lên đường" dài: tới nơi thì việc cần làm chờ câu đó đọc xong', () => {
+    const { sp, chains } = chainSpeaker();
+    render(<Game lang="vi" speaker={sp} ageMonths={60} onExit={() => {}} />);
+    const s = hook().snapshot()!;
+    act(() => void hook().pick(s.vehicle));
+    const go = chains.at(-1)!;
+    expect(go.keys).toEqual([`rescue.go.${s.vehicle}`]);
+    act(() => {
+      vi.advanceTimersByTime(1200);
+    });
+    act(() => void hook().drive(99_999));
+    act(() => {
+      vi.advanceTimersByTime(600);
+    });
+    expect(chains.at(-1)).toBe(go);
+    act(() => go.done());
+    expect(chains.at(-1)!.keys).toEqual([doKey(hook().snapshot()!.acts[0] as Act)]);
+  });
+});
+
