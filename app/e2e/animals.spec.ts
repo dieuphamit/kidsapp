@@ -76,8 +76,8 @@ test('cham con bo nghe animal.cow roi animal.cow-sound (via hook)', async ({ pag
   // Chụp ảnh ngay sau khi chạm (thấy bò đang nhảy)
   await page.screenshot({ path: 'test-results/shots/T-008-tap.png' });
 
-  // Chờ timeout 1300ms fire → data-last-say = animal.cow-sound
-  await expect(gameEl).toHaveAttribute('data-last-say', 'animal.cow-sound', { timeout: 3000 });
+  // Tiếng kêu phát khi tên đọc xong (nói nối tiếp) → data-last-say = animal.cow-sound
+  await expect(gameEl).toHaveAttribute('data-last-say', 'animal.cow-sound', { timeout: 8000 });
 });
 
 test('chạm thật vào canvas có phản hồi', async ({ page }) => {

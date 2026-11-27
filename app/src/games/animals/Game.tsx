@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { Scene3D } from '../../ui/Scene3D';
 import { AgentProbe } from '../../ui/AnimatedAnimal';
 import { HybridHerd } from '../../ui/hybrid/HybridHerd';
@@ -8,8 +8,11 @@ import type { Herd } from '../../core/herd';
 import { BackHome } from '../../ui/BackHome';
 import type { GameProps } from '../../core/games';
 import { SCENE_HEX } from '../../core/tokens';
+import { useSayThen } from '../../ui/useSayThen';
 import { ANIMALS, farmDef } from './animals';
 
+/** Loa giả (test) không báo hết tiếng: tiếng kêu phát sau khoảng này. Loa thật chờ tên đọc xong. */
+const SOUND_AFTER_MS = 1300;
 const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
 
 /** Cột hàng rào gỗ đơn giản */
@@ -114,7 +117,6 @@ export default function Game({ speaker, onExit }: GameProps) {
   const [loadedCount, setLoadedCount] = useState(0);
   // Sẵn sàng khi mọi model đã load
   const ready = loadedCount >= ANIMALS.length;
-  const soundTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Mỗi con một Agent (steering): con có làn đi qua lại đúng làn của mình (z cố định), còn lại đứng yên một chỗ
   const herd = useMemo<Herd>(() => {
     const members = ANIMALS.map((a, i) => {
@@ -145,27 +147,19 @@ export default function Game({ speaker, onExit }: GameProps) {
     [speaker]
   );
 
+  const sayAll = useSayThen(speaker, setLastSay);
+
   const handleTap = useCallback(
     (animalId: string) => {
-      // Hủy timeout cũ nếu có
-      if (soundTimeoutRef.current) {
-        clearTimeout(soundTimeoutRef.current);
-        soundTimeoutRef.current = null;
-      }
-
       // Con vật dừng lại, ngoảnh về bé và nhảy (vẽ trong useFrame)
       const st = registry.get(animalId);
       if (st && st.mode !== 'react') startReact(st);
 
-      // Nói tên con vật
-      say(`animal.${animalId}`);
-
-      // Sau 1300ms nói tiếng kêu
-      soundTimeoutRef.current = setTimeout(() => {
-        say(`animal.${animalId}-sound`);
-      }, 1300);
+      // Nói tên rồi tiếng kêu thật, NỐI TIẾP: tiếng kêu chỉ phát khi tên đọc xong (tên dài tới ~2,9s
+      // nên hẹn giờ cố định sẽ cắt tên). Bé chạm con khác thì chuỗi mới cắt chuỗi cũ: đúng ý.
+      sayAll([`animal.${animalId}`, `animal.${animalId}-sound`], { fallbackMs: SOUND_AFTER_MS });
     },
-    [say, registry]
+    [sayAll, registry]
   );
 
   const handleAnimalLoaded = useCallback(() => {
@@ -175,9 +169,6 @@ export default function Game({ speaker, onExit }: GameProps) {
   // Nói lời chào khi vào game
   useEffect(() => {
     say('farm.hello');
-    return () => {
-      if (soundTimeoutRef.current) clearTimeout(soundTimeoutRef.current);
-    };
   }, [say]);
 
   // Đăng ký hook cho e2e testing

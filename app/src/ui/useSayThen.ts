@@ -7,12 +7,13 @@ export type SayAllOptions = Omit<SayThenOptions, 'onSay'> & { onStep?(key: strin
 /**
  * Nói nối tiếp cho một trò: key sau chỉ phát khi tiếng trước hết (tiếng kêu thật không bị câu
  * kế cắt ngang). `onSay` nhận từng key lúc bắt đầu phát (trò cập nhật data-last-say). Mọi chuỗi
- * còn dang dở tự huỷ khi trò unmount, nên không còn giọng đọc nào phát sau khi bé thoát.
+ * còn dang dở tự huỷ khi trò unmount, nên không còn giọng đọc nào phát sau khi bé thoát. Trả về
+ * hàm huỷ: câu đang phát nói nốt, các câu sau không phát nữa và không báo onDone (ví dụ bé bắt đầu chơi).
  */
 export function useSayThen(
   speaker: Speaker,
   onSay: (key: string) => void,
-): (keys: readonly string[], opts?: SayAllOptions) => void {
+): (keys: readonly string[], opts?: SayAllOptions) => () => void {
   const cancels = useRef<(() => void)[]>([]);
   const onSayRef = useRef(onSay);
   onSayRef.current = onSay;
@@ -39,6 +40,7 @@ export function useSayThen(
         },
       });
       cancels.current.push(cancel);
+      return cancel;
     },
     [speaker],
   );
