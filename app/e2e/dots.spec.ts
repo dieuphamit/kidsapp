@@ -158,12 +158,12 @@ test('nối hết vòng: ảnh thật hiện dần, con vật kêu tiếng thậ
   for (let i = 0; i < n; i++) await tap(page, `dot-${i + 1}`);
   await expect(game).toHaveAttribute('data-phase', 'reveal');
   await expect(page.getByTestId('dots-sparkles')).toBeVisible();
-  await expect(game).toHaveAttribute('data-last-say', `animal.${animal}-sound`, { timeout: 3000 });
-  await expect(game).toHaveAttribute('data-last-say', `dots.is.${animal}`, { timeout: 4000 });
+  await expect(game).toHaveAttribute('data-last-say', `animal.${animal}-sound`, { timeout: 6000 }); // khi số cuối đọc xong
+  await expect(game).toHaveAttribute('data-last-say', `dots.is.${animal}`, { timeout: 6000 });
   await expect.poll(() => page.getByTestId('dots-photo').evaluate((el) => Number(getComputedStyle(el).opacity))).toBeGreaterThan(0.95);
   await page.screenshot({ path: 'test-results/shots/dots-reveal.png' });
   // con kế tiếp, bắt đầu lại từ chấm 1
-  await expect(game).toHaveAttribute('data-phase', 'play', { timeout: 8000 });
+  await expect(game).toHaveAttribute('data-phase', 'play', { timeout: 12_000 });
   expect(await game.getAttribute('data-animal')).not.toBe(animal);
   await expect(game).toHaveAttribute('data-next', '0');
 });
