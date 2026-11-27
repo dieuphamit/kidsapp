@@ -13,7 +13,7 @@
 .sun {
   position: absolute;
   top: 28px;
-  left: 560px;
+  left: 930px;
   width: 84px;
   height: 84px;
   border-radius: 50%;
@@ -41,12 +41,12 @@
   background: var(--paper);
 }
 .cloudA {
-  top: 44px;
-  left: 260px;
+  top: 64px;
+  left: 190px;
 }
 .cloudB {
-  top: 30px;
-  left: 780px;
+  top: 40px;
+  left: 850px;
   transform: scale(0.8);
   animation-delay: -4s;
 }
@@ -67,7 +67,7 @@
 }
 .board[data-mode='program'] {
   left: 160px;
-  top: 121px;
+  top: 168px;
 }
 
 .grid {
@@ -77,6 +77,9 @@
   gap: 24px;
   width: 696px;
   height: 408px;
+  position: relative;
+  /* kéo vẽ đường: trình duyệt không cuộn/thu phóng khi ngón tay lướt trên lưới */
+  touch-action: none;
 }
 
 .cell {
@@ -86,7 +89,7 @@
   border-radius: 28px;
   background: var(--scene-hill-mid);
   box-shadow: inset 0 -8px 0 var(--scene-hill-shade), inset 0 6px 0 var(--scene-leaf-shine);
-  touch-action: manipulation;
+  touch-action: none;
   -webkit-tap-highlight-color: transparent;
   cursor: pointer;
   transition: transform var(--dur-press) var(--ease-squish);
@@ -105,6 +108,64 @@
   pointer-events: none;
   animation: hint 1.4s ease-in-out infinite;
 }
+/* Chạm ô chưa đi được: ô kề nhấp nháy nhanh và rõ hơn một lúc */
+.grid[data-nudge='true'] .cell[data-hint='true']::after {
+  animation: hint 420ms ease-in-out infinite;
+  border-color: var(--learn-yellow);
+}
+.grid[data-nudge='true'] .cell[data-hint='true'] {
+  background: var(--scene-leaf-light);
+}
+
+/* Ô đã nằm trên nét vẽ */
+.cell[data-trail='true'] {
+  background: var(--scene-leaf-light);
+}
+
+/* Vẽ đường: vòng sáng quanh con vật mời bé đặt ngón tay vào */
+.scene[data-mode='draw'] .grid:not([data-nudge]) .cell[data-dau='true']::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 34px;
+  border: 8px solid var(--learn-yellow);
+  pointer-events: none;
+  animation: invite 1.2s ease-in-out infinite;
+}
+@keyframes invite {
+  0%, 100% { opacity: 0.35; scale: 0.94; }
+  50% { opacity: 1; scale: 1.04; }
+}
+
+/* Nét vẽ bằng ngón tay */
+.trail {
+  position: absolute;
+  inset: 0;
+  width: 696px;
+  height: 408px;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 3;
+}
+.trailEdge,
+.trailLine {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.trailEdge {
+  stroke: var(--scene-wood-dark);
+  stroke-width: 34px;
+  opacity: 0.35;
+}
+.trailLine {
+  stroke: var(--learn-yellow);
+  stroke-width: 22px;
+}
+.trailDot {
+  fill: var(--paper);
+}
+
 @keyframes hint {
   0%, 100% { opacity: 0.45; scale: 0.96; }
   50% { opacity: 1; scale: 1; }
@@ -238,6 +299,25 @@
   80% { translate: 0 0; scale: 1.08 0.92; }
   100% { translate: 0 0; scale: 1 1; }
 }
+/* Chạm ô chưa đi được: nghiêng đầu, nhún nhẹ */
+.dau[data-puzzled] {
+  animation: wonder 600ms ease-in-out;
+  transform-origin: 50% 90%;
+}
+@keyframes wonder {
+  0%, 100% { rotate: 0deg; translate: 0 0; }
+  30% { rotate: -14deg; translate: 0 -6px; }
+  60% { rotate: 10deg; translate: 0 0; }
+}
+/* Tới đích: nhảy mừng */
+.dau[data-cheer='true'] {
+  animation: cheer 520ms var(--ease-squish) infinite;
+}
+@keyframes cheer {
+  0%, 100% { translate: 0 0; scale: 1.06 0.94; }
+  50% { translate: 0 -26px; scale: 0.96 1.06; rotate: 6deg; }
+}
+
 .dau[data-scratch='true'] {
   animation: scratch 380ms ease-in-out 4;
   transform-origin: 50% 90%;
@@ -252,7 +332,7 @@
 .strip {
   position: absolute;
   left: 912px;
-  top: 105px;
+  top: 168px;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -319,11 +399,33 @@
   to { opacity: 0.25; }
 }
 
+/* Nút chọn cách chơi: hàng trên, giữa bảng; tránh nút về nhà (trái) và cổng bố mẹ (phải) */
+.modes {
+  position: absolute;
+  top: 24px;
+  left: 393px;
+  display: flex;
+  gap: 24px;
+  z-index: 5;
+}
+.modeBtn[aria-pressed='true'] {
+  outline: 8px solid var(--paper);
+  outline-offset: 4px;
+}
+.modeBtn[aria-pressed='false'] {
+  opacity: 0.8;
+}
+.modeIcon {
+  font-size: 60px;
+  line-height: 1;
+  pointer-events: none;
+}
+
 /* Mũi tên và ▶ */
 .pad {
   position: absolute;
   left: 180px;
-  top: 593px;
+  top: 640px;
   display: flex;
   gap: 24px;
 }

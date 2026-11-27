@@ -7,7 +7,7 @@ export const manifest: GameManifest = {
   place: 'place.puzzle',
   icon: '🗺️',
   color: 'mint',
-  minAge: 36,
+  minAge: 24,
   maxAge: 72,
   order: 2,
   titleKey: 'game.path',

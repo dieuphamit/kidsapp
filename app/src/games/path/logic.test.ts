@@ -5,7 +5,12 @@ import {
   LEVELS,
   neighbors,
   run,
-  levelFor,
+  canStep,
+  cellAt,
+  extendTrail,
+  trailDirs,
+  trailReachesHome,
+  walkerSound,
   shortestPath,
   step,
   isTree,
@@ -119,17 +124,93 @@ describe('run', () => {
   });
 });
 
-describe('levelFor', () => {
-  test('dưới 48 tháng bắt đầu mức 1, lên mức 2 sau 4 lần về nhà', () => {
-    expect(levelFor(36, 0)).toBe(1);
-    expect(levelFor(47, 3)).toBe(1);
-    expect(levelFor(40, 4)).toBe(2);
-    expect(levelFor(40, 9)).toBe(2);
+describe('chạm ô (canStep)', () => {
+  test('chỉ ô kề trên/dưới/trái/phải, trong lưới, không phải cây', () => {
+    const from = MAP.start; // (1,0)
+    expect(canStep(MAP, from, { r: 1, c: 1 })).toBe(true);
+    expect(canStep(MAP, from, { r: 0, c: 0 })).toBe(true);
+    expect(canStep(MAP, from, { r: 2, c: 0 })).toBe(true);
+    expect(canStep(MAP, from, { r: 1, c: 2 })).toBe(false); // xa 2 ô
+    expect(canStep(MAP, from, { r: 0, c: 1 })).toBe(false); // chéo (và là cây)
+    expect(canStep(MAP, from, { r: 1, c: -1 })).toBe(false); // ngoài lưới
+    expect(canStep(MAP, { r: 0, c: 0 }, { r: 0, c: 1 })).toBe(false); // cây
+    expect(canStep(MAP, from, from)).toBe(false); // chính ô đang đứng
+  });
+});
+
+describe('vẽ đường (extendTrail)', () => {
+  const S = MAP.start;
+  test('nối ô kề liên tiếp tới đích', () => {
+    let t = extendTrail(MAP, [S], { r: 1, c: 1 });
+    expect(t).toEqual([S, { r: 1, c: 1 }]);
+    t = extendTrail(MAP, t, { r: 1, c: 2 });
+    expect(trailReachesHome(MAP, t)).toBe(true);
+    expect(trailDirs(MAP, t)).toEqual(['right', 'right']);
   });
 
-  test('từ 48 tháng bắt đầu mức 2', () => {
-    expect(levelFor(48, 0)).toBe(2);
-    expect(levelFor(72, 0)).toBe(2);
+  test('kéo vào cây hay ô chéo: nét giữ nguyên ở ô trước', () => {
+    const t = [S, { r: 1, c: 1 }];
+    expect(extendTrail(MAP, t, { r: 0, c: 1 })).toEqual(t); // cây
+    expect(extendTrail(MAP, [S], { r: 0, c: 1 })).toEqual([S]); // cây (chéo)
+    expect(extendTrail(MAP, [S], { r: 2, c: 1 })).toEqual([S]); // chéo
+  });
+
+  test('lướt nhanh qua vài ô thẳng hàng: nối cả dãy, dừng trước cây', () => {
+    expect(extendTrail(MAP, [S], { r: 1, c: 2 })).toEqual([S, { r: 1, c: 1 }, { r: 1, c: 2 }]);
+    const m: PathMap = { start: { r: 0, c: 0 }, home: { r: 2, c: 4 }, trees: [{ r: 0, c: 3 }] };
+    expect(extendTrail(m, [m.start], { r: 0, c: 4 })).toEqual([m.start, { r: 0, c: 1 }, { r: 0, c: 2 }]);
+  });
+
+  test('kéo ngược lại: xoá bớt đoạn vừa vẽ', () => {
+    const t = [S, { r: 1, c: 1 }, { r: 1, c: 2 }];
+    expect(extendTrail(MAP, t, { r: 1, c: 1 })).toEqual([S, { r: 1, c: 1 }]);
+    expect(extendTrail(MAP, t, S)).toEqual([S]);
+  });
+
+  test('tới đích rồi thì không nối thêm', () => {
+    const t = [S, { r: 1, c: 1 }, { r: 1, c: 2 }];
+    expect(extendTrail(MAP, t, { r: 1, c: 3 })).toEqual(t);
+  });
+
+  test('không sửa mảng gốc', () => {
+    const t = [S];
+    extendTrail(MAP, t, { r: 1, c: 1 });
+    expect(t).toEqual([S]);
+  });
+
+  test('đường chưa tới đích vẫn hợp lệ; đường có bước nhảy thì không', () => {
+    expect(trailReachesHome(MAP, [S, { r: 1, c: 1 }])).toBe(false);
+    expect(trailDirs(MAP, [S, { r: 1, c: 1 }])).toEqual(['right']);
+    expect(trailDirs(MAP, [S, { r: 1, c: 2 }])).toBeNull();
+    expect(trailDirs(MAP, [S, { r: 0, c: 0 }, { r: 0, c: 1 }])).toBeNull(); // cây
+    expect(trailReachesHome(MAP, [MAP.home])).toBe(false);
+  });
+});
+
+describe('cellAt', () => {
+  test('ô 120px khe 24px; khe chia đôi; ngoài lưới là null', () => {
+    expect(cellAt(60, 60, 120, 24)).toEqual({ r: 0, c: 0 });
+    expect(cellAt(131, 10, 120, 24)).toEqual({ r: 0, c: 0 });
+    expect(cellAt(133, 10, 120, 24)).toEqual({ r: 0, c: 1 });
+    expect(cellAt(4 * 144 + 60, 2 * 144 + 60, 120, 24)).toEqual({ r: 2, c: 4 });
+    expect(cellAt(-40, 10, 120, 24)).toBeNull();
+    expect(cellAt(10, 3 * 144 + 20, 120, 24)).toBeNull();
+  });
+});
+
+describe('tiếng kêu khi tới đích', () => {
+  test('mỗi người đi đều có tiếng kêu thật (file sfx có thật)', () => {
+    const sfx = join(import.meta.dirname, '../../../public/audio/sfx');
+    const keys = [
+      ...THEMES.filter((t) => t.walker !== 'buddy').map((t) => walkerSound(t.walker, 'cat')),
+      ...['cat', 'dog', 'bunny', 'bear'].map((c) => walkerSound('buddy', c)),
+    ];
+    for (const k of keys) {
+      expect(k).toMatch(/^animal.[a-z]+-sound$/);
+      const id = /^animal.([a-z]+)-sound$/.exec(k!)![1];
+      expect(existsSync(join(sfx, `animal-${id}.mp3`)), id).toBe(true);
+    }
+    expect(walkerSound('unicorn', 'cat')).toBeNull();
   });
 });
 
@@ -172,15 +253,23 @@ describe('chủ đề bản đồ', () => {
 describe('độ khó', () => {
   const len = (i: number) => shortestPath(LEVELS[i], LEVELS[i].start)!.length;
 
-  test('Dễ: chỉ đường ≤ 3 bước; Khó: chỉ đường ≥ 3 bước, có đường 4 bước', () => {
+  test('Dễ: chỉ đích gần (2 bước); Khó: chỉ đường ≥ 3 bước, có đường 4 bước', () => {
     const easy = levelsFor('easy');
     const hard = levelsFor('hard');
     expect(easy.length).toBeGreaterThanOrEqual(5);
     expect(hard.length).toBeGreaterThanOrEqual(5);
-    for (const i of easy) expect(len(i)).toBeLessThanOrEqual(3);
+    for (const i of easy) expect(len(i)).toBeLessThanOrEqual(2);
+    for (const i of easy) expect(LEVELS[i].trees.length).toBeLessThanOrEqual(2);
     for (const i of hard) expect(len(i)).toBeGreaterThanOrEqual(3);
     expect(hard.some((i) => len(i) === 4)).toBe(true);
     expect(levelsFor('auto')).toHaveLength(LEVELS.length);
+    // bé dưới 36 tháng (Tự động) cũng được bản đồ dễ
+    expect(levelsFor('auto', 24)).toEqual(easy);
+    expect(levelsFor('auto', 40)).toHaveLength(LEVELS.length);
+  });
+
+  test('bản đồ dễ chỉ có một cây', () => {
+    expect(levelsFor('easy').filter((i) => LEVELS[i].trees.length === 1).length).toBeGreaterThanOrEqual(4);
   });
 
   test('bản đồ kế khác bản đồ vừa chơi, trong kho của độ khó', () => {
@@ -194,12 +283,15 @@ describe('độ khó', () => {
     }
   });
 
-  test('chế độ: Dễ luôn đi từng bước, Khó xếp lệnh ngay, Vừa lên xếp lệnh sau 4 lần', () => {
-    expect(modeFor('easy', 72, 20)).toBe('step');
-    expect(modeFor('hard', 36, 0)).toBe('program');
-    expect(modeFor('medium', 36, 3)).toBe('step');
-    expect(modeFor('medium', 36, 4)).toBe('program');
-    expect(modeFor('auto', 40, 0)).toBe('step');
-    expect(modeFor('auto', 48, 0)).toBe('program');
+  test('cách chơi mặc định: Dễ chạm ô, Khó mũi tên; Tự động/Vừa theo tuổi', () => {
+    expect(modeFor('easy', 72)).toBe('tap');
+    expect(modeFor('hard', 36)).toBe('program');
+    expect(modeFor('auto', 24)).toBe('tap');
+    expect(modeFor('auto', 47)).toBe('tap');
+    expect(modeFor('auto', 48)).toBe('draw');
+    expect(modeFor('auto', 59)).toBe('draw');
+    expect(modeFor('auto', 60)).toBe('program');
+    expect(modeFor('medium', 36)).toBe('tap');
+    expect(modeFor('medium', 54)).toBe('draw');
   });
 });

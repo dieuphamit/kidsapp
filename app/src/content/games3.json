@@ -113,6 +113,10 @@
   { "key": "path.go", "vi": "Đi nào!", "ja": "しゅっぱつ!", "en": "Let's go!" },
   { "key": "path.bump", "vi": "Ối, có cây! Mình đổi đường nhé.", "ja": "あっ、きが あるよ。ちがう みちに しよう。", "en": "Oops, a tree! Let's try another way." },
   { "key": "path.home", "vi": "Về tới nhà rồi!", "ja": "おうちに ついた!", "en": "We're home!" },
+  { "key": "path.mode-tap", "vi": "Chạm ô sáng để đi nhé!", "ja": "ひかる ますを タッチしてね!", "en": "Tap a shiny square to move!" },
+  { "key": "path.mode-draw", "vi": "Kéo ngón tay vẽ đường về đích nhé!", "ja": "ゆびで みちを かいてね!", "en": "Draw the way with your finger!" },
+  { "key": "path.mode-arrows", "vi": "Xếp mũi tên rồi bấm chạy nhé!", "ja": "やじるしを ならべて スタート!", "en": "Line up the arrows, then press go!" },
+  { "key": "path.more", "vi": "Vẽ tiếp nào!", "ja": "つづきを かこう!", "en": "Keep drawing!" },
 
   { "key": "band.hello", "vi": "Mình cùng chơi nhạc nhé!", "ja": "いっしょに えんそう しよう!", "en": "Let's play music together!" },
   { "key": "band.slow", "vi": "Chậm thôi!", "ja": "ゆっくり!", "en": "Slowly!" },
