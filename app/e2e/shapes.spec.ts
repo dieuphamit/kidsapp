@@ -125,8 +125,8 @@ test.describe('Shapes game (Màu và hình)', () => {
     // Kiểm tra data-last-say khớp /^color\./ (timeout 3s theo hướng dẫn)
     await expect(gameEl).toHaveAttribute('data-last-say', /^color\./, { timeout: 3000 });
 
-    // Sau đó data-last-say khớp /^shape\./ (timeout 3s)
-    await expect(gameEl).toHaveAttribute('data-last-say', /^shape\./, { timeout: 3000 });
+    // Màu đọc xong thì tới tên hình (nói nối tiếp): data-last-say khớp /^shape./
+    await expect(gameEl).toHaveAttribute('data-last-say', /^shape\./, { timeout: 8000 });
   });
 
   test('chạm thật vào canvas có phản hồi', async ({ page }) => {

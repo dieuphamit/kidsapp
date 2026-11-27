@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
+import { useSayThen } from '../../ui/useSayThen';
 import * as THREE from 'three';
 import { Scene3D } from '../../ui/Scene3D';
 import { BackHome } from '../../ui/BackHome';
@@ -34,6 +35,9 @@ const POND_COLOR = SCENE_HEX.mint;
 const SHORE_COLOR = SCENE_HEX.grass;
 const SLOT_COLOR = SCENE_HEX.ink;
 
+/** Loa giả (test) không báo hết tiếng: tên hình sau màu chừng này; câu nhắc kéo sau chừng này. */
+const SHAPE_AFTER_MS = 1000;
+const HINT_AFTER_MS = 4000;
 const DRAG_THRESHOLD = 12; // pixels on screen to start drag
 const DRAG_Y = 0.4; // y position of drag plane
 const DRAG_LIFT = 0.3; // how much to lift shape while dragging
@@ -632,25 +636,51 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
   const [celebrating, setCelebrating] = useState(false);
   const hasEverDraggedRef = useRef(false);
 
-  const shapeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const greatTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hintTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const animateBackIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const say = useCallback(
-    (key: string) => {
-      speaker.say(key);
-      setLastSay(key);
+  /**
+   * Nói nối tiếp (màu rồi tên hình; câu chào rồi câu nhắc kéo): câu sau chỉ phát khi câu trước hết.
+   * `talking` = còn chuỗi của trò đang phát; câu nhắc kéo chỉ chen vào lúc yên lặng.
+   */
+  const sayAll = useSayThen(speaker, setLastSay);
+  /** Số thứ tự chuỗi gần nhất và chuỗi đó còn đang phát không. */
+  const chainNo = useRef(0);
+  const talking = useRef(false);
+  const shapeCancelRef = useRef<(() => void) | null>(null);
+  const hint = useRef({ due: false, said: false });
+  const tryHintRef = useRef<() => void>(() => {});
+  const talk = useCallback(
+    (keys: readonly string[], fallbackMs: number) => {
+      const id = ++chainNo.current;
+      talking.current = true;
+      return sayAll(keys, {
+        fallbackMs,
+        onDone: () => {
+          if (chainNo.current !== id) return;
+          talking.current = false;
+          tryHintRef.current();
+        },
+      });
     },
-    [speaker]
+    [sayAll],
+  );
+  /** Màu ngay khi chạm, tên hình khi màu đọc xong (trước đây hẹn 1000ms nên cắt tên màu ~2–2,5s). */
+  const sayColorShape = useCallback(
+    (color: string, shape: Shape) => {
+      shapeCancelRef.current = talk([`color.${color}`, `shape.${shape}`], SHAPE_AFTER_MS);
+    },
+    [talk],
   );
 
   const cancelPendingSpeech = useCallback(() => {
-    if (shapeTimeoutRef.current) {
-      clearTimeout(shapeTimeoutRef.current);
-      shapeTimeoutRef.current = null;
-    }
+    // màu đang đọc thì đọc nốt, chỉ bỏ tên hình còn chờ
+    shapeCancelRef.current?.();
+    shapeCancelRef.current = null;
+    chainNo.current++;
+    talking.current = false;
   }, []);
 
   const startBounce = useCallback((shape: Shape) => {
@@ -672,20 +702,15 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
       // Start bounce animation
       startBounce(shape);
 
-      // Say color first (immediate feedback)
+      // Màu ngay (phản hồi tức thì), tên hình khi màu đọc xong
       const color = state.colors[shape] ?? 'red';
-      say(`color.${color}`);
+      sayColorShape(color, shape);
 
       // Update tapped state
       const newState = markTapped(stateRef.current, shape);
       setState(newState);
-
-      // Say shape after 1000ms
-      shapeTimeoutRef.current = setTimeout(() => {
-        say(`shape.${shape}`);
-      }, 1000);
     },
-    [state, say, cancelPendingSpeech, startBounce, setState]
+    [state, sayColorShape, cancelPendingSpeech, startBounce, setState]
   );
 
   const handleDrop = useCallback(
@@ -698,7 +723,7 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
         const newState = markPlaced(stateRef.current, shape);
         setState(newState);
         startBounce(shape);
-        say('ui.great');
+        talk(['ui.great'], 0);
 
         // Check if all placed
         if (allPlaced(newState)) {
@@ -720,7 +745,7 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
         }
       } else if (result === 'wrong') {
         // Animate back and say try-again
-        say('pond.try-again');
+        talk(['pond.try-again'], 0);
         setAnimateBackState({ shape, from: dropPoint, progress: 0 });
 
         // Animate back over 600ms
@@ -750,7 +775,7 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
         }, 16);
       }
     },
-    [round, level, say, startBounce, setState]
+    [round, level, talk, startBounce, setState]
   );
 
   const handlePointerDown = useCallback(
@@ -783,14 +808,10 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
       // Immediate feedback: bounce and say color
       startBounce(shape);
       const color = state.colors[shape] ?? 'red';
-      say(`color.${color}`);
-
-      // Schedule shape name (will be cancelled if drag starts)
-      shapeTimeoutRef.current = setTimeout(() => {
-        say(`shape.${shape}`);
-      }, 1000);
+      // tên hình đọc khi màu xong (bị huỷ nếu bé bắt đầu kéo)
+      sayColorShape(color, shape);
     },
-    [dragState, state, round, handleTap, startBounce, say]
+    [dragState, state, round, handleTap, startBounce, sayColorShape]
   );
 
   const handlePointerMove = useCallback(
@@ -858,23 +879,29 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
 
   // Initial hello and drag hint
   useEffect(() => {
-    say('pond.hello');
-
-    // Show drag hint after ~4s if user hasn't dragged
+    // Câu nhắc kéo sau ~4s nếu bé chưa kéo, nhưng chờ lúc yên lặng: câu chào dài ~6,2s nên trước
+    // đây câu nhắc (hẹn 4000ms) cắt câu chào.
+    tryHintRef.current = () => {
+      const h = hint.current;
+      if (!h.due || h.said || talking.current || hasEverDraggedRef.current) return;
+      h.said = true;
+      talk(['pond.drag-hint'], 0);
+    };
+    talk(['pond.hello'], HINT_AFTER_MS);
     hintTimeoutRef.current = setTimeout(() => {
-      if (!hasEverDraggedRef.current) {
-        say('pond.drag-hint');
-      }
-    }, 4000);
+      hint.current.due = true;
+      tryHintRef.current();
+    }, HINT_AFTER_MS);
 
     return () => {
-      if (shapeTimeoutRef.current) clearTimeout(shapeTimeoutRef.current);
       if (greatTimeoutRef.current) clearTimeout(greatTimeoutRef.current);
       if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
       if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
       if (animateBackIntervalRef.current) clearInterval(animateBackIntervalRef.current);
     };
-  }, [say]);
+    // chỉ chạy lúc vào trò
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // E2E test hooks
   useEffect(() => {
