@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
 import { SeasonLayer, GREET_DELAY_MS } from './SeasonLayer';
+import { TRAIN_GREET_DELAY_MS } from './TrainMenu';
 import { saveSeasonPref } from '../core/seasonPref';
 
 const speaker = () => ({ say: vi.fn(), sfx: vi.fn() });
@@ -55,6 +56,16 @@ describe('SeasonLayer', () => {
     render(<SeasonLayer speaker={sp3} search="?e2e=1&date=2026-12-25" />);
     act(() => { vi.advanceTimersByTime(GREET_DELAY_MS); });
     expect(sp3.say).toHaveBeenCalledTimes(1);
+  });
+
+  it('màn có câu chào dài (đoàn tàu ~6,3s) đặt delayMs: chưa tới giờ thì không chào chen vào', () => {
+    const sp = speaker();
+    render(<SeasonLayer speaker={sp} search="?e2e=1&date=2026-12-24" delayMs={TRAIN_GREET_DELAY_MS} />);
+    act(() => { vi.advanceTimersByTime(GREET_DELAY_MS); });
+    expect(sp.say).not.toHaveBeenCalled();
+    act(() => { vi.advanceTimersByTime(TRAIN_GREET_DELAY_MS - GREET_DELAY_MS); });
+    expect(sp.say).toHaveBeenCalledWith('season.xmas');
+    expect(TRAIN_GREET_DELAY_MS).toBeGreaterThan(6336); // ui.train-hello dài nhất (ja) 6,3s
   });
 
   it('rời bản đồ trước khi chào thì không chào', () => {

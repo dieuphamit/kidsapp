@@ -105,3 +105,35 @@ export function useSaySteps(
   );
   return useMemo(() => ({ play, stop }), [play, stop]);
 }
+
+/** Chờ lâu nhất chừng này rồi vẫn mở (file chưa tải / âm thanh bị khoá thì không bắt bé chờ). */
+export const SAY_GO_MAX_MS = 3600;
+
+/**
+ * Nói một câu rồi mới làm `go` (menu đọc tên trò/khu rồi mới mở): chờ câu đọc xong để câu chào của
+ * trò không cắt tên vừa đọc, nhưng không chờ quá `maxMs`. Loa giả (test) không báo hết tiếng: `go`
+ * chạy sau `minMs` như trước. Unmount thì huỷ, không mở gì nữa.
+ */
+export function useSayThenGo(
+  speaker: Speaker,
+  onSay: (key: string) => void,
+): (key: string, minMs: number, go: () => void, maxMs?: number) => void {
+  const sayAll = useSayThen(speaker, onSay);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  return useCallback(
+    (key: string, minMs: number, go: () => void, maxMs = SAY_GO_MAX_MS) => {
+      clearTimeout(timer.current);
+      let fired = false;
+      const fire = () => {
+        if (fired) return;
+        fired = true;
+        clearTimeout(timer.current);
+        go();
+      };
+      sayAll([key], { fallbackMs: minMs, onDone: fire });
+      timer.current = setTimeout(fire, Math.max(minMs, maxMs));
+    },
+    [sayAll],
+  );
+}
