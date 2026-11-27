@@ -3,7 +3,7 @@ import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
 import { Scenery } from '../../ui/Scenery';
 import { clientToStage, stageRect } from '../../ui/Stage';
-import { useSayThen } from '../../ui/useSayThen';
+import { useSayThen, useSaySteps } from '../../ui/useSayThen';
 import { useBuddyLook } from '../../ui/buddyContext';
 import { recentPicks, rememberPicks } from '../../core/gameOptions';
 import {
@@ -87,15 +87,23 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
   }, []);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
+  /** Câu nói gần nhất (cả câu trong chuỗi): biết câu chào đã bị bé chạm chen ngang hay chưa. */
+  const lastKey = useRef('');
+  const markSay = useCallback((key: string) => {
+    lastKey.current = key;
+    setLastSay(key);
+  }, []);
   const say = useCallback(
     (key: string) => {
       speaker.say(key);
-      setLastSay(key);
+      markSay(key);
     },
-    [speaker],
+    [speaker, markSay],
   );
 
-  const sayAll = useSayThen(speaker, setLastSay);
+  const sayAll = useSayThen(speaker, markSay);
+  /** Kịch bản nhiều đoạn: chào → hỏi; ăn mừng → ván mới + hỏi (đoạn sau chờ đoạn trước đọc xong). */
+  const talk = useSaySteps(speaker, markSay);
 
   const live = useRef({ state, phase });
   live.current = { state, phase };
@@ -109,12 +117,12 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
   useEffect(() => {
     if (started.current) return;
     started.current = true;
-    say(HELLO_KEY);
-    later(() => {
-      // bé đã kịp kéo con rồi thì thôi không hỏi chen vào
+    // Câu chào dài ~6s: câu hỏi chờ câu chào đọc xong (trước đây hẹn 2600ms nên cắt câu chào)
+    talk.play([{ keys: [HELLO_KEY], fallbackMs: HELLO_MS }], () => {
+      // bé đã kịp chạm/kéo (có câu khác chen vào) thì thôi không hỏi chen vào
       const t = currentTurn(live.current.state);
-      if (t && live.current.state.index === 0 && live.current.phase === 'ask') say(askKey(t.baby));
-    }, HELLO_MS);
+      if (t && lastKey.current === HELLO_KEY && live.current.state.index === 0 && live.current.phase === 'ask') say(askKey(t.baby));
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -124,20 +132,25 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
       if (isDone(next)) {
         setState(next);
         setPhase('party');
-        say(DONE_KEY);
-        later(() => {
-          const fresh = makeRound(ageMonths);
-          setState(fresh);
-          setPhase('ask');
-          say(askKey(fresh.turns[0].baby));
-        }, PARTY_MS);
+        // Ăn mừng ~5s đọc xong mới sang ván mới (trước đây PARTY_MS 4200 nên câu hỏi cắt câu mừng)
+        const fresh = makeRound(ageMonths);
+        talk.play([
+          { keys: [DONE_KEY], fallbackMs: PARTY_MS },
+          {
+            keys: [askKey(fresh.turns[0].baby)],
+            onStart: () => {
+              setState(fresh);
+              setPhase('ask');
+            },
+          },
+        ]);
         return;
       }
       setState(next);
       setPhase('ask');
       say(askKey(currentTurn(next)!.baby));
     },
-    [ageMonths, later, say],
+    [ageMonths, say, talk],
   );
 
   /** Thả con vào mẹ `mama` (hoặc null = thả ra ngoài). */
