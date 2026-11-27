@@ -56,9 +56,9 @@ test.describe('Chuỗi hạt quy luật', () => {
     const game = await openPattern(page);
     await expect(game).toHaveAttribute('data-last-say', 'pattern.hello');
     await expect(game).toHaveAttribute('data-level', 'AB');
-    // Đọc chuỗi rồi hỏi "Tiếp theo là quả gì?"
+    // Đọc chuỗi NỐI TIẾP (hạt sau chờ tiếng hạt trước hết, không cắt nhau) rồi hỏi "Tiếp theo là quả gì?"
     await expect(game).toHaveAttribute('data-last-say', /^fruit\./, { timeout: 5000 });
-    await expect(game).toHaveAttribute('data-last-say', 'pattern.next', { timeout: 8000 });
+    await expect(game).toHaveAttribute('data-last-say', 'pattern.next', { timeout: 15000 });
 
     // 5 hạt + 1 ô ?, 3 nút lựa chọn đủ lớn
     await expect(page.locator('[data-bead]')).toHaveCount(5);
@@ -75,7 +75,7 @@ test.describe('Chuỗi hạt quy luật', () => {
 
   test('chọn chưa đúng → không thành pattern.yay, quả lăn về và đọc lại chuỗi', async ({ page }) => {
     const game = await openPattern(page);
-    await expect(game).toHaveAttribute('data-last-say', 'pattern.next', { timeout: 8000 });
+    await expect(game).toHaveAttribute('data-last-say', 'pattern.next', { timeout: 15000 });
     const answer = await page.evaluate(() => window.__behocPattern!.answer());
     const wrong = await page
       .locator('[data-choice]')
@@ -91,7 +91,7 @@ test.describe('Chuỗi hạt quy luật', () => {
     }
     expect(says).not.toContain('pattern.yay');
     expect(says.some((s) => s.startsWith('fruit.'))).toBe(true);
-    await expect(game).toHaveAttribute('data-last-say', 'pattern.next', { timeout: 6000 });
+    await expect(game).toHaveAttribute('data-last-say', 'pattern.next', { timeout: 15000 });
     // Ô ? vẫn trống, quả về chỗ
     await expect(page.getByTestId('pattern-slot')).not.toHaveAttribute('data-filled', /.+/);
     await expect(page.locator('[data-choice] button')).toHaveCount(3);
@@ -198,7 +198,7 @@ test.describe('E4: loại hạt mới và độ khó', () => {
     const game = await open(page, '&pkind=color', { ageMonths: 48 });
     await expect(game).toHaveAttribute('data-kind', 'color');
     await expect(game).toHaveAttribute('data-last-say', /^color\./, { timeout: 5000 });
-    await expect(game).toHaveAttribute('data-last-say', 'pattern.next-color', { timeout: 8000 });
+    await expect(game).toHaveAttribute('data-last-say', 'pattern.next-color', { timeout: 15000 });
     await page.screenshot({ path: 'test-results/shots/E4-pattern.png' });
     const answer = await page.evaluate(() => window.__behocPattern!.answer());
     await page.locator(`[data-choice="${answer}"] button`).tap();
