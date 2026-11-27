@@ -36,16 +36,20 @@ const CARDS = {
   rabbit: { file: 'Heimtier 004 2023 08 26.jpg' },
   cat: { file: 'Felis catus-cat on snow.jpg' },
   elephant: { file: '178 Male African bush elephant in Etosha National Park Photo by Giles Laurent.jpg' },
-  giraffe: { file: '042 Masai giraffe in the Serengeti National Park Photo by Giles Laurent.jpg' },
+  // ảnh cũ (042 Masai giraffe…): chân lẫn trong cỏ cao, cụt móng → hươu đi trên bãi cỏ thấp, đủ bốn chân
+  giraffe: { file: 'Giraffe walking on the grass.jpg', width: 3840, crop: [0.28, 0.05, 0.72, 1] },
   lion: { file: 'Lion (Panthera leo) old male Chobe.jpg' },
   tiger: { file: 'Bengal tiger in Sanjay Dubri Tiger Reserve December 2024 by Tisha Mukherjee 15.jpg' },
   monkey: { file: 'Rhesus macaque (Macaca mulatta mulatta), male, Gokarna.jpg' },
   panda: { file: 'Chengdu Sichuan China Panda-breeding-and-research-center-02.jpg' },
   penguin: { file: 'Wikimania 2018, Cape Town ( 1050603).jpg' },
-  koala: { file: 'Koala in Zoo Duisburg.jpg' },
-  fox: { file: 'Red fox catches a vole - Tolyatti, Russia.jpg' },
+  // ảnh cũ (Koala in Zoo Duisburg.jpg): viền trắng quanh lông sau khi tách nền → dùng ảnh của Thế giới
+  koala: { file: 'AUS koala1.jpg', crop: [0.2, 0.15, 0.72, 0.9] },
+  // ảnh cũ (Red fox catches a vole…): chân sau vùi trong tuyết → cáo đứng nghiêng, đủ bốn chân
+  fox: { file: 'Vulpes vulpes standing in snow.jpg' },
   bear: { file: 'Ursus arctos, Kuterevo (HR) -- 2022 -- 0379.jpg' },
-  parrot: { file: 'Scarlet macaw at Cougar Mountain Zoological Park.jpg' },
+  // ảnh cũ (Scarlet macaw at Cougar Mountain…): đuôi bị mép ảnh cắt phẳng → vẹt đứng đủ đuôi, cắt bỏ tảng đá dưới chân
+  parrot: { file: 'Scarlet macaw (Ara macao macao) Yasuni.jpg', crop: [0.24, 0.2, 0.86, 0.785] },
   fish: { file: 'Carassius wild golden fish 2013 G1.jpg' },
   apple: { file: 'Honeycrisp-Apple.jpg' },
   banana: { file: 'Cavendish bananas DS.jpg' },
@@ -64,7 +68,8 @@ const CARDS = {
   blueberry: { file: 'Food Portions (Team Nutrition) (20210902-FNS-UNC-0038).jpg', keep: 'all' },
   peach: { file: 'White-Peaches-Bunch.jpg', keep: 'all' },
   // E4: thú có tiếng kêu thật cho Ú òa / Đường về nhà. Không nằm trong cards/index.json (Lật hình, Ghép hình giữ nguyên).
-  zebra: { file: 'Plains zebra standing close up - DPLA - 5a17abfc936af2a7cad34115b462e9a3.jpg' },
+  // ảnh cũ (Plains zebra standing close up…): bốn chân bị mép dưới ảnh cắt → ảnh nghiêng đủ chân của Thế giới
+  zebra: { file: 'A plains zebra 3.jpg' },
   deer: { file: '2025-11-10 15 11 40 A white-tailed deer doe standing on fallen Japanese Maple and Pin Oak leaves in autumn along Delaware Avenue in the Mountainview section of Ewing Township, Mercer County, New Jersey.jpg' },
   raccoon: { file: 'Raccoon in Central Park (35264).jpg' },
   frog: { file: 'Green treefrog.jpg' },
