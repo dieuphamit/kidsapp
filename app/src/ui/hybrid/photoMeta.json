@@ -86,8 +86,8 @@
  },
  "dog": {
   "w": 640,
-  "h": 444,
-  "face": "right"
+  "h": 574,
+  "face": "left"
  },
  "farm-duck": {
   "w": 640,
