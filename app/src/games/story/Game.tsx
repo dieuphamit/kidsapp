@@ -4,14 +4,20 @@ import { BackHome } from '../../ui/BackHome';
 import { Scenery } from '../../ui/Scenery';
 import { useBuddyLook } from '../../ui/buddyContext';
 import { clientToStage, stageRect } from '../../ui/Stage';
+import { useSayThen } from '../../ui/useSayThen';
 import { canDrop, isPhoto, newRound, STORIES, type Round, type StoryId } from './logic';
 import { Picture } from './Picture';
 import styles from './Game.module.css';
 
-/** Thời gian chờ một câu đọc xong trước câu sau (Speaker không báo hết câu). */
+/**
+ * Câu nói đọc NỐI TIẾP (câu sau chờ câu trước thật sự hết, câu dài tới ~4s không bị cắt).
+ * Hai số dưới chỉ dùng khi loa không báo được lúc hết câu (loa giả trong test unit).
+ */
 const LINE_MS = 2200;
 /** Câu của chuyện có bạn đồng hành dài hơn ("Mặt trời mọc, … thức dậy."). */
 const LINE_LONG_MS = 3000;
+/** Nghỉ giữa hai câu, tính từ lúc câu trước hết. */
+const LINE_GAP_MS = 250;
 const RETURN_MS = 500;
 const ZOOM_MS = 300;
 const NEXT_ROUND_MS = 3000;
@@ -66,43 +72,40 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
 
   const slotRefs = useRef<(HTMLDivElement | null)[]>([]);
   const trayRefs = useRef(new Map<number, HTMLDivElement>());
-  /** Chuỗi câu nói đang chờ: hủy khi có chuỗi mới để câu không chồng nhau. */
-  const speech = useRef<number[]>([]);
   const timers = useRef<number[]>([]);
 
   const later = useCallback((fn: () => void, ms: number) => {
     timers.current.push(window.setTimeout(fn, ms));
   }, []);
 
-  const say = useCallback(
-    (key: string) => {
-      speaker.say(key);
-      setLastSay(key);
-    },
-    [speaker],
-  );
+  /** Mỗi chuỗi có số riêng: chuỗi bị chuỗi mới cắt thì không chạy act/then nữa. */
+  const chainId = useRef(0);
+  const sayAll = useSayThen(speaker, setLastSay);
 
-  /** Nói lần lượt các câu, mỗi câu chờ câu trước xong; `then` chạy sau câu cuối. */
+  /** Nói lần lượt các câu, mỗi câu chờ câu trước THẬT SỰ hết; `then` chạy sau câu cuối. */
   const sayChain = useCallback(
     (lines: { key: string; act?: () => void }[], then?: () => void, gap = LINE_MS) => {
-      speech.current.forEach(clearTimeout);
-      speech.current = [];
-      lines.forEach((l, i) => {
-        const run = () => {
-          l.act?.();
-          say(l.key);
-        };
-        if (i === 0) run();
-        else speech.current.push(window.setTimeout(run, i * gap));
-      });
-      if (then) speech.current.push(window.setTimeout(then, lines.length * gap));
+      const id = ++chainId.current;
+      sayAll(
+        lines.map((l) => l.key),
+        {
+          gapMs: LINE_GAP_MS,
+          fallbackMs: gap,
+          onStep: (_key, i) => {
+            if (id === chainId.current) lines[i].act?.();
+          },
+          onDone: () => {
+            if (id === chainId.current) then?.();
+          },
+        },
+      );
     },
-    [say],
+    [sayAll],
   );
 
   useEffect(
     () => () => {
-      speech.current.forEach(clearTimeout);
+      chainId.current++;
       timers.current.forEach(clearTimeout);
     },
     [],
@@ -127,20 +130,19 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
     startRound(firstRound.current, true);
   }, [startRound]);
 
+  /** Xếp xong: đọc câu tranh vừa thả rồi kể lại cả chuyện liền một mạch (không câu nào đè câu nào). */
   const retell = useCallback(
-    (r: Round) => {
+    (r: Round, lead: string) => {
       setRetelling(true);
       const gap = isPhoto(r.story) ? LINE_MS : LINE_LONG_MS;
       const lines = r.steps.map((step, i) => ({ key: `story.${r.story}-${step}`, act: () => setGlow(i) }));
-      later(() => {
-        sayChain(
-          [...lines, { key: 'story.done', act: () => setGlow(null) }],
-          () => {
-            later(() => startRound(newRound(Date.now(), r.story, ageMonths), false), Math.max(400, NEXT_ROUND_MS - gap));
-          },
-          gap,
-        );
-      }, gap);
+      sayChain(
+        [{ key: lead }, ...lines, { key: 'story.done', act: () => setGlow(null) }],
+        () => {
+          later(() => startRound(newRound(Date.now(), r.story, ageMonths), false), Math.max(400, NEXT_ROUND_MS - gap));
+        },
+        gap,
+      );
     },
     [later, sayChain, startRound, ageMonths],
   );
@@ -171,8 +173,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
         later(() => setLanded((l) => (l === slotIndex ? null : l)), 400);
         const key = `story.${round.story}-${step}`;
         if (next.every((s) => s !== null)) {
-          sayChain([{ key }], undefined, lineMs);
-          retell(round);
+          retell(round, key);
         } else {
           sayChain([{ key }, { key: 'story.next' }], undefined, lineMs);
         }
@@ -346,7 +347,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
         onPointerDown={() => {
           setPoke((n) => n + 1);
           // đang kể lại chuyện thì chỉ nhún, không cắt lời kể
-          if (!retelling) say('story.next');
+          if (!retelling) sayChain([{ key: 'story.next' }]);
         }}
       />
     </div>

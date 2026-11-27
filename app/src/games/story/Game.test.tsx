@@ -40,3 +40,17 @@ describe('Kể chuyện: chạm bạn đồng hành', () => {
     expect(rule).not.toMatch(/pointer-events:\s*none/);
   });
 });
+
+describe('Chuyện ba tranh: câu sau không đè câu trước', () => {
+  it('vào game: chào, câu tranh 1, câu hỏi đi chung một lượt sayThen (loa chờ câu trước hết)', () => {
+    const sayThen = vi.fn((_keys: readonly string[]) => () => {});
+    const sp = { say: vi.fn(), sfx: vi.fn(), sayThen } satisfies Speaker;
+    render(<Game lang="vi" speaker={sp} ageMonths={48} onExit={() => {}} />);
+    expect(sayThen).toHaveBeenCalledTimes(1);
+    const keys = sayThen.mock.calls[0][0];
+    expect(keys[0]).toBe('story.hello');
+    expect(keys[1]).toMatch(/^story\.[a-z]+-1$/);
+    expect(keys.at(-1)).toBe('story.next');
+    expect(sp.say).not.toHaveBeenCalled();
+  });
+});
