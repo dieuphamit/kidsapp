@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import type { GameProps } from '../../core/games';
+import { useSayThen } from '../../ui/useSayThen';
 import type { Lang } from '../../core/i18n';
 import type { ClayColor } from '../../core/tokens';
 import { contentByKey } from '../../core/content';
@@ -83,7 +84,8 @@ export default function Game({ lang, speaker, onExit }: GameProps) {
   const tick = useRef(0);
   const hinted = useRef(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Huỷ câu nhắc "chạm để tô" còn chờ sau tên tranh (bé đã chọn màu/tô thì thôi nhắc). */
+  const hintCancel = useRef<(() => void) | null>(null);
   const splashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const later = useCallback((fn: () => void, ms: number) => {
     const t = setTimeout(fn, ms);
@@ -93,7 +95,6 @@ export default function Game({ lang, speaker, onExit }: GameProps) {
   useEffect(
     () => () => {
       timers.current.forEach(clearTimeout);
-      if (hintTimer.current) clearTimeout(hintTimer.current);
       if (splashTimer.current) clearTimeout(splashTimer.current);
     },
     [],
@@ -106,9 +107,10 @@ export default function Game({ lang, speaker, onExit }: GameProps) {
     },
     [speaker],
   );
+  const sayAll = useSayThen(speaker, setLastSay);
   const cancelHint = () => {
-    if (hintTimer.current) clearTimeout(hintTimer.current);
-    hintTimer.current = null;
+    hintCancel.current?.();
+    hintCancel.current = null;
   };
 
   // Chào và đọc tranh đã tô từ máy
@@ -147,11 +149,13 @@ export default function Game({ lang, speaker, onExit }: GameProps) {
     setCelebrate(null);
     setColorSet(setOf(live.current.color));
     setScreen('paint');
-    say(picKey(p.id));
     cancelHint();
     if (!hinted.current) {
       hinted.current = true;
-      hintTimer.current = setTimeout(() => say(START_KEY), START_HINT_MS);
+      // tên tranh rồi câu nhắc, NỐI TIẾP: tên dài tới ~3s, trước đây câu nhắc hẹn 1700ms nên cắt tên
+      hintCancel.current = sayAll([picKey(p.id), START_KEY], { fallbackMs: START_HINT_MS });
+    } else {
+      say(picKey(p.id));
     }
   };
 

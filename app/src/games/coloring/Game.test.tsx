@@ -154,3 +154,22 @@ describe('Tô màu', () => {
     expect(onExit).toHaveBeenCalled();
   });
 });
+
+describe('Tô màu: tên tranh rồi câu nhắc nói nối tiếp', () => {
+  it('mở tranh lần đầu: tên tranh và câu nhắc đi chung một lượt sayThen (câu nhắc không cắt tên)', async () => {
+    const sayThen = vi.fn((_keys: readonly string[]) => () => {});
+    const sp = { say: vi.fn(), sfx: vi.fn(), sayThen } satisfies Speaker;
+    render(<Game lang="vi" speaker={sp} ageMonths={36} onExit={() => {}} />);
+    await flush();
+    fireEvent.pointerDown(screen.getByLabelText('Bạn heo con!'));
+    expect(sayThen).toHaveBeenCalledTimes(1);
+    expect(sayThen.mock.calls[0][0]).toEqual(['coloring.pic.pig', 'coloring.start']);
+    expect(sp.say).not.toHaveBeenCalledWith('coloring.pic.pig');
+    // lần sau chỉ đọc tên tranh, không nhắc nữa
+    fireEvent.pointerDown(screen.getByLabelText('Về giá vẽ'));
+    fireEvent.pointerDown(screen.getByLabelText('Bạn heo con!'));
+    expect(sayThen).toHaveBeenCalledTimes(1);
+    expect(sp.say).toHaveBeenLastCalledWith('coloring.pic.pig');
+  });
+});
+
