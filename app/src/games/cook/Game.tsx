@@ -199,14 +199,32 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
   }, []);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
+  /** Câu nói gần nhất (cả câu trong chuỗi): biết câu trước đã bị bé chạm chen ngang hay chưa. */
+  const lastKey = useRef('');
+  const markSay = useCallback((key: string) => {
+    lastKey.current = key;
+    setLastSay(key);
+  }, []);
   const say = useCallback(
     (key: string) => {
       speaker.say(key);
-      setLastSay(key);
+      markSay(key);
     },
-    [speaker],
+    [speaker, markSay],
   );
-  const sayAll = useSayThen(speaker, setLastSay);
+  const sayAll = useSayThen(speaker, markSay);
+  /** Câu "khuấy đi" (~6,6s) còn đang đọc: lời nhắc khuấy không chen vào; đọc xong thì đếm lại giờ nhắc. */
+  const stirTalking = useRef(false);
+  const [stirEnd, setStirEnd] = useState(0);
+  const sayStir = useCallback(() => {
+    stirTalking.current = true;
+    sayAll([STIR_KEY], {
+      onDone: () => {
+        stirTalking.current = false;
+        setStirEnd((n) => n + 1);
+      },
+    });
+  }, [sayAll]);
 
   const live = useRef(state);
   live.current = state;
@@ -226,13 +244,16 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
   useEffect(() => {
     if (started.current) return;
     started.current = true;
-    say(HELLO_KEY);
-    later(() => {
-      // bé đã kịp bỏ nguyên liệu rồi thì thôi không nói chen vào
-      const s = live.current;
-      const t = currentTurn(s);
-      if (t && s.index === 0 && s.added.length === 0 && s.phase === 'gather') say(wantKey(t.dish));
-    }, HELLO_MS);
+    // Câu chào dài ~6,3s: món khách muốn chờ câu chào đọc xong (trước đây hẹn 3600ms nên cắt)
+    sayAll([HELLO_KEY], {
+      fallbackMs: HELLO_MS,
+      onDone: () => {
+        // bé đã kịp chạm/bỏ nguyên liệu (có câu khác chen vào) thì thôi không nói chen vào
+        const s = live.current;
+        const t = currentTurn(s);
+        if (t && lastKey.current === HELLO_KEY && s.index === 0 && s.added.length === 0 && s.phase === 'gather') say(wantKey(t.dish));
+      },
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -241,10 +262,10 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
     if (phase !== 'stir' || drag?.kind === 'ladle') return;
     const t = setTimeout(() => {
       setLadleNudge(Date.now());
-      say(STIR_KEY);
+      if (!stirTalking.current) sayStir();
     }, STIR_IDLE_MS);
     return () => clearTimeout(t);
-  }, [phase, drag, state.stirred, say]);
+  }, [phase, drag, state.stirred, stirEnd, sayStir]);
 
   const startTurn = useCallback(
     (s: State) => {
@@ -265,16 +286,19 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
         setState(next);
         setParty(true);
         sounds.happy();
-        say(DONE_KEY);
-        later(() => {
-          setParty(false);
-          startTurn(makeRound(level));
-        }, PARTY_MS);
+        // ăn mừng ~5,5s đọc xong mới sang ván mới (trước đây PARTY_MS 4600 nên cắt câu mừng)
+        sayAll([DONE_KEY], {
+          fallbackMs: PARTY_MS,
+          onDone: () => {
+            setParty(false);
+            startTurn(makeRound(level));
+          },
+        });
         return;
       }
       startTurn(next);
     },
-    [level, later, say, sounds, startTurn],
+    [level, sayAll, sounds, startTurn],
   );
 
   /** Thả nguyên liệu `item` vào nồi (null = thả ra ngoài, về chỗ). */
@@ -293,9 +317,9 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
         later(() => setReturning((r) => (r?.item === item ? null : r)), 800);
         if (nopes.current >= 2) {
           setHint(true);
-          say(LOOK_KEY);
+          // "nhìn thẻ xem" (~4,9s) đọc xong mới đọc tên món còn thiếu (trước đây hẹn 2100ms nên cắt)
           const need = missing(s0)[0];
-          if (need) later(() => say(foodKey(need)), LOOK_NAME_MS);
+          sayAll(need ? [LOOK_KEY, foodKey(need)] : [LOOK_KEY], { fallbackMs: LOOK_NAME_MS });
         } else {
           say(NOPE_KEY);
         }
@@ -309,16 +333,21 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
         setSplash(Date.now());
         sounds.plop();
       }, FLY_MS);
-      later(() => say(foodKey(item)), FLY_MS + NAME_MS);
-      if (result === 'ready') {
-        setHint(false);
-        later(() => {
-          if (live.current.phase === 'ready') say(READY_KEY);
-        }, FLY_MS + READY_SAY_MS);
-      }
+      if (result === 'ready') setHint(false);
+      // tên món rồi (đủ món thì) "bật bếp nào": câu sau chờ tên món đọc xong (trước đây hẹn
+      // 1250ms sau tên món nên cắt tên ~2,2s). Bé thả món khác thì câu mới cắt câu cũ, không nhắc chen.
+      later(() => {
+        const key = foodKey(item);
+        sayAll([key], {
+          fallbackMs: READY_SAY_MS - NAME_MS,
+          onDone: () => {
+            if (result === 'ready' && lastKey.current === key && live.current.phase === 'ready') say(READY_KEY);
+          },
+        });
+      }, FLY_MS + NAME_MS);
       return result;
     },
-    [party, later, say, sounds],
+    [party, later, say, sayAll, sounds],
   );
 
   const pressStove = useCallback((): boolean => {
@@ -338,9 +367,9 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
     setState(s);
     sounds.whoosh();
     later(() => sounds.blub(), 400);
-    later(() => say(STIR_KEY), 500);
+    later(sayStir, 500);
     return true;
-  }, [later, say, sounds]);
+  }, [later, say, sayStir, sounds]);
 
   const doStir = useCallback(
     (amount: number): boolean => {

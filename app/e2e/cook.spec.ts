@@ -89,7 +89,7 @@ test('Nhà → Bếp nấu ăn: khách thú, thẻ công thức 4 món, quầy 6
   await expect(page.getByTestId('recipe')).toHaveAttribute('data-dish', s.dish);
   await expect(page.locator('[data-item]')).toHaveCount(6);
   // sau câu chào thì Đậu Đậu nói món khách muốn
-  await expect(game).toHaveAttribute('data-last-say', `cook.want.${s.dish}`, { timeout: 8000 });
+  await expect(game).toHaveAttribute('data-last-say', `cook.want.${s.dish}`, { timeout: 12_000 });
 
   // vùng chạm ≥120px, cách nhau ≥24px; thứ ở phần trên tránh góc cổng bố mẹ
   const boxes = [];
@@ -114,7 +114,7 @@ test('Nhà → Bếp nấu ăn: khách thú, thẻ công thức 4 món, quầy 6
 test('kéo món lạ: lắc rồi về chỗ, không đổi gì; kéo đủ nguyên liệu → bật bếp → khuấy → kéo bát cho khách; chụp cook-adding, cook-ready, cook-stir, cook-served', async ({ page }) => {
   test.setTimeout(90_000);
   const game = await openCook(page, 'medium');
-  await expect(game).toHaveAttribute('data-last-say', /^cook\.want\./, { timeout: 8000 });
+  await expect(game).toHaveAttribute('data-last-say', /^cook\.want\./, { timeout: 12_000 });
   await imagesLoaded(page);
   const s = await snap(page);
   expect(s.need).toHaveLength(3);
@@ -143,7 +143,7 @@ test('kéo món lạ: lắc rồi về chỗ, không đổi gì; kéo đủ nguy
   await page.screenshot({ path: 'test-results/shots/cook-adding.png' });
   await dropInPot(page, s.need[2]);
   await expect(game).toHaveAttribute('data-phase', 'ready');
-  await expect(game).toHaveAttribute('data-last-say', 'cook.ready', { timeout: 4000 });
+  await expect(game).toHaveAttribute('data-last-say', 'cook.ready', { timeout: 8000 });
   await page.waitForTimeout(400);
   await page.screenshot({ path: 'test-results/shots/cook-ready.png' });
 
@@ -187,7 +187,7 @@ test('kéo món lạ: lắc rồi về chỗ, không đổi gì; kéo đủ nguy
   await expect(page.getByTestId('happy')).toBeVisible({ timeout: 4000 });
   await page.waitForTimeout(500);
   await page.screenshot({ path: 'test-results/shots/cook-served.png' });
-  await expect(game).toHaveAttribute('data-last-say', 'cook.yum', { timeout: 4000 });
+  await expect(game).toHaveAttribute('data-last-say', 'cook.yum', { timeout: 8000 });
 
   // Khách kế với món khác
   await expect.poll(async () => (await snap(page)).index, { timeout: 8000 }).toBe(1);
@@ -216,7 +216,7 @@ test('bé nhỏ: 2 nguyên liệu, không món lạ; phục vụ đủ 3 khách 
   await expect(page.getByTestId('party')).toBeVisible();
   await page.waitForTimeout(600);
   await page.screenshot({ path: 'test-results/shots/cook-party.png' });
-  await expect(game).toHaveAttribute('data-phase', 'gather', { timeout: 8000 });
+  await expect(game).toHaveAttribute('data-phase', 'gather', { timeout: 12_000 });
   expect((await snap(page)).index).toBe(0);
 });
 
