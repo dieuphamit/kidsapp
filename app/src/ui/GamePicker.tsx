@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import styles from './GamePicker.module.css';
 import { ClayButton } from './ClayButton';
+import { useSayThenGo } from './useSayThen';
 import { BackHome } from './BackHome';
 import { contentByKey } from '../core/content';
 import { buddyImageUrl } from '../core/buddy';
@@ -31,18 +32,17 @@ export function GamePicker({ placeKey, games, lang, speaker, onPick, onBack }: P
   const [locked, setLocked] = useState(false);
   const buddy = useBuddy();
   const fill = useFillName();
-  const pendingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const say = (key: string) => {
     speaker.say(key);
     setLastSay(key);
   };
 
+  /** Đọc tên trò xong mới mở trò: câu chào của trò không cắt tên vừa đọc. */
+  const sayThenGo = useSayThenGo(speaker, setLastSay);
+
   useEffect(() => {
     say('ui.pick-game');
-    return () => {
-      if (pendingTimeout.current) clearTimeout(pendingTimeout.current);
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -53,8 +53,7 @@ export function GamePicker({ placeKey, games, lang, speaker, onPick, onBack }: P
   const handleGamePress = (g: GameManifest) => {
     if (locked) return;
     setLocked(true);
-    say(g.titleKey ?? g.place);
-    pendingTimeout.current = setTimeout(() => onPick(g), PICK_DELAY_MS);
+    sayThenGo(g.titleKey ?? g.place, PICK_DELAY_MS, () => onPick(g));
   };
 
   // Nhiều hơn 5 trò thì chia đều các hàng (6 trò → 2 hàng × 3) thay vì để một thẻ lẻ hàng dưới

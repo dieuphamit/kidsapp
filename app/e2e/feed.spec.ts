@@ -96,7 +96,7 @@ test('Trang trại → Cho thú ăn: thú đói giữa màn, khay 2 món ở 28 
   await expect(page.locator('[data-food]')).toHaveCount(2);
   await expect(page.getByTestId('fullness')).toHaveAttribute('data-bites', '0');
   // sau câu chào thì "Thỏ đói rồi! Thỏ thích ăn gì nhỉ?"
-  await expect(game).toHaveAttribute('data-last-say', `feed.hungry.${t.animal}`, { timeout: 6000 });
+  await expect(game).toHaveAttribute('data-last-say', `feed.hungry.${t.animal}`, { timeout: 12_000 }); // câu chào (~5,9s) đọc xong mới nói thú đói
 
   // vùng chạm ≥120px, cách nhau ≥24px, tránh góc cổng bố mẹ
   const boxes = [];
@@ -174,7 +174,7 @@ test('kéo món không hợp: thú lắc đầu, món về khay, không đổi t
   await expect(game).toHaveAttribute('data-last-say', /^(animal\.[a-z]+-sound|feed\.sound\.[a-z]+)$/, { timeout: 3000 });
   await page.waitForTimeout(500);
   await page.screenshot({ path: 'test-results/shots/feed-full.png' });
-  await expect(game).toHaveAttribute('data-last-say', `feed.full.${t.animal}`, { timeout: 3000 });
+  await expect(game).toHaveAttribute('data-last-say', `feed.full.${t.animal}`, { timeout: 6000 });
 
   // Sang con kế
   await expect.poll(() => page.evaluate(() => window.__behocFeed!.index()), { timeout: 8000 }).toBe(1);
@@ -200,7 +200,7 @@ test('cho no cả 4 con → ăn mừng với bạn đồng hành rồi chơi ti�
   await expect(page.getByTestId('party')).toBeVisible();
   await page.waitForTimeout(600);
   await page.screenshot({ path: 'test-results/shots/feed-party.png' });
-  await expect(game).toHaveAttribute('data-phase', 'ask', { timeout: 8000 });
+  await expect(game).toHaveAttribute('data-phase', 'ask', { timeout: 12_000 });
   expect(await page.evaluate(() => window.__behocFeed!.index())).toBe(0);
 });
 

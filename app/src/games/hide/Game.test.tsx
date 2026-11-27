@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import Game from './Game';
 import type { Speaker } from '../../core/audio';
 import { ROOMS, roomZones, pairKey } from './logic';
@@ -60,3 +60,49 @@ describe('hide Game', () => {
     expect(screen.getByTestId('game-hide').dataset.ask).toMatch(/^hide\.ask-(on|in|under|beside)-(table|box|bed)$/);
   });
 });
+
+describe('hide: lời nói nối tiếp, câu sau không cắt câu trước', () => {
+  /** Loa giả như loa thật: chuỗi sau chỉ bắt đầu khi gọi done() của chuỗi trước. */
+  function chainSetup() {
+    vi.spyOn(Math, 'random').mockReturnValue(0.99);
+    const chains: { keys: readonly string[]; done(): void }[] = [];
+    const sayThen = vi.fn((keys: readonly string[], opts?: { onSay?(k: string, i: number): void; onDone?(): void }) => {
+      keys.forEach((k, i) => opts?.onSay?.(k, i));
+      chains.push({ keys, done: () => opts?.onDone?.() });
+      return () => {};
+    });
+    const sp = { say: vi.fn(), sfx: vi.fn(), sayThen } satisfies Speaker;
+    render(<Game lang="vi" speaker={sp} ageMonths={48} onExit={() => {}} />);
+    return { sp, chains };
+  }
+  const center = (prep: string, obj: string) => {
+    const z = roomZones(ROOMS[0]).find((q) => q.prep === prep && q.obj === obj)!;
+    return [(z.left + z.right) / 2, z.prep === 'in' ? z.bottom - 20 : (z.top + z.bottom) / 2] as const;
+  };
+
+  it('lần thả thứ 3: câu vị trí đọc xong mới tới câu nhờ', () => {
+    const { chains } = chainSetup();
+    for (const [p, o] of [['on', 'table'], ['under', 'table']]) dragTo(...center(p, o));
+    dragTo(...center('in', 'box'));
+    const ask = screen.getByTestId('game-hide').dataset.ask!;
+    const last = chains.at(-1)!;
+    expect(last.keys).toEqual(['hide.in-box']);
+    act(() => last.done());
+    expect(chains.at(-1)!.keys).toEqual([ask]);
+  });
+
+  it('thả đúng: "giỏi quá" đọc xong mới hỏi câu nhờ kế', () => {
+    const { chains } = chainSetup();
+    for (const [p, o] of [['on', 'table'], ['under', 'table'], ['in', 'box']]) dragTo(...center(p, o));
+    const ask = screen.getByTestId('game-hide').dataset.ask!;
+    const [p, o] = ask.replace('hide.ask-', '').split('-');
+    dragTo(...center(p, o));
+    const yay = chains.at(-1)!;
+    expect(yay.keys).toEqual(['hide.yay']);
+    const n = chains.length;
+    act(() => yay.done());
+    expect(chains).toHaveLength(n + 1);
+    expect(chains.at(-1)!.keys[0]).toMatch(/^hide\.ask-/);
+  });
+});
+

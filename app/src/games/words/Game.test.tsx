@@ -114,3 +114,55 @@ describe('Đồ vật quanh bé', () => {
     expect(game.getAttribute('data-phase')).toBe('topics');
   });
 });
+
+describe('Đồ vật quanh bé: lời nói nối tiếp, câu sau không cắt câu trước', () => {
+  beforeEach(() => window.history.pushState({}, '', '/?e2e=1'));
+  afterEach(() => window.history.pushState({}, '', '/'));
+
+  function chainSetup(ageMonths = 48) {
+    const chains: { keys: readonly string[]; done(): void }[] = [];
+    const sayThen = vi.fn((keys: readonly string[], opts?: { onSay?(k: string, i: number): void; onDone?(): void }) => {
+      keys.forEach((k, i) => opts?.onSay?.(k, i));
+      chains.push({ keys, done: () => opts?.onDone?.() });
+      return () => {};
+    });
+    const sp = { say: vi.fn(), sfx: vi.fn(), sayThen } satisfies Speaker;
+    render(<Game lang="vi" speaker={sp} ageMonths={ageMonths} onExit={() => {}} />);
+    return { chains, game: screen.getByTestId('game-words') };
+  }
+
+  it('chọn chủ đề xe: tên chủ đề đọc xong mới tới tên thẻ + tiếng thật (chung một lượt)', () => {
+    const { chains } = chainSetup();
+    press(screen.getByRole('button', { name: 'topic-vehicles' }));
+    expect(chains.map((c) => c.keys)).toEqual([['words.topic.vehicles']]);
+    act(() => chains[0].done());
+    const card = window.__behocWords!.card()!;
+    const s = soundKey(card);
+    expect(chains[1].keys).toEqual(s ? [`words.${card}`, s] : [`words.${card}`]);
+  });
+
+  it('câu đố: "tìm thẻ" đọc xong mới hỏi; chạm sai: tên thẻ đọc xong mới hỏi lại; đúng: khen xong mới về thẻ', () => {
+    const { chains, game } = chainSetup();
+    press(screen.getByRole('button', { name: 'topic-clothes' }));
+    for (let i = 0; i < 3; i++) press(screen.getByRole('button', { name: 'Thẻ sau' }));
+    const q = window.__behocWords!.quiz()!;
+    expect(chains.at(-1)!.keys).toEqual(['words.find']);
+    act(() => chains.at(-1)!.done());
+    expect(chains.at(-1)!.keys).toEqual([`words.ask.${q.target}`]);
+
+    const wrong = q.choices.find((c) => c !== q.target)!;
+    press(screen.getByTestId(`choice-${wrong}`));
+    expect(chains.at(-1)!.keys).toEqual([`words.this.${wrong}`]);
+    expect(screen.getByTestId(`choice-${q.target}`).querySelector('[data-hint]')).toBeNull();
+    act(() => chains.at(-1)!.done());
+    expect(chains.at(-1)!.keys).toEqual([`words.ask.${q.target}`]);
+
+    press(screen.getByTestId(`choice-${q.target}`));
+    expect(chains.at(-1)!.keys[0]).toBe(`words.yes.${q.target}`);
+    expect(game.getAttribute('data-phase')).toBe('quiz');
+    act(() => chains.at(-1)!.done());
+    expect(game.getAttribute('data-phase')).toBe('view');
+    expect(chains.at(-1)!.keys[0]).toBe(`words.${window.__behocWords!.card()}`);
+  });
+});
+

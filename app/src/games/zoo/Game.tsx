@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { Scene3D } from '../../ui/Scene3D';
 import { AgentProbe } from '../../ui/AnimatedAnimal';
 import { HybridHerd } from '../../ui/hybrid/HybridHerd';
@@ -8,8 +8,11 @@ import type { Herd } from '../../core/herd';
 import { BackHome } from '../../ui/BackHome';
 import type { GameProps } from '../../core/games';
 import { SCENE_HEX } from '../../core/tokens';
+import { useSayThen } from '../../ui/useSayThen';
 import { pickSixAnimals, placeZooAnimals, zooDef } from './wildAnimals';
 
+/** Loa giả (test) không báo hết tiếng: mỗi câu kế phát sau khoảng này. Loa thật chờ câu trước xong. */
+const SOUND_AFTER_MS = 1300;
 const IS_E2E = typeof window !== 'undefined' && window.location.search.includes('e2e=1');
 /** e2e: `?e2e=1&seed=N` chọn cố định 6 con để ảnh chụp/test lặp lại được */
 const E2E_SEED = IS_E2E ? Number(new URLSearchParams(window.location.search).get('seed')) || undefined : undefined;
@@ -141,7 +144,6 @@ export default function Game({ speaker, onExit }: GameProps) {
   const [loadedCount, setLoadedCount] = useState(0);
   // Sẵn sàng khi mọi model đã load
   const ready = loadedCount >= 6;
-  const soundTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Trạng thái đi lại của từng con (đọc/ghi trong useFrame, không gây render lại)
 
   // Chọn ngẫu nhiên 6 con khi mount, giữ ổn định trong suốt game; 3 con đi dạo, 3 con đứng yên
@@ -181,27 +183,20 @@ export default function Game({ speaker, onExit }: GameProps) {
     [speaker]
   );
 
+  const sayAll = useSayThen(speaker, setLastSay);
+
   const handleTap = useCallback(
     (animalId: string) => {
-      if (soundTimeoutRef.current) {
-        clearTimeout(soundTimeoutRef.current);
-        soundTimeoutRef.current = null;
-      }
-
       // Con vật dừng lại, ngoảnh về bé và nhảy (vẽ trong useFrame)
       const st = registry.get(animalId);
       if (st && st.mode !== 'react') startReact(st);
-      say(`animal.${animalId}`);
-
-      soundTimeoutRef.current = setTimeout(() => {
-        say(`animal.${animalId}-sound`);
-        // Sau tiếng kêu thật, Đậu Đậu nói một câu vui về con vật
-        soundTimeoutRef.current = setTimeout(() => {
-          say(`animal.${animalId}-fact`);
-        }, 2800);
-      }, 1300);
+      // Tên → tiếng kêu thật → câu vui về con vật, NỐI TIẾP: câu sau chỉ phát khi tiếng trước hết
+      // (tên dài tới ~2,9s, tiếng kêu tới ~2,6s). Bé chạm con khác thì chuỗi mới cắt chuỗi cũ: đúng ý.
+      sayAll([`animal.${animalId}`, `animal.${animalId}-sound`, `animal.${animalId}-fact`], {
+        fallbackMs: SOUND_AFTER_MS,
+      });
     },
-    [say, registry]
+    [sayAll, registry]
   );
 
   const handleAnimalLoaded = useCallback(() => {
@@ -211,9 +206,6 @@ export default function Game({ speaker, onExit }: GameProps) {
 
   useEffect(() => {
     say('zoo.hello');
-    return () => {
-      if (soundTimeoutRef.current) clearTimeout(soundTimeoutRef.current);
-    };
   }, [say]);
 
   // Đăng ký hook cho e2e testing

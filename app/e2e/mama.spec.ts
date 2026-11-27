@@ -81,7 +81,7 @@ test('bản đồ → Trang trại → trò; có 2 thú mẹ ở 28 tháng, hỏ
   await expect(page.locator('[data-mama]')).toHaveCount(2);
   await expect(page.getByTestId('baby')).toHaveAttribute('data-baby', turn.baby);
   // sau câu chào thì hỏi "Mẹ của ... đâu nhỉ?"
-  await expect(game).toHaveAttribute('data-last-say', `mama.ask.${turn.baby}`, { timeout: 5000 });
+  await expect(game).toHaveAttribute('data-last-say', `mama.ask.${turn.baby}`, { timeout: 10_000 }); // câu chào (~6s) đọc xong mới hỏi
 
   // vùng chạm ≥120px, thú mẹ to hơn con
   const baby = (await page.getByTestId('baby').boundingBox())!;
@@ -137,7 +137,7 @@ test('kéo con vào mẹ sai: không âm báo sai, con quay về ổ, mẹ đún
   await dragTo(page, await center(page, 'baby'), await center(page, `mama-${turn.baby}`));
   await expect(game).toHaveAttribute('data-phase', 'snuggle');
   await expect(page.getByTestId('baby')).toHaveAttribute('data-phase', 'snuggle');
-  await expect(game).toHaveAttribute('data-last-say', `mama.found.${turn.baby}`, { timeout: 3000 });
+  await expect(game).toHaveAttribute('data-last-say', `mama.found.${turn.baby}`, { timeout: 6000 });
   await page.waitForTimeout(300);
   await page.screenshot({ path: 'test-results/shots/mama-snuggle.png' });
 
@@ -161,7 +161,7 @@ test('đủ 5 con về với mẹ → ăn mừng với bạn đồng hành rồi
   await page.waitForTimeout(600);
   await page.screenshot({ path: 'test-results/shots/mama-party.png' });
   // ván mới, không điểm, không thua
-  await expect(game).toHaveAttribute('data-phase', 'ask', { timeout: 8000 });
+  await expect(game).toHaveAttribute('data-phase', 'ask', { timeout: 12_000 });
   expect(await page.evaluate(() => window.__behocMama!.index())).toBe(0);
 });
 
@@ -175,7 +175,7 @@ test.describe('iPhone dọc 430×932: kéo con về mẹ', () => {
     await imagesLoaded(page);
     await dragTo(page, await center(page, 'baby'), await center(page, `mama-${turn.baby}`));
     await expect(game).toHaveAttribute('data-phase', 'snuggle');
-    await expect(game).toHaveAttribute('data-last-say', `mama.found.${turn.baby}`, { timeout: 3000 });
+    await expect(game).toHaveAttribute('data-last-say', `mama.found.${turn.baby}`, { timeout: 6000 });
     await page.screenshot({ path: 'test-results/shots/mama-portrait.png' });
   });
 });

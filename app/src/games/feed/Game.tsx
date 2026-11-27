@@ -109,14 +109,20 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
   }, []);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
+  /** Câu nói gần nhất (cả câu trong chuỗi): biết câu chào đã bị bé chạm chen ngang hay chưa. */
+  const lastKey = useRef('');
+  const markSay = useCallback((key: string) => {
+    lastKey.current = key;
+    setLastSay(key);
+  }, []);
   const say = useCallback(
     (key: string) => {
       speaker.say(key);
-      setLastSay(key);
+      markSay(key);
     },
-    [speaker],
+    [speaker, markSay],
   );
-  const sayAll = useSayThen(speaker, setLastSay);
+  const sayAll = useSayThen(speaker, markSay);
 
   const live = useRef({ state, phase });
   live.current = { state, phase };
@@ -133,13 +139,16 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
   useEffect(() => {
     if (started.current) return;
     started.current = true;
-    say(HELLO_KEY);
-    later(() => {
-      // bé đã kịp cho ăn rồi thì thôi không nói chen vào
-      const { state: s, phase: p } = live.current;
-      const t = currentTurn(s);
-      if (t && s.index === 0 && s.bites === 0 && p === 'ask') say(hungryKey(t.animal));
-    }, HELLO_MS);
+    // Câu chào dài ~5,9s: "bạn … đói" chờ câu chào đọc xong (trước đây hẹn 2800ms nên cắt câu chào)
+    sayAll([HELLO_KEY], {
+      fallbackMs: HELLO_MS,
+      onDone: () => {
+        // bé đã kịp chạm/cho ăn (có câu khác chen vào) thì thôi không nói chen vào
+        const { state: s, phase: p } = live.current;
+        const t = currentTurn(s);
+        if (t && lastKey.current === HELLO_KEY && s.index === 0 && s.bites === 0 && p === 'ask') say(hungryKey(t.animal));
+      },
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -161,13 +170,13 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
         setState(next);
         setPhase('party');
         sounds.happy();
-        say(DONE_KEY);
-        later(() => startTurn(makeRound(ageMonths)), PARTY_MS);
+        // ăn mừng ~4,6s đọc xong mới sang ván mới (trước đây PARTY_MS 4200 nên cắt câu mừng)
+        sayAll([DONE_KEY], { fallbackMs: PARTY_MS, onDone: () => startTurn(makeRound(ageMonths)) });
         return;
       }
       startTurn(next);
     },
-    [ageMonths, later, say, sounds, startTurn],
+    [ageMonths, sayAll, sounds, startTurn],
   );
 
   /** Đưa món `food` cho thú (null = thả ra ngoài, món về khay). */

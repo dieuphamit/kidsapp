@@ -24,7 +24,7 @@ async function openBakery(page: Page, query = 'level=medium') {
   const game = page.getByTestId('game-bakery');
   await expect(game).toBeVisible({ timeout: 15_000 });
   // Đợi khách gọi bánh xong (các câu nói theo giờ không đè lên kết quả kéo)
-  await expect(game).toHaveAttribute('data-last-say', 'bakery.order', { timeout: 10_000 });
+  await expect(game).toHaveAttribute('data-last-say', 'bakery.order', { timeout: 20_000 });
   return game;
 }
 
@@ -67,10 +67,10 @@ test('Nhà Đậu Đậu → Tiệm bánh: kéo dâu lên bánh, thêm nến, ru
   expect(Math.abs(placed.x + placed.width / 2 - dropX)).toBeLessThanOrEqual(4);
   expect(Math.abs(placed.y + placed.height / 2 - dropY)).toBeLessThanOrEqual(4);
 
-  // Dâu thứ 2: nói tên rồi 700ms sau đếm "2"
+  // Dâu thứ 2: nói tên rồi đếm "2" khi tên đọc xong (nói nối tiếp)
   await dragTo(page, 'shelf-strawberry', cake.x + 260, cake.y + 220);
   await expect(game).toHaveAttribute('data-last-say', 'topping.strawberry');
-  await expect(game).toHaveAttribute('data-last-say', 'number.2', { timeout: 2000 });
+  await expect(game).toHaveAttribute('data-last-say', 'number.2', { timeout: 8000 });
 
   // Thả ngoài bánh: không thêm, không nói
   await dragTo(page, 'shelf-chocolate', 640, 120);
@@ -97,9 +97,9 @@ test('Nhà Đậu Đậu → Tiệm bánh: kéo dâu lên bánh, thêm nến, ru
   await page.waitForTimeout(650); // khách đã tiến lại, bánh đang thu nhỏ
   await page.screenshot({ path: 'test-results/shots/T-040-served.png' });
 
-  // 1.5s sau hỏi câu mở; rồi khách mới, bánh trống
-  await expect(game).toHaveAttribute('data-last-say', 'bakery.ask', { timeout: 3000 });
-  await expect(game).toHaveAttribute('data-last-say', /^animal\./, { timeout: 5000 });
+  // khen xong thì hỏi câu mở; hỏi xong thì khách mới, bánh trống (nói nối tiếp)
+  await expect(game).toHaveAttribute('data-last-say', 'bakery.ask', { timeout: 10_000 });
+  await expect(game).toHaveAttribute('data-last-say', /^animal\./, { timeout: 10_000 });
   expect(await page.evaluate(() => window.__behocBakery!.toppings())).toHaveLength(0);
 });
 
@@ -169,8 +169,8 @@ test.describe('E3: độ khó và chủ đề Tiệm bánh', () => {
     expect(wish).toHaveLength(1);
     expect(wish[0].count).toBe(1);
     expect(shelf).toContain(wish[0].id);
-    // khách kể điều ước sau câu gọi bánh
-    await expect(game).toHaveAttribute('data-last-say', /^(topping|fruit)\./, { timeout: 5000 });
+    // khách kể điều ước khi câu gọi bánh đọc xong (nói nối tiếp)
+    await expect(game).toHaveAttribute('data-last-say', /^(topping|fruit)\./, { timeout: 15_000 });
 
     const cake = (await page.getByTestId('cake').boundingBox())!;
     await dragTo(page, `shelf-${wish[0].id}`, cake.x + cake.width / 2, cake.y + cake.height / 2);

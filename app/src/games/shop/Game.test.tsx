@@ -188,3 +188,62 @@ describe('Cửa hàng', () => {
     }
   });
 });
+
+describe('Siêu thị: quầy tính tiền nói nối tiếp, câu sau không cắt câu trước', () => {
+  it('đếm từng món: số sau chờ số trước đọc xong; kêu → cảm ơn → khách kế, mỗi câu chờ câu trước', () => {
+    vi.useFakeTimers();
+    try {
+      window.history.replaceState(null, '', '/?e2e=1');
+      const chains: { keys: readonly string[]; done(): void }[] = [];
+      const sayThen = vi.fn((keys: readonly string[], opts?: { onSay?(k: string, i: number): void; onDone?(): void }) => {
+        keys.forEach((k, i) => opts?.onSay?.(k, i));
+        chains.push({ keys, done: () => opts?.onDone?.() });
+        return () => {};
+      });
+      const sp = { say: vi.fn(), sfx: vi.fn(), sayThen } satisfies Speaker;
+      render(<Game lang="vi" speaker={sp} ageMonths={40} onExit={() => {}} />);
+      const first = window.__behocShop!.snapshot()!;
+      for (const w of first.need) act(() => void window.__behocShop!.add(w.item));
+      act(() => void window.__behocShop!.pay());
+      act(() => {
+        vi.advanceTimersByTime(200);
+      });
+      const n = first.need.length;
+      for (let i = 1; i <= n; i++) {
+        const c = chains.at(-1)!;
+        expect(c.keys).toEqual([`number.${i}`]);
+        expect(sounds.beep).toHaveBeenCalledTimes(i);
+        // chưa đọc xong thì chưa đếm số kế, dù đã quá nhịp cũ 950ms
+        act(() => {
+          vi.advanceTimersByTime(2000);
+        });
+        expect(chains.at(-1)).toBe(c);
+        act(() => c.done());
+      }
+      act(() => {
+        vi.advanceTimersByTime(900);
+      });
+      const sound = chains.at(-1)!;
+      expect(sound.keys).toEqual([customerById(first.customer).sound]);
+      act(() => {
+        vi.advanceTimersByTime(5000);
+      });
+      expect(chains.at(-1)).toBe(sound);
+      act(() => sound.done());
+      const thanks = chains.at(-1)!;
+      expect(thanks.keys).toEqual(['shop.thanks']);
+      act(() => {
+        vi.advanceTimersByTime(8000);
+      });
+      expect(window.__behocShop!.snapshot()!.index).toBe(0);
+      act(() => thanks.done());
+      act(() => {
+        vi.advanceTimersByTime(800);
+      });
+      expect(window.__behocShop!.snapshot()!.index).toBe(1);
+    } finally {
+      window.history.replaceState(null, '', '/');
+      vi.useRealTimers();
+    }
+  });
+});

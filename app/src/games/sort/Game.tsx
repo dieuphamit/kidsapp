@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { GameProps } from '../../core/games';
+import { useSaySteps } from '../../ui/useSayThen';
 import { BackHome } from '../../ui/BackHome';
 import { Scenery } from '../../ui/Scenery';
 import { clientToStage, stageRect } from '../../ui/Stage';
@@ -84,6 +85,8 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
     [speaker]
   );
 
+  const talk = useSaySteps(speaker, setLastSay);
+
   // Nói cách xếp khi vào game và mỗi khi đổi kiểu phân loại
   useEffect(() => {
     say(HELLO_KEY[state.mode]);
@@ -124,33 +127,35 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
           );
         }, 300);
         // Nói màu quả / tên hình / to-nhỏ
-        say(correctSayKey(state, fruit.id, basketColor));
+        const key = correctSayKey(state, fruit.id, basketColor);
+        if (isDone(state) && !doneHandled.current) {
+          // Quả cuối: câu màu (2,5–4,2s) đọc xong mới khen (trước đây khen hẹn 500ms nên cắt),
+          // khen xong mới sang lượt mới.
+          doneHandled.current = true;
+          const mode = state.mode;
+          talk.play(
+            [
+              { keys: [key], fallbackMs: 500 },
+              { keys: ['sort.done'], fallbackMs: 3000, onStart: () => setShowStars(true) },
+            ],
+            () => {
+              setShowStars(false);
+              const newState = makeRound(topic, ageMonths, mode);
+              setState(newState);
+              setBasketStates(newState.baskets.map((b) => ({ color: b.color, fruits: [], bounce: false })));
+              doneHandled.current = false;
+            },
+          );
+        } else {
+          say(key);
+        }
         // Force re-render để xóa quả khỏi remaining
         setState({ ...state });
       }
       return result;
     },
-    [state, say]
+    [state, say, talk, topic, ageMonths]
   );
-
-  // Xử lý done
-  useEffect(() => {
-    if (isDone(state) && !doneHandled.current) {
-      doneHandled.current = true;
-      setTimeout(() => {
-        say('sort.done');
-        setShowStars(true);
-        // Reset sau 3s
-        setTimeout(() => {
-          setShowStars(false);
-          const newState = makeRound(topic, ageMonths, state.mode);
-          setState(newState);
-          setBasketStates(newState.baskets.map((b) => ({ color: b.color, fruits: [], bounce: false })));
-          doneHandled.current = false;
-        }, 3000);
-      }, 500);
-    }
-  }, [state, topic, ageMonths, say]);
 
   // Pointer handlers
   const handlePointerDown = (e: React.PointerEvent, fruitIdx: number) => {

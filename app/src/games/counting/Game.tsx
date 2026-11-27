@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useSaySteps } from '../../ui/useSayThen';
 import type { GameProps } from '../../core/games';
 import { LEARN_HEX, type LearnColor } from '../../core/tokens';
 import { playSetup } from '../../core/variety';
@@ -68,7 +69,6 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
   const [showStars, setShowStars] = useState(false);
   const doneHandled = useRef(false);
   const timers = useRef<number[]>([]);
-  const introTimers = useRef<number[]>([]);
   const firstRound = useRef(true);
 
   const say = useCallback((key: string) => {
@@ -82,21 +82,22 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
 
   useEffect(() => {
     const list = timers.current;
-    const intro = introTimers.current;
     return () => {
       list.forEach((t) => window.clearTimeout(t));
-      intro.forEach((t) => window.clearTimeout(t));
     };
   }, []);
+
+  /** Lời giới thiệu lượt và lời khen nói NỐI TIẾP: câu sau chỉ phát khi câu trước hết. */
+  const talk = useSaySteps(speaker, setLastSay);
 
   // Đầu lượt: chào (lượt đầu) hoặc gọi tên món; mức khó thì nói thêm số cần lấy.
   useEffect(() => {
     const keys = [firstRound.current ? helloKey(round.kind) : itemSayKey(round.kind, round.item)];
     if (setup.level === 'hard') keys.push('count.ask', `number.${round.target}`);
     firstRound.current = false;
-    say(keys[0]);
-    keys.slice(1).forEach((k, i) => introTimers.current.push(window.setTimeout(() => say(k), SAY_GAP * (i + 1))));
-  }, [round, say, setup.level]);
+    // câu chào dài tới ~5,4s: trước đây "con lấy mấy…" hẹn 1600ms nên cắt câu chào
+    talk.play([{ keys, fallbackMs: SAY_GAP }]);
+  }, [round, talk, setup.level]);
 
   const handlePick = useCallback((fruitId: number) => {
     const result = pick(state, fruitId);
@@ -107,37 +108,24 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
     }
 
     setState(result.state);
-    // Bé đã bắt đầu hái: thôi nói phần giới thiệu còn lại
-    introTimers.current.forEach((t) => window.clearTimeout(t));
-    introTimers.current = [];
 
     // Start falling animation
     setFruits(prev => prev.map(f =>
       f.id === fruitId ? { ...f, falling: true } : f
     ));
 
-    // Say the number
-    say(`number.${result.count}`);
-
-    // After fall animation, hide fruit and add to basket
-    later(() => {
-      setFruits(prev => prev.map(f =>
-        f.id === fruitId ? { ...f, falling: false, visible: false } : f
-      ));
-      setBasketFruits(prev => [...prev, fruitId]);
-    }, 600);
-  }, [state, say, later]);
-
-  // Handle done state
-  useEffect(() => {
-    if (state.done && !doneHandled.current) {
+    if (result.state.done && !doneHandled.current) {
+      // Đủ số: đọc số cuối, đọc xong mới khen (trước đây khen hẹn 1200ms nên cắt số ~2,3s),
+      // khen xong mới sang lượt mới (trước đây 3500ms, câu khen dài tới ~4,5s).
       doneHandled.current = true;
-      later(() => {
-        say(doneKey(round));
-        setShowStars(true);
-
-        later(() => {
-          const next = newRound(setup.level, setup.topic, round);
+      const r = round;
+      talk.play(
+        [
+          { keys: [`number.${result.count}`], fallbackMs: DONE_DELAY },
+          { keys: [doneKey(r)], fallbackMs: NEXT_DELAY, onStart: () => setShowStars(true) },
+        ],
+        () => {
+          const next = newRound(setup.level, setup.topic, r);
           lastRound = next;
           setShowStars(false);
           setState(initial(next.target));
@@ -146,13 +134,25 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
           setRound(next);
           // Remove regrowing class after animation
           later(() => {
-            setFruits(prev => prev.map(f => ({ ...f, regrowing: false })));
+            setFruits((prev) => prev.map((f) => ({ ...f, regrowing: false })));
           }, 500);
           doneHandled.current = false;
-        }, NEXT_DELAY);
-      }, DONE_DELAY);
+        },
+      );
+    } else {
+      // Bé đã bắt đầu hái: thôi nói phần giới thiệu còn lại; số mới cắt số cũ là đúng ý
+      talk.stop();
+      say(`number.${result.count}`);
     }
-  }, [state.done, say, later, round, setup]);
+
+    // After fall animation, hide fruit and add to basket
+    later(() => {
+      setFruits(prev => prev.map(f =>
+        f.id === fruitId ? { ...f, falling: false, visible: false } : f
+      ));
+      setBasketFruits(prev => [...prev, fruitId]);
+    }, 600);
+  }, [state, say, later, talk, round, setup]);
 
   const isTree = round.kind === 'fruits';
   const asking = setup.level === 'hard';

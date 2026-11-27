@@ -129,8 +129,8 @@ test('bé nhỏ: bùn trên ảnh thật → chà nổi bọt → vòi sen → l
   await expect(page.getByTestId('bath-water')).toBeVisible();
   await page.waitForTimeout(700);
   await page.screenshot({ path: 'test-results/shots/bath-shower.png' });
-  await expect(game).toHaveAttribute('data-last-say', 'animal.pig-sound', { timeout: 4000 });
-  await expect(game).toHaveAttribute('data-last-say', 'bath.clean.pig', { timeout: 4000 });
+  await expect(game).toHaveAttribute('data-last-say', 'animal.pig-sound', { timeout: 6000 });
+  await expect(game).toHaveAttribute('data-last-say', 'bath.clean.pig', { timeout: 8000 }); // khen sau khi tiếng kêu phát hết (nói nối tiếp)
   await expect(tub).toHaveAttribute('data-phase', 'done');
   await expect(page.getByTestId('bath-sparkles')).toBeVisible();
   await page.waitForTimeout(500);
@@ -154,7 +154,7 @@ test('bé lớn: sau vòi sen thì lau khăn cho khô rồi mới sạch bong', 
   await scrubAll(page, canvas, 0.05);
   await expect(tub).toHaveAttribute('data-phase', 'rinse', { timeout: 5000 });
   await page.getByRole('button', { name: 'Vòi sen' }).click();
-  await expect(tub).toHaveAttribute('data-phase', 'towel', { timeout: 6000 });
+  await expect(tub).toHaveAttribute('data-phase', 'towel', { timeout: 10_000 }); // nhắc lau khăn khi tiếng kêu phát hết
   await expect(page.getByTestId('game-bath')).toHaveAttribute('data-last-say', 'bath.towel');
   await expect(tub).toHaveAttribute('data-clean', '0');
   await page.waitForTimeout(300);

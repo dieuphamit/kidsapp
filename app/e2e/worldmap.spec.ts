@@ -100,7 +100,7 @@ test('chạm khu có phản hồi ngay (data-pressed, nói tên khu)', async ({ 
   await page.goto('./?menu=map&menu=map');
   const orchardBtn = page.getByLabel('Vườn quả');
   await expect(orchardBtn).toBeVisible();
-  // Màn đổi sau 400ms, nên ghi lại phản hồi ngay trong trang thay vì đọc sau
+  // Màn đổi khi đọc xong tên khu, nên ghi lại phản hồi ngay trong trang thay vì đọc sau
   await page.evaluate(() => {
     const w = window as unknown as { seen: { pressed: boolean; say: string | null } };
     w.seen = { pressed: false, say: null };
@@ -119,11 +119,11 @@ test('chạm khu có phản hồi ngay (data-pressed, nói tên khu)', async ({ 
   await page.mouse.up();
 });
 
-test('chạm khu nhiều trò mở màn chọn trò sau khoảng 400ms', async ({ page }) => {
+test('chạm khu nhiều trò mở màn chọn trò khi đọc xong tên khu', async ({ page }) => {
   await page.goto('./?menu=map&menu=map');
   await expect(page.getByLabel('Góc đố')).toBeVisible();
   await page.getByLabel('Góc đố').click();
-  await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 1500 });
+  await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 8000 });
   await expect(page.getByTestId('pick-memory')).toBeVisible();
   await expect(page.getByTestId('pick-puzzle')).toBeVisible();
 });
@@ -133,7 +133,7 @@ test('Nhà âm nhạc mở màn chọn trò có Vẽ và nhạc và Ban nhạc t
   await page.goto('./?menu=map&menu=map');
   await expect(page.getByLabel('Nhà âm nhạc')).toBeVisible();
   await page.getByLabel('Nhà âm nhạc').click();
-  await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 1500 });
+  await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 8000 });
   await expect(page.getByTestId('pick-music')).toBeVisible();
   await expect(page.getByTestId('pick-band')).toBeVisible();
 });

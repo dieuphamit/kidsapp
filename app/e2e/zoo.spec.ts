@@ -87,8 +87,8 @@ test('chạm thú nghe animal.<id> rồi animal.<id>-sound (via hook)', async ({
   // Kiểm tra data-last-say = animal.<id>
   await expect(gameEl).toHaveAttribute('data-last-say', `animal.${firstAnimalId}`, { timeout: 3000 });
 
-  // Chờ timeout 1300ms fire → data-last-say = animal.<id>-sound
-  await expect(gameEl).toHaveAttribute('data-last-say', `animal.${firstAnimalId}-sound`, { timeout: 3000 });
+  // Tiếng kêu phát khi tên đọc xong (nói nối tiếp) → data-last-say = animal.<id>-sound
+  await expect(gameEl).toHaveAttribute('data-last-say', `animal.${firstAnimalId}-sound`, { timeout: 8000 });
 });
 
 test('nút Về nhà có kích thước đủ lớn và hoạt động', async ({ page }) => {

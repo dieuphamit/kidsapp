@@ -151,8 +151,8 @@ test('Trang trại → Đội cứu hộ: bong bóng tình huống, ga-ra 4 xe (
   expect(s.count).toBe(5);
   await expect(page.getByTestId('bubble')).toHaveAttribute('data-mission', s.mission);
   await expect(page.locator('[data-testid^="car-"]')).toHaveCount(4);
-  // sau câu chào thì Đậu Đậu nói tình huống
-  await expect(game).toHaveAttribute('data-last-say', `rescue.call.${s.mission}`, { timeout: 8000 });
+  // câu chào (6s) đọc xong thì Đậu Đậu nói tình huống
+  await expect(game).toHaveAttribute('data-last-say', `rescue.call.${s.mission}`, { timeout: 15_000 });
   // bé lớn: chưa gợi ý ngay
   await expect(page.getByTestId(`car-${s.vehicle}`)).not.toHaveAttribute('data-hint', '');
 
@@ -224,7 +224,7 @@ test('chọn xe đúng → xe chạy ra; xe chỉ chạy khi bé giữ tay, nh�
   await expect(game).toHaveAttribute('data-phase', 'rescue', { timeout: 8000 });
   await page.mouse.up();
   const now = await snap(page);
-  await expect(game).toHaveAttribute('data-last-say', doKey(now.acts[0]), { timeout: 4000 });
+  await expect(game).toHaveAttribute('data-last-say', doKey(now.acts[0]), { timeout: 12_000 }); // chờ câu "lên đường" đọc xong
   await expect(page.getByTestId('animal')).toHaveAttribute('data-mood', 'hope');
   await expect(page.getByTestId('vehicle')).toHaveAttribute('data-vehicle', s.vehicle);
 
@@ -247,7 +247,7 @@ test('bé lớn: cứu đủ 5 nhiệm vụ bằng tay (3 bước nhỏ) → ăn
     if (s.mission !== 'fire') expect(s.acts.length).toBeGreaterThanOrEqual(2);
   }
   await expect(page.getByTestId('party')).toBeVisible({ timeout: 15_000 });
-  await expect(game).toHaveAttribute('data-last-say', 'rescue.party');
+  await expect(game).toHaveAttribute('data-last-say', 'rescue.party', { timeout: 12_000 }); // chờ lời khen đọc xong
   await imagesLoaded(page);
   await page.waitForTimeout(700);
   await page.screenshot({ path: 'test-results/shots/rescue-party.png' });

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
 import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
+import { useSayThen } from '../../ui/useSayThen';
 import { ClayButton } from '../../ui/ClayButton';
 import { Scenery } from '../../ui/Scenery';
 import { clientToStage } from '../../ui/Stage';
@@ -253,28 +254,44 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
 
   /**
    * Nói một câu. Tiếng kêu con vật phát ngay; câu nói khác mà rơi vào lúc tiếng kêu còn đang phát thì
-   * chờ tiếng kêu xong mới nói (say() của speaker dừng tiếng trước đó). Chỉ giữ câu chờ mới nhất.
+   * chờ tiếng kêu phát hết mới nói (say() của speaker dừng tiếng trước đó). Câu app TỰ nói (`auto`:
+   * tình huống, việc cần làm khi tới nơi, nhắc khi bé ngừng tay, ăn mừng) còn chờ cả câu đang đọc dở
+   * xong, nên câu chào 6s / lời khen 5–6s / "lên đường" 6,4s không bị câu kế cắt. Chỉ giữ câu chờ mới
+   * nhất; `guard` kiểm lại lúc tới lượt nói (bé đã làm khác thì thôi).
    */
-  const soundUntil = useRef(0);
-  const waiting = useRef(0);
+  const sayAll = useSayThen(speaker, setLastSay);
+  const playing = useRef<{ id: number; sound: boolean } | null>(null);
+  const seq = useRef(0);
+  const pending = useRef<{ key: string; guard?: () => boolean } | null>(null);
+  const speak = useCallback(
+    (key: string, sound: boolean) => {
+      const id = ++seq.current;
+      playing.current = { id, sound };
+      sayAll([key], {
+        // loa giả (test) không báo hết tiếng: coi tiếng kêu dài ANIMAL_SOUND_MS, câu nói hết ngay
+        fallbackMs: sound ? ANIMAL_SOUND_MS : 0,
+        onDone: () => {
+          if (playing.current?.id !== id) return;
+          playing.current = null;
+          const p = pending.current;
+          pending.current = null;
+          if (p && (!p.guard || p.guard())) speak(p.key, false);
+        },
+      });
+    },
+    [sayAll],
+  );
   const say = useCallback(
-    (key: string, isAnimalSound = false) => {
-      const now = Date.now();
-      waiting.current += 1;
-      if (!isAnimalSound && now < soundUntil.current) {
-        const ticket = waiting.current;
-        later(() => {
-          if (waiting.current !== ticket) return;
-          speaker.say(key);
-          setLastSay(key);
-        }, soundUntil.current - now);
+    (key: string, isAnimalSound = false, auto = false, guard?: () => boolean) => {
+      pending.current = null;
+      const cur = playing.current;
+      if (!isAnimalSound && cur && (cur.sound || auto)) {
+        pending.current = { key, guard };
         return;
       }
-      if (isAnimalSound) soundUntil.current = now + ANIMAL_SOUND_MS;
-      speaker.say(key);
-      setLastSay(key);
+      speak(key, isAnimalSound);
     },
-    [later, speaker],
+    [speak],
   );
 
   const touch = useCallback(() => {
@@ -301,7 +318,12 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
         const now = live.current;
         const m = currentMission(now);
         // bé đã kịp chọn xe rồi thì thôi không nói chen vào
-        if (m && now.missions === s.missions && now.index === s.index && now.phase === 'pick' && now.wrong === 0) say(callKey(m.id));
+        // bé đã kịp chọn xe rồi thì thôi không nói chen vào (kiểm lại lúc tới lượt nói)
+        const still = () => {
+          const n = live.current;
+          return n.missions === s.missions && n.index === s.index && n.phase === 'pick' && n.wrong === 0;
+        };
+        if (m && still()) say(callKey(m.id), false, true, still);
       }, wait);
     },
     [later, say, sounds],
@@ -334,10 +356,10 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
     if (party || phase === 'saved' || busy) return;
     const blink = setTimeout(() => {
       setHint(true);
-      if (phase === 'drive') say(DRIVE_KEY);
+      if (phase === 'drive') say(DRIVE_KEY, false, true);
     }, IDLE_MS);
     const remind = setTimeout(() => {
-      if (phase !== 'drive') say(promptKey());
+      if (phase !== 'drive') say(promptKey(), false, true);
     }, IDLE_SAY_MS);
     return () => {
       clearTimeout(blink);
@@ -380,7 +402,7 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
       if (isDone(next)) {
         setParty(true);
         sounds.happy();
-        say(PARTY_KEY);
+        say(PARTY_KEY, false, true);
         return;
       }
       announce(next, BELL_MS);
@@ -439,7 +461,12 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
       later(() => {
         const now = live.current;
         const st = currentStep(now);
-        if (st && now.missions === s.missions && now.index === s.index && now.step === 0) say(doKey(st.act));
+        const still = () => {
+          const n = live.current;
+          return n.missions === s.missions && n.index === s.index && n.step === 0;
+        };
+        // "lên đường" dài ~6,4s: việc cần làm chờ câu đó đọc xong
+        if (st && still()) say(doKey(st.act), false, true, still);
       }, ARRIVE_SAY_MS);
       return true;
     },

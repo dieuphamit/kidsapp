@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import Game from './Game';
 import { ANIMAL_IDS, animalById, foodCountForAge, type AnimalId } from './logic';
 import type { Speaker } from '../../core/audio';
@@ -53,3 +53,36 @@ describe('Cho thú ăn', () => {
     expect(sp.say).toHaveBeenLastCalledWith(`feed.food.${id}`);
   });
 });
+
+describe('Cho thú ăn: câu chào đọc xong mới nói thú đói', () => {
+  function chainSpeaker() {
+    const chains: { keys: readonly string[]; done(): void }[] = [];
+    const sayThen = vi.fn((keys: readonly string[], opts?: { onSay?(k: string, i: number): void; onDone?(): void }) => {
+      keys.forEach((k, i) => opts?.onSay?.(k, i));
+      chains.push({ keys, done: () => opts?.onDone?.() });
+      return () => {};
+    });
+    return { sp: { say: vi.fn(), sfx: vi.fn(), sayThen } satisfies Speaker, chains };
+  }
+
+  it('câu chào (~5,9s) đi một lượt sayThen; xong mới nói "bạn … đói"', () => {
+    const { sp, chains } = chainSpeaker();
+    render(<Game lang="vi" speaker={sp} ageMonths={40} onExit={() => {}} />);
+    expect(chains.map((c) => c.keys)).toEqual([['feed.hello']]);
+    expect(sp.say).not.toHaveBeenCalled();
+    act(() => chains[0].done());
+    const id = screen.getByTestId('animal').getAttribute('data-animal');
+    expect(sp.say).toHaveBeenLastCalledWith(`feed.hungry.${id}`);
+  });
+
+  it('bé chạm thú lúc câu chào chưa xong: không nói "đói" chen vào tiếng kêu', () => {
+    const { sp, chains } = chainSpeaker();
+    render(<Game lang="vi" speaker={sp} ageMonths={40} onExit={() => {}} />);
+    const animal = screen.getByTestId('animal');
+    const id = animal.getAttribute('data-animal') as AnimalId;
+    fireEvent.pointerDown(animal);
+    act(() => chains[0].done());
+    expect(sp.say).toHaveBeenLastCalledWith(animalById(id).sound);
+  });
+});
+

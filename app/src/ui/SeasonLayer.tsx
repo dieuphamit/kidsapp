@@ -216,13 +216,19 @@ function Front({ season }: { season: SeasonId }) {
   return null;
 }
 
-type Props = { speaker: Speaker; search?: string; now?: Date };
+type Props = {
+  speaker: Speaker;
+  search?: string;
+  now?: Date;
+  /** Chờ chừng này mới chào: đủ để câu chào của màn chứa lớp này đọc xong (không cắt ngang). */
+  delayMs?: number;
+};
 
 /**
  * Lớp trang trí theo mùa phủ lên bản đồ: không nhận chạm (pointer-events: none), chỉ DOM/SVG và CSS.
  * Mỗi ngày có mùa, Đậu Đậu chào một câu (một lần mỗi ngày).
  */
-export function SeasonLayer({ speaker, search = window.location.search, now }: Props) {
+export function SeasonLayer({ speaker, search = window.location.search, now, delayMs = GREET_DELAY_MS }: Props) {
   const pref = useSeasonPref();
   useEffect(() => { void loadSeasonPref(); }, []);
   const season = pref === 'off' ? null : seasonFromLocation(search, now);
@@ -236,7 +242,7 @@ export function SeasonLayer({ speaker, search = window.location.search, now }: P
     const t = setTimeout(() => {
       speaker.say(greetingKey(season));
       try { localStorage.setItem(GREET_KEY, stamp); } catch { /* bỏ qua */ }
-    }, GREET_DELAY_MS);
+    }, delayMs);
     return () => clearTimeout(t);
     // chỉ chào lại khi đổi mùa/ngày
     // eslint-disable-next-line react-hooks/exhaustive-deps

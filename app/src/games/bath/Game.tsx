@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
 import { ClayButton } from '../../ui/ClayButton';
+import { useSayThen } from '../../ui/useSayThen';
 import {
   DirtGrid,
   afterShower,
@@ -62,6 +63,7 @@ const HINT_IDLE_MS = 7000;
 const SCRUB_SOUND_MS = 120;
 
 type Say = (key: string) => void;
+type SayAll = ReturnType<typeof useSayThen>;
 /** Hạt giống của buổi chơi: e2e cố định để ảnh chụp ổn định. */
 const newSeed = () => (IS_E2E ? 1 : Math.floor(Math.random() * 100000));
 type BathHook = { dirtyCells(): [number, number][]; brush: number };
@@ -71,13 +73,15 @@ interface TubProps {
   level: BathLevel;
   seed: number;
   say: Say;
+  /** Nói nối tiếp (chờ tiếng hết rồi mới làm tiếp), xem useSayThen. */
+  sayAll: SayAll;
   sounds: BathSounds;
   first: boolean;
   onDone(): void;
 }
 
 /** Một lượt tắm cho một con: chà bùn → vòi sen → (lau khăn) → sạch bong. */
-function Tub({ animal, level, seed, say, sounds, first, onDone }: TubProps) {
+function Tub({ animal, level, seed, say, sayAll, sounds, first, onDone }: TubProps) {
   const [phase, setPhase] = useState<Phase>('scrub');
   const [shaking, setShaking] = useState(false);
   const [leaving, setLeaving] = useState(false);
@@ -301,8 +305,9 @@ function Tub({ animal, level, seed, say, sounds, first, onDone }: TubProps) {
       const s = g.current;
       for (const c of [mudRef.current, foamRef.current]) c?.getContext('2d')?.clearRect(0, 0, s?.w ?? TUB_SIZE, s?.h ?? TUB_SIZE);
       setShaking(true);
-      say(`animal.${animal}-sound`);
-      later(() => {
+      // Lắc nước tới khi tiếng kêu thật (1,1–2,6s) phát hết rồi mới nhắc lau khăn: trước đây câu
+      // "lau khăn" hẹn cố định 1300ms nên cắt tiếng kêu.
+      const afterShake = () => {
         setShaking(false);
         const next = afterShower(level);
         const mctx = mudRef.current?.getContext('2d');
@@ -318,7 +323,8 @@ function Tub({ animal, level, seed, say, sounds, first, onDone }: TubProps) {
         } else {
           celebrate();
         }
-      }, SHAKE_MS);
+      };
+      sayAll([`animal.${animal}-sound`], { fallbackMs: SHAKE_MS, onDone: afterShake });
     }, SHOWER_MS);
   };
 
@@ -436,6 +442,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
     },
     [speaker],
   );
+  const sayAll = useSayThen(speaker, setLastSay);
   const animal = order[round % order.length];
   const onDone = useCallback(() => setRound((r) => r + 1), []);
 
@@ -448,6 +455,7 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
         level={level}
         seed={baseSeed + round * 101}
         say={say}
+        sayAll={sayAll}
         sounds={sounds}
         first={round === 0}
         onDone={onDone}

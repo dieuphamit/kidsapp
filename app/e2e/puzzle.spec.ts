@@ -128,15 +128,12 @@ test.describe('Puzzle game', () => {
     // puzzle.done được nói
     await expect(gameRoot).toHaveAttribute('data-last-say', 'puzzle.done', { timeout: 2000 });
 
-    // Chờ thêm để nói tên hình
-    await page.waitForTimeout(2000);
+    // Câu khen đọc xong thì nói tên hình (animal.xxx, fruit.xxx hoặc shape.xxx: chủ đề hình khối
+    // thêm ở E3); nói nối tiếp nên chờ theo độ dài câu khen
+    await expect(gameRoot).toHaveAttribute('data-last-say', /^(animal\.|fruit\.|shape\.)/, { timeout: 8000 });
 
     // Chụp ảnh lúc hoàn thành
     await page.screenshot({ path: 'test-results/shots/T-030-done.png' });
-
-    // Sau đó sẽ nói tên hình (animal.xxx, fruit.xxx hoặc shape.xxx: chủ đề hình khối thêm ở E3)
-    const lastSay = await gameRoot.getAttribute('data-last-say');
-    expect(lastSay).toMatch(/^(animal\.|fruit\.|shape\.)/);
   });
 
   test('nút Về nhà trở về home', async ({ page }) => {

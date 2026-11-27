@@ -93,3 +93,25 @@ describe('Nối điểm', () => {
     expect(onExit).toHaveBeenCalled();
   });
 });
+
+describe('Nối chấm: số cuối đọc xong mới tới tiếng kêu', () => {
+  it('nối xong: số cuối đi một lượt riêng, xong mới tới tiếng kêu + "Là con ..." (chung một lượt)', () => {
+    const chains: { keys: readonly string[]; done(): void }[] = [];
+    const sayThen = vi.fn((keys: readonly string[], opts?: { onSay?(k: string, i: number): void; onDone?(): void }) => {
+      keys.forEach((k, i) => opts?.onSay?.(k, i));
+      chains.push({ keys, done: () => opts?.onDone?.() });
+      return () => {};
+    });
+    const sp = { say: vi.fn(), sfx: vi.fn(), sayThen } satisfies Speaker;
+    render(<Game lang="vi" speaker={sp} ageMonths={30} onExit={() => {}} />);
+    const game = screen.getByTestId('game-dots');
+    const animal = game.getAttribute('data-animal');
+    fireEvent.pointerDown(game, { pointerId: 1, ...dotCenter(1) });
+    for (let n = 2; n <= 5; n++) fireEvent.pointerMove(game, { pointerId: 1, ...dotCenter(n) });
+    fireEvent.pointerUp(game, { pointerId: 1 });
+    expect(sp.say).toHaveBeenLastCalledWith('number.4');
+    expect(chains.map((c) => c.keys)).toEqual([['number.5']]);
+    act(() => chains[0].done());
+    expect(chains[1].keys).toEqual([`animal.${animal}-sound`, `dots.is.${animal}`]);
+  });
+});

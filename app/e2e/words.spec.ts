@@ -77,7 +77,7 @@ test('chọn chủ đề bằng nút ảnh to → xem thẻ: đọc tên, chạm
   await expect(game).toHaveAttribute('data-phase', 'view');
   await expect(game).toHaveAttribute('data-last-say', 'words.topic.kitchen');
   const first = (await page.evaluate(() => window.__behocWords!.card()))!;
-  await expect(game).toHaveAttribute('data-last-say', `words.${first}`, { timeout: 4000 });
+  await expect(game).toHaveAttribute('data-last-say', `words.${first}`, { timeout: 8000 });
   const card = page.getByTestId('card');
   await expect(card).toHaveAttribute('data-card', first);
   await expectSafe(card, 'card');
@@ -116,9 +116,9 @@ test('xe cộ: đọc tên rồi phát tiếng thật của xe (nếu có); ch�
   const game = await openGame(page, 30);
   await page.getByTestId('topic-vehicles').click();
   const card = (await page.evaluate(() => window.__behocWords!.card()))!;
-  await expect(game).toHaveAttribute('data-last-say', `words.${card}`, { timeout: 4000 });
+  await expect(game).toHaveAttribute('data-last-say', `words.${card}`, { timeout: 8000 });
   await page.getByTestId('card').click();
-  await expect(game).toHaveAttribute('data-last-say', /^animal\.[a-z]+-sound$|^words\./, { timeout: 4000 });
+  await expect(game).toHaveAttribute('data-last-say', /^animal\.[a-z]+-sound$|^words\./, { timeout: 8000 });
   await imagesLoaded(page);
   await page.waitForTimeout(700);
   await page.screenshot({ path: 'test-results/shots/words-vehicle.png' });
@@ -134,13 +134,13 @@ test('≥36 tháng: sau 3 thẻ xen tìm thẻ; chạm sai thẻ nói tên mình
   expect(q.choices).toHaveLength(3);
   await expect(page.locator('[data-choice]')).toHaveCount(3);
   for (const id of q.choices) await expectSafe(page.getByTestId(`choice-${id}`), id);
-  await expect(game).toHaveAttribute('data-last-say', `words.ask.${q.target}`, { timeout: 5000 });
+  await expect(game).toHaveAttribute('data-last-say', `words.ask.${q.target}`, { timeout: 10_000 });
 
   const wrong = q.choices.find((c) => c !== q.target)!;
   await page.getByTestId(`choice-${wrong}`).click();
   await expect(game).toHaveAttribute('data-last-say', `words.this.${wrong}`);
   await expect(game).toHaveAttribute('data-phase', 'quiz');
-  await expect(page.getByTestId(`choice-${q.target}`).locator('[data-hint]')).toHaveCount(1, { timeout: 4000 });
+  await expect(page.getByTestId(`choice-${q.target}`).locator('[data-hint]')).toHaveCount(1, { timeout: 8000 });
   await expect(game).toHaveAttribute('data-last-say', `words.ask.${q.target}`);
   await imagesLoaded(page);
   await page.waitForTimeout(300);
@@ -153,7 +153,7 @@ test('≥36 tháng: sau 3 thẻ xen tìm thẻ; chạm sai thẻ nói tên mình
   await page.waitForTimeout(600);
   await page.screenshot({ path: 'test-results/shots/words-find.png' });
   // khen xong thì về xem thẻ kế
-  await expect(game).toHaveAttribute('data-phase', 'view', { timeout: 6000 });
+  await expect(game).toHaveAttribute('data-phase', 'view', { timeout: 12_000 });
 });
 
 test('60 tháng: tìm thẻ có 4 thẻ xếp 2×2; chụp words-find4', async ({ page }) => {

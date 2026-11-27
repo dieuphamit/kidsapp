@@ -82,7 +82,7 @@ test.describe('Counting game', () => {
     expect(target).toBeGreaterThanOrEqual(2);
     expect(target).toBeLessThanOrEqual(10);
     // Đậu Đậu nói số cần lấy
-    await expect(gameRoot).toHaveAttribute('data-last-say', `number.${target}`, { timeout: 5000 });
+    await expect(gameRoot).toHaveAttribute('data-last-say', `number.${target}`, { timeout: 15_000 }); // sau câu chào + câu hỏi (nói nối tiếp)
 
     for (let i = 1; i <= target; i++) {
       await page.getByLabel(`Quả ${i}`, { exact: true }).tap();
@@ -95,7 +95,7 @@ test.describe('Counting game', () => {
       await expect(gameRoot).toHaveAttribute('data-last-say', `number.${target}`);
     }
     const done = target === 10 ? 'count.done' : 'count.all';
-    await expect(gameRoot).toHaveAttribute('data-last-say', done, { timeout: 2500 });
+    await expect(gameRoot).toHaveAttribute('data-last-say', done, { timeout: 8000 }); // khen khi số cuối đọc xong
   });
 
   test('mặc định (bé 28 tháng, dễ): 1–3 món, hái hết → khen, rồi lượt mới khác món; chụp E3-counting.png', async ({ page }) => {
@@ -115,9 +115,9 @@ test.describe('Counting game', () => {
       await page.getByLabel(`${prefix} ${i}`, { exact: true }).tap();
       await page.waitForTimeout(150);
     }
-    await expect(gameRoot).toHaveAttribute('data-last-say', 'count.all', { timeout: 2500 });
+    await expect(gameRoot).toHaveAttribute('data-last-say', 'count.all', { timeout: 8000 }); // khen khi số cuối đọc xong
     // Lượt mới: món khác
-    await expect(gameRoot).not.toHaveAttribute('data-item', item!, { timeout: 6000 });
+    await expect(gameRoot).not.toHaveAttribute('data-item', item!, { timeout: 12_000 }); // sang lượt khi khen xong
   });
 
   test('chủ đề con vật (vừa) và hình (vừa); chụp ảnh', async ({ page }) => {

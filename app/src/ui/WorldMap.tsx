@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import styles from './WorldMap.module.css';
 import { WorldMapScene, type Facing } from './WorldMapScene';
 import { ClayButton } from './ClayButton';
+import { useSayThenGo } from './useSayThen';
 import { SeasonLayer } from './SeasonLayer';
 import { contentByKey } from '../core/content';
 import { buddyName } from '../core/buddy';
@@ -47,18 +48,16 @@ export function WorldMap({ games, lang, speaker, onPick, onOpenPicker, lastGameI
   const buddy = useBuddy();
   const fill = useFillName();
   const [locked, setLocked] = useState(false);
-  const pendingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const say = (key: string) => {
     speaker.say(key);
     setLastSay(key);
   };
+  /** Đọc tên khu/trò xong mới mở: câu chào của trò (hay của bảng chọn trò) không cắt tên vừa đọc. */
+  const sayThenGo = useSayThenGo(speaker, setLastSay);
 
   useEffect(() => {
     say('ui.where');
-    return () => {
-      if (pendingTimeout.current) clearTimeout(pendingTimeout.current);
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -66,28 +65,26 @@ export function WorldMap({ games, lang, speaker, onPick, onOpenPicker, lastGameI
   const visiblePlaces = PLACES.filter((p) => (gamesMap.get(p.key)?.length ?? 0) > 0);
   const lastGame = lastGameId ? games.find((g) => g.id === lastGameId) : undefined;
 
-  const later = (fn: () => void, ms: number) => {
-    setLocked(true);
-    pendingTimeout.current = setTimeout(fn, ms);
-  };
-
   const handlePlacePress = (placeKey: string) => {
     if (locked) return;
-    say(placeKey);
     setFacing(LAYOUT[placeKey]?.facing ?? 0);
     const placeGames = gamesMap.get(placeKey) ?? [];
     if (placeGames.length === 1) {
-      later(() => onPick(placeGames[0]), PLACE_DELAY_MS);
+      setLocked(true);
+      sayThenGo(placeKey, PLACE_DELAY_MS, () => onPick(placeGames[0]));
     } else if (placeGames.length >= 2) {
-      later(() => onOpenPicker?.(placeKey, placeGames), PLACE_DELAY_MS);
+      setLocked(true);
+      sayThenGo(placeKey, PLACE_DELAY_MS, () => onOpenPicker?.(placeKey, placeGames));
+    } else {
+      say(placeKey);
     }
   };
 
   const handleReplay = (g: GameManifest) => {
     if (locked) return;
-    say(g.titleKey ?? g.place);
     setFacing(1);
-    later(() => onPick(g), REPLAY_DELAY_MS);
+    setLocked(true);
+    sayThenGo(g.titleKey ?? g.place, REPLAY_DELAY_MS, () => onPick(g));
   };
 
   return (

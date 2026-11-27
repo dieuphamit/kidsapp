@@ -81,3 +81,66 @@ describe('Bếp nấu ăn', () => {
     }
   });
 });
+
+describe('Bếp nấu ăn: lời nói nối tiếp, câu sau không cắt câu trước', () => {
+  function chainSpeaker() {
+    const chains: { keys: readonly string[]; done(): void }[] = [];
+    const sayThen = vi.fn((keys: readonly string[], opts?: { onSay?(k: string, i: number): void; onDone?(): void }) => {
+      keys.forEach((k, i) => opts?.onSay?.(k, i));
+      chains.push({ keys, done: () => opts?.onDone?.() });
+      return () => {};
+    });
+    return { sp: { say: vi.fn(), sfx: vi.fn(), sayThen } satisfies Speaker, chains };
+  }
+
+  it('câu chào (~6,3s) đọc xong mới nói món khách muốn', () => {
+    const { sp, chains } = chainSpeaker();
+    render(<Game lang="vi" speaker={sp} ageMonths={26} onExit={() => {}} />);
+    expect(chains.map((c) => c.keys)).toEqual([['cook.hello']]);
+    expect(sp.say).not.toHaveBeenCalled();
+    act(() => chains[0].done());
+    const dish = screen.getByTestId('recipe').getAttribute('data-dish');
+    expect(sp.say).toHaveBeenLastCalledWith(`cook.want.${dish}`);
+  });
+
+  it('thả đủ món: tên món cuối đọc xong mới nhắc bật bếp; bật bếp: "khuấy đi" không bị lời nhắc khuấy cắt', () => {
+    vi.useFakeTimers();
+    try {
+      window.history.replaceState(null, '', '/?e2e=1');
+      const { sp, chains } = chainSpeaker();
+      render(<Game lang="vi" speaker={sp} ageMonths={26} onExit={() => {}} />);
+      const need = [...document.querySelectorAll('[data-testid^="slot-"]')].map((el) => el.getAttribute('data-testid')!.slice(5) as IngredientId);
+      for (const it of need) act(() => void window.__behocCook!.add(it));
+      act(() => {
+        vi.advanceTimersByTime(700);
+      });
+      const name = chains.at(-1)!;
+      expect(name.keys[0]).toMatch(/\.(?:[a-z]+)$/);
+      expect(sp.say).not.toHaveBeenCalledWith('cook.ready');
+      act(() => name.done());
+      expect(sp.say).toHaveBeenLastCalledWith('cook.ready');
+
+      fireEvent.pointerDown(screen.getByRole('button', { name: 'stove' }));
+      act(() => {
+        vi.advanceTimersByTime(600);
+      });
+      const stir = chains.at(-1)!;
+      expect(stir.keys).toEqual(['cook.stir']);
+      const n = chains.length;
+      // "khuấy đi" dài ~6,6s: quá giờ nhắc mà câu chưa xong thì không nhắc chen vào
+      act(() => {
+        vi.advanceTimersByTime(7000);
+      });
+      expect(chains).toHaveLength(n);
+      act(() => stir.done());
+      act(() => {
+        vi.advanceTimersByTime(6100);
+      });
+      expect(chains.at(-1)!.keys).toEqual(['cook.stir']);
+      expect(chains).toHaveLength(n + 1);
+    } finally {
+      window.history.replaceState(null, '', '/');
+      vi.useRealTimers();
+    }
+  });
+});

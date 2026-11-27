@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSayThen, useSaySteps, type SayStep } from '../../ui/useSayThen';
 import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
 import { ClayButton } from '../../ui/ClayButton';
@@ -81,8 +82,6 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
 
   const cakeRef = useRef<HTMLDivElement>(null);
   const timers = useRef<number[]>([]);
-  const countTimer = useRef<number | null>(null);
-  const wishTimers = useRef<number[]>([]);
   const wishRef = useRef<Wish>(wish);
   // Bản sao đồng bộ của state, luôn gán cùng lúc với setState (để hook e2e và hàm hẹn giờ đọc giá trị mới nhất).
   const toppingsRef = useRef<Topping[]>([]);
@@ -106,43 +105,35 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
     const list = timers.current;
     return () => {
       list.forEach((t) => window.clearTimeout(t));
-      wishTimers.current.forEach((t) => window.clearTimeout(t));
-      if (countTimer.current !== null) window.clearTimeout(countTimer.current);
     };
   }, []);
 
-  /** Khách kể điều ước sau câu gọi bánh; bé bắt đầu trang trí hoặc rung chuông thì thôi nói. */
-  const tellWish = useCallback(
-    (w: Wish) => {
-      wishSayKeys(w).forEach((k, i) => {
-        wishTimers.current.push(window.setTimeout(() => say(k), WISH_GAP * (i + 1)));
-      });
-    },
-    [say],
-  );
+  /**
+   * Lời của tiệm nói NỐI TIẾP (chào → tên khách → gọi bánh → điều ước; khen → hỏi → khách mới):
+   * câu sau chỉ phát khi câu trước hết, nên câu dài (gọi bánh ~5s) không bị câu kế cắt.
+   */
+  const talk = useSaySteps(speaker, setLastSay);
+  /** Tên topping (+ số đếm) do bé thả: chuỗi riêng, lần thả sau cắt lần trước là đúng ý. */
+  const sayAll = useSayThen(speaker, setLastSay);
+  /** Bé bắt đầu trang trí hoặc rung chuông: khách thôi nói (trừ lúc đang ăn bánh, để khách mới vẫn tới). */
   const hushWish = useCallback(() => {
-    wishTimers.current.forEach((t) => window.clearTimeout(t));
-    wishTimers.current = [];
-  }, []);
+    if (!eatingRef.current) talk.stop();
+  }, [talk]);
 
   /** Khách gọi bánh: "Bạn ấy muốn một cái bánh…", rồi kể điều ước. */
-  const order = useCallback(
-    (w: Wish) => {
-      say('bakery.order');
-      tellWish(w);
-    },
-    [say, tellWish],
-  );
+  const orderStep = (w: Wish): SayStep => ({ keys: ['bakery.order', ...wishSayKeys(w)], fallbackMs: WISH_GAP });
 
-  // Vào tiệm: chào, rồi khách đầu tiên gọi bánh (say/later ổn định nên chỉ chạy khi vào game).
+  // Vào tiệm: chào, rồi khách đầu tiên gọi bánh (chỉ chạy khi vào game).
   const firstCustomer = useRef(customer);
   useEffect(() => {
-    speaker.say('bakery.hello'); // data-last-say khởi tạo sẵn là 'bakery.hello'
-    later(() => {
-      say(`animal.${firstCustomer.current}`);
-      later(() => order(wishRef.current), ORDER_DELAY);
-    }, FIRST_CUSTOMER_DELAY);
-  }, [speaker, say, later, order]);
+    // data-last-say khởi tạo sẵn là 'bakery.hello'
+    talk.play([
+      { keys: ['bakery.hello'], fallbackMs: FIRST_CUSTOMER_DELAY },
+      { keys: [`animal.${firstCustomer.current}`], fallbackMs: ORDER_DELAY },
+      orderStep(wishRef.current),
+    ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [talk]);
 
   /** Đặt topping lên bánh tại (x, y) trong khung bánh, nói tên, đếm nếu trùng loại. */
   const place = useCallback(
@@ -151,13 +142,11 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
       const next = addTopping(toppingsRef.current, id, Math.round(x), Math.round(y));
       toppingsRef.current = next;
       setToppings(next);
-      say(toppingSayKey(id));
-      if (countTimer.current !== null) window.clearTimeout(countTimer.current);
-      countTimer.current = null;
+      // tên topping rồi số đếm, nối tiếp (tên dài ~2,5s, trước đây số đếm hẹn 700ms nên cắt tên)
       const key = countKey(next, id);
-      if (key) countTimer.current = later(() => say(key), COUNT_DELAY);
+      sayAll(key ? [toppingSayKey(id), key] : [toppingSayKey(id)], { fallbackMs: COUNT_DELAY });
     },
-    [say, later, hushWish],
+    [sayAll, hushWish],
   );
 
   const serve = useCallback(() => {
@@ -169,34 +158,36 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
       say('bakery.order');
       return;
     }
-    if (countTimer.current !== null) window.clearTimeout(countTimer.current);
-    countTimer.current = null;
     eatingRef.current = true;
     setEating(true);
-    say(praiseKey(list, wishRef.current));
-    later(() => {
-      say('bakery.ask');
-      later(() => {
-        const id = nextCustomer(customer);
-        // Khách mới: kệ đổi món (trừ kệ cổ điển), điều ước mới khác điều ước cũ
-        const sh = shelfFor(level, topic, shelf);
-        const w = wishFor(level, sh, wishRef.current);
-        lastShelf = sh;
-        lastWish = w;
-        wishRef.current = w;
-        setShelf(sh);
-        setWish(w);
-        toppingsRef.current = [];
-        setToppings([]);
-        eatingRef.current = false;
-        setEating(false);
-        setCustomer(id);
-        setVisit((v) => v + 1);
-        say(`animal.${id}`);
-        later(() => order(w), ORDER_DELAY);
-      }, NEXT_DELAY);
-    }, ASK_DELAY);
-  }, [customer, say, later, hushWish, level, topic, shelf, order]);
+    const id = nextCustomer(customer);
+    const sh = shelfFor(level, topic, shelf);
+    const w = wishFor(level, sh, wishRef.current);
+    talk.play([
+      { keys: [praiseKey(list, wishRef.current)], fallbackMs: ASK_DELAY },
+      { keys: ['bakery.ask'], fallbackMs: NEXT_DELAY },
+      {
+        keys: [`animal.${id}`],
+        fallbackMs: ORDER_DELAY,
+        onStart: () => {
+          // Khách mới: kệ đổi món (trừ kệ cổ điển), điều ước mới khác điều ước cũ
+          lastShelf = sh;
+          lastWish = w;
+          wishRef.current = w;
+          setShelf(sh);
+          setWish(w);
+          toppingsRef.current = [];
+          setToppings([]);
+          eatingRef.current = false;
+          setEating(false);
+          setCustomer(id);
+          setVisit((v) => v + 1);
+        },
+      },
+      orderStep(w),
+    ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customer, say, talk, hushWish, level, topic, shelf]);
 
   // Hook cho e2e (?e2e=1)
   useEffect(() => {

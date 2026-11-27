@@ -78,7 +78,7 @@ test.describe('T-036: Đậu Đậu trốn ở đâu?', () => {
     await expect(game).toHaveAttribute('data-mode', 'ask');
     const ask = await askOf(page);
     expect(ask).toMatch(/^hide\.ask-(on|in|under|beside)-(table|box|bed)$/);
-    await expect(game).toHaveAttribute('data-last-say', ask!, { timeout: 4000 });
+    await expect(game).toHaveAttribute('data-last-say', ask!, { timeout: 10_000 }); // câu nhờ chờ câu vị trí đọc xong
     await page.waitForTimeout(300);
     await page.screenshot({ path: 'test-results/shots/T-036-ask.png' });
 
@@ -86,7 +86,7 @@ test.describe('T-036: Đậu Đậu trốn ở đâu?', () => {
     const other = zones.find((z) => `hide.ask-${z.prep}-${z.obj}` !== ask)!;
     await drop(page, other.prep, other.obj);
     await expect(game).toHaveAttribute('data-last-say', `hide.${other.prep}-${other.obj}`);
-    await expect(game).toHaveAttribute('data-last-say', ask!, { timeout: 3000 });
+    await expect(game).toHaveAttribute('data-last-say', ask!, { timeout: 10_000 }); // câu nhờ chờ câu vị trí đọc xong
 
     // thả đúng → hide.yay
     const [prep, obj] = ask!.replace('hide.ask-', '').split('-');
@@ -102,7 +102,7 @@ test.describe('T-036: Đậu Đậu trốn ở đâu?', () => {
       await drop(page, p, o);
       await expect(game).toHaveAttribute('data-last-say', 'hide.yay');
     }
-    await expect(game).toHaveAttribute('data-room', 'kitchen', { timeout: 4000 });
+    await expect(game).toHaveAttribute('data-room', 'kitchen', { timeout: 10_000 }); // sang phòng khi "giỏi quá" đọc xong
     await expect(game).toHaveAttribute('data-mode', 'free');
     await expect(page.getByTestId('obj-pot')).toBeVisible();
   });

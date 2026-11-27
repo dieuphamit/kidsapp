@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent } from 'react';
 import type { GameProps } from '../../core/games';
+import { useSaySteps, type SayStep } from '../../ui/useSayThen';
 import { synth } from '../../core/synth';
 import { BackHome } from '../../ui/BackHome';
 import { Scenery } from '../../ui/Scenery';
@@ -98,6 +99,16 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
     if (a) say(`hide.ask-${pairKey(a)}`);
   }, [say]);
 
+  /**
+   * Lời nói theo sau một lần thả, NỐI TIẾP: câu vị trí (~3–3,6s) / "giỏi quá" (~4,7s) nói xong mới
+   * tới câu nhờ hoặc câu chào phòng mới (trước đây hẹn 900–2400ms nên câu trước bị cắt).
+   */
+  const talk = useSaySteps(speaker, setLastSay);
+  const askStep = (fallbackMs: number): SayStep => ({
+    keys: st.current.ask ? [`hide.ask-${pairKey(st.current.ask)}`] : [],
+    fallbackMs,
+  });
+
   /** Thả Đậu Đậu: pair = vùng trúng (null = ngoài mọi vùng), at = tâm Đậu Đậu trong khung. */
   const handleDrop = useCallback(
     (pair: Pair | null, at: { x: number; y: number }) => {
@@ -117,46 +128,52 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
         return;
       }
       window.clearTimeout(follow.current);
+      talk.stop();
 
       if (!s.ask) {
         // chơi tự do
-        if (zone) say(`hide.${pairKey(zone)}`);
         s.drops += 1;
-        if (s.drops >= FREE_DROPS) {
-          setAskBoth(nextAsk(r, rand(), null, ageMonths));
-          later(zone ? 2000 : 900, sayAsk);
-        }
+        const asking = s.drops >= FREE_DROPS;
+        if (asking) setAskBoth(nextAsk(r, rand(), null, ageMonths));
+        if (zone) talk.play([{ keys: [`hide.${pairKey(zone)}`], fallbackMs: 2000 }, ...(asking ? [askStep(2000)] : [])]);
+        else if (asking) later(900, sayAsk);
         return;
       }
 
       if (zone && pairKey(zone) === pairKey(s.ask)) {
-        say('hide.yay');
         setBounce((b) => b + 1);
         s.wins += 1;
         if (s.wins >= WINS_PER_ROOM) {
-          later(2400, () => {
-            s.step += 1;
-            const next = order[s.step % order.length];
-            s.roomIdx = next;
-            s.drops = 0;
-            s.wins = 0;
-            setAskBoth(null);
-            setRoomIdx(next);
-            setCat({ ...HOME, scale: 1, hidden: false });
-            say('hide.hello');
-          });
+          talk.play([
+            { keys: ['hide.yay'], fallbackMs: 2400 },
+            {
+              keys: ['hide.hello'],
+              fallbackMs: 2400,
+              onStart: () => {
+                s.step += 1;
+                const next = order[s.step % order.length];
+                s.roomIdx = next;
+                s.drops = 0;
+                s.wins = 0;
+                setAskBoth(null);
+                setRoomIdx(next);
+                setCat({ ...HOME, scale: 1, hidden: false });
+              },
+            },
+          ]);
         } else {
           setAskBoth(nextAsk(r, rand(), s.ask, ageMonths));
-          later(2000, sayAsk);
+          talk.play([{ keys: ['hide.yay'], fallbackMs: 2000 }, askStep(2000)]);
         }
         return;
       }
 
       // thả chỗ khác: nói vị trí thật rồi nhắc lại câu nhờ, không âm sai
-      if (zone) say(`hide.${pairKey(zone)}`);
-      later(1200, sayAsk);
+      if (zone) talk.play([{ keys: [`hide.${pairKey(zone)}`], fallbackMs: 1200 }, askStep(1200)]);
+      else later(1200, sayAsk);
     },
-    [ageMonths, later, say, sayAsk, FREE_DROPS, WINS_PER_ROOM, order],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [ageMonths, later, say, sayAsk, talk, FREE_DROPS, WINS_PER_ROOM, order],
   );
 
   // hook cho e2e

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import type { GameProps } from '../../core/games';
 import { BackHome } from '../../ui/BackHome';
+import { useSaySteps } from '../../ui/useSayThen';
 import { Scenery } from '../../ui/Scenery';
 import {
   bushCountForAge,
@@ -339,6 +340,8 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
     [speaker]
   );
 
+  const talk = useSaySteps(speaker, setLastSay);
+
   // Clear all timeouts on unmount
   useEffect(() => {
     return () => {
@@ -418,27 +421,28 @@ export default function Game({ speaker, ageMonths, onExit }: GameProps) {
         });
         setReveal({ animalId: gameState.animalId, bushIndex });
 
-        // Nói "Ú òa!", rồi tên thú, rồi tiếng kêu thật của thú
-        say('peek.found');
+        // Thú về lại bụi xong VÀ đã kêu xong thì sang ván mới
+        const id = gameState.animalId;
+        let waiting = 2;
+        const next = () => {
+          if (--waiting === 0) startNewRound(id);
+        };
 
-        const t1 = setTimeout(() => {
-          say(`animal.${gameState.animalId}`);
-        }, NAME_AT);
-        timeoutsRef.current.push(t1);
+        // Nói "Ú òa!", rồi tên thú, rồi tiếng kêu thật của thú, NỐI TIẾP: câu sau chỉ phát khi câu
+        // trước hết (trước đây hẹn 900ms/2200ms nên "Ú òa" ~2,1s và tên thú ~2–2,9s bị cắt).
+        talk.play(
+          [
+            { keys: ['peek.found'], fallbackMs: NAME_AT },
+            { keys: [`animal.${id}`, `animal.${id}-sound`], fallbackMs: SOUND_AT - NAME_AT },
+          ],
+          next,
+        );
 
-        const t2 = setTimeout(() => {
-          say(`animal.${gameState.animalId}-sound`);
-        }, SOUND_AT);
-        timeoutsRef.current.push(t2);
-
-        // Thú về lại bụi xong thì sang ván mới
-        const t3 = setTimeout(() => {
-          startNewRound(gameState.animalId);
-        }, REVEAL_MS);
+        const t3 = setTimeout(next, REVEAL_MS);
         timeoutsRef.current.push(t3);
       }
     },
-    [gameState, say, startNewRound]
+    [gameState, say, talk, startNewRound]
   );
 
   // E2E hook

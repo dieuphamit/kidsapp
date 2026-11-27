@@ -94,8 +94,8 @@ test.describe('Peekaboo game', () => {
     const id = await reveal.getAttribute('data-animal');
     expect(id).toBeTruthy();
 
-    // Sau "Ú òa!" là tên thú
-    await expect(gameEl).toHaveAttribute('data-last-say', `animal.${id}`, { timeout: 3000 });
+    // "Ú òa!" đọc xong là tên thú (nói nối tiếp)
+    await expect(gameEl).toHaveAttribute('data-last-say', `animal.${id}`, { timeout: 8000 }); // khi "Ú òa" đọc xong
 
     // Lúc thú đã to ở giữa: ảnh rộng hơn hẳn bụi (200px) và tâm gần tâm khung 1194×834
     await page.waitForTimeout(600);
@@ -107,10 +107,10 @@ test.describe('Peekaboo game', () => {
     await page.screenshot({ path: join(shotsDir, 'T-026-found.png') });
 
     // Rồi tới tiếng kêu thật của đúng con thú đó
-    await expect(gameEl).toHaveAttribute('data-last-say', `animal.${id}-sound`, { timeout: 3000 });
+    await expect(gameEl).toHaveAttribute('data-last-say', `animal.${id}-sound`, { timeout: 8000 }); // khi tên đọc xong
 
     // Thú về lại bụi, sang ván mới
-    await expect(reveal).toBeHidden({ timeout: 5000 });
+    await expect(reveal).toBeHidden({ timeout: 10_000 }); // sau khi kêu xong
   });
 
   test('mọi bụi có kích thước >= 120px', async ({ page }) => {
@@ -175,10 +175,10 @@ test.describe('E4: chỗ núp mới (mây, sóng) và thú mới', () => {
       const id = await reveal.getAttribute('data-animal');
       const want = cover === 'cloud' ? ['parrot', 'pigeon', 'bee'] : ['fish', 'penguin', 'dolphin', 'whale'];
       expect(want).toContain(id);
-      await expect(gameEl).toHaveAttribute('data-last-say', `animal.${id}`, { timeout: 3000 });
+      await expect(gameEl).toHaveAttribute('data-last-say', `animal.${id}`, { timeout: 8000 }); // khi "Ú òa" đọc xong
       await page.waitForTimeout(500);
       await page.screenshot({ path: join(shotsDir, `${shot}-found.png`) });
-      await expect(gameEl).toHaveAttribute('data-last-say', `animal.${id}-sound`, { timeout: 3000 });
+      await expect(gameEl).toHaveAttribute('data-last-say', `animal.${id}-sound`, { timeout: 8000 }); // khi tên đọc xong
     });
   }
 });

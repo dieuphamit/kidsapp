@@ -23,7 +23,7 @@ test('Thế giới thú → 4 thẻ trò 180×228 một hàng căn giữa, bong 
   await page.getByLabel('Thế giới thú').click();
 
   const picker = page.getByTestId('game-picker');
-  await expect(picker).toBeVisible({ timeout: 2000 });
+  await expect(picker).toBeVisible({ timeout: 8000 }); // mở khi đọc xong tên khu
   await expect(picker).toHaveAttribute('data-last-say', 'ui.pick-game');
   await expect(page.getByRole('heading', { name: /Thế giới thú/ })).toBeVisible();
   await expect(picker.getByText('Bé chơi trò nào?')).toBeVisible();
@@ -77,7 +77,7 @@ test('chạm thẻ nói tên trò ngay rồi vào trò', async ({ page }) => {
   const picker = page.getByTestId('game-picker');
   await expect(picker).toBeVisible({ timeout: 3000 });
   await page.waitForTimeout(600); // chờ hiệu ứng hiện thẻ
-  // Màn đổi sau 300ms, nên ghi lại câu nói đầu tiên sau khi chạm ngay trong trang
+  // Màn đổi khi đọc xong tên trò, nên ghi lại câu nói đầu tiên sau khi chạm ngay trong trang
   await page.evaluate(() => {
     const w = window as unknown as { said: string[] };
     w.said = [];
@@ -98,7 +98,7 @@ test('vào một trò, về nhà → nút chơi lại hiện icon trò, chạm v
 
   // Góc đố → Lật hình
   await page.getByLabel('Góc đố').click();
-  await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 2000 });
+  await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 8000 });
   await page.getByTestId('pick-memory').getByRole('button').click();
   await expect(page.getByTestId('game-memory')).toBeVisible({ timeout: 10_000 });
 

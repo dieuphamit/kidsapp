@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { sayThen, type SayThenOptions, type Speaker } from '../core/audio';
 
 /** Tuỳ chọn của hook: như sayThen, thêm `onStep` báo lúc từng key bắt đầu phát. */
@@ -7,12 +7,13 @@ export type SayAllOptions = Omit<SayThenOptions, 'onSay'> & { onStep?(key: strin
 /**
  * Nói nối tiếp cho một trò: key sau chỉ phát khi tiếng trước hết (tiếng kêu thật không bị câu
  * kế cắt ngang). `onSay` nhận từng key lúc bắt đầu phát (trò cập nhật data-last-say). Mọi chuỗi
- * còn dang dở tự huỷ khi trò unmount, nên không còn giọng đọc nào phát sau khi bé thoát.
+ * còn dang dở tự huỷ khi trò unmount, nên không còn giọng đọc nào phát sau khi bé thoát. Trả về
+ * hàm huỷ: câu đang phát nói nốt, các câu sau không phát nữa và không báo onDone (ví dụ bé bắt đầu chơi).
  */
 export function useSayThen(
   speaker: Speaker,
   onSay: (key: string) => void,
-): (keys: readonly string[], opts?: SayAllOptions) => void {
+): (keys: readonly string[], opts?: SayAllOptions) => () => void {
   const cancels = useRef<(() => void)[]>([]);
   const onSayRef = useRef(onSay);
   onSayRef.current = onSay;
@@ -39,7 +40,100 @@ export function useSayThen(
         },
       });
       cancels.current.push(cancel);
+      return cancel;
     },
     [speaker],
+  );
+}
+
+/** Một đoạn trong kịch bản nói: các key nói nối tiếp; `onStart` chạy ngay trước câu đầu của đoạn. */
+export type SayStep = {
+  keys: readonly string[];
+  /** Loa giả (test) không báo hết tiếng: mỗi key của đoạn cách nhau chừng này, đoạn kế sau key cuối chừng này. */
+  fallbackMs?: number;
+  gapMs?: number;
+  onStart?(): void;
+  onStep?(key: string, index: number): void;
+};
+
+/**
+ * Kịch bản nói nhiều đoạn cho một trò (ví dụ khen → hỏi → khách mới nói tên → gọi bánh): đoạn sau
+ * bắt đầu khi đoạn trước nói xong, nên không câu nào bị câu sau của chính app cắt. Mỗi đoạn có
+ * `fallbackMs` riêng để loa giả trong test giữ nhịp cũ. `play` mới huỷ kịch bản cũ; `stop` huỷ
+ * phần còn lại (câu đang phát nói nốt). Nếu bé chạm làm một câu khác chen vào thì kịch bản vẫn đi
+ * tiếp (chuyển lượt chơi không bị kẹt). `onDone` chạy khi đoạn cuối xong.
+ */
+export function useSaySteps(
+  speaker: Speaker,
+  onSay: (key: string) => void,
+): { play(steps: readonly SayStep[], onDone?: () => void): void; stop(): void } {
+  const sayAll = useSayThen(speaker, onSay);
+  const run = useRef(0);
+  const cancel = useRef<() => void>(() => {});
+  const stop = useCallback(() => {
+    run.current++;
+    cancel.current();
+    cancel.current = () => {};
+  }, []);
+  const play = useCallback(
+    (steps: readonly SayStep[], onDone?: () => void) => {
+      stop();
+      const id = run.current;
+      const go = (i: number) => {
+        if (id !== run.current) return;
+        if (i >= steps.length) {
+          onDone?.();
+          return;
+        }
+        const s = steps[i];
+        s.onStart?.();
+        if (id !== run.current) return;
+        if (s.keys.length === 0) {
+          go(i + 1);
+          return;
+        }
+        cancel.current = sayAll(s.keys, {
+          fallbackMs: s.fallbackMs,
+          gapMs: s.gapMs,
+          onStep: s.onStep,
+          onDone: () => go(i + 1),
+        });
+      };
+      go(0);
+    },
+    [sayAll, stop],
+  );
+  return useMemo(() => ({ play, stop }), [play, stop]);
+}
+
+/** Chờ lâu nhất chừng này rồi vẫn mở (file chưa tải / âm thanh bị khoá thì không bắt bé chờ). */
+export const SAY_GO_MAX_MS = 3600;
+
+/**
+ * Nói một câu rồi mới làm `go` (menu đọc tên trò/khu rồi mới mở): chờ câu đọc xong để câu chào của
+ * trò không cắt tên vừa đọc, nhưng không chờ quá `maxMs`. Loa giả (test) không báo hết tiếng: `go`
+ * chạy sau `minMs` như trước. Unmount thì huỷ, không mở gì nữa.
+ */
+export function useSayThenGo(
+  speaker: Speaker,
+  onSay: (key: string) => void,
+): (key: string, minMs: number, go: () => void, maxMs?: number) => void {
+  const sayAll = useSayThen(speaker, onSay);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  return useCallback(
+    (key: string, minMs: number, go: () => void, maxMs = SAY_GO_MAX_MS) => {
+      clearTimeout(timer.current);
+      let fired = false;
+      const fire = () => {
+        if (fired) return;
+        fired = true;
+        clearTimeout(timer.current);
+        go();
+      };
+      sayAll([key], { fallbackMs: minMs, onDone: fire });
+      timer.current = setTimeout(fire, Math.max(minMs, maxMs));
+    },
+    [sayAll],
   );
 }

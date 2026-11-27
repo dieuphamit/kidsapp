@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import styles from './ShelfMenu.module.css';
 import { ClayButton } from './ClayButton';
+import { useSayThenGo } from './useSayThen';
 import { contentByKey } from '../core/content';
 import { buddyImageUrl } from '../core/buddy';
 import { useBuddy, useFillName } from './buddyContext';
@@ -39,18 +40,17 @@ export function ShelfMenu({ games, lang, speaker, onPick }: Props) {
   const buddy = useBuddy();
   const fill = useFillName();
   const locked = useRef(false);
-  const pending = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const say = (key: string) => {
     speaker.say(key);
     setLastSay(key);
   };
 
+  /** Đọc tên trò xong mới mở trò: câu chào của trò không cắt tên vừa đọc. */
+  const sayThenGo = useSayThenGo(speaker, setLastSay);
+
   useEffect(() => {
     say('ui.pick-game');
-    return () => {
-      if (pending.current) clearTimeout(pending.current);
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -66,8 +66,7 @@ export function ShelfMenu({ games, lang, speaker, onPick }: Props) {
   const press = (g: GameManifest) => {
     if (locked.current) return;
     locked.current = true;
-    say(g.titleKey ?? g.place);
-    pending.current = setTimeout(() => onPick(g), SHELF_PICK_DELAY_MS);
+    sayThenGo(g.titleKey ?? g.place, SHELF_PICK_DELAY_MS, () => onPick(g));
   };
 
   return (

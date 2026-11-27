@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import styles from './TrainMenu.module.css';
 import { ClayButton } from './ClayButton';
+import { useSayThenGo } from './useSayThen';
 import { SeasonLayer } from './SeasonLayer';
 import { clientToStage } from './Stage';
 import { contentByKey } from '../core/content';
@@ -16,6 +17,8 @@ const content = contentByKey();
 
 /** Chờ sau khi chạm toa rồi mở trò (để kịp nghe tên trò). */
 export const TRAIN_PICK_DELAY_MS = 500;
+/** Lời chào mùa chờ câu "Tu tu! Lên tàu nào…" (dài tới ~6,3s) đọc xong (mức 2600ms của bản đồ sẽ cắt câu đó). */
+export const TRAIN_GREET_DELAY_MS = 7000;
 /** Còi tàu thật (ghi âm Commons, xem public/audio/sfx/CREDITS.md); sfx không cắt lời Đậu Đậu. */
 export const WHISTLE_SFX = 'animal-train';
 /** Ngón tay xê dịch quá chừng này (px trong khung) thì là kéo đoàn tàu, không phải chạm toa. */
@@ -241,7 +244,6 @@ export function TrainMenu({ games, lang, speaker, onPick, lastGameId }: Props) {
   const [lastSay, setLastSay] = useState('');
   const [hop, setHop] = useState<string | null>(null);
   const locked = useRef(false);
-  const pending = useRef<ReturnType<typeof setTimeout> | null>(null);
   const viewport = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x0: number; s0: number; moved: boolean; lastX: number; lastT: number; v: number } | null>(null);
   const glide = useRef(0);
@@ -259,12 +261,12 @@ export function TrainMenu({ games, lang, speaker, onPick, lastGameId }: Props) {
     speaker.say(key);
     setLastSay(key);
   };
+  const sayThenGo = useSayThenGo(speaker, setLastSay);
 
   useEffect(() => {
     say('ui.train-hello');
     speaker.sfx(WHISTLE_SFX);
     return () => {
-      if (pending.current) clearTimeout(pending.current);
       cancelAnimationFrame(glide.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -286,9 +288,9 @@ export function TrainMenu({ games, lang, speaker, onPick, lastGameId }: Props) {
   const pickCar = (g: GameManifest) => {
     if (locked.current) return;
     locked.current = true;
-    say(g.titleKey ?? g.place);
     setHop(g.id);
-    pending.current = setTimeout(() => onPick(g), TRAIN_PICK_DELAY_MS);
+    // đọc tên trò xong mới mở trò: câu chào của trò không cắt tên vừa đọc
+    sayThenGo(g.titleKey ?? g.place, TRAIN_PICK_DELAY_MS, () => onPick(g));
   };
 
   /* ---- Kéo ngang: toạ độ trong khung (clientToStage) nên đúng cả khi khung co giãn/xoay ---- */
@@ -382,7 +384,7 @@ export function TrainMenu({ games, lang, speaker, onPick, lastGameId }: Props) {
       <TrainScenery season={season} />
       <span className={`${styles.cloud} ${styles.cloud1}`} aria-hidden="true" />
       <span className={`${styles.cloud} ${styles.cloud2}`} aria-hidden="true" />
-      <SeasonLayer speaker={speaker} />
+      <SeasonLayer speaker={speaker} delayMs={TRAIN_GREET_DELAY_MS} />
 
       <div className={styles.bubble} aria-hidden="true">{content.get('ui.train-hello')?.[lang]}</div>
 
