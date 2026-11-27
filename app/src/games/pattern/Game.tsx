@@ -5,6 +5,7 @@ import { ClayButton } from '../../ui/ClayButton';
 import { Scenery } from '../../ui/Scenery';
 import { useBuddyLook } from '../../ui/buddyContext';
 import { clientToStage } from '../../ui/Stage';
+import { useSayThen } from '../../ui/useSayThen';
 import {
   choiceCountForAge,
   kindsForTopic,
@@ -24,11 +25,12 @@ import { chainLayout, choiceCenter, BEAD, CHOICE } from './layout';
 import styles from './Game.module.css';
 
 const BASE = import.meta.env.BASE_URL;
-const BEAT_FIRST = 600; // ms giữa hai hạt khi đọc chuỗi
-const BEAT_SLOW = 800; // đọc lại chậm hơn sau khi chọn chưa đúng
-// Chuỗi tiếng kêu: mỗi tiếng ghi âm dài ~1.5–2s nên đọc thưa hơn
-const BEAT_SOUND = 1700;
-const BEAT_SOUND_SLOW = 1900;
+// Đọc chuỗi nối tiếp: hạt sau chỉ đọc khi tiếng hạt trước THẬT SỰ hết (không cắt tiếng kêu dài).
+const GAP_FIRST = 150; // nghỉ giữa hai hạt
+const GAP_SLOW = 400; // đọc lại thưa hơn sau khi chọn chưa đúng
+// Loa không báo được lúc hết tiếng (test unit): coi mỗi tiếng dài chừng này
+const STEP_WORD = 600;
+const STEP_SOUND = 1700;
 const FLY_MS = 450;
 const ROLL_MS = 700;
 const NEXT_ROUND_MS = 2500;
@@ -53,7 +55,7 @@ function playKinds(topic: string): Kind[] {
   return kindsForTopic(topic);
 }
 
-const beat = (kind: Kind, slow: boolean) => (kind === 'sound' ? (slow ? BEAT_SOUND_SLOW : BEAT_SOUND) : slow ? BEAT_SLOW : BEAT_FIRST);
+const stepMs = (kind: Kind) => (kind === 'sound' ? STEP_SOUND : STEP_WORD);
 
 /** Hình trong hạt: ảnh thẻ (quả, thú), hạt màu, hoặc hình khối. */
 function BeadArt({ kind, id, big }: { kind: Kind; id: string; big?: boolean }) {
@@ -123,30 +125,49 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
     timers.current.push(window.setTimeout(fn, ms));
   };
 
-  /** Đậu Đậu đọc chuỗi theo nhịp (hạt đang đọc nảy lên) rồi hỏi "Tiếp theo là quả gì?". */
+  /** Mỗi lần đọc chuỗi có số riêng: chuỗi cũ bị chuỗi mới/chọn hạt cắt thì không đổi hạt sáng nữa. */
+  const chainId = useRef(0);
+  const sayAll = useSayThen(speaker, (key) => {
+    setLastSay(key);
+    setSayCount((n) => n + 1);
+  });
+
+  /**
+   * Đậu Đậu đọc chuỗi (hạt đang đọc nảy lên) rồi hỏi "Tiếp theo là …?". Đọc NỐI TIẾP: hạt sau chỉ
+   * đọc khi tiếng trước hết, nên tên dài hay tiếng kêu thật không bị đè. `intro` (câu chào) đọc trước.
+   */
   const readChain = useCallback(
-    (r: Round, k: Kind, slow: boolean, delay: number) => {
+    (r: Round, k: Kind, slow: boolean, delay: number, intro?: string) => {
       setAsking(false);
-      const b = beat(k, slow);
-      r.shown.forEach((id, i) => {
-        later(delay + i * b, () => {
-          setActive(i);
-          say(sayKey(k, id));
+      const id = ++chainId.current;
+      const head = intro ? [intro] : [];
+      const keys = [...head, ...r.shown.map((b) => sayKey(k, b)), nextKey(k)];
+      const run = () =>
+        sayAll(keys, {
+          gapMs: slow ? GAP_SLOW : GAP_FIRST,
+          fallbackMs: stepMs(k),
+          onStep: (_key, i) => {
+            if (id !== chainId.current) return;
+            const bead = i - head.length;
+            if (bead < 0) return;
+            if (bead < r.shown.length) {
+              setActive(bead);
+            } else {
+              setActive(null);
+              setAsking(true);
+            }
+          },
         });
-      });
-      later(delay + r.shown.length * b, () => {
-        setActive(null);
-        setAsking(true);
-        say(nextKey(k));
-      });
+      if (delay > 0) later(delay, run);
+      else run();
     },
-    [say],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sayAll],
   );
 
   // Vào game: chào rồi đọc chuỗi đầu tiên
   useEffect(() => {
-    say('pattern.hello');
-    readChain(round, kind, false, 1800);
+    readChain(round, kind, false, 0, 'pattern.hello');
     return clearTimers;
     // chỉ chạy lúc vào game
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -172,6 +193,7 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
   const pick = (id: string) => {
     if (busy || !round.choices.includes(id)) return;
     clearTimers();
+    chainId.current++;
     setActive(null);
     setAsking(false);
     if (id === round.answer) {
@@ -180,9 +202,10 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
       setMotion({ kind: 'fly', id, dx: slot.x - c.x, dy: slot.y - c.y });
       const s = mistake ? 0 : streak + 1;
       const lvl = nextLevel(level, s, ageMonths);
+      // Khen ngay lúc chọn: cắt luôn chuỗi đang đọc dở, không để hai tiếng chồng nhau
+      say('pattern.yay');
       later(FLY_MS, () => {
         setFilled(id);
-        say('pattern.yay');
         if (lvl !== level) {
           setLevel(lvl);
           setStreak(0);
@@ -197,7 +220,7 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
       setStreak(0);
       setMotion({ kind: 'roll', id });
       later(ROLL_MS, () => setMotion(null));
-      readChain(round, kind, true, ROLL_MS);
+      readChain(round, kind, true, 0);
     }
   };
 

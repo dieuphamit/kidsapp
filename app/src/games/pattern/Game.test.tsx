@@ -39,3 +39,28 @@ describe('Chuỗi hạt: chạm bạn đồng hành', () => {
     expect(rule).not.toMatch(/pointer-events:\s*none/);
   });
 });
+
+describe('Chuỗi hạt: đọc chuỗi nối tiếp, tiếng sau không đè tiếng trước', () => {
+  it('vào game: chào + mọi hạt + câu hỏi đi chung một lượt sayThen (loa chờ tiếng trước hết)', () => {
+    const sayThen = vi.fn((_keys: readonly string[]) => () => {});
+    const sp = { say: vi.fn(), sfx: vi.fn(), sayThen } satisfies Speaker;
+    render(<Game lang="vi" speaker={sp} ageMonths={48} onExit={() => {}} />);
+    expect(sayThen).toHaveBeenCalledTimes(1);
+    const keys = sayThen.mock.calls[0][0];
+    expect(keys[0]).toBe('pattern.hello');
+    expect(keys.at(-1)).toMatch(/^pattern\.next/);
+    expect(keys.length).toBeGreaterThanOrEqual(4); // chào + ≥2 hạt + câu hỏi
+    // không có lệnh say() riêng nào chen vào giữa chuỗi
+    expect(sp.say).not.toHaveBeenCalled();
+  });
+
+  it('chạm Đậu Đậu: đọc lại cả chuỗi trong một lượt nối tiếp, không có câu chào', () => {
+    const sayThen = vi.fn((_keys: readonly string[]) => () => {});
+    const sp = { say: vi.fn(), sfx: vi.fn(), sayThen } satisfies Speaker;
+    render(<Game lang="vi" speaker={sp} ageMonths={48} onExit={() => {}} />);
+    fireEvent.pointerDown(screen.getByTestId('buddy'));
+    expect(sayThen).toHaveBeenCalledTimes(2);
+    const again = sayThen.mock.calls[1][0];
+    expect(again).toEqual(sayThen.mock.calls[0][0].slice(1));
+  });
+});
