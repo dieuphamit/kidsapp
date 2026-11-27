@@ -138,3 +138,62 @@ export function pickFreshRemembered<T>(
   rememberPicks(key, picked, rounds);
   return picked;
 }
+
+/** Chủ đề nội dung dùng cho nút "Tất cả trò" (kiểu phân loại riêng của trò Xếp vào giỏ không tính). */
+export const BULK_TOPICS: readonly Topic[] = ['mix', 'animals', 'fruits', 'shapes'];
+
+type BulkGame = { id: string; options?: { difficulty?: boolean; topics?: Topic[] } };
+
+/** Các chủ đề nhóm hiện cho "Tất cả trò": 'mix' + chủ đề nội dung có ít nhất một trò hỗ trợ. */
+export function bulkTopics(games: readonly BulkGame[]): Topic[] {
+  return BULK_TOPICS.filter((t) => t === 'mix' || games.some((g) => g.options?.topics?.includes(t)));
+}
+
+/**
+ * Áp một lựa chọn cho mọi trò một lần (bố mẹ khỏi chỉnh từng trò):
+ * - difficulty: mọi trò có tùy chọn độ khó;
+ * - topic 'mix': mọi trò có chủ đề về 'mix'; topic khác: chỉ trò có chủ đề đó, trò khác giữ nguyên.
+ * Không đổi trạng thái bật/tắt.
+ */
+export function applyToAll(
+  current: Record<string, GameSetting> | undefined,
+  games: readonly BulkGame[],
+  patch: { difficulty?: Difficulty; topic?: Topic },
+): Record<string, GameSetting> {
+  const next: Record<string, GameSetting> = { ...(current ?? {}) };
+  for (const g of games) {
+    const s = { ...gameSetting(current, g.id) };
+    let changed = false;
+    if (patch.difficulty && g.options?.difficulty && s.difficulty !== patch.difficulty) {
+      s.difficulty = patch.difficulty;
+      changed = true;
+    }
+    const topics = g.options?.topics ?? [];
+    if (patch.topic && topics.length > 0) {
+      const t = patch.topic === 'mix' || topics.includes(patch.topic) ? patch.topic : null;
+      if (t && s.topic !== t) {
+        s.topic = t;
+        changed = true;
+      }
+    }
+    if (changed) next[g.id] = s;
+  }
+  return next;
+}
+
+/**
+ * Giá trị chung đang áp cho "Tất cả trò" (để tô sáng nút), hoặc null nếu các trò đang khác nhau.
+ * Chủ đề T được coi là chung khi mọi trò hỗ trợ T đang chọn T (và 'mix' khi mọi trò có chủ đề đang 'mix').
+ */
+export function commonDifficulty(current: Record<string, GameSetting> | undefined, games: readonly BulkGame[]): Difficulty | null {
+  const ds = games.filter((g) => g.options?.difficulty).map((g) => gameSetting(current, g.id).difficulty);
+  return ds.length > 0 && ds.every((d) => d === ds[0]) ? ds[0] : null;
+}
+
+export function commonTopic(current: Record<string, GameSetting> | undefined, games: readonly BulkGame[]): Topic | null {
+  for (const t of bulkTopics(games)) {
+    const holders = games.filter((g) => (g.options?.topics?.length ?? 0) > 0 && (t === 'mix' || g.options!.topics!.includes(t)));
+    if (holders.length > 0 && holders.every((g) => gameSetting(current, g.id).topic === t)) return t;
+  }
+  return null;
+}

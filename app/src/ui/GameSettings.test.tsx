@@ -95,3 +95,32 @@ describe('ParentArea → Trò chơi', () => {
     expect(screen.getByRole('dialog', { name: 'Cài đặt phụ huynh' })).toBeInTheDocument();
   });
 });
+
+describe('GameSettings: áp nhanh cho tất cả trò', () => {
+  it('nút "Khó" của Tất cả trò đặt Khó cho mọi trò có độ khó, lưu ngay và tô sáng', () => {
+    const { onChange } = setup();
+    tap(screen.getByRole('button', { name: 'Tất cả trò: Khó' }));
+    const next = onChange.mock.calls.at(-1)![0];
+    expect(next.a.difficulty).toBe('hard');
+    expect(next.c.difficulty).toBe('hard');
+    expect(next.b).toBeUndefined(); // trò không có độ khó: không đụng
+    expect(screen.getByRole('button', { name: 'Tất cả trò: Khó' })).toHaveAttribute('aria-pressed', 'true');
+    // từng trò cũng hiện đúng Khó
+    expect(screen.getByRole('button', { name: 'Trò a: Khó' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('chủ đề cho tất cả: Trái cây áp cho trò có trái cây; vẫn chỉnh riêng một trò được', () => {
+    const { onChange } = setup();
+    tap(screen.getByRole('button', { name: 'Tất cả trò: Trái cây' }));
+    expect(onChange.mock.calls.at(-1)![0].a.topic).toBe('fruits');
+    tap(screen.getByRole('button', { name: 'Trò a: Con vật' }));
+    expect(onChange.mock.calls.at(-1)![0].a.topic).toBe('animals');
+  });
+
+  it('các trò khác nhau thì không nút độ khó chung nào được tô sáng', () => {
+    setup({ a: { enabled: true, difficulty: 'easy', topic: 'mix' }, c: { enabled: true, difficulty: 'hard', topic: 'mix' } });
+    for (const d of ['Theo tuổi', 'Dễ', 'Vừa', 'Khó']) {
+      expect(screen.getByRole('button', { name: `Tất cả trò: ${d}` })).toHaveAttribute('aria-pressed', 'false');
+    }
+  });
+});

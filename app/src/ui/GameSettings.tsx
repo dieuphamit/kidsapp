@@ -4,6 +4,10 @@ import { ClayButton } from './ClayButton';
 import type { GameManifest } from '../core/games';
 import {
   DIFFICULTIES,
+  applyToAll,
+  bulkTopics,
+  commonDifficulty,
+  commonTopic,
   gameSetting,
   type Difficulty,
   type GameSetting,
@@ -49,6 +53,17 @@ export function GameSettings({ games, value, onChange, onClose }: Props) {
     onChange(next);
   };
 
+  /** Áp nhanh cho mọi trò (độ khó hoặc chủ đề); bố mẹ vẫn chỉnh riêng từng trò sau đó được. */
+  const updateAll = (patch: { difficulty?: Difficulty; topic?: Topic }) => {
+    const next = applyToAll(cur, games, patch);
+    setCur(next);
+    onChange(next);
+  };
+  const allDiff = commonDifficulty(cur, games);
+  const allTopic = commonTopic(cur, games);
+  const allTopics = bulkTopics(games);
+  const hasDiff = games.some((g) => g.options?.difficulty);
+
   const enabledCount = games.filter((g) => gameSetting(cur, g.id).enabled).length;
 
   const toggle = (id: string) => {
@@ -76,6 +91,62 @@ export function GameSettings({ games, value, onChange, onClose }: Props) {
         </div>
       </div>
       <div className={styles.list}>
+        {(hasDiff || allTopics.length > 1) && (
+          <div className={`${styles.row} ${styles.allRow}`} data-testid="opt-all">
+            {hasDiff && (
+              <div className={styles.line}>
+                <div className={styles.name}>
+                  <span className={styles.icon} aria-hidden="true">🌈</span>
+                  <span className={styles.names}>
+                    Tất cả trò
+                    <small>ぜんぶの ゲーム</small>
+                  </span>
+                </div>
+                <div className={styles.group} role="group" aria-label="Tất cả trò: độ khó">
+                  {DIFFICULTIES.map((d) => (
+                    <ClayButton
+                      key={d}
+                      color={allDiff === d ? 'butter' : 'mint'}
+                      label={`Tất cả trò: ${DIFF_TEXT[d].vi}`}
+                      size={120}
+                      activateOn="release"
+                      selected={allDiff === d}
+                      className={styles.opt}
+                      onPress={() => updateAll({ difficulty: d })}
+                    >
+                      <span className={styles.optIcon} aria-hidden="true">{DIFF_TEXT[d].icon}</span>
+                      {DIFF_TEXT[d].vi}
+                      <small>{DIFF_TEXT[d].ja}</small>
+                    </ClayButton>
+                  ))}
+                </div>
+              </div>
+            )}
+            {allTopics.length > 1 && (
+              <div className={styles.line}>
+                <span className={styles.groupLabel}>Chủ đề cho tất cả / ぜんぶの テーマ</span>
+                <div className={styles.group} role="group" aria-label="Tất cả trò: chủ đề">
+                  {allTopics.map((t) => (
+                    <ClayButton
+                      key={t}
+                      color={allTopic === t ? 'butter' : 'mint'}
+                      label={`Tất cả trò: ${TOPIC_TEXT[t].vi}`}
+                      size={120}
+                      activateOn="release"
+                      selected={allTopic === t}
+                      className={styles.opt}
+                      onPress={() => updateAll({ topic: t })}
+                    >
+                      <span className={styles.optIcon} aria-hidden="true">{TOPIC_TEXT[t].icon}</span>
+                      {TOPIC_TEXT[t].vi}
+                      <small>{TOPIC_TEXT[t].ja}</small>
+                    </ClayButton>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
         {games.map((g) => {
           const s = gameSetting(cur, g.id);
           const topics = g.options?.topics ?? [];

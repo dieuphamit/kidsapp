@@ -58,3 +58,6 @@
 .optIcon { font-size: 32px; }
 
 .off { opacity: 0.55; }
+
+/* Khung "Tất cả trò": áp nhanh độ khó / chủ đề cho mọi trò, viền nổi bật để bố mẹ dễ thấy */
+.allRow { border: 4px solid var(--clay-mint); }

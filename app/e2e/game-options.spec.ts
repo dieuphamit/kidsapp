@@ -85,3 +85,34 @@ test('đặt Khó cho Lật hình thì bé 28 tháng nhận 6 thẻ thay vì 4',
   await expect(game.locator('[data-flipped]')).toHaveCount(6, { timeout: 10_000 });
   await page.screenshot({ path: 'test-results/shots/opts-memory-hard.png' });
 });
+
+test('Tất cả trò: chọn Khó một lần thì mọi trò thành Khó (Lật hình 6 thẻ), chọn chủ đề chung; chụp opts-all.png', async ({ page }) => {
+  await page.goto('./?menu=map&e2e=1');
+  await expect(page.getByTestId('home')).toBeVisible({ timeout: 10_000 });
+  await openGameSettings(page);
+  const all = page.getByTestId('opt-all');
+  await expect(all).toBeVisible();
+  const press = async (name: string) => {
+    const b = page.getByRole('button', { name });
+    await b.dispatchEvent('pointerdown');
+    await b.dispatchEvent('pointerup'); // nút màn Trò chơi kích hoạt khi nhả tay
+  };
+  await press('Tất cả trò: Khó');
+  await expect(page.getByRole('button', { name: 'Tất cả trò: Khó' })).toHaveAttribute('aria-pressed', 'true');
+  for (const t of ['Lật hình', 'Ghép hình', 'Tiệm bánh']) {
+    await expect(page.getByRole('button', { name: `${t}: Khó` })).toHaveAttribute('aria-pressed', 'true');
+  }
+  await press('Tất cả trò: Trái cây');
+  await expect(page.getByRole('button', { name: 'Tất cả trò: Trái cây' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'Lật hình: Trái cây' })).toHaveAttribute('aria-pressed', 'true');
+  // khung Tất cả trò nằm trong vùng an toàn: cách mép phải ≥144px (cổng bố mẹ)
+  const right = await all.getByRole('button').evaluateAll((els) => Math.max(...els.map((e) => (e as HTMLElement).getBoundingClientRect().right)));
+  expect(right).toBeLessThanOrEqual(1194 - 144);
+  await page.screenshot({ path: 'test-results/shots/opts-all.png' });
+  await closeAll(page);
+
+  // Lưu thật: vào Lật hình (bé 28 tháng) nhận 6 thẻ như mức Khó
+  await page.getByLabel('Góc đố').click();
+  await pickGame(page, 'memory');
+  await expect(page.getByTestId('game-memory').locator('[data-flipped]')).toHaveCount(6, { timeout: 10_000 });
+});

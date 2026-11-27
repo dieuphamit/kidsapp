@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import {
+  applyToAll,
+  bulkTopics,
+  commonDifficulty,
+  commonTopic,
+  type Topic,
   effectiveAge,
   gameSetting,
   optionsFor,
@@ -121,5 +126,46 @@ describe('xáo trộn có trí nhớ ngắn', () => {
     for (const g of ALL_GAMES) {
       for (const t of g.options?.topics ?? []) expect(sanitizeGameSetting({ topic: t }).topic, g.id).toBe(t);
     }
+  });
+});
+
+describe('áp cho tất cả trò', () => {
+  const games = [
+    { id: 'a', options: { difficulty: true, topics: ['animals', 'fruits'] as Topic[] } },
+    { id: 'b' },
+    { id: 'c', options: { difficulty: true } },
+    { id: 's', options: { difficulty: true, topics: ['colors', 'kinds'] as Topic[] } },
+  ];
+
+  it('bulkTopics: mix + chủ đề nội dung có trò hỗ trợ, bỏ kiểu phân loại riêng', () => {
+    expect(bulkTopics(games)).toEqual(['mix', 'animals', 'fruits']);
+  });
+
+  it('độ khó áp cho mọi trò có độ khó, không đụng trò khác và bật/tắt', () => {
+    const cur = { c: { enabled: false, difficulty: 'easy' as const, topic: 'mix' as const } };
+    const next = applyToAll(cur, games, { difficulty: 'hard' });
+    expect(next.a.difficulty).toBe('hard');
+    expect(next.c).toEqual({ enabled: false, difficulty: 'hard', topic: 'mix' });
+    expect(next.s.difficulty).toBe('hard');
+    expect(next.b).toBeUndefined();
+    expect(commonDifficulty(next, games)).toBe('hard');
+  });
+
+  it('chủ đề chỉ áp cho trò có chủ đề đó; mix đưa mọi trò có chủ đề về trộn', () => {
+    const fr = applyToAll(undefined, games, { topic: 'fruits' });
+    expect(fr.a.topic).toBe('fruits');
+    expect(fr.s).toBeUndefined(); // trò Xếp vào giỏ không có chủ đề trái cây: giữ nguyên
+    expect(commonTopic(fr, games)).toBe('fruits');
+    const mixed = applyToAll({ ...fr, s: { enabled: true, difficulty: 'auto', topic: 'colors' } }, games, { topic: 'mix' });
+    expect(mixed.a.topic).toBe('mix');
+    expect(mixed.s.topic).toBe('mix');
+    expect(commonTopic(mixed, games)).toBe('mix');
+  });
+
+  it('các trò đang khác nhau thì không có giá trị chung', () => {
+    const cur = { a: { enabled: true, difficulty: 'easy' as const, topic: 'animals' as const } };
+    expect(commonDifficulty(cur, games)).toBeNull();
+    expect(commonTopic(cur, games)).toBe('animals');
+    expect(commonTopic({ ...cur, s: { enabled: true, difficulty: 'auto', topic: 'colors' } }, games)).toBe('animals');
   });
 });
