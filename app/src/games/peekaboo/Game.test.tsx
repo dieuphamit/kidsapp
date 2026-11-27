@@ -149,3 +149,34 @@ describe('manifest', () => {
     expect(manifest.maxAge).toBe(60);
   });
 });
+
+describe('Ú òa: lời nói nối tiếp, câu sau không cắt câu trước', () => {
+  it('tìm thấy: "Ú òa" đọc xong mới tới tên + tiếng kêu; kêu xong (và hết giờ lộ diện) mới sang ván mới', () => {
+    vi.useFakeTimers();
+    try {
+      const chains: { keys: readonly string[]; done(): void }[] = [];
+      const sayThen = vi.fn((keys: readonly string[], opts?: { onSay?(k: string, i: number): void; onDone?(): void }) => {
+        keys.forEach((k, i) => opts?.onSay?.(k, i));
+        chains.push({ keys, done: () => opts?.onDone?.() });
+        return () => {};
+      });
+      const sp = { say: vi.fn(), sfx: vi.fn(), sayThen } satisfies Speaker;
+      render(<Game lang="vi" speaker={sp} ageMonths={30} onExit={() => {}} />);
+      for (let i = 0; i < 3 && !screen.queryByTestId('peek-reveal'); i++) {
+        fireEvent.pointerDown(screen.getByTestId(`bush-${i}`));
+      }
+      const id = screen.getByTestId('peek-reveal').getAttribute('data-animal');
+      expect(chains.map((c) => c.keys)).toEqual([['peek.found']]);
+      act(() => chains[0].done());
+      expect(chains[1].keys).toEqual([`animal.${id}`, `animal.${id}-sound`]);
+      // hết giờ lộ diện nhưng thú còn đang kêu: chưa sang ván mới
+      act(() => vi.advanceTimersByTime(6000));
+      expect(screen.getByTestId('peek-reveal')).toBeInTheDocument();
+      act(() => chains[1].done());
+      expect(screen.queryByTestId('peek-reveal')).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
