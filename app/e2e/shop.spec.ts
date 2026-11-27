@@ -205,22 +205,22 @@ test('món lạ nhẹ nhàng về kệ; kéo đủ món → giỏ ra quầy → 
   await tapRegister(page);
   await expect(game).toHaveAttribute('data-phase', 'scan');
   await expect(game).toHaveAttribute('data-last-say', 'number.1');
-  await expect(game).toHaveAttribute('data-last-say', 'number.2', { timeout: 3000 });
+  await expect(game).toHaveAttribute('data-last-say', 'number.2', { timeout: 8000 });
   await expect(page.getByTestId('screen')).toHaveText('2');
   await page.screenshot({ path: 'test-results/shots/shop-scan.png' });
-  await expect(game).toHaveAttribute('data-last-say', 'number.3', { timeout: 3000 });
+  await expect(game).toHaveAttribute('data-last-say', 'number.3', { timeout: 8000 });
   await expect(game).toHaveAttribute('data-phase', 'paid');
 
   // Khách vui: nhận túi, kêu tiếng của mình, tim bay, rồi được cảm ơn
   await expect(page.getByTestId('bag')).toHaveAttribute('data-state', 'given', { timeout: 4000 });
-  await expect(page.getByTestId('happy')).toBeVisible({ timeout: 4000 });
+  await expect(page.getByTestId('happy')).toBeVisible({ timeout: 8000 });
   await expect(game).toHaveAttribute('data-last-say', `animal.${s.customer}-sound`);
   await page.waitForTimeout(500);
   await page.screenshot({ path: 'test-results/shots/shop-happy.png' });
-  await expect(game).toHaveAttribute('data-last-say', 'shop.thanks', { timeout: 4000 });
+  await expect(game).toHaveAttribute('data-last-say', 'shop.thanks', { timeout: 8000 });
 
   // Khách kế, danh sách khác
-  await expect.poll(async () => (await snap(page)).index, { timeout: 8000 }).toBe(1);
+  await expect.poll(async () => (await snap(page)).index, { timeout: 15_000 }).toBe(1);
   const next = await snap(page);
   expect(next.customer).not.toBe(s.customer);
   expect(next.basket).toEqual([]);
@@ -276,19 +276,19 @@ test('bé lớn: danh sách có số lượng, bong bóng đúng số hình, k�
   }
   await expect(game).toHaveAttribute('data-phase', 'checkout');
   await tapRegister(page);
-  await expect(game).toHaveAttribute('data-last-say', `number.${total}`, { timeout: 10_000 });
+  await expect(game).toHaveAttribute('data-last-say', `number.${total}`, { timeout: 25_000 });
   await expect(game).toHaveAttribute('data-phase', 'paid');
 
   // Phục vụ nốt 4 khách còn lại: màn ăn mừng có đủ 5 khách đứng hàng; chụp shop-party-hard
   for (let i = 1; i < 5; i++) {
-    await expect.poll(async () => (await snap(page))?.index, { timeout: 12_000 }).toBe(i);
-    await expect(game).toHaveAttribute('data-phase', 'shop', { timeout: 10_000 });
+    await expect.poll(async () => (await snap(page))?.index, { timeout: 20_000 }).toBe(i);
+    await expect(game).toHaveAttribute('data-phase', 'shop', { timeout: 20_000 });
     const t = await snap(page);
     for (const w of t.need) for (let k = 0; k < w.qty; k++) await page.evaluate((x) => window.__behocShop!.add(x), w.item);
     expect(await page.evaluate(() => window.__behocShop!.pay())).toBe(true);
-    await expect(game).toHaveAttribute('data-phase', 'paid', { timeout: 10_000 });
+    await expect(game).toHaveAttribute('data-phase', 'paid', { timeout: 25_000 });
   }
-  await expect(page.getByTestId('party')).toBeVisible({ timeout: 12_000 });
+  await expect(page.getByTestId('party')).toBeVisible({ timeout: 20_000 });
   await expect(page.locator('[data-testid^="guest-"]')).toHaveCount(5);
   await expectPartyApart(page, (await page.getByRole('button', { name: 'replay' }).boundingBox())!);
   await imagesLoaded(page);
@@ -304,18 +304,18 @@ test('bé nhỏ: 1–2 món, kệ 4 ô; phục vụ đủ 3 khách → ăn mừn
   await page.screenshot({ path: 'test-results/shots/shop-easy.png' });
   const customers: string[] = [];
   for (let i = 0; i < 3; i++) {
-    await expect.poll(async () => (await snap(page))?.index, { timeout: 12_000 }).toBe(i);
-    await expect(game).toHaveAttribute('data-phase', 'shop', { timeout: 10_000 });
+    await expect.poll(async () => (await snap(page))?.index, { timeout: 20_000 }).toBe(i);
+    await expect(game).toHaveAttribute('data-phase', 'shop', { timeout: 20_000 });
     const s = await snap(page);
     customers.push(s.customer);
     expect(s.need).toHaveLength(i === 0 ? 1 : 2);
     expect(s.shelf).toHaveLength(4);
     for (const w of s.need) await page.evaluate((x) => window.__behocShop!.add(x), w.item);
     expect(await page.evaluate(() => window.__behocShop!.pay())).toBe(true);
-    await expect(game).toHaveAttribute('data-phase', 'paid', { timeout: 6000 });
+    await expect(game).toHaveAttribute('data-phase', 'paid', { timeout: 25_000 });
   }
   expect(new Set(customers).size).toBe(3);
-  await expect(game).toHaveAttribute('data-last-say', 'shop.done', { timeout: 12_000 });
+  await expect(game).toHaveAttribute('data-last-say', 'shop.done', { timeout: 20_000 });
   await expect(page.getByTestId('party')).toBeVisible();
   const replay = page.getByRole('button', { name: 'replay' });
   await expect(replay).toBeVisible();

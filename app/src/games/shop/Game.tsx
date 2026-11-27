@@ -5,6 +5,7 @@ import { ClayButton } from '../../ui/ClayButton';
 import { clientToStage, stageRect } from '../../ui/Stage';
 import { useBuddyLook } from '../../ui/buddyContext';
 import { sayThen } from '../../core/audio';
+import { useSaySteps } from '../../ui/useSayThen';
 import { recentPicks, rememberPicks } from '../../core/gameOptions';
 import { playSetup, type Level } from '../../core/variety';
 import {
@@ -167,6 +168,15 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
   }, []);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
+  /** Chuỗi (danh sách, "bấm máy nào") đọc xong: đếm lại giờ nhắc. */
+  const [chainEnd, setChainEnd] = useState(0);
+  /**
+   * Quét và trả tiền nói NỐI TIẾP: số sau chỉ đếm khi số trước đọc xong; tiếng khách kêu chờ số cuối,
+   * "cảm ơn" chờ tiếng kêu, khách kế chờ "cảm ơn" (trước đây số đếm cách nhau 950ms mà mỗi số ~2s,
+   * tiếng kêu hẹn 1800ms, "cảm ơn" 3300ms, khách kế 6700ms nên câu trước bị cắt).
+   * Bé chạm làm câu khác chen vào thì kịch bản vẫn đi tiếp (không kẹt ở quầy).
+   */
+  const checkout = useSaySteps(speaker, setLastSay);
   /** Chuỗi câu đang đọc dở (hàm huỷ của sayThen): câu mới làm chuỗi này dừng lại. */
   const chain = useRef<(() => void) | null>(null);
   const stopChain = useCallback(() => {
@@ -194,6 +204,7 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
         onSay: (k) => setLastSay(k),
         onDone: () => {
           if (chain.current === cancel) chain.current = null;
+          setChainEnd((n) => n + 1);
         },
       });
       chain.current = cancel;
@@ -228,11 +239,12 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
       if (phase === 'shop') setHint(true);
       else {
         setRegisterBounce(Date.now());
-        say(PAY_KEY);
+        // "bấm máy nào" (~5s) trong chuỗi khen còn đang đọc thì không nhắc chen vào; đọc xong đếm lại giờ
+        if (!chain.current) say(PAY_KEY);
       }
     }, IDLE_MS);
     return () => clearTimeout(t);
-  }, [phase, drag, party, state.basket.length, state.index, say]);
+  }, [phase, drag, party, state.basket.length, state.index, chainEnd, say]);
 
   const startTurn = (s: State) => {
     live.current = s;
@@ -303,36 +315,52 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
     return result;
   };
 
-  const finishPay = (s: State) => {
-    const t = currentTurn(s);
-    if (!t) return;
-    const c = customerById(t.customer);
+  /** Trả xong (vừa quét món cuối): túi ra quầy rồi tới khách; kêu, cảm ơn, ra về — nối tiếp. */
+  const finishPay = () => {
     later(() => {
       sounds.ding();
       setBag('desk');
     }, BAG_MS);
     later(() => setBag('given'), GIVE_MS);
-    later(() => {
-      setHappy(true);
-      setCustomerBounce(Date.now());
-      sounds.happy();
-      say(c.sound);
-    }, HAPPY_MS);
-    later(() => say(THANKS_KEY), THANKS_MS);
-    later(() => setCustomerAnim('out'), LEAVE_MS);
-    later(() => nextCustomer(s), NEXT_MS);
   };
 
+  const afterScan = (s: State) => {
+    const t = currentTurn(s);
+    if (!t) return;
+    const c = customerById(t.customer);
+    // số cuối đọc xong (loa giả: SCAN_MS) rồi chờ thêm cho đủ HAPPY_MS kể từ lúc trả xong
+    later(() => {
+      checkout.play(
+        [
+          {
+            keys: [c.sound],
+            fallbackMs: THANKS_MS - HAPPY_MS,
+            onStart: () => {
+              setHappy(true);
+              setCustomerBounce(Date.now());
+              sounds.happy();
+            },
+          },
+          { keys: [THANKS_KEY], fallbackMs: LEAVE_MS - THANKS_MS + (NEXT_MS - LEAVE_MS) },
+        ],
+        () => {
+          setCustomerAnim('out');
+          later(() => nextCustomer(s), NEXT_MS - LEAVE_MS);
+        },
+      );
+    }, HAPPY_MS - SCAN_MS);
+  };
+
+  /** Quét một món: bíp, máy nảy; món cuối thì trả xong. */
   const scanStep = () => {
     const s0 = live.current;
-    const { state: s, count, done } = scanNext(s0);
+    const { state: s, done } = scanNext(s0);
     if (s === s0) return;
     live.current = s;
     setState(s);
     setRegisterBounce(Date.now());
     sounds.beep();
-    say(numberKey(count));
-    if (done) finishPay(s);
+    if (done) finishPay();
   };
 
   /** Bấm máy tính tiền: từng món "bíp" lần lượt và được đếm. */
@@ -352,7 +380,13 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
     live.current = s;
     setState(s);
     stopChain();
-    for (let i = 0; i < s.basket.length; i++) later(scanStep, 120 + i * SCAN_MS);
+    // mỗi món: bíp + đếm; số sau chờ số trước đọc xong
+    later(() => {
+      checkout.play(
+        s.basket.map((_, i) => ({ keys: [numberKey(i + 1)], fallbackMs: SCAN_MS, onStart: scanStep })),
+        () => afterScan(live.current),
+      );
+    }, 120);
     return true;
   };
 
