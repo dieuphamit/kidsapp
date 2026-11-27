@@ -4,7 +4,7 @@ import type { GameManifest } from '../../core/games';
 export const manifest: GameManifest = {
   id: 'sound-quiz',
   title: { vi: 'Ai kêu đấy?', ja: 'だれの こえ?', en: "Who's that sound?" },
-  place: 'place.zoo',
+  place: 'place.pond',
   icon: '🔊',
   color: 'peach',
   minAge: 24,

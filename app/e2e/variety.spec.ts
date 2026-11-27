@@ -44,7 +44,7 @@ async function openWith(page: Page, place: string, gameId: string, games: Record
 const on = (difficulty: Opt['difficulty'], topic = 'mix'): Opt => ({ enabled: true, difficulty, topic });
 
 test('Ai kêu đấy? mức Khó: 4 thẻ, đáp án không lặp lại liền nhau', async ({ page }) => {
-  const game = await openWith(page, 'zoo', 'sound-quiz', { 'sound-quiz': on('hard') });
+  const game = await openWith(page, 'pond', 'sound-quiz', { 'sound-quiz': on('hard') });
   await expect(page.locator('[data-testid^="card-"]')).toHaveCount(4);
   await page.waitForTimeout(600);
   await page.screenshot({ path: 'test-results/shots/E2-sound-quiz.png' });
@@ -97,7 +97,7 @@ type SortHook = {
 };
 
 test('Xếp vào giỏ kiểu To / nhỏ: giỏ to và giỏ nhỏ, xếp hết', async ({ page }) => {
-  const game = await openWith(page, 'orchard', 'sort', { sort: on('hard', 'sizes') });
+  const game = await openWith(page, 'farm', 'sort', { sort: on('hard', 'sizes') });
   await expect(game).toHaveAttribute('data-last-say', 'sort.hello-sizes', { timeout: 3000 });
   const sort = () => page.evaluate(() => (window as unknown as { __behocSort: SortHook }).__behocSort.baskets());
   expect(await sort()).toEqual(['big', 'small']);
@@ -119,7 +119,7 @@ test('Xếp vào giỏ kiểu To / nhỏ: giỏ to và giỏ nhỏ, xếp hết'
 });
 
 test('Xếp vào giỏ kiểu Thú / quả: giỏ con vật và giỏ trái cây', async ({ page }) => {
-  const game = await openWith(page, 'orchard', 'sort', { sort: on('medium', 'kinds') });
+  const game = await openWith(page, 'farm', 'sort', { sort: on('medium', 'kinds') });
   await expect(game).toHaveAttribute('data-last-say', 'sort.hello-kinds', { timeout: 3000 });
   const baskets = await page.evaluate(() => (window as unknown as { __behocSort: SortHook }).__behocSort.baskets());
   expect(baskets).toEqual(['animal', 'fruit']);
@@ -157,7 +157,7 @@ test.describe('iPhone dọc 430×932', () => {
   test.use({ viewport: { width: 430, height: 932 }, hasTouch: true, isMobile: true });
 
   test('kéo thật: Xếp vào giỏ kiểu Thú / quả', async ({ page }) => {
-    const game = await openWith(page, 'orchard', 'sort', { sort: on('easy', 'kinds') });
+    const game = await openWith(page, 'farm', 'sort', { sort: on('easy', 'kinds') });
     await page.waitForTimeout(600);
     const { fruits, say } = await page.evaluate(() => {
       const s = (window as unknown as { __behocSort: SortHook }).__behocSort;

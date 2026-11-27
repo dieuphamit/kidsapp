@@ -43,13 +43,13 @@ test('bản đồ có các khu trong 7 khu (zoo, house, orchard, pond, puzzle, m
   await expect(page.getByLabel('Nhà âm nhạc')).toBeVisible();
   await expect(page.getByLabel('Trang trại')).toBeVisible();
   await expect(page.getByLabel('Hồ nước')).toBeVisible();
-  await expect(page.getByTestId('place-pond').getByTestId('strip')).toHaveText('🛁');
+  await expect(page.getByTestId('place-pond').getByTestId('strip')).toHaveText('🛁🌳🔊');
 
-  // dải icon trò: Thế giới thú có 6 trò nhưng chỉ hiện 4 icon đầu
-  await expect(page.getByTestId('place-zoo').getByTestId('strip')).toHaveText('🌍🐄🦁🔊');
-  await expect(page.getByTestId('place-orchard').getByTestId('strip')).toHaveText('🍎🧺🔺🛒');
+  // dải icon trò theo thứ tự trong khu (tuổi mặc định 28 tháng: ẩn trò từ 30 tháng như Chuỗi hạt)
+  await expect(page.getByTestId('place-zoo').getByTestId('strip')).toHaveText('🌍🐄🦁👤');
+  await expect(page.getByTestId('place-orchard').getByTestId('strip')).toHaveText('🍎🔺🛒');
   await expect(page.getByTestId('place-puzzle').getByTestId('strip')).toHaveText('🃏🧩');
-  await expect(page.getByTestId('place-farm').getByTestId('strip')).toHaveText('🐣🥕🚒');
+  await expect(page.getByTestId('place-farm').getByTestId('strip')).toHaveText('🐣🥕🚒🧺');
 
   // chưa chơi trò nào thì không có nút chơi lại
   await expect(page.getByTestId('replay')).toHaveCount(0);

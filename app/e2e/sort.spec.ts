@@ -23,14 +23,14 @@ if (!existsSync(shotsDir)) {
 }
 
 test.describe('Sort game (Xếp vào giỏ)', () => {
-  test('Vườn quả → picker → Xếp quả; chụp T-029-sort.png', async ({ page }) => {
+  test('Trang trại → picker → Xếp quả; chụp T-029-sort.png', async ({ page }) => {
     await page.goto('./?menu=map&e2e=1');
     await expect(page.getByTestId('home')).toBeVisible();
 
-    // Chạm Vườn quả
-    const orchardBtn = page.getByLabel('Vườn quả');
-    await expect(orchardBtn).toBeVisible();
-    await orchardBtn.tap();
+    // Chạm Trang trại
+    const farmBtn = page.getByLabel('Trang trại');
+    await expect(farmBtn).toBeVisible();
+    await farmBtn.tap();
 
     // Picker hiện
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
@@ -56,7 +56,7 @@ test.describe('Sort game (Xếp vào giỏ)', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game sort
-    await page.getByLabel('Vườn quả').tap();
+    await page.getByLabel('Trang trại').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
     await page.getByLabel('Xếp vào giỏ').tap();
     const gameEl = page.getByTestId('game-sort');
@@ -89,7 +89,7 @@ test.describe('Sort game (Xếp vào giỏ)', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game sort
-    await page.getByLabel('Vườn quả').tap();
+    await page.getByLabel('Trang trại').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
     await page.getByLabel('Xếp vào giỏ').tap();
     const gameEl = page.getByTestId('game-sort');
@@ -119,7 +119,7 @@ test.describe('Sort game (Xếp vào giỏ)', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game sort
-    await page.getByLabel('Vườn quả').tap();
+    await page.getByLabel('Trang trại').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
     await page.getByLabel('Xếp vào giỏ').tap();
     const gameEl = page.getByTestId('game-sort');
@@ -172,7 +172,7 @@ test.describe('Sort game (Xếp vào giỏ)', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game sort
-    await page.getByLabel('Vườn quả').tap();
+    await page.getByLabel('Trang trại').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
     await page.getByLabel('Xếp vào giỏ').tap();
     await expect(page.getByTestId('game-sort')).toBeVisible({ timeout: 5000 });
@@ -191,7 +191,7 @@ test.describe('Sort game (Xếp vào giỏ)', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game sort
-    await page.getByLabel('Vườn quả').tap();
+    await page.getByLabel('Trang trại').tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
     await page.getByLabel('Xếp vào giỏ').tap();
     const gameEl = page.getByTestId('game-sort');
@@ -222,7 +222,7 @@ test.describe('iPhone dọc: kéo quả', () => {
     await expect(page.getByTestId('home')).toBeVisible();
 
     // Vào game sort
-    await page.getByRole('button', { name: 'Vườn quả' }).tap();
+    await page.getByRole('button', { name: 'Trang trại' }).tap();
     await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 3000 });
     await page.getByLabel('Xếp vào giỏ').tap();
     const gameEl = page.getByTestId('game-sort');

@@ -141,10 +141,10 @@ describe('manifest', () => {
   it('có đúng thông tin', async () => {
     const { manifest } = await import('./manifest');
     expect(manifest.id).toBe('peekaboo');
-    expect(manifest.place).toBe('place.zoo');
+    expect(manifest.place).toBe('place.pond');
     expect(manifest.titleKey).toBe('game.peekaboo');
     expect(manifest.icon).toBe('🌳');
-    expect(manifest.order).toBe(4);
+    expect(manifest.order).toBe(1);
     expect(manifest.minAge).toBe(24);
     expect(manifest.maxAge).toBe(60);
   });

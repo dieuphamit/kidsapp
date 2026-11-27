@@ -1,7 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { lazy } from 'react';
-import { TrainMenu, TRAIN_PICK_DELAY_MS, WHISTLE_SFX, initialPlace, sceneSeason, trainPlaces } from './TrainMenu';
+import {
+  TrainMenu, TRAIN_PICK_DELAY_MS, WHISTLE_SFX, initialPlace, sceneSeason, trainPlaces, trainLayout,
+  TRAIN_LEFT, TRAIN_RIGHT, CAR_MAX_W, CAR_MIN_W, ENGINE_W, ENGINE_MIN_W,
+} from './TrainMenu';
 import { ALL_GAMES, gamesForAge, type GameManifest } from '../core/games';
 import { PLACES } from '../core/places';
 
@@ -134,6 +137,49 @@ describe('TrainMenu', () => {
       expect(places.flatMap((p) => p.games.map((g) => g.id)).sort()).toEqual(games.map((g) => g.id).sort());
       expect(places.length).toBeLessThanOrEqual(PLACES.length);
     }
+  });
+});
+
+describe('trainLayout', () => {
+  it('tới 4 trò: cả đoàn tàu vừa khung, chừa 144px mép phải; toa đủ rộng cho nút ▶ 120 và khe 24', () => {
+    for (let n = 1; n <= 4; n++) {
+      const l = trainLayout(n);
+      expect(l.overflow, `${n}`).toBe(false);
+      expect(TRAIN_LEFT + l.width, `${n}`).toBeLessThanOrEqual(TRAIN_RIGHT);
+      expect(l.engineW).toBe(ENGINE_W);
+      expect(l.carW).toBeLessThanOrEqual(CAR_MAX_W);
+      expect(l.carW).toBeGreaterThanOrEqual(CAR_MIN_W);
+      // khe giữa hai nút ▶ của hai toa kề nhau
+      expect(l.carW + l.coupler - 120).toBeGreaterThanOrEqual(24);
+    }
+    expect(trainLayout(1).carW).toBe(CAR_MAX_W);
+    expect(trainLayout(4).carW).toBeGreaterThan(170);
+  });
+
+  it('càng nhiều trò toa càng hẹp; chật thì thu đầu tàu trước khi báo tràn', () => {
+    const widths = [1, 2, 3, 4, 5, 6].map((n) => trainLayout(n).carW);
+    for (let i = 1; i < widths.length; i++) expect(widths[i]).toBeLessThanOrEqual(widths[i - 1]);
+    const five = trainLayout(5);
+    expect(five.overflow).toBe(false);
+    expect(TRAIN_LEFT + five.width).toBeLessThanOrEqual(TRAIN_RIGHT);
+    const many = trainLayout(9);
+    expect(many.overflow).toBe(true);
+    expect(many.engineW).toBe(ENGINE_MIN_W);
+    expect(many.carW).toBe(CAR_MIN_W);
+    expect(TRAIN_LEFT + many.width).toBeGreaterThan(TRAIN_RIGHT);
+  });
+
+  it('khu quá nhiều trò: vùng tàu báo tràn (tự chạy qua lại) và vẫn có đủ toa', () => {
+    const many = Array.from({ length: 9 }, (_, i) => makeGame(`z${i}`, 'place.zoo', i));
+    renderTrain(many);
+    expect(screen.getByTestId('train-viewport')).toHaveAttribute('data-overflow', 'true');
+    expect(carIds()).toHaveLength(9);
+  });
+
+  it('khu ít trò: không tràn, toa mang cỡ của trainLayout', () => {
+    renderTrain();
+    expect(screen.getByTestId('train-viewport')).not.toHaveAttribute('data-overflow');
+    expect(screen.getByTestId('train').style.getPropertyValue('--car-w')).toBe(`${trainLayout(2).carW}px`);
   });
 });
 
