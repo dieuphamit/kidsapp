@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import type { GameProps } from '../../core/games';
+import { useSaySteps } from '../../ui/useSayThen';
 import { BackHome } from '../../ui/BackHome';
 import { Scenery } from '../../ui/Scenery';
 import { clientToStage } from '../../ui/Stage';
@@ -133,6 +134,8 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
     };
   }, []);
 
+  const talk = useSaySteps(speaker, setLastSay);
+
   // Hello message
   useEffect(() => {
     say('puzzle.hello');
@@ -145,27 +148,28 @@ export default function Game({ speaker, ageMonths, options, onExit }: GameProps)
       setCompleteAnim(true);
       setShowStars(true);
 
+      // Khen → tên hình → ván mới + câu chào, NỐI TIẾP: câu sau chỉ phát khi câu trước hết
+      // (trước đây tên hình hẹn 1500ms nên cắt câu khen ~2,4s).
       later(() => {
-        say('puzzle.done');
-        // Sau đó nói tên hình
-        later(() => {
-          say(cardContentKey(state.cardId));
-
-          // 3s sau → ván mới
-          later(() => {
-            setShowStars(false);
-            setCompleteAnim(false);
-            const next = nextRound(state, 0, topic, recentPicks<string>('puzzle'));
-            rememberPicks('puzzle', [next.cardId], RECENT_PUZZLES);
-            setState(next);
-            setPiecePositions(initialTrayPositions(next.pieceCount));
-            doneHandled.current = false;
-            say('puzzle.hello');
-          }, 3000);
-        }, 1500);
+        talk.play([
+          { keys: ['puzzle.done'], fallbackMs: 1500 },
+          { keys: [cardContentKey(state.cardId)], fallbackMs: 3000 },
+          {
+            keys: ['puzzle.hello'],
+            onStart: () => {
+              setShowStars(false);
+              setCompleteAnim(false);
+              const next = nextRound(state, 0, topic, recentPicks<string>('puzzle'));
+              rememberPicks('puzzle', [next.cardId], RECENT_PUZZLES);
+              setState(next);
+              setPiecePositions(initialTrayPositions(next.pieceCount));
+              doneHandled.current = false;
+            },
+          },
+        ]);
       }, 500);
     }
-  }, [state, say, topic, later]);
+  }, [state, talk, topic, later]);
 
   // Pointer handlers
   const handlePointerDown = useCallback(
