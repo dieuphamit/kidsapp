@@ -44,6 +44,55 @@ export function initialPlace(places: { key: string; games: GameManifest[] }[], l
   return (last ?? places[0])?.key;
 }
 
+/* ---- Cỡ đoàn tàu: mọi toa phải nằm trọn trong khung, không cần kéo ---- */
+/** Mép trái đoàn tàu trong khung. */
+export const TRAIN_LEFT = 16;
+/** Mép phải tối đa: chừa 144px sát mép phải cho cổng bố mẹ (góc trên-phải). */
+export const TRAIN_RIGHT = 1194 - 144;
+/** Đèn đuôi + móc nối giữa hai toa (px trong khung). */
+export const TRAIN_TAIL = 12;
+export const TRAIN_COUPLER = 16;
+/** Đầu tàu thường / thu gọn khi khu nhiều trò. */
+export const ENGINE_W = 240;
+export const ENGINE_MIN_W = 170;
+/** Toa rộng nhất (khu ít trò) và hẹp nhất còn đọc được tên trò (nút ▶ 120px + khe ≥24px giữa hai nút). */
+export const CAR_MAX_W = 230;
+export const CAR_MIN_W = 140;
+
+export type TrainLayout = {
+  engineW: number;
+  carW: number;
+  coupler: number;
+  /** Tổng bề ngang đoàn tàu (từ TRAIN_LEFT). */
+  width: number;
+  /** true: dù thu nhỏ vẫn không vừa khung → đoàn tàu tự chạy chậm qua lại để lộ mọi toa. */
+  overflow: boolean;
+};
+
+/**
+ * Cỡ đầu tàu và toa theo số trò: toa giãn đều cho vừa khoảng [TRAIN_LEFT, TRAIN_RIGHT] (tối đa CAR_MAX_W);
+ * chật thì thu đầu tàu về ENGINE_MIN_W; vẫn chật thì giữ CAR_MIN_W và báo overflow.
+ */
+export function trainLayout(n: number): TrainLayout {
+  const avail = TRAIN_RIGHT - TRAIN_LEFT - TRAIN_TAIL;
+  const cars = Math.max(1, n);
+  const fit = (engineW: number) => Math.floor((avail - engineW - cars * TRAIN_COUPLER) / cars);
+  let engineW = ENGINE_W;
+  let carW = Math.min(CAR_MAX_W, fit(engineW));
+  if (carW < CAR_MIN_W) {
+    engineW = ENGINE_MIN_W;
+    carW = Math.min(CAR_MAX_W, fit(engineW));
+  }
+  const overflow = carW < CAR_MIN_W;
+  if (overflow) carW = CAR_MIN_W;
+  const width = engineW + cars * (TRAIN_COUPLER + carW) + TRAIN_TAIL;
+  return { engineW, carW, coupler: TRAIN_COUPLER, width, overflow };
+}
+
+/** Tốc độ tự chạy qua lại khi tàu dài hơn khung (px khung / giây) và lúc dừng ở hai đầu (ms). */
+const PAN_SPEED = 60;
+const PAN_REST_MS = 1800;
+
 const tok = (name: string): CSSProperties => ({ fill: `var(--${name})` });
 
 /** Màu tán cây theo mùa (chỉ token trong tokens.css). */
@@ -179,7 +228,8 @@ type Props = {
 
 /**
  * Menu kiểu đoàn tàu: mỗi khu một đoàn tàu, Đậu Đậu lái đầu tàu, mỗi toa là một trò (nút ▶ to).
- * Thanh tab dưới chọn khu: đoàn tàu mới chạy vào kèm tiếng còi. Kéo ngang một ngón để xem thêm toa.
+ * Thanh tab dưới chọn khu: đoàn tàu mới chạy vào kèm tiếng còi. Toa co giãn theo số trò (trainLayout) để mọi toa
+ * nằm trọn trong khung; khu quá nhiều trò thì đoàn tàu tự chạy chậm qua lại (bé vẫn kéo ngang được).
  */
 export function TrainMenu({ games, lang, speaker, onPick, lastGameId }: Props) {
   const buddy = useBuddy();
@@ -198,6 +248,7 @@ export function TrainMenu({ games, lang, speaker, onPick, lastGameId }: Props) {
   const season = useMemo(() => sceneSeason(seasonToday(window.location.search)), []);
 
   const current = places.find((p) => p.key === placeKey) ?? places[0];
+  const layout = useMemo(() => trainLayout(current?.games.length ?? 0), [current]);
   // Trò vừa chơi đọc từ máy sau lần vẽ đầu: bé chưa chọn tab thì mở đúng khu của trò đó
   const touched = useRef(false);
   useEffect(() => {
@@ -286,6 +337,37 @@ export function TrainMenu({ games, lang, speaker, onPick, lastGameId }: Props) {
     window.removeEventListener('pointercancel', onUp);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // Tàu dài hơn khung (khu quá nhiều trò): tự chạy chậm qua lại để bé thấy hết toa; bé kéo thì nhường bé
+  useEffect(() => {
+    const el = viewport.current;
+    if (!layout.overflow || moving || !el) return;
+    let dir = 1;
+    let pos = el.scrollLeft;
+    let last = performance.now();
+    let restUntil = last + PAN_REST_MS;
+    let raf = 0;
+    const step = (now: number) => {
+      const dt = now - last;
+      last = now;
+      if (drag.current || Math.abs(el.scrollLeft - pos) > 2) {
+        pos = el.scrollLeft;
+        restUntil = now + PAN_REST_MS;
+      } else if (now >= restUntil) {
+        const max = el.scrollWidth - el.clientWidth;
+        pos += (dir * PAN_SPEED * dt) / 1000;
+        if (pos >= max || pos <= 0) {
+          pos = Math.min(max, Math.max(0, pos));
+          dir = pos >= max ? -1 : 1;
+          restUntil = now + PAN_REST_MS;
+        }
+        el.scrollLeft = pos;
+      }
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [layout.overflow, moving, current?.key, arrival]);
+
   /** Chạm (không kéo) vào tranh của toa cũng là chọn trò. */
   const tapped = () => !drag.current?.moved;
 
@@ -304,12 +386,13 @@ export function TrainMenu({ games, lang, speaker, onPick, lastGameId }: Props) {
 
       <div className={styles.bubble} aria-hidden="true">{content.get('ui.train-hello')?.[lang]}</div>
 
-      <div className={styles.viewport} ref={viewport} data-testid="train-viewport" onPointerDown={onDown}>
+      <div className={styles.viewport} ref={viewport} data-testid="train-viewport" data-overflow={layout.overflow || undefined} onPointerDown={onDown}>
         <div
           key={`${current?.key}-${arrival}`}
           className={styles.train}
           data-testid="train"
           data-moving={moving || undefined}
+          style={{ '--engine-w': `${layout.engineW}px`, '--car-w': `${layout.carW}px`, '--coupler-w': `${layout.coupler}px`, paddingLeft: TRAIN_LEFT } as CSSProperties}
           onAnimationEnd={(e) => { if (e.target === e.currentTarget) setMoving(false); }}
         >
           <Engine img={buddyImageUrl(buddy.character)} name={buddyName(buddy.name, lang)} onTap={hello} />

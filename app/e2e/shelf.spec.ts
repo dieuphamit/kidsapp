@@ -71,9 +71,19 @@ test('kệ đồ chơi: mọi thẻ ≥120px (132px khi ít trò), khe ≥24px, 
   expect(await cards.count()).toBeGreaterThanOrEqual(11);
   const ids = await cards.evaluateAll((els) => els.map((e) => e.getAttribute('data-testid')!.slice('shelf-card-'.length)));
   // thứ tự khu: Thế giới thú trước, rồi ... Nhà âm nhạc, Trang trại cuối
-  expect(ids.slice(0, 6)).toEqual(['world', 'animals', 'zoo3d', 'sound-quiz', 'shadow', 'peekaboo']);
-  expect(ids.slice(-6, -3).sort()).toEqual(['band', 'coloring', 'music']);
-  expect(ids.slice(-3)).toEqual(['mama', 'feed', 'rescue']);
+  expect(ids.slice(0, 4)).toEqual(['world', 'animals', 'zoo3d', 'shadow']);
+  expect(ids.slice(-7, -4).sort()).toEqual(['band', 'coloring', 'music']);
+  expect(ids.slice(-4)).toEqual(['mama', 'feed', 'rescue', 'sort']);
+  // trọn thứ tự theo khu (mỗi khu ≤4 trò; tuổi 28 tháng ẩn trò từ 30 tháng)
+  expect(ids).toEqual([
+    'world', 'animals', 'zoo3d', 'shadow',
+    'hide', 'bakery', 'words', 'cook',
+    'counting', 'shapes', 'shop',
+    'bath', 'peekaboo', 'sound-quiz',
+    'memory', 'puzzle',
+    'music', 'band', 'coloring',
+    'mama', 'feed', 'rescue', 'sort',
+  ]);
 
   await cardsSettled(page); // chờ hiệu ứng hiện thẻ (trễ dần 40ms/thẻ, nảy quá cỡ) chạy xong rồi mới đo
   const boxes = await cardBoxes(page);

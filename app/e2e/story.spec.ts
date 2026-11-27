@@ -40,10 +40,10 @@ async function openWithAgeOnly(page: Page, ageMonths: number) {
   );
 }
 
-/** E4: đặt tuổi rồi vào thẳng bảng chọn trò Nhà Đậu Đậu (2D, không qua bản đồ 3D), chuyện đầu là `story`. */
+/** E4: đặt tuổi rồi vào thẳng bảng chọn trò Nhà âm nhạc (2D, không qua bản đồ 3D), chuyện đầu là `story`. */
 async function openDirect(page: Page, ageMonths: number, story: string): Promise<{ game: Locator; story: string }> {
   await openWithAgeOnly(page, ageMonths);
-  await page.goto(`./?menu=map&e2e=1&picker=house&story=${story}`);
+  await page.goto(`./?menu=map&e2e=1&picker=music&story=${story}`);
   await pickGame(page, 'story');
   const game = page.getByTestId('game-story');
   await expect(game).toBeVisible({ timeout: 10_000 });
@@ -52,9 +52,9 @@ async function openDirect(page: Page, ageMonths: number, story: string): Promise
   return { game, story };
 }
 
-/** Nhà Đậu Đậu → Chuyện ba tranh; chờ Đậu Đậu đọc tranh 1 rồi hỏi "tiếp theo". */
+/** Nhà âm nhạc → Chuyện ba tranh; chờ Đậu Đậu đọc tranh 1 rồi hỏi "tiếp theo". */
 async function openStory(page: Page): Promise<{ game: Locator; story: string }> {
-  await page.getByLabel('Nhà Đậu Đậu').click();
+  await page.getByLabel('Nhà âm nhạc').click();
   await pickGame(page, 'story');
   const game = page.getByTestId('game-story');
   await expect(game).toBeVisible({ timeout: 10_000 });

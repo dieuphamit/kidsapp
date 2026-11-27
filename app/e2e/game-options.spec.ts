@@ -49,12 +49,12 @@ test('khu bố mẹ: tắt Ú òa thì trò biến mất khỏi bản đồ, k�
   await expect(page.getByTestId('shelf-card-peekaboo')).toHaveCount(0);
   await expect(page.getByTestId('shelf-card-shadow')).toBeVisible();
 
-  // Màn chọn trò của khu thú (đọc lại tùy chọn đã lưu sau khi tải lại trang)
-  await page.goto('./?menu=map&e2e=1&picker=zoo');
+  // Màn chọn trò của Hồ nước, khu có Ú òa (đọc lại tùy chọn đã lưu sau khi tải lại trang)
+  await page.goto('./?menu=map&e2e=1&picker=pond');
   await expect(page.getByTestId('game-picker')).toBeVisible({ timeout: 10_000 });
-  await expect(page.getByTestId('pick-shadow')).toBeVisible();
+  await expect(page.getByTestId('pick-sound-quiz')).toBeVisible();
   await expect(page.getByTestId('pick-peekaboo')).toHaveCount(0);
-  await expect(page.locator('[data-testid^="pick-"]')).toHaveCount(5); // world, animals, zoo3d, sound-quiz, shadow
+  await expect(page.locator('[data-testid^="pick-"]')).toHaveCount(2); // bath, sound-quiz
   await page.waitForTimeout(1200); // chờ thẻ hiện hết
   await page.screenshot({ path: 'test-results/shots/opts-picker.png' });
 });

@@ -45,25 +45,33 @@ describe('places', () => {
     const byId = new Map(ALL_GAMES.map((g) => [g.id, g]));
     for (const g of ALL_GAMES) expect(placeOrder(g.place), g.id).toBeLessThan(PLACES.length);
     const expected: [string, string, number][] = [
+      ['world', 'place.zoo', -1],
       ['animals', 'place.zoo', 0],
       ['zoo3d', 'place.zoo', 1],
-      ['sound-quiz', 'place.zoo', 2],
-      ['shadow', 'place.zoo', 3],
-      ['peekaboo', 'place.zoo', 4],
-      ['counting', 'place.orchard', 0],
-      ['sort', 'place.orchard', 1],
-      ['shapes', 'place.orchard', 2],
-      ['shop', 'place.orchard', 4],
-      ['bath', 'place.pond', 0],
-      ['memory', 'place.puzzle', 0],
-      ['puzzle', 'place.puzzle', 1],
-      ['dots', 'place.puzzle', 3],
+      ['shadow', 'place.zoo', 2],
+      ['hide', 'place.house', 0],
+      ['bakery', 'place.house', 2],
       ['words', 'place.house', 3],
       ['cook', 'place.house', 4],
+      ['counting', 'place.orchard', 0],
+      ['shapes', 'place.orchard', 2],
+      ['pattern', 'place.orchard', 3],
+      ['shop', 'place.orchard', 4],
+      ['bath', 'place.pond', 0],
+      ['peekaboo', 'place.pond', 1],
+      ['sound-quiz', 'place.pond', 2],
+      ['memory', 'place.puzzle', 0],
+      ['puzzle', 'place.puzzle', 1],
+      ['path', 'place.puzzle', 2],
+      ['dots', 'place.puzzle', 3],
       ['music', 'place.music', 0],
+      ['band', 'place.music', 1],
+      ['coloring', 'place.music', 2],
+      ['story', 'place.music', 3],
       ['mama', 'place.farm', 0],
       ['feed', 'place.farm', 1],
       ['rescue', 'place.farm', 2],
+      ['sort', 'place.farm', 3],
     ];
     for (const [id, place, order] of expected) {
       const g = byId.get(id);
@@ -71,5 +79,8 @@ describe('places', () => {
       expect(g?.place, id).toBe(place);
       expect(g?.order ?? 0, id).toBe(order);
     }
+    // bảng trên phủ hết mọi trò; mỗi khu tối đa 4 trò để đoàn tàu hiện trọn trong khung
+    expect(new Set(expected.map(([id]) => id))).toEqual(new Set(ALL_GAMES.map((g) => g.id)));
+    for (const p of PLACES) expect(ALL_GAMES.filter((g) => g.place === p.key).length, p.key).toBeLessThanOrEqual(4);
   });
 });

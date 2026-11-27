@@ -1,5 +1,5 @@
-// E2E menu đoàn tàu (mặc định): tab khu, đoàn tàu chạy vào, kéo ngang xem thêm toa, mở trò,
-// đổi kiểu menu trong khu bố mẹ (tàu → bản đồ → tàu), iPhone dọc kéo đoàn tàu trong khung đã xoay.
+// E2E menu đoàn tàu (mặc định): tab khu, đoàn tàu chạy vào, mọi toa của mỗi khu nằm trọn trong khung (iPad và
+// iPhone dọc, không cần kéo), mở trò, đổi kiểu menu trong khu bố mẹ (tàu → bản đồ → tàu).
 import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { openParentArea } from './parent-gate.js';
@@ -94,47 +94,78 @@ test('đổi tab: nói tên khu, đoàn tàu mới chạy vào; chụp train-tab
   await page.screenshot({ path: 'test-results/shots/train-arriving.png' });
 });
 
-test('kéo ngang xem toa cuối rồi chạm ▶ mở trò; về nhà thì lại thấy đoàn tàu khu đó; chụp train-drag', async ({ page }) => {
+test('mọi toa nằm trọn trong khung, kéo không trôi; chạm ▶ toa cuối mở trò; về nhà thì lại thấy đoàn tàu khu đó; chụp train-drag', async ({ page }) => {
   await page.goto('./?e2e=1');
   await expect(page.getByTestId('train-menu')).toBeVisible({ timeout: 10_000 });
   await trainStill(page);
-  const cars = page.locator('[data-testid^="train-car-"]');
-  const lastCar = cars.last();
-  const lastId = (await lastCar.getAttribute('data-testid'))!.slice('train-car-'.length);
-  // toa cuối đang khuất bên phải
-  expect((await lastCar.boundingBox())!.x).toBeGreaterThan(1194);
+  const lastCar = page.locator('[data-testid^="train-car-"]').last();
+  // toa cuối đã thấy trọn, không lấn dải cổng phụ huynh
+  const car = (await lastCar.boundingBox())!;
+  expect(car.x).toBeGreaterThanOrEqual(0);
+  expect(car.x + car.width).toBeLessThanOrEqual(1194 - 144);
 
-  // kéo một ngón từ phải sang trái trên đoàn tàu (vùng cảnh trong toa, không phải nút)
-  await page.mouse.move(1000, 330);
+  // kéo ngang trên đoàn tàu (vùng tranh trong toa, không phải nút): tàu vừa khung nên không trôi; kéo không mở nhầm trò
+  await page.mouse.move(900, 380);
   await page.mouse.down();
-  for (let x = 1000; x >= 200; x -= 50) await page.mouse.move(x, 335);
+  for (let x = 900; x >= 200; x -= 50) await page.mouse.move(x, 385);
   await page.mouse.up();
-  await page.waitForTimeout(900);
-  expect(await scrollLeft(page)).toBeGreaterThan(600);
-  // kéo không mở nhầm trò
+  await page.waitForTimeout(600);
+  expect(await scrollLeft(page)).toBe(0);
   await expect(page.getByTestId('train-menu')).toBeVisible();
   await expect(page.getByTestId('train-menu')).toHaveAttribute('data-last-say', 'ui.train-hello');
-
-  // kéo tiếp tới cuối đoàn tàu
-  await page.mouse.move(1000, 330);
-  await page.mouse.down();
-  for (let x = 1000; x >= 200; x -= 50) await page.mouse.move(x, 335);
-  await page.mouse.up();
-  await page.waitForTimeout(900);
-  const play = lastCar.getByRole('button');
-  const box = (await play.boundingBox())!;
-  expect(box.x).toBeGreaterThanOrEqual(0);
-  expect(box.x + box.width).toBeLessThanOrEqual(1194);
   await page.screenshot({ path: 'test-results/shots/train-drag.png' });
 
-  await play.click();
+  await lastCar.getByRole('button').click();
   await expect(page.getByTestId('train-menu')).toHaveAttribute('data-last-say', /.+/);
   await expect(page.getByTestId('train-menu')).toBeHidden({ timeout: 10_000 });
   await expect(page.getByLabel('Về nhà')).toBeVisible({ timeout: 15_000 });
   await page.getByLabel('Về nhà').click();
   await expect(page.getByTestId('train-menu')).toBeVisible({ timeout: 10_000 });
   await expect(page.getByTestId('train-menu')).toHaveAttribute('data-place', 'place.zoo');
-  expect(lastId.length).toBeGreaterThan(0);
+});
+
+const PLACE_IDS = ['zoo', 'house', 'orchard', 'pond', 'puzzle', 'music', 'farm'];
+
+/** Vùng tàu không cần cuộn: đo bằng kích thước bố cục (trong khung), không phụ thuộc co giãn/xoay. */
+const trainFits = (page: Page) =>
+  page.getByTestId('train-viewport').evaluate((el) => ({ sw: el.scrollWidth, cw: el.clientWidth, overflow: el.hasAttribute('data-overflow') }));
+
+test('mỗi khu: mọi toa nằm trọn trong khung, tên trò không bị cắt; chụp train-<khu>', async ({ page }) => {
+  await page.goto('./?e2e=1');
+  await expect(page.getByTestId('train-menu')).toBeVisible({ timeout: 10_000 });
+  await trainStill(page);
+  expect(await page.locator('[data-testid^="train-tab-"]').count()).toBe(PLACE_IDS.length);
+  for (const id of PLACE_IDS) {
+    await page.getByTestId(`train-tab-${id}`).getByRole('button').click();
+    await expect(page.getByTestId('train-menu')).toHaveAttribute('data-place', `place.${id}`);
+    await trainStill(page);
+    const v = await trainFits(page);
+    expect(v.overflow, id).toBe(false);
+    expect(v.sw, `${id}: tàu không cần kéo`).toBeLessThanOrEqual(v.cw);
+    const cars = page.locator('[data-testid^="train-car-"]');
+    const n = await cars.count();
+    expect(n, id).toBeGreaterThanOrEqual(1);
+    expect(n, id).toBeLessThanOrEqual(4);
+    for (let i = 0; i < n; i++) {
+      const b = (await cars.nth(i).boundingBox())!;
+      expect(b.x, `${id} toa ${i}`).toBeGreaterThanOrEqual(0);
+      // chừa 144px mép phải (cổng phụ huynh)
+      expect(b.x + b.width, `${id} toa ${i}`).toBeLessThanOrEqual(1194 - 144);
+      expect(b.y + b.height, `${id} toa ${i}`).toBeLessThanOrEqual(834);
+      // tên trò không bị cắt: không tràn ngang, biển tên nằm trọn trong ô tranh, dưới icon
+      const plate = await cars.nth(i).evaluate((el) => {
+        const p = el.querySelector('[class*="plate"]') as HTMLElement;
+        const w = p.parentElement as HTMLElement;
+        return { sw: p.scrollWidth, cw: p.clientWidth, top: p.offsetTop, bottom: p.offsetTop + p.offsetHeight, win: w.clientHeight };
+      });
+      expect(plate.sw, `${id} toa ${i} tên trò tràn ngang`).toBeLessThanOrEqual(plate.cw);
+      expect(plate.bottom, `${id} toa ${i} tên trò tràn dưới`).toBeLessThanOrEqual(plate.win);
+      expect(plate.top, `${id} toa ${i} tên trò đè icon`).toBeGreaterThanOrEqual(60);
+    }
+    expect((await page.getByTestId('train-engine').boundingBox())!.x).toBeGreaterThanOrEqual(0);
+    expectKidRules(await buttonBoxes(page));
+    await page.screenshot({ path: `test-results/shots/train-${id}.png` });
+  }
 });
 
 test('khu bố mẹ: chuyển về Bản đồ rồi về Đoàn tàu; chụp train-settings', async ({ page }) => {
@@ -168,7 +199,7 @@ test('khu bố mẹ: chuyển về Bản đồ rồi về Đoàn tàu; chụp tr
 test.describe('iPhone dọc 430×932', () => {
   test.use({ viewport: { width: 430, height: 932 }, hasTouch: true, isMobile: true });
 
-  test('khung xoay ngang, tab trong màn hình, kéo đoàn tàu bằng một ngón; chụp train-portrait', async ({ page }) => {
+  test('khung xoay ngang, tab và mọi toa của cả 7 khu trong màn hình, kéo không trôi; chụp train-portrait', async ({ page }) => {
     await page.goto('./?e2e=1');
     await expect(page.getByTestId('train-menu')).toBeVisible({ timeout: 10_000 });
     await expect(page.getByTestId('stage')).toHaveAttribute('data-rotated', 'true');
@@ -185,7 +216,27 @@ test.describe('iPhone dọc 430×932', () => {
       expect(b.y + b.height).toBeLessThanOrEqual(933);
       boxes.push({ ...b, name: `tab ${i}` });
     }
+    expect(n).toBe(PLACE_IDS.length);
     await page.screenshot({ path: 'test-results/shots/train-portrait.png' });
+
+    // mỗi khu: mọi toa nằm trọn trong màn hình (khung đã xoay), vùng tàu không cần cuộn
+    for (const id of PLACE_IDS) {
+      await page.getByTestId(`train-tab-${id}`).getByRole('button').tap();
+      await expect(page.getByTestId('train-menu')).toHaveAttribute('data-place', `place.${id}`);
+      await trainStill(page);
+      const v = await trainFits(page);
+      expect(v.sw, `${id}: tàu không cần kéo`).toBeLessThanOrEqual(v.cw);
+      const cars = page.locator('[data-testid^="train-car-"]');
+      const m = await cars.count();
+      for (let i = 0; i < m; i++) {
+        const b = (await cars.nth(i).boundingBox())!;
+        expect(b.x, `${id} toa ${i}`).toBeGreaterThanOrEqual(0);
+        expect(b.y, `${id} toa ${i}`).toBeGreaterThanOrEqual(0);
+        expect(b.x + b.width, `${id} toa ${i}`).toBeLessThanOrEqual(431);
+        expect(b.y + b.height, `${id} toa ${i}`).toBeLessThanOrEqual(933);
+      }
+    }
+    await page.screenshot({ path: 'test-results/shots/train-portrait-farm.png' });
 
     // hướng "trái → phải" của khung trên màn hình (khung đã xoay): từ tab đầu tới tab cuối
     const a = boxes[0];
@@ -204,10 +255,11 @@ test.describe('iPhone dọc 430×932', () => {
     await page.mouse.down();
     for (let k = 1; k <= 12; k++) await page.mouse.move(sx + ux * (120 - k * 25), sy + uy * (120 - k * 25));
     await page.mouse.up();
-    await page.waitForTimeout(900);
-    // 300px màn hình ≈ 300 / tỉ lệ khung (≈0.46) ≈ 650px trong khung
-    expect(await scrollLeft(page)).toBeGreaterThan(300);
+    await page.waitForTimeout(600);
+    // tàu vừa khung: kéo không trôi, không mở nhầm trò
+    expect(await scrollLeft(page)).toBe(0);
     await expect(page.getByTestId('train-menu')).toBeVisible();
+    await expect(page.getByTestId('train-menu')).toHaveAttribute('data-place', 'place.farm');
     await page.screenshot({ path: 'test-results/shots/train-portrait-drag.png' });
   });
 });

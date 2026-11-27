@@ -9,7 +9,7 @@ export const manifest: GameManifest = {
   color: 'lilac',
   minAge: 28,
   maxAge: 72,
-  order: 3,
+  order: 2,
   titleKey: 'game.shadow',
   options: { difficulty: true, topics: ['animals', 'fruits', 'shapes'] },
   Component: lazy(() => import('./Game')),
