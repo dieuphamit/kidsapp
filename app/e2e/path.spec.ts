@@ -1,4 +1,4 @@
-// E2E trò Đường về nhà (T-041): mức 1 đi từng bước, mức 2 xếp lệnh rồi chạy
+// E2E trò Đường về nhà (T-041): chạm ô kề để đi, vẽ đường bằng ngón tay, hoặc xếp mũi tên rồi chạy
 import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { pickGame } from './pick.js';
@@ -27,7 +27,7 @@ const ARROW_LABEL: Record<Dir, string> = { up: 'Lên', down: 'Xuống', left: 'T
 const move = (p: Pos, d: Dir): Pos => ({ r: p.r + DELTA[d].r, c: p.c + DELTA[d].c });
 
 /** Đặt tuổi bé trong cài đặt (idb-keyval) rồi vào Góc đố → Đường về nhà. */
-async function openPath(page: Page, query = '', ageMonths = 40) {
+async function openPath(page: Page, query = '', ageMonths = 40, hello: string | RegExp = 'path.hello') {
   await page.goto('./?menu=map&e2e=1');
   await expect(page.getByTestId('home')).toBeVisible();
   await page.evaluate(async (age) => {
@@ -54,7 +54,7 @@ async function openPath(page: Page, query = '', ageMonths = 40) {
   await pickGame(page, 'path');
   const game = page.getByTestId('game-path');
   await expect(game).toBeVisible({ timeout: 10_000 });
-  await expect(game).toHaveAttribute('data-last-say', 'path.hello');
+  await expect(game).toHaveAttribute('data-last-say', hello);
   return game;
 }
 
@@ -92,24 +92,26 @@ async function walkHome(page: Page, tapCell: (r: number, c: number) => Promise<v
   await expect(page.locator('[data-kind="home"]')).toHaveAttribute('data-glow', 'true');
 }
 
-test('Góc đố → Đường về nhà mức 1: chạm ô kề tới nhà → path.home; chụp T-041-step', async ({ page }) => {
+test('Góc đố → Đường về nhà, chạm ô (mặc định dưới 48 tháng): chạm ô kề tới nhà → path.home; chụp T-041-step', async ({ page }) => {
   const game = await openPath(page);
-  await expect(game).toHaveAttribute('data-mode', 'step');
-  // mức 1 không có dải lệnh
+  await expect(game).toHaveAttribute('data-mode', 'tap');
+  // chạm ô: không có dải lệnh
   await expect(page.getByTestId('slot-0')).toHaveCount(0);
 
-  // chạm cây: cây lắc, không nói gì
+  // chạm cây: cây lắc, con vật nghiêng đầu, ô kề nhấp nháy, không nói gì
   const tree = page.locator('[data-kind="tree"]').first();
   await tree.click();
   await expect(tree).toHaveAttribute('data-shake', 'true');
+  await expect(page.getByTestId('daudau')).toHaveAttribute('data-puzzled', /^\d+$/);
+  await expect(page.getByTestId('path-grid')).toHaveAttribute('data-nudge', 'true');
   await expect(game).toHaveAttribute('data-last-say', 'path.hello');
 
   await walkHome(page, (r, c) => page.getByTestId(`cell-${r}-${c}`).click());
   await page.waitForTimeout(400);
   await page.screenshot({ path: 'test-results/shots/T-041-step.png' });
 
-  // 2.5s sau là bản đồ mới, Đậu Đậu ở ô xuất phát mới
-  await expect(page.locator('[data-kind="home"]')).not.toHaveAttribute('data-glow', 'true', { timeout: 4000 });
+  // nói xong lời mừng và tiếng kêu là sang bản đồ mới, Đậu Đậu ở ô xuất phát mới
+  await expect(page.locator('[data-kind="home"]')).not.toHaveAttribute('data-glow', 'true', { timeout: 8000 });
   await expect(page.locator('[data-testid^="cell-"][data-dau]')).toHaveCount(1);
 });
 
@@ -208,7 +210,7 @@ test('?path=program: dải lệnh tối đa 4 ô; nút ≥120px khe ≥24px, tr�
       return { name: e.getAttribute('aria-label'), x: r.x, y: r.y, w: r.width, h: r.height };
     }),
   );
-  expect(boxes.length).toBe(1 + 5 + 4); // về nhà, 4 mũi tên + ▶, 4 ô lệnh
+  expect(boxes.length).toBe(1 + 3 + 5 + 4); // về nhà, 3 nút cách chơi, 4 mũi tên + ▶, 4 ô lệnh
   for (const b of boxes) {
     expect(b.w, b.name!).toBeGreaterThanOrEqual(120);
     expect(b.h, b.name!).toBeGreaterThanOrEqual(120);
@@ -292,7 +294,7 @@ test.describe('E4: chủ đề mới và độ khó', () => {
     }
     await expect(game).toHaveAttribute('data-last-say', 'path.home-sea', { timeout: 3000 });
     // bản đồ mới đổi chủ đề? ép chủ đề thì giữ biển
-    await expect(page.locator('[data-kind="home"]')).not.toHaveAttribute('data-glow', 'true', { timeout: 4000 });
+    await expect(page.locator('[data-kind="home"]')).not.toHaveAttribute('data-glow', 'true', { timeout: 8000 });
     await expect(game).toHaveAttribute('data-theme', 'sea');
   });
 
@@ -310,8 +312,207 @@ test.describe('E4: chủ đề mới và độ khó', () => {
     await seedSettings(page, { ageMonths: 72, games: { path: { enabled: true, difficulty: 'easy', topic: 'mix' } } });
     await page.goto('./?menu=map&e2e=1&picker=puzzle&ptheme=burrow');
     await pickGame(page, 'path');
-    await expect(game).toHaveAttribute('data-mode', 'step', { timeout: 10_000 });
+    await expect(game).toHaveAttribute('data-mode', 'tap', { timeout: 10_000 });
     const sol2 = (await page.evaluate(() => window.__behocPath!.solution())) as string[];
     expect(sol2.length).toBeLessThanOrEqual(3);
+  });
+});
+
+// ---------- Làm lại cách chơi: chạm ô, vẽ đường, mũi tên ----------
+
+/** Tâm một ô trên màn hình (toạ độ chuột của Playwright). */
+async function cellCenter(page: Page, p: Pos) {
+  const b = (await page.getByTestId(`cell-${p.r}-${p.c}`).boundingBox())!;
+  return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+}
+
+/** Đặt chuột lên con vật, nhấn xuống, kéo qua từng ô theo `dirs` (nhiều bước nhỏ như ngón tay thật). Chưa nhả. */
+async function drawFrom(page: Page, dirs: Dir[]) {
+  let pos = await dauPos(page);
+  const s = await cellCenter(page, pos);
+  await page.mouse.move(s.x, s.y);
+  await page.mouse.down();
+  for (const d of dirs) {
+    pos = move(pos, d);
+    const c = await cellCenter(page, pos);
+    await page.mouse.move(c.x, c.y, { steps: 8 });
+  }
+  return pos;
+}
+
+const DRAW_HELLO = /^path\.(hello|mode-draw)$/;
+
+test('bé 30 tháng: bản đồ dễ (đích cách 2 ô), chạm ô về đích, mừng rồi sang màn mới; chụp path-tap, path-done', async ({ page }) => {
+  const game = await openPath(page, '', 30);
+  await expect(game).toHaveAttribute('data-mode', 'tap');
+  await expect(page.getByRole('button', { name: 'Chạm ô' })).toHaveAttribute('aria-pressed', 'true');
+  const sol = (await page.evaluate(() => window.__behocPath!.solution())) as Dir[];
+  expect(sol).toHaveLength(2);
+  expect(await page.locator('[data-kind="tree"]').count()).toBeLessThanOrEqual(2);
+
+  // nút cách chơi: ≥120px, khe ≥24px, ở nửa trên, ngoài 144px mép phải, không đè lưới
+  const grid = (await page.getByTestId('path-grid').boundingBox())!;
+  const modes = await page.getByTestId('path-modes').getByRole('button').evaluateAll((els) =>
+    els.map((e) => {
+      const r = e.getBoundingClientRect();
+      return { name: e.getAttribute('aria-label'), x: r.x, y: r.y, w: r.width, h: r.height };
+    }),
+  );
+  expect(modes.map((m) => m.name)).toEqual(['Chạm ô', 'Vẽ đường', 'Mũi tên']);
+  for (const [i, b] of modes.entries()) {
+    expect(b.w).toBeGreaterThanOrEqual(120);
+    expect(b.h).toBeGreaterThanOrEqual(120);
+    expect(b.x + b.w).toBeLessThanOrEqual(1194 - 144);
+    expect(b.y + b.h).toBeLessThanOrEqual(834 / 2);
+    expect(b.y + b.h, `${b.name} đè lưới`).toBeLessThanOrEqual(grid.y - 24);
+    if (i > 0) expect(b.x - (modes[i - 1].x + modes[i - 1].w)).toBeGreaterThanOrEqual(24);
+  }
+  const back = (await page.getByLabel('Về nhà', { exact: true }).boundingBox())!;
+  expect(modes[0].x - (back.x + back.width)).toBeGreaterThanOrEqual(24);
+
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: 'test-results/shots/path-tap.png' });
+
+  // ô kề nhảy sang ngay (phản hồi trong pointerdown)
+  let pos = await dauPos(page);
+  for (const d of sol) {
+    pos = move(pos, d);
+    await page.getByTestId(`cell-${pos.r}-${pos.c}`).click();
+    await expect.poll(() => dauPos(page)).toEqual(pos);
+  }
+  await expect(game).toHaveAttribute('data-last-say', 'path.home', { timeout: 3000 });
+  await expect(page.locator('[data-kind="home"]')).toHaveAttribute('data-glow', 'true');
+  await expect(page.getByTestId('daudau')).toHaveAttribute('data-cheer', 'true');
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: 'test-results/shots/path-done.png' });
+  // tiếng kêu thật của bạn đồng hành (mèo) sau lời mừng, rồi bản đồ mới
+  await expect(game).toHaveAttribute('data-last-say', 'animal.cat-sound', { timeout: 5000 });
+  await expect(page.locator('[data-kind="home"]')).not.toHaveAttribute('data-glow', 'true', { timeout: 8000 });
+  await expect(page.locator('[data-hint="true"]').first()).toBeVisible();
+});
+
+test('vẽ đường (mặc định 48–59 tháng): kéo từ con vật tới đích → nét liền, nhả tay thì tự chạy về; chụp path-draw', async ({ page }) => {
+  const game = await openPath(page, '', 52, DRAW_HELLO);
+  await expect(game).toHaveAttribute('data-mode', 'draw');
+  await expect(page.getByRole('button', { name: 'Vẽ đường' })).toHaveAttribute('aria-pressed', 'true');
+  const start = await dauPos(page);
+  const sol = (await page.evaluate(() => window.__behocPath!.solution())) as Dir[];
+  const end = await drawFrom(page, sol);
+  // nét đi qua mọi ô của lời giải, con vật vẫn đứng chờ ở ô xuất phát
+  await expect(game).toHaveAttribute('data-trail-len', String(sol.length + 1));
+  await expect(page.getByTestId('path-trail')).toBeVisible();
+  await expect(page.getByTestId(`cell-${end.r}-${end.c}`)).toHaveAttribute('data-trail', 'true');
+  expect(await dauPos(page)).toEqual(start);
+  await page.screenshot({ path: 'test-results/shots/path-draw.png' });
+  await page.mouse.up();
+  await expect.poll(() => dauPos(page), { timeout: 5000 }).toEqual(end);
+  await expect(game).toHaveAttribute('data-last-say', 'path.home', { timeout: 5000 });
+  await expect(page.locator('[data-kind="home"]')).toHaveAttribute('data-glow', 'true');
+  await expect(page.locator('[data-kind="home"]')).not.toHaveAttribute('data-glow', 'true', { timeout: 8000 });
+});
+
+test('vẽ đường chưa tới đích: con vật đi đoạn đã vẽ, bé vẽ tiếp từ chỗ con vật đứng; kéo ngược xoá; kéo vào cây thì nét dừng', async ({ page }) => {
+  const game = await openPath(page, '&pmode=draw', 40, DRAW_HELLO);
+  await expect(game).toHaveAttribute('data-mode', 'draw');
+  const trees = await treeSet(page);
+  const sol = (await page.evaluate(() => window.__behocPath!.solution())) as Dir[];
+  expect(sol.length).toBeGreaterThanOrEqual(2);
+
+  // kéo vào cây cạnh con vật (nếu có): nét không bắt vào cây
+  const here = await dauPos(page);
+  const treeDir = (Object.keys(DELTA) as Dir[]).find((d) => {
+    const n = move(here, d);
+    return trees.has(`${n.r},${n.c}`);
+  });
+  if (treeDir) {
+    await drawFrom(page, [treeDir]);
+    await expect(game).toHaveAttribute('data-trail-len', '1');
+    await page.mouse.up();
+    expect(await dauPos(page)).toEqual(here);
+  }
+
+  // vẽ 2 ô rồi kéo ngược 1 ô: nét còn 1 bước
+  const back: Record<Dir, Dir> = { up: 'down', down: 'up', left: 'right', right: 'left' };
+  const two = await drawFrom(page, sol.slice(0, 2));
+  await expect(game).toHaveAttribute('data-trail-len', '3');
+  const one = move(two, back[sol[1]]);
+  const c1 = await cellCenter(page, one);
+  await page.mouse.move(c1.x, c1.y, { steps: 8 });
+  await expect(game).toHaveAttribute('data-trail-len', '2');
+  await page.mouse.up();
+  // con vật đi đúng đoạn đã vẽ, không có "sai": mời vẽ tiếp
+  await expect.poll(() => dauPos(page)).toEqual(one);
+  await expect(game).toHaveAttribute('data-last-say', 'path.more', { timeout: 3000 });
+  await expect(game).not.toHaveAttribute('data-trail-len', /.*/);
+  await expect(page.locator('[data-kind="home"]')).not.toHaveAttribute('data-glow', 'true');
+
+  // vẽ tiếp từ chỗ con vật đứng tới đích
+  const rest = (await page.evaluate(() => window.__behocPath!.solution())) as Dir[];
+  await drawFrom(page, rest);
+  await page.mouse.up();
+  await expect(game).toHaveAttribute('data-last-say', 'path.home', { timeout: 5000 });
+  await expect(page.locator('[data-kind="home"]')).toHaveAttribute('data-glow', 'true');
+});
+
+test('chế độ chạm ô: kéo từ con vật cũng vẽ được đường về đích', async ({ page }) => {
+  const game = await openPath(page);
+  await expect(game).toHaveAttribute('data-mode', 'tap');
+  const sol = (await page.evaluate(() => window.__behocPath!.solution())) as Dir[];
+  await drawFrom(page, sol);
+  await expect(game).toHaveAttribute('data-trail-len', String(sol.length + 1));
+  await page.mouse.up();
+  await expect(game).toHaveAttribute('data-last-say', 'path.home', { timeout: 5000 });
+});
+
+test('đổi cách chơi bằng nút: chạm ô → vẽ đường → mũi tên → chạm ô; chụp path-arrows', async ({ page }) => {
+  const game = await openPath(page);
+  const start = await dauPos(page);
+  const sol = (await page.evaluate(() => window.__behocPath!.solution())) as Dir[];
+  const first = move(start, sol[0]);
+  await page.getByTestId(`cell-${first.r}-${first.c}`).click();
+  await expect.poll(() => dauPos(page)).toEqual(first);
+
+  await page.getByRole('button', { name: 'Vẽ đường' }).click();
+  await expect(game).toHaveAttribute('data-mode', 'draw');
+  await expect(game).toHaveAttribute('data-last-say', 'path.mode-draw');
+  await expect(page.getByRole('button', { name: 'Vẽ đường' })).toHaveAttribute('aria-pressed', 'true');
+  expect(await dauPos(page)).toEqual(first);
+
+  await page.getByRole('button', { name: 'Mũi tên' }).click();
+  await expect(game).toHaveAttribute('data-mode', 'program');
+  await expect(game).toHaveAttribute('data-last-say', 'path.mode-arrows');
+  await expect(page.getByTestId('slot-0')).toBeVisible();
+  // mũi tên chạy từ ô xuất phát
+  await expect.poll(() => dauPos(page)).toEqual(start);
+  await page.getByRole('button', { name: ARROW_LABEL[sol[0]], exact: true }).click();
+  await expect(page.getByTestId('slot-0')).toHaveAttribute('data-cmd', sol[0]);
+  await page.evaluate(() => Promise.all(document.getAnimations().filter((a) => a.effect?.getComputedTiming().iterations !== Infinity).map((a) => a.finished)));
+  await page.screenshot({ path: 'test-results/shots/path-arrows.png' });
+  // lưới, dải lệnh, mũi tên và nút cách chơi không đè nhau
+  const grid = (await page.getByTestId('path-grid').boundingBox())!;
+  const pad = (await page.getByRole('button', { name: 'Chạy' }).boundingBox())!;
+  const modeBox = (await page.getByRole('button', { name: 'Mũi tên' }).boundingBox())!;
+  expect(modeBox.y + modeBox.height).toBeLessThanOrEqual(grid.y - 24);
+  expect(pad.y).toBeGreaterThanOrEqual(grid.y + grid.height + 24);
+  expect(pad.y + pad.height).toBeLessThanOrEqual(834);
+
+  await page.getByRole('button', { name: 'Chạm ô' }).click();
+  await expect(game).toHaveAttribute('data-mode', 'tap');
+  await expect(page.getByTestId('slot-0')).toHaveCount(0);
+  await expect(page.locator('[data-hint="true"]').first()).toBeVisible();
+});
+
+test.describe('iPhone dọc 430×932 (khung xoay): vẽ đường', () => {
+  test.use({ viewport: { width: 430, height: 932 }, hasTouch: true, isMobile: true });
+
+  test('kéo từ con vật tới đích trên khung xoay → về đích', async ({ page }) => {
+    const game = await openPath(page, '&pmode=draw', 40, DRAW_HELLO);
+    await expect(game).toHaveAttribute('data-mode', 'draw');
+    const sol = (await page.evaluate(() => window.__behocPath!.solution())) as Dir[];
+    const end = await drawFrom(page, sol);
+    await expect(game).toHaveAttribute('data-trail-len', String(sol.length + 1));
+    await page.mouse.up();
+    await expect.poll(() => dauPos(page), { timeout: 5000 }).toEqual(end);
+    await expect(game).toHaveAttribute('data-last-say', 'path.home', { timeout: 5000 });
   });
 });

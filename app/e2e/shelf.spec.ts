@@ -64,7 +64,7 @@ test('kệ đồ chơi: mọi thẻ ≥120px (132px khi ít trò), khe ≥24px, 
   await expect(page.getByTestId('home')).toHaveCount(0);
   await expect(shelf).toHaveAttribute('data-last-say', 'ui.pick-game');
   await expect(shelf.getByText('Bé chơi trò nào?')).toBeVisible();
-  await expect(page.getByLabel('Về nhà')).toHaveCount(0);
+  await expect(page.getByLabel('Về nhà', { exact: true })).toHaveCount(0);
 
   // tuổi mặc định 28 tháng: mọi trò hiện có đều hợp tuổi
   const cards = page.locator('[data-testid^="shelf-card-"]');
@@ -80,7 +80,7 @@ test('kệ đồ chơi: mọi thẻ ≥120px (132px khi ít trò), khe ≥24px, 
     'hide', 'bakery', 'words', 'cook',
     'counting', 'shapes', 'shop',
     'bath', 'peekaboo', 'sound-quiz',
-    'memory', 'puzzle',
+    'memory', 'puzzle', 'path',
     'music', 'band', 'coloring',
     'mama', 'feed', 'rescue', 'sort',
   ]);
@@ -163,7 +163,7 @@ test('kệ đồ chơi: chạm thẻ nói tên trò ngay rồi vào đúng trò'
   await expect(page.getByTestId('shelf')).toHaveCount(0);
 
   // Về nhà thì quay lại kệ
-  await page.getByLabel('Về nhà').click();
+  await page.getByLabel('Về nhà', { exact: true }).click();
   await expect(page.getByTestId('shelf')).toBeVisible({ timeout: 5000 });
 });
 

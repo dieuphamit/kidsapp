@@ -48,6 +48,11 @@ export const LEVELS: PathMap[] = [
   { start: p(0, 3), home: p(2, 4), trees: [p(1, 3), p(2, 2)] },
   { start: p(1, 2), home: p(0, 0), trees: [p(1, 1), p(2, 3)] },
   { start: p(2, 4), home: p(0, 3), trees: [p(1, 3), p(2, 2)] },
+  // Bé 2 tuổi (mức Dễ): đích chỉ cách 2 ô, một cây
+  { start: p(1, 1), home: p(1, 3), trees: [p(0, 2)] },
+  { start: p(0, 2), home: p(2, 2), trees: [p(1, 3)] },
+  { start: p(2, 1), home: p(1, 2), trees: [p(1, 1)] },
+  { start: p(0, 4), home: p(0, 2), trees: [p(1, 3)] },
 ];
 
 /**
@@ -86,13 +91,13 @@ export function nextTheme(last: ThemeId | null, rand: number): Theme {
 export type Difficulty = 'auto' | 'easy' | 'medium' | 'hard';
 
 /**
- * Bản đồ theo độ khó: Dễ chỉ đường ngắn (≤ 3 bước), Khó chỉ đường dài (≥ 3 bước, có đường vòng 4 bước).
- * Trả về chỉ số trong LEVELS.
+ * Bản đồ theo độ khó: Dễ (hoặc bé dưới 36 tháng) chỉ đích gần (2 bước), ít cây, Khó chỉ đường dài
+ * (≥ 3 bước, có đường vòng 4 bước). Trả về chỉ số trong LEVELS.
  */
-export function levelsFor(difficulty: Difficulty): number[] {
+export function levelsFor(difficulty: Difficulty, ageMonths = 60): number[] {
   const len = (m: PathMap) => shortestPath(m, m.start)?.length ?? 0;
-  const ok = (m: PathMap) =>
-    difficulty === 'easy' ? len(m) <= 3 : difficulty === 'hard' ? len(m) >= 3 : true;
+  const easy = difficulty === 'easy' || (difficulty === 'auto' && ageMonths < 36);
+  const ok = (m: PathMap) => (easy ? len(m) <= 2 && m.trees.length <= 2 : difficulty === 'hard' ? len(m) >= 3 : true);
   return LEVELS.flatMap((m, i) => (ok(m) ? [i] : []));
 }
 
@@ -103,14 +108,21 @@ export function nextLevelIdx(pool: number[], last: number | null, rand: number):
 }
 
 /**
- * Chế độ chơi: Dễ luôn đi từng bước; Khó xếp lệnh ngay; Vừa đi từng bước rồi lên xếp lệnh sau 4 lần về nhà;
- * Tự động theo tuổi (levelFor).
+ * Cách chơi: 'tap' chạm ô kề để đi, 'draw' vẽ đường bằng ngón tay, 'program' xếp mũi tên rồi chạy.
+ * Bé đổi được bằng nút; đây chỉ là cách chơi mặc định.
  */
-export function modeFor(difficulty: Difficulty, ageMonths: number, wins: number): 'step' | 'program' {
-  if (difficulty === 'easy') return 'step';
+export type PlayMode = 'tap' | 'draw' | 'program';
+export const PLAY_MODES: readonly PlayMode[] = ['tap', 'draw', 'program'];
+
+/**
+ * Cách chơi mặc định: Dễ luôn chạm ô, Khó xếp mũi tên; còn lại theo tuổi (đã quy theo độ khó):
+ * dưới 48 tháng chạm ô, 48–59 vẽ đường, từ 60 tháng mũi tên.
+ */
+export function modeFor(difficulty: Difficulty, ageMonths: number): PlayMode {
+  if (difficulty === 'easy') return 'tap';
   if (difficulty === 'hard') return 'program';
-  if (difficulty === 'medium') return wins >= 4 ? 'program' : 'step';
-  return levelFor(ageMonths, wins) === 2 ? 'program' : 'step';
+  if (ageMonths < 48) return 'tap';
+  return ageMonths < 60 ? 'draw' : 'program';
 }
 
 const DELTA: Record<Dir, Pos> = {
@@ -189,8 +201,69 @@ export function shortestPath(map: PathMap, from: Pos): Dir[] | null {
   return null;
 }
 
-/** Mức chơi: dưới 48 tháng đi từng bước, lên xếp lệnh sau 4 lần về nhà; từ 48 tháng xếp lệnh ngay. */
-export function levelFor(ageMonths: number, wins: number): 1 | 2 {
-  if (ageMonths >= 48) return 2;
-  return wins >= 4 ? 2 : 1;
+/** Ô `to` đi được ngay từ `from`: kề bên (trên/dưới/trái/phải), trong lưới, không phải cây. */
+export function canStep(map: PathMap, from: Pos, to: Pos): boolean {
+  return inGrid(to) && !isTree(map, to) && dirTo(from, to) !== null;
+}
+
+/**
+ * Nối nét vẽ khi ngón tay chạm ô `target` (nét bắt đầu ở ô con vật đứng, `trail[0]`):
+ * - ô đã có trong nét: cắt nét về ô đó (kéo ngược lại là xoá bớt);
+ * - nét đã tới đích: không nối thêm;
+ * - ô kề đi được: nối thêm;
+ * - ngón tay lướt nhanh qua vài ô thẳng hàng: nối cả dãy, dừng trước cây đầu tiên;
+ * - còn lại (cây, ô chéo, ô xa): nét giữ nguyên.
+ * Luôn trả mảng mới, không sửa `trail`.
+ */
+export function extendTrail(map: PathMap, trail: readonly Pos[], target: Pos): Pos[] {
+  const at = trail.findIndex((q) => samePos(q, target));
+  if (at >= 0) return trail.slice(0, at + 1);
+  const last = trail[trail.length - 1];
+  if (samePos(last, map.home)) return [...trail];
+  const sameRow = last.r === target.r;
+  const sameCol = last.c === target.c;
+  if (!sameRow && !sameCol) return [...trail];
+  const dir: Dir = sameRow ? (target.c > last.c ? 'right' : 'left') : target.r > last.r ? 'down' : 'up';
+  const out = [...trail];
+  let cur = last;
+  while (!samePos(cur, target)) {
+    const next = step(cur, dir);
+    if (!inGrid(next) || isTree(map, next) || out.some((q) => samePos(q, next))) break;
+    out.push(next);
+    cur = next;
+    if (samePos(cur, map.home)) break;
+  }
+  return out;
+}
+
+/** Nét vẽ đổi thành dãy hướng đi; null nếu nét có bước không hợp lệ (không kề, cây, ra ngoài). */
+export function trailDirs(map: PathMap, trail: readonly Pos[]): Dir[] | null {
+  const dirs: Dir[] = [];
+  for (let i = 1; i < trail.length; i++) {
+    if (!canStep(map, trail[i - 1], trail[i])) return null;
+    dirs.push(dirTo(trail[i - 1], trail[i])!);
+  }
+  return dirs;
+}
+
+/** Nét vẽ hợp lệ và kết thúc ở đích. */
+export function trailReachesHome(map: PathMap, trail: readonly Pos[]): boolean {
+  return trail.length > 1 && trailDirs(map, trail) !== null && samePos(trail[trail.length - 1], map.home);
+}
+
+/** Ô (hàng, cột) chứa điểm (x, y) tính từ góc trên-trái lưới; khe giữa ô chia đôi cho hai ô. null nếu ngoài lưới. */
+export function cellAt(x: number, y: number, cell: number, gap: number): Pos | null {
+  const pitch = cell + gap;
+  const c = Math.floor((x + gap / 2) / pitch);
+  const r = Math.floor((y + gap / 2) / pitch);
+  const pos = { r, c };
+  return inGrid(pos) ? pos : null;
+}
+
+const BUDDY_SOUND: Record<string, string> = { cat: 'cat', dog: 'dog', bunny: 'rabbit', bear: 'bear' };
+
+/** Tiếng kêu thật (key `animal.<id>-sound`) của con vật đang đi khi tới đích; null nếu không có. */
+export function walkerSound(walker: string, buddyCharacter: string): string | null {
+  const id = walker === 'buddy' ? BUDDY_SOUND[buddyCharacter] : walker;
+  return id && ['cat', 'dog', 'rabbit', 'bear', 'fish', 'parrot', 'bee'].includes(id) ? `animal.${id}-sound` : null;
 }
