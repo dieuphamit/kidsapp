@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import type { GameProps } from '../../core/games';
+import { useSaySteps, type SayStep } from '../../ui/useSayThen';
 import { BackHome } from '../../ui/BackHome';
 import { ClayButton } from '../../ui/ClayButton';
 import { Scenery } from '../../ui/Scenery';
@@ -80,15 +81,14 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
   const [hint, setHint] = useState(0);
   const [pressed, setPressed] = useState<string | null>(null);
 
-  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const later = useCallback((fn: () => void, ms: number) => {
-    timers.current.push(setTimeout(fn, ms));
-  }, []);
+  /**
+   * Lời nói nối tiếp: câu sau chỉ phát khi câu trước hết (tên thẻ 2–2,6s, câu khen 3,7–4,4s, "mình
+   * chơi tìm thẻ" 3,1s… trước đây câu kế hẹn 1200–1800ms nên câu trước bị cắt).
+   */
+  const talk = useSaySteps(speaker, setLastSay);
   const cancelLater = useCallback(() => {
-    timers.current.forEach(clearTimeout);
-    timers.current = [];
-  }, []);
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+    talk.stop();
+  }, [talk]);
 
   const say = useCallback(
     (key: string) => {
@@ -98,19 +98,12 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
     [speaker],
   );
 
-  /** Đọc tên thẻ, xe cộ thì phát thêm tiếng thật. */
-  const sayCard = useCallback(
-    (id: string, delay = 0) => {
-      const run = () => {
-        say(nameKey(id));
-        const s = soundKey(id);
-        if (s) later(() => say(s), SOUND_AFTER_MS);
-      };
-      if (delay) later(run, delay);
-      else run();
-    },
-    [say, later],
-  );
+  /** Đọc tên thẻ, xe cộ thì phát thêm tiếng thật (khi tên đọc xong). */
+  const cardStep = (id: string, onStart?: () => void): SayStep => {
+    const snd = soundKey(id);
+    return { keys: snd ? [nameKey(id), snd] : [nameKey(id)], fallbackMs: SOUND_AFTER_MS, onStart };
+  };
+  const sayCard = (id: string) => talk.play([cardStep(id)]);
 
   // Câu chào
   const started = useRef(false);
@@ -136,8 +129,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
     setQuiz(null);
     setWon(false);
     setPhase('view');
-    say(topicKey(topic));
-    sayCard(currentCard(d), TOPIC_SAY_MS);
+    talk.play([{ keys: [topicKey(topic)], fallbackMs: TOPIC_SAY_MS }, cardStep(currentCard(d))]);
   };
 
   const backToTopics = () => {
@@ -164,8 +156,7 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
       setWon(false);
       setHint(0);
       setPhase('quiz');
-      say(FIND_KEY);
-      later(() => say(askKey(q.target)), FIND_ASK_MS);
+      talk.play([{ keys: [FIND_KEY], fallbackMs: FIND_ASK_MS }, { keys: [askKey(q.target)] }]);
       return;
     }
     showCard(nextCard(deck));
@@ -189,22 +180,26 @@ export default function Game({ lang, speaker, ageMonths, onExit }: GameProps) {
     setBounce({ id, n: Date.now() });
     if (answer(quiz, id) === 'ok') {
       setWon(true);
-      say(yesKey(id));
+      // khen (+ tiếng thật của xe) đọc xong mới về xem thẻ kế và đọc tên thẻ đó
       const s = soundKey(id);
-      if (s) later(() => say(s), 1700);
-      later(() => {
-        setQuiz(null);
-        setWon(false);
-        showCard(afterQuiz(deck));
-      }, WIN_MS);
+      const d = afterQuiz(deck);
+      talk.play([
+        { keys: s ? [yesKey(id), s] : [yesKey(id)], fallbackMs: s ? WIN_MS / 2 : WIN_MS },
+        cardStep(currentCard(d), () => {
+          setQuiz(null);
+          setWon(false);
+          setDeck(d);
+          setPhase('view');
+        }),
+      ]);
       return;
     }
     // Không âm báo sai: thẻ vừa chạm tự nói tên, rồi thẻ đúng nhún nhẹ và hỏi lại
-    say(thisKey(id));
-    later(() => {
-      setHint((n) => n + 1);
-      say(askKey(quiz.target));
-    }, HINT_MS);
+    const target = quiz.target;
+    talk.play([
+      { keys: [thisKey(id)], fallbackMs: HINT_MS },
+      { keys: [askKey(target)], onStart: () => setHint((n) => n + 1) },
+    ]);
   };
 
   // Móc cho e2e (?e2e=1)
