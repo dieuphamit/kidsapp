@@ -514,6 +514,15 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
   // Nét vẽ: qua tâm các ô đã bắt, nối tới đầu ngón tay
   const linePts = (trail ?? []).map(center);
   if (trail && finger && !busy) linePts.push(finger);
+  // Nét bắt đầu từ mép ô con vật đang đứng (không vẽ đè lên mặt con vật)
+  if (linePts.length > 1) {
+    const [a0, a1] = linePts;
+    const dx = a1.x - a0.x;
+    const dy = a1.y - a0.y;
+    const len = Math.hypot(dx, dy);
+    const k = len > 0 ? Math.min(CELL / 2, len) / len : 0;
+    linePts[0] = { x: a0.x + dx * k, y: a0.y + dy * k };
+  }
   const points = linePts.map((q) => `${q.x},${q.y}`).join(' ');
 
   return (
@@ -565,7 +574,7 @@ export default function Game({ lang, speaker, ageMonths, options, onExit }: Game
             <svg className={styles.trail} viewBox="0 0 696 408" aria-hidden="true" data-testid="path-trail">
               <polyline className={styles.trailEdge} points={points} />
               <polyline className={styles.trailLine} points={points} />
-              {(trail ?? []).map((q) => {
+              {(trail ?? []).slice(1).map((q) => {
                 const o = center(q);
                 return <circle key={`${q.r}-${q.c}`} className={styles.trailDot} cx={o.x} cy={o.y} r={14} />;
               })}
