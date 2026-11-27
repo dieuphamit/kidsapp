@@ -14,12 +14,18 @@ cho qua. Đừng sửa chữ trong JSON nữa. Script tự xử lý:
 Tên bạn đồng hành: câu có mẫu {name} được sinh cho MỌI tên trong app/src/core/buddyNames.json.
 Tên mặc định (phần tử đầu, "dau") giữ đường dẫn cũ <lang>/<key>.mp3 (được precache);
 tên khác ở <lang>/<key>~<nameId>.mp3 (app chỉ tải khi bố mẹ chọn tên đó, xem src/core/buddyAudio.ts).
+
+Dung lượng: edge-tts trả mp3 48kbps; script nén lại còn 32kbps mono 24kHz (đủ rõ cho giọng nói)
+bằng ffmpeg để bundle offline giữ dưới 60MB (npm run check:size). Nén lại file cũ:
+  python tools/tts/generate.py . --recompress
 """
 import asyncio
 import hashlib
 import json
 import pathlib
 import re
+import shutil
+import subprocess
 import sys
 
 import aiohttp
@@ -32,12 +38,16 @@ RATE = "-10%"  # chậm hơn một chút cho bé
 SHORT_RATE = "-30%"  # từ rất ngắn (số đếm) đọc chậm hơn nữa
 SHORT_LEN = 4  # số ký tự (bỏ dấu câu, khoảng trắng) để coi là từ ngắn
 END_PUNCT = {"vi": ".", "ja": "。", "en": "."}
-ROOT = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
+ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
+ROOT = pathlib.Path(ARGS[0] if ARGS else ".").resolve()
 CONTENT = ROOT / "app" / "src" / "content"
 OUT = ROOT / "app" / "public" / "audio"
 HASHES = OUT / ".hashes.json"
 NAMES = json.loads((ROOT / "app" / "src" / "core" / "buddyNames.json").read_text(encoding="utf-8"))
 NAME_TOKEN = "{name}"
+BITRATE = "32k"  # giọng nói mono 24kHz
+FFMPEG = shutil.which("ffmpeg")
+FFPROBE = shutil.which("ffprobe")
 
 
 def rate_for(text: str) -> str:
@@ -63,12 +73,35 @@ def variants(text: str, lang: str, rate: str):
             yield t, shift(rate, d)
 
 
+def recompress(path: pathlib.Path) -> bool:
+    """Nén lại mp3 về BITRATE (bỏ qua nếu đã đủ nhỏ). Trả True nếu file được ghi lại."""
+    if not FFMPEG or not FFPROBE:
+        raise RuntimeError("cần ffmpeg trong PATH để nén giọng đọc về " + BITRATE)
+    probe = subprocess.run(
+        [FFPROBE, "-v", "error", "-show_entries", "format=bit_rate", "-of", "csv=p=0", str(path)],
+        capture_output=True, text=True,
+    )
+    try:
+        if int(probe.stdout.strip() or 0) <= 34000:
+            return False
+    except ValueError:
+        pass
+    tmp = path.with_suffix(".tmp.mp3")
+    subprocess.run(
+        [FFMPEG, "-v", "error", "-y", "-i", str(path), "-ac", "1", "-ar", "24000", "-b:a", BITRATE, str(tmp)],
+        check=True,
+    )
+    tmp.replace(path)
+    return True
+
+
 async def synth(text: str, lang: str, voice: str, rate: str, dest: pathlib.Path) -> str:
     last = None
     for round_ in range(3):
         for t, r in variants(text, lang, rate):
             try:
                 await edge_tts.Communicate(t, voice, rate=r).save(str(dest))
+                recompress(dest)
                 return "" if (t, r) == (text, rate) else f"(biến thể {t!r} {r})"
             except edge_tts.exceptions.NoAudioReceived as e:
                 last = e
@@ -95,7 +128,17 @@ def save_hashes(hashes: dict) -> None:
     HASHES.write_text(json.dumps(hashes, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
 
 
+def recompress_all() -> None:
+    """Nén lại mọi giọng đọc đã có (file đã ở BITRATE thì bỏ qua). Hash giữ nguyên vì nội dung câu không đổi."""
+    files = sorted(p for lang in VOICES for p in (OUT / lang).glob("*.mp3"))
+    done = sum(recompress(p) for p in files)
+    print(f"recompress: {done}/{len(files)} file nén lại về {BITRATE}")
+
+
 async def main() -> None:
+    if "--recompress" in sys.argv:
+        recompress_all()
+        return
     hashes = json.loads(HASHES.read_text(encoding="utf-8")) if HASHES.exists() else {}
     made = 0
     for f in sorted(CONTENT.glob("*.json")):
