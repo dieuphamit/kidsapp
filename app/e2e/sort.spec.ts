@@ -107,8 +107,8 @@ test.describe('Sort game (Xếp vào giỏ)', () => {
       await page.waitForTimeout(200);
     }
 
-    // Đợi sort.done
-    await expect(gameEl).toHaveAttribute('data-last-say', 'sort.done', { timeout: 3000 });
+    // Đợi sort.done (khen khi câu của quả cuối đọc xong)
+    await expect(gameEl).toHaveAttribute('data-last-say', 'sort.done', { timeout: 8000 });
 
     // Chụp ảnh
     await page.screenshot({ path: 'test-results/shots/T-029-done.png' });
