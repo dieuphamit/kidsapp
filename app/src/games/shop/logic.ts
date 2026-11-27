@@ -64,7 +64,7 @@ export const CUSTOMERS = [
   { id: 'koala', img: 'world-photos/koala.png', sound: 'animal.koala-sound', flip: true, w: 493, h: 532 },
   { id: 'penguin', img: 'world-photos/penguin.png', sound: 'animal.penguin-sound', flip: true, w: 377, h: 640 },
   { id: 'raccoon', img: 'world-photos/raccoon.png', sound: 'animal.raccoon-sound', flip: true, w: 640, h: 516 },
-  { id: 'dog', img: 'world-photos/dog.png', sound: 'animal.dog-sound', flip: true, w: 640, h: 444 },
+  { id: 'dog', img: 'world-photos/dog.png', sound: 'animal.dog-sound', flip: false, w: 640, h: 574 },
   { id: 'pig', img: 'world-photos/pig.png', sound: 'animal.pig-sound', flip: true, w: 640, h: 319 },
   { id: 'sheep', img: 'world-photos/sheep.png', sound: 'animal.sheep-sound', flip: false, w: 640, h: 500 },
   { id: 'cow', img: 'world-photos/cow.png', sound: 'animal.cow-sound', flip: true, w: 640, h: 356 },

@@ -40,7 +40,7 @@ export const ANIMALS = [
   { id: 'raccoon', img: 'world-photos/raccoon.png', sound: 'animal.raccoon-sound', ar: 1.24, scale: 0.95, body: [[0.6, 0.47], [0.28, 0.69], [0.86, 0.16]] },
   { id: 'duck', img: 'world-photos/farm-duck.png', sound: 'animal.duck-sound', ar: 1.42, scale: 0.9, body: [[0.46, 0.52], [0.74, 0.64], [0.26, 0.14]] },
   { id: 'rabbit', img: 'world-photos/rabbit.png', sound: 'animal.rabbit-sound', ar: 1.04, scale: 0.9, body: [[0.68, 0.7], [0.36, 0.63], [0.16, 0.44]] },
-  { id: 'dog', img: 'world-photos/dog.png', sound: 'animal.dog-sound', ar: 1.44, body: [[0.63, 0.48], [0.3, 0.45], [0.18, 0.64]] },
+  { id: 'dog', img: 'world-photos/dog.png', sound: 'animal.dog-sound', ar: 1.12, body: [[0.42, 0.46], [0.76, 0.46], [0.2, 0.3]] },
 ] as const satisfies readonly Animal[];
 
 export type AnimalId = (typeof ANIMALS)[number]['id'];

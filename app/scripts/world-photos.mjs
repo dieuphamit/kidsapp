@@ -54,7 +54,8 @@ const PHOTOS_WORLD = {
   tiger: { file: 'Bengal tiger in Sanjay Dubri Tiger Reserve December 2024 by Tisha Mukherjee 15.jpg', face: 'left' },
   sheep: { file: 'Ovella. Galiza.jpg', face: 'left' },
   cow: { file: 'Seitenansicht Milchkuh mit prallem Euter.JPG', face: 'right' },
-  dog: { file: '1Shiba Inu Kazumi.jpg', face: 'right' },
+  // chó đứng nghiêng trên cỏ ngắn, thấy rõ cả bốn bàn chân (ảnh cũ 1Shiba Inu Kazumi.jpg: chân lấp trong cỏ, bị cụt)
+  dog: { file: 'Cream shiba inu dllu.jpg', face: 'left', crop: [0.2, 0.12, 0.8, 0.85] },
   // vịt nhà đứng trên đất, thấy rõ hai chân (con 'duck' ở trên đang bơi)
   'farm-duck': { file: 'Anas platyrhynchos Кряква в Санкт-Петербурге Нестандартная окраска 07.jpg', face: 'left' },
   pig: { file: 'Mettingen Hausschwein 01.jpg', face: 'right' },
